@@ -7,8 +7,9 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
 - Hack-and-slash in dark-fantasy stages (cemeteries, castles, haunted forests).
 - Fighting-game feel: 3-hit strings, specials, air attacks, cancels, input buffer (≈6–10 frames),
   hit-stop, meter built on hit/damage, supers that spend meter.
-- Heroes from **chierit Elementals** (Fire Knight, Water Priestess, Leaf Ranger, ...),
-  enemies/bosses/backgrounds mainly from **ansimuz Gothicvania**.
+- **Main character: the merakintsugi Platformer Character Pack hero** (purchased) — pastel, chibi, 3-hit/5-hit/dodge/vertical/jump attack sets.
+- She **shapeshifts** into alternate forms drawn from **chierit Elementals** (Fire Knight, Water Priestess, Leaf Ranger, ...).
+- Enemies, bosses, side characters, stages and VFX mainly from **ansimuz Gothicvania / Streets of Fight**, palette-tuned toward the hero.
 - Lower priority: dynamic 2D lighting (Light2D / normal maps) and physics-driven props.
 
 ## Tech
@@ -18,7 +19,7 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
 | Renderer | **Compatibility** (`gl_compatibility`) |
 | Base resolution | 384×216 viewport → 1920×1080 window, stretch `viewport`, scale mode **integer** |
 | Pixel art | default canvas texture filter **Nearest**, 2D transform/vertex snapping on |
-| Sprite scale | All packs used at **native 1:1** (see `docs/ASSET_DECISIONS.md`) |
+| Sprite scale | All packs at **native 1:1**, hero 55 px tall; harmonise palettes toward the hero (see `docs/ASSET_DECISIONS.md`) |
 
 Headless check:
 ```bash

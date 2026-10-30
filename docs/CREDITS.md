@@ -8,14 +8,13 @@
 | Legacy Collection (Gothicvania characters, environments, VFX) | **Luis Zuno (ansimuz)** — https://ansimuz.itch.io | CC0 | None (courtesy credit welcome). `docs/licenses/ansimuz-legacy-collection-CC0.pdf` |
 | Gothicvania Cemetery | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-gothicvania-cemetery-CC0.pdf` |
 | Streets of Fight (Brawler Girl, Enemy Punk, stage); Brawler Girl skin recolored by this project | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-streets-of-fight-CC0.pdf` |
-| Platformer Character Pack — free sample (idle & walk) — *under evaluation* | **Merakintsugi** — https://merakintsugi.itch.io/platformer-character-pack | Custom (item page) | Commercial + non-commercial OK; edits OK; attribution optional; **no resale or redistribution as game assets** (only inside a project); **no AI training or NFT conversion**. |
-| Kira – Animated Pixel Art Swordswoman — *under evaluation, not recommended* | **Sprite Kitchen** — https://spritekitchen.itch.io/kira-animated-pixel-art-swordswoman-pack | Custom (item page) | Personal + commercial game use; edits OK; credit appreciated, not required; **no resale/redistribution/sharing/uploading of the original files as a standalone pack, even modified**; don't claim the art as your own. Page discloses **AI-assisted graphics**. |
+| **Platformer Character Pack v1 (full, purchased $15 on 2026-10-30) — MAIN CHARACTER** | **Merakintsugi** — https://merakintsugi.itch.io/platformer-character-pack · merakintsugi77@gmail.com · x.com/merakintsugi77 | Custom (item page; no license file in the zip). Verbatim: "Available for both commercial and non-commercial projects. Do not resell or redistribute as game assets. They must be used only as part of a project. Credit/ Attribution is optional. Feel free to modify the assets as needed. Play around with it however you like. Use of these assets for AI training or NFT conversion is strictly prohibited." | Attribution optional (we credit anyway). **No resale/redistribution as assets; no AI training; no NFTs.** Keep this repo private. |
+| Kira – Animated Pixel Art Swordswoman — **REJECTED, not used in the game** | **Sprite Kitchen** — https://spritekitchen.itch.io/kira-animated-pixel-art-swordswoman-pack | Custom (item page) | Personal + commercial game use; edits OK; credit appreciated, not required; **no resale/redistribution/sharing/uploading of the original files as a standalone pack, even modified**; don't claim the art as your own. Page discloses **AI-assisted graphics**. |
 
 ## Suggested credits text
-> Character art: "Elementals" series by chierit (chierit.itch.io), CC-BY 4.0.
+> Main character art: Merakintsugi (merakintsugi.itch.io).
+> Alternate-form character art: "Elementals" series by chierit (chierit.itch.io), CC-BY 4.0.
 > Environments, enemies and effects: ansimuz (ansimuz.itch.io), CC0.
-
-(Add "Merakintsugi" / "Sprite Kitchen" lines only if those packs ship in the game.)
 
 ## Repo note
 This repo is **private**. Merakintsugi and Sprite Kitchen forbid redistributing the original files; chierit asks not to resell.
