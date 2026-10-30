@@ -1,0 +1,28 @@
+# Godot 4
+.godot/
+/android/
+*.translation
+# Exports / builds
+/export/
+/builds/
+/exports/
+export_presets.cfg.bak
+*.tmp
+# Mono / C#
+.mono/
+data_*/
+mono_crash.*.json
+# OS / editor junk
+.DS_Store
+__MACOSX/
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+# Python
+__pycache__/
+*.pyc
+# Secrets - never commit
+.env
+*.pem
+*.key
