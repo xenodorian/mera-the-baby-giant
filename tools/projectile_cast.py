@@ -53,6 +53,13 @@ CFG = {
      speed=10, dist=130, drop=True, big=True, ex=ground_explosion, anchor='ground', c0=0.45, n_motes=46, ring=3,
      n_embers=34, ember_r=(8, 34), linger=1000),
  # user: pick3 as the quick-fire ranged attack - a level bolt at constant speed across the whole screen, no explosion
+ # user [pt53u]: quick fire v4 - fire on dodge atk 1x f10 (GIF frame 12), play f11-13, freeze f14 for 4 frames while the
+ # light dims 100/66/33/0 %, then f16-18 into idle (f15 is nearly identical to f14, so it is skipped after the freeze)
+ 'pick3_v4_bolt': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('d1', i, 40) for i in range(10)], offs={},
+     hold=[('d1', 10), ('d1', 11), ('d1', 12), ('d1', 13)], recoil=[2, 1, 0, 0], freeze=(('d1', 14), [1.0, 0.66, 0.33, 0.0]),
+     rec=[('d1', i) for i in range(16, 19)], pose=('d1', 10),
+     speed=16, cross=True, level=True, canvas_w=420, drop=False, big=False, ex=None, anchor='centre', c0=0.15, n_motes=40, ring=3,
+     n_embers=0, ember_r=(3, 12), linger=360),
  'pick3_v3_bolt': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('d1', i, 40) for i in range(14)], offs={},
      hold=[('d1', 14), ('d1', 15)], recoil=[2, 1], rec=[('d1', i) for i in range(16, 19)], pose=('d1', 14),
      speed=16, cross=True, level=True, canvas_w=420, drop=False, big=False, ex=None, anchor='centre', c0=0.15, n_motes=40, ring=3,
@@ -79,6 +86,9 @@ def build(name, C):
     for li, (a, f, d) in enumerate(C['lead']): seg.append((t, d, a, f, 'lead', li)); t += d
     T_FIRE = t
     for k, (a, f) in enumerate(C['hold']): seg.append((t, TICK, a, f, 'fire', k)); t += TICK
+    if C.get('freeze'):   # held pose while the leftover light dims step by step
+        (fa, ff), levels = C['freeze']
+        for k in range(len(levels)): seg.append((t, TICK, fa, ff, 'freeze', k)); t += TICK
     for a, f in C['rec']: seg.append((t, TICK, a, f, 'recover', None)); t += TICK
     T_IDLE = t
     la, lf = C['rec'][-1]; best = (-1, 0, 0)
@@ -172,6 +182,12 @@ def build(name, C):
                 u = life_k(t0, lf, tm)
                 if u is None: continue
                 r = r0 * (1 - u); dot(E, tx + r * math.cos(ang + 2.2 * u), ty + r * math.sin(ang + 2.2 * u), e)
+        if C.get('freeze') and (ph == 'freeze' or (ph == 'fire' and li >= 1)):   # leftover glow on the wand tip, dims on the freeze
+            lvl = C['freeze'][1][li] if ph == 'freeze' else 1.0
+            if lvl > 0:
+                gx, gy = tip_world(a, f); gx -= X0; gy -= Y0
+                disc(E, gx, gy, 1.2 + 1.3 * lvl, 0.45 + 0.55 * lvl)
+                L += 0.5 * lvl * np.exp(-np.hypot(XX - gx, YY - gy) / 14); glow = max(glow, 0.6 * lvl)
         if T_FIRE <= tm < T_FIRE + TICK:   # muzzle flash
             disc(E, TIP[0] + rc[0] - X0, TIP[1] - Y0, 4.5 if C['big'] else 3.0, 1.05)
             L += 0.8 * np.exp(-np.hypot(XX - (TIP[0] - X0), YY - (TIP[1] - Y0)) / 20); glow = 0.8
