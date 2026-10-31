@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.4 (2026-10-31): mana, bubble timer, flat soak, one drop
+Stamina is shown as mana. Small bubble lasts `CROUCH_BUBBLE_S` (3) with `bubble_dial.gd`, then drops. It subtracts 1 damage. The full bubble stops all damage. A button drops either bubble and performs the move. `enemy_loot_kind` rolls one drop; max mana and max rage are the 7% rows, both cap at 200. Windows exe is `v0.9.4-playable`.
+
 ## v0.9.3 (2026-10-31): parry knockback distances
 Timed full-bubble parry: `PARRY_KNOCK_PX` 400 and `PARRY_STUN_S` 2. Timed crouch parry: `CROUCH_PARRY_KNOCK_PX` 200 and `CROUCH_PARRY_STUN_S` 1. Held full bubble, no parry window: `BARRIER_KNOCK_PX` 200, no stun. The slide is `shove()` / `knock_left` at `PARRY_KNOCK_SPEED`, not a velocity that lasts the whole stun. Bosses are not shoved. Windows exe is `v0.9.3-playable`.
 

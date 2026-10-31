@@ -65,6 +65,7 @@ var move_keys: Array = []      # v0.9.1 every move key started (move_log has ani
 var ychain_log: Array = []     # v0.9.1 Y chain: [move key, frame the shot / effect came out] (tests)
 var stamina := Tuning.STAMINA_START
 var stamina_max := Tuning.STAMINA_START
+var rage_max := Tuning.RAGE_MAX_START
 var combo_after := {}          # a combo hit that just recovered to neutral: {from, until, x3_t} (COMBO_GRACE_MS)
 var debug := false
 var gallery_idx := 0
@@ -86,7 +87,8 @@ var barrier: Sprite2D
 # projectiles fly back, and Mera's hits do double damage for a moment (the counter window)
 var last_l2_t := -1e9          # Mera.now of the latest L2 press
 var crouch_t := -1e9           # Mera.now when this crouch started (the small bubble's parry window)
-var chip := 0.0                # leftover damage the crouch bubble did not fully absorb
+var crouch_bubble_left := 0.0 # seconds left on the small bubble (0 = dropped, even if still crouched)
+var bubble_dial: Node2D
 var counter_until := -1e9      # Mera.now until which her hits count as counters
 var parries := 0               # tests / stats
 var deflects := 0
@@ -120,6 +122,11 @@ func _ready() -> void:
 	barrier.material = AnimLib.fx_mat
 	barrier.visible = false
 	add_child(barrier)
+	bubble_dial = Node2D.new()
+	bubble_dial.set_script(load("res://scripts/game/bubble_dial.gd"))
+	bubble_dial.z_index = 3
+	bubble_dial.visible = false
+	add_child(bubble_dial)
 	# v0.4 Fury aura = world-space particles: flame tongues rise around her while she stands still and stream back
 	# into a trail when she moves or flies (local_coords off). Back layer behind her body, additive front layer over it.
 	flame_back = _make_flame(false)
@@ -461,9 +468,9 @@ func barrier_circle() -> Vector3:
 	return Vector3(c.x, c.y, f.z * shown)
 
 
-## v0.9.2: holding crouch raises a small free bubble. It is up for the whole crouch, not during the stand-up.
+## v0.9.4: the small bubble lasts CROUCH_BUBBLE_S, then it drops even if she stays crouched.
 func crouch_bubble_on() -> bool:
-	return state == "ground" and _neutral == "crouch"
+	return state == "ground" and _neutral == "crouch" and crouch_bubble_left > 0.0
 
 
 func crouch_bubble_circle() -> Vector3:
@@ -483,14 +490,22 @@ func _place_crouch_bubble() -> void:
 
 func _sync_crouch_bubble() -> void:
 	if barrier_on:
+		bubble_dial.visible = false
 		return
 	if crouch_bubble_on():
 		if not barrier.visible:
 			Sfx.play("barrier", 0.45)
 		_place_crouch_bubble()
-	elif barrier.visible:
+	elif barrier.visible and not barrier_on:
 		barrier.visible = false
 		_place_barrier()
+	var show_dial := crouch_bubble_on()
+	bubble_dial.visible = show_dial
+	if show_dial:
+		bubble_dial.position = barrier.position
+		bubble_dial.frac = clampf(crouch_bubble_left / Tuning.CROUCH_BUBBLE_S, 0.0, 1.0)
+		bubble_dial.radius = crouch_bubble_circle().z + 10.0
+		bubble_dial.queue_redraw()
 
 
 func hurt_rect() -> Rect2:
@@ -601,8 +616,11 @@ func _ground_tick(delta: float) -> void:
 		if _neutral != "crouch":
 			_neutral = "crouch"
 			crouch_t = now
+			crouch_bubble_left = Tuning.CROUCH_BUBBLE_S
 			_play("crouch")
 			anim.section(6, 8)
+		elif crouch_bubble_left > 0.0:
+			crouch_bubble_left = maxf(crouch_bubble_left - delta, 0.0)
 		return
 	if _neutral == "crouch":
 		_neutral = "crouch_up"
@@ -670,6 +688,8 @@ func _go_neutral(start_idle: int = 0) -> void:
 
 ## X / Y / A / B / Up / L1 / R1 / L2 / R2 from the ground. Returns true when a move started.
 func _try_ground_actions() -> bool:
+	if crouch_bubble_on() and not _pressed_since(-1e9, ["btn_x", "btn_y", "btn_a", "btn_b", "up", "l1", "r1", "l2", "r2"]).is_empty():
+		crouch_bubble_left = 0.0
 	var x := _find("btn_x")
 	var y := _find("btn_y")
 	var b := _find("btn_b")
@@ -782,6 +802,23 @@ func add_stamina(v: float) -> void:
 func add_stamina_max(v: float) -> void:
 	stamina_max = minf(stamina_max + v, Tuning.STAMINA_MAX_CAP)
 	add_stamina(v)
+
+
+func add_rage_max(v: float) -> void:
+	rage_max = minf(rage_max + v, Tuning.RAGE_MAX_CAP)
+	add_rage(v)
+
+
+## the newest unused press of one of `actions` at or after `since` ({} if none)
+func _pressed_since(since: float, actions: Array) -> Dictionary:
+	var best := {}
+	for a in actions:
+		var e := _find(String(a), since)
+		if e.is_empty():
+			continue
+		if best.is_empty() or float(e["t"]) >= float(best["t"]):
+			best = e
+	return best
 
 
 ## a combo hit just recovered to idle: within COMBO_GRACE_MS the next press still continues the string
@@ -1273,7 +1310,7 @@ func spend_rage() -> void:
 func add_rage(v: float) -> void:
 	if fury or rage_spending:
 		return
-	rage = clampf(rage + v, 0.0, 100.0)
+	rage = clampf(rage + v, 0.0, rage_max)
 
 
 func start_fury() -> void:
@@ -1733,25 +1770,25 @@ func _move_tick(delta: float) -> void:
 					anim.seek(9)
 			elif mv.get("released", false) and not barrier_on and i < 9 and i >= 5:
 				anim.seek(9)
-			elif barrier_on and not _find("btn_y", float(mv["t0"])).is_empty():
-				# v0.6: Y inside the bubble = lightning (full meter, spends 100 %); she keeps the pose and keeps blocking
-				_use(_find("btn_y", float(mv["t0"])))
-				if can_lightning():
-					spend_rage()
-					mv["bubble_strikes"] = int(mv.get("bubble_strikes", 0)) + 1
-					if game:
-						game.call_lightning(self)
-					Sfx.play("cast", 0.8)
-				else:
-					Sfx.play("fail", 1.2, -4.0)
-					if game:
-						game.flash_hud("rage")
-			elif barrier_on and not pressed("l2"):
-				barrier_on = false
-				barrier.visible = false
-				mv["released"] = true
-				anim.section(-1, -1)
-				anim.seek(9)
+			elif barrier_on:
+				var act := _pressed_since(float(mv["t0"]), ["btn_x", "btn_y", "btn_a", "btn_b", "up", "l1", "r1"])
+				if not act.is_empty():
+					_root_from_body()
+					var grounded := on_ground
+					barrier_on = false
+					barrier.visible = false
+					_go_neutral()
+					if grounded:
+						_ground_tick(delta)
+					else:
+						_air_tick(delta)
+					return
+				if not pressed("l2"):
+					barrier_on = false
+					barrier.visible = false
+					mv["released"] = true
+					anim.section(-1, -1)
+					anim.seek(9)
 		"datk2_fall":
 			pass
 		_:
@@ -2016,20 +2053,20 @@ func parry_ready() -> bool:
 	return crouch_bubble_on() and now - crouch_t <= Tuning.PARRY_MS
 
 
-func _crouch_chip(dmg: int, from_x: float) -> void:
-	chip += float(dmg) * Tuning.CROUCH_BUBBLE_KEEP
+## the small bubble subtracts 1 from the hit and does not knock her down. A hit of 1 is stopped.
+func _crouch_soak(dmg: int, from_x: float) -> void:
+	var left := dmg - 1
 	Sfx.play("block")
 	if game:
 		game.shake(3.0, 0.08)
-		game.hit_spark(Vector2(global_position.x, global_position.y - 18.0 * shown), shown * 0.45)
-	var whole := int(floor(chip + 0.0001))
-	if whole <= 0:
+	if left <= 0:
 		return
-	chip -= float(whole)
-	if size - whole < SIZE_MIN:
+	if game:
+		game.hit_spark(Vector2(global_position.x, global_position.y - 18.0 * shown), shown * 0.45)
+	if size - left < SIZE_MIN:
 		_die(from_x)
 		return
-	set_size(size - whole)
+	set_size(size - left)
 
 
 func _parry(src: Node, from_x: float) -> void:
@@ -2086,8 +2123,8 @@ func take_hit(dmg: int, from_x: float, src: Node = null) -> void:
 			game.shake(4.0, 0.1)
 		_shove_attacker(src, Tuning.BARRIER_KNOCK_PX)
 		return
-	if crouch_bubble_on():             # v0.9.2: the small bubble leaks a quarter of the hit and does not knock her down
-		_crouch_chip(dmg, from_x)
+	if crouch_bubble_on():             # v0.9.4: the small bubble subtracts 1 and does not knock her down
+		_crouch_soak(dmg, from_x)
 		return
 	if size - dmg < SIZE_MIN:          # hit at 1x (or a hit bigger than her) -> death
 		_die(from_x)

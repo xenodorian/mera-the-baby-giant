@@ -3,8 +3,8 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.9.3-playable** (softer parry knockback: 400 px / 2 s full, 200 px / 1 s crouch, 200 px held bubble)
-- Download: GitHub → Releases → [`v0.9.3-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.3-playable/Mera_Playable_v0.9.3_Windows.exe) (Windows `.exe` and `SHA256SUMS.txt`). Linux and Android stay on `v0.9.0-playable` until those builds are attached. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.9.4-playable** (mana, 3 s crouch bubble, damage −1, one random enemy drop)
+- Download: GitHub → Releases → [`v0.9.4-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.4-playable/Mera_Playable_v0.9.4_Windows.exe) (Windows `.exe` and `SHA256SUMS.txt`). Linux and Android stay on `v0.9.0-playable` until those builds are attached. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
   - `main` = the current playable game (v0.8).
   - `playable-level` = the playable-level development branch.

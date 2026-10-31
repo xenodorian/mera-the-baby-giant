@@ -2,6 +2,16 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.4-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.4-playable/Mera_Playable_v0.9.4_Windows.exe
+- The resource formerly called stamina is now **mana**. Same bar, same costs. Max mana potions cap at **200**.
+- **Full bubble** stops all damage. **Small bubble** subtracts 1 from a hit (a hit of 1 is stopped; a hit of 3 costs 2 size) and does not knock her down.
+- The small bubble lasts **3 seconds**. A dial around it empties, then the bubble drops even if she stays crouched. Crouch again for a new one.
+- Any button while either bubble is up drops it immediately and does that move.
+- A defeated enemy drops one thing: rage, a green potion, a blue mana potion, +5 max mana, or +5 max rage (cap 200). The two meter upgrades are the rare drops.
+- Android `versionCode` 15, `versionName` 0.9.4 (APK not published).
+
 ## v0.9.3-playable (2026-10-31)
 Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.3-playable/Mera_Playable_v0.9.3_Windows.exe

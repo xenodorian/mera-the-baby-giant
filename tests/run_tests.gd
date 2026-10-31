@@ -448,12 +448,9 @@ func _run() -> void:
 	_check("R1 without ally cards -> fail cue, no lightning", fails > 0 and gr.last_strike == null and gr.mera.rage == 100.0, "")
 	await _drive(gr, [[5, "l2", true]], 100)
 	_check("L2 held with a full meter -> barrier, no lightning", gr.mera.barrier_on and gr.mera.rage == 100.0 and gr.last_strike == null, "")
-	await _drive(gr, [[3, "btn_y", true], [6, "btn_y", false]], 12)
-	_check("v0.6: Y inside the bubble with a full meter -> lightning, the bubble stays up", gr.last_strike != null and gr.mera.barrier_on and gr.mera.rage_spending and not ("quick_fire" in gr.mera.move_log), "")
-	gr.last_strike = null
-	await _drive(gr, [[3, "btn_y", true], [6, "btn_y", false]], 12)
-	_check("v0.6: Y inside the bubble with the meter spent -> fail cue, no strike, still shielded", gr.last_strike == null and gr.mera.barrier_on, "")
-	await _drive(gr, [[2, "l2", false]], 30)
+	await _drive(gr, [[3, "btn_y", true], [6, "btn_y", false]], 16)
+	_check("a button inside the full bubble drops it and does that move", not gr.mera.barrier_on and "quick_fire" in gr.mera.move_log, "barrier=%s log=%s" % [gr.mera.barrier_on, gr.mera.move_log])
+	await _drive(gr, [[2, "l2", false]], 20)
 	gr.queue_free()
 	await process_frame
 	gr = await _new_game()
@@ -564,6 +561,14 @@ func _run() -> void:
 	await _drive(g, [], 90)
 	_check("a Fire Knight spawns off-screen ahead", g.knight != null and absf(g.knight.global_position.x - g.cam_x) > 960.0, "")
 	var k1: Node = g.knight
+	var seed_ok := 1
+	for seed_i in 400:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = seed_i
+		if g.enemy_loot_kind(rng.randf()) == "sphere":
+			seed_ok = seed_i
+			break
+	g.drop_rng.seed = seed_ok
 	k1.take_damage(20, m.global_position.x)
 	_check("Fire Knight with 20 HP dies to 20 damage", not k1.alive(), "hp=%d" % k1.hp)
 	await _drive(g, [], 5)
@@ -571,11 +576,11 @@ func _run() -> void:
 	for c in g.world.get_children():
 		if c.get("kind") == "sphere":
 			sphere = c
-	_check("knight drops a red sphere", sphere != null, "")
+	_check("knight drops a rage sphere from the loot table", sphere != null, "")
 	if sphere:
 		sphere.position = m.global_position + Vector2(0, -40)
 		await _drive(g, [], 40)
-		_check("red sphere gives +10 % rage", is_equal_approx(m.rage, 10.0), "rage=%f" % m.rage)
+	_check("that rage sphere gives +10 rage", is_equal_approx(m.rage, 10.0), "rage=%f" % m.rage)
 	_check("no second knight while one is dying", g.knight == null or g.knight == k1, "")
 	await _drive(g, [], 200)
 	_check("a new knight spawns after the previous one is defeated", g.knight != null and g.knight != k1 and g.knights_spawned == 2, "spawned=%d" % g.knights_spawned)
@@ -906,15 +911,29 @@ func _run() -> void:
 	var pk = load("res://scripts/game/pickup.gd").new()
 	pk.setup(g, "stamina", m.global_position)
 	g.collect(pk)
-	_check("blue potion: +30 stamina", absf(m.stamina - 40.0) < 0.01, "st=%f" % m.stamina)
+	_check("blue potion: +30 mana", absf(m.stamina - 40.0) < 0.01, "st=%f" % m.stamina)
 	g.collect(pk)
 	_check("...capped at the max", m.stamina == m.stamina_max, "")
 	pk.kind = "stamina_max"
 	g.collect(pk)
-	_check("blue-and-white potion: +5 max stamina (65)", m.stamina_max == 65.0, "max=%f" % m.stamina_max)
-	for i in 20:
+	_check("blue-and-white potion: +5 max mana (65)", m.stamina_max == 65.0, "max=%f" % m.stamina_max)
+	for i in 40:
 		g.collect(pk)
-	_check("max stamina caps at 120", m.stamina_max == 120.0, "max=%f" % m.stamina_max)
+	_check("max mana caps at 200", m.stamina_max == 200.0, "max=%f" % m.stamina_max)
+	m.rage = 0.0
+	pk.kind = "rage_max"
+	g.collect(pk)
+	_check("gold sphere: +5 max rage and +5 rage", m.rage_max == 105.0 and is_equal_approx(m.rage, 5.0), "max=%f rage=%f" % [m.rage_max, m.rage])
+	for i in 30:
+		g.collect(pk)
+	_check("max rage caps at 200", m.rage_max == 200.0, "max=%f" % m.rage_max)
+	_check("enemy loot: one of five, meter upgrades are the rare rows", g.enemy_loot_kind(0.1) == "sphere" and g.enemy_loot_kind(0.4) == "potion" and g.enemy_loot_kind(0.7) == "stamina" and g.enemy_loot_kind(0.9) == "stamina_max" and g.enemy_loot_kind(0.97) == "rage_max", "%s %s %s %s %s" % [g.enemy_loot_kind(0.1), g.enemy_loot_kind(0.4), g.enemy_loot_kind(0.7), g.enemy_loot_kind(0.9), g.enemy_loot_kind(0.97)])
+	var loot_rng := RandomNumberGenerator.new()
+	loot_rng.seed = 3
+	var loot_n := {"sphere": 0, "potion": 0, "stamina": 0, "stamina_max": 0, "rage_max": 0}
+	for i in 4000:
+		loot_n[g.enemy_loot_kind(loot_rng.randf())] += 1
+	_check("enemy loot rates: commons over 20%, meter upgrades under 12%", loot_n["sphere"] > 800 and loot_n["potion"] > 800 and loot_n["stamina"] > 800 and loot_n["stamina_max"] < 480 and loot_n["rage_max"] < 480 and loot_n["stamina_max"] > 80, "%s" % [loot_n])
 	pk.free()
 	var dr: Array = [g.blue_drops(0.34, 0.5), g.blue_drops(0.35, 0.09), g.blue_drops(0.1, 0.05), g.blue_drops(0.9, 0.9)]
 	_check("blue drops: 35 % stamina potion, 10 % max potion, independent rolls", dr == [["stamina"], ["stamina_max"], ["stamina", "stamina_max"], []], "%s" % [dr])
@@ -2232,7 +2251,7 @@ func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
-	_check("updater: this build's version comes from application/config/version (0.9.3)", U.current_version() == "0.9.3", U.current_version())
+	_check("updater: this build's version comes from application/config/version (0.9.4)", U.current_version() == "0.9.4", U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
 	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:
@@ -2939,14 +2958,12 @@ func _queued_tests() -> void:
 	m.deal(cwolf, 1, m.global_position.x, "melee")
 	_check("crouch parry: the counter hit deals x%s" % str(T.PARRY_COUNTER_MULT), hp0 - cwolf.hp == m.size * int(T.PARRY_COUNTER_MULT), "dealt=%d size=%d" % [hp0 - cwolf.hp, m.size])
 	m.invuln = 0.0
-	m.chip = 0.0
 	m.crouch_t = m.now - T.PARRY_MS - 80.0
 	m.take_hit(1, cwolf.global_position.x, cwolf)
-	m.take_hit(1, cwolf.global_position.x, cwolf)
-	m.take_hit(1, cwolf.global_position.x, cwolf)
-	var leaked3: bool = m.size == sz and m.chip > 0.7 and m.chip < 0.8 and m.state == "ground" and m._neutral == "crouch"
-	m.take_hit(1, cwolf.global_position.x, cwolf)
-	_check("crouch bubble: a held crouch lets 25% through (4 hits of 1 = 1 size) and does not knock her down", leaked3 and m.size == sz - 1 and m.chip < 0.05 and m.stamina >= st0 - 0.05, "size=%d chip=%.3f st=%.2f state=%s" % [m.size, m.chip, m.stamina, m.state])
+	_check("small bubble subtracts 1: a hit of 1 is stopped, she stays crouched", m.size == sz and m.state == "ground" and m._neutral == "crouch" and m.stamina >= st0 - 0.05, "size=%d state=%s" % [m.size, m.state])
+	m.invuln = 0.0
+	m.take_hit(3, cwolf.global_position.x, cwolf)
+	_check("small bubble subtracts 1: a hit of 3 costs 2 size and does not knock her down", m.size == sz - 2 and m.state == "ground" and m._neutral == "crouch", "size=%d state=%s" % [m.size, m.state])
 	m.invuln = 0.0
 	m.crouch_t = m.now
 	var cshot := Node2D.new()
@@ -2967,6 +2984,29 @@ func _queued_tests() -> void:
 	var held: Node2D = g.spawn_enemy("werewolf", m.global_position.x + 220.0)
 	held.cooldown = 99.0
 	m.take_hit(1, held.global_position.x, held)
-	_check("held full bubble: 200 px knockback and no stun", m.barrier_on and m.size == before and held.state != "stun" and absf(absf(held.knock_left) - T.BARRIER_KNOCK_PX) < 1.0, "size=%d state=%s knock=%.0f" % [m.size, held.state, held.knock_left])
+	_check("held full bubble stops all damage, 200 px knockback, no stun", m.barrier_on and m.size == before and held.state != "stun" and absf(absf(held.knock_left) - T.BARRIER_KNOCK_PX) < 1.0, "size=%d state=%s knock=%.0f" % [m.size, held.state, held.knock_left])
+	m.take_hit(6, held.global_position.x, held)
+	_check("held full bubble still stops a heavy hit", m.size == before and m.barrier_on, "size=%d" % m.size)
+	m.barrier_on = false
+	m.forced = {"down": true}
+	for i in 20:
+		await physics_frame
+	m.forced = {}
+	for i in 20:
+		await physics_frame
+	m.forced = {"down": true}
+	for i in 8:
+		await physics_frame
+	_check("small bubble shows a dial and starts at 3 seconds", m.crouch_bubble_on() and m.bubble_dial.visible and m.bubble_dial.frac > 0.85, "on=%s frac=%s" % [m.crouch_bubble_on(), m.bubble_dial.frac])
+	for i in 190:
+		await physics_frame
+	_check("the small bubble drops itself after 3 seconds and she stays crouched", not m.crouch_bubble_on() and m._neutral == "crouch" and not m.bubble_dial.visible, "neutral=%s left=%.2f" % [m._neutral, m.crouch_bubble_left])
+	m._go_neutral()
+	m.stamina = 40.0
+	m.forced = {"down": true}
+	for i in 8:
+		await physics_frame
+	await _drive(g, [[2, "btn_x", true], [5, "btn_x", false]], 8)
+	_check("a button inside the small bubble drops it and does that move", not m.crouch_bubble_on() and "atk1" in m.move_log, "on=%s log=%s" % [m.crouch_bubble_on(), m.move_log])
 	g.queue_free()
 	await physics_frame
