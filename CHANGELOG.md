@@ -2,6 +2,15 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.1 (2026-10-31, not released yet)
+- **Rising slash** (t108u): the windup plays at 4× (every frame kept). The rise is 2× faster (`RSLASH_VY` -760, was -380) over the same frames, so she goes about twice as high.
+- **Pause** (t108u): Start / Enter / F1 freezes gameplay and opens the controls overlay. Start again resumes. After Game Over it still restarts. The ally picker is unchanged.
+- **Swing parry** (t103u): X (`atk1` or `jatk1`) reflects an enemy projectile, including a dragon bolt, when the hitbox meets it within 150 ms of going live. The shot flies at its shooter, or the nearest enemy, and damages them.
+- **Melee parry** (t103u): an L2 parry still staggers and opens the counter, and now also knocks the attacker back hard (bosses stay put).
+- **Projectile clashes:** a player shot and an enemy shot both explode. The combo beam and the vertical beam destroy enemy projectiles.
+- Carried from the merged Y-chain branch: Y follow-ups, YYYY beam, YYY+L2 pulse, YYY+X vertical beam, Up+Y vertical quick fire, air bubble, two monsters from behind on levels 2–4, and the `mark_slash.gd` export fix.
+- Android `versionCode` 12, `versionName` 0.9.1. Builds are not published yet.
+
 ## v0.9.0-playable (2026-10-31)
 First release from the new **public** repo. Pre-release with Windows, Linux and Android (ARM) builds, plus `SHA256SUMS.txt`.
 - **In-game updater** (`docs/UPDATER.md`):

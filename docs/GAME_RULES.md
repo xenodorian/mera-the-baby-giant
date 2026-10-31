@@ -270,8 +270,10 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 - **Corpse launch:** a defeated enemy is flung away from the killing blow (harder for explosions and launchers), spinning, and **bursts into shards + gibs and blood** where it lands (at most 1.4 s). Gore is CC0 (Reactorcore); flame and ghost enemies burst into glowing mist instead of blood.
 
 ## Parry (v0.8)
-- **Press L2 at most 150 ms before a hit lands** = parry: no damage, 0.25 s i-frames, the attacker is **staggered 1.2 s** (bosses are not), and Mera gets a **0.9 s counter window: her hits do ×2** (she glows gold). A 120 ms hit-stop and a clang sell it.
-- **Projectiles** (the hell beast's fireball) parried in the window fly back 1.6× faster and hit the first enemy for 3.
+- **Press L2 at most 150 ms before a hit lands** = parry: no damage, 0.25 s i-frames, the attacker is **staggered 1.2 s** (bosses are not) and **shoved back** at 920 px/s (v0.9.1, bosses stay put), and Mera gets a **0.9 s counter window: her hits do ×2** (she glows gold). A 120 ms hit-stop and a clang sell it.
+- **Projectiles** (the hell beast's fireball, and a dragon bolt) parried with L2 in the window fly back 1.6× faster and hit the first enemy for 3. A dragon bolt popped by L2 still bursts harmlessly.
+- **Swing parry (v0.9.1):** X (`atk1` or the air `jatk1`) reflects a projectile when the hitbox meets it within **150 ms of the hitbox going live**. It flies at its shooter, or the nearest living enemy, and damages them. No counter window.
+- A player shot that touches an enemy shot: **both explode** (the blast does not also hurt Mera). The combo beam and the vertical beam **destroy** enemy projectiles.
 - A later L2 is just the barrier as before (blocks while held, costs stamina).
 
 ## Secrets (v0.8)

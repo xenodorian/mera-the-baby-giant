@@ -21,6 +21,24 @@ var speed_mult := 1.0          # v0.4: B, Y fast quick fire = 2.0
 var up := false                # v0.9.1 Up+Y: the same bolt flies straight up (sprite rotated head-up)
 
 
+func hit_rect() -> Rect2:
+	if kind == "bolt":
+		if up:
+			return Rect2(global_position - Vector2(3, 5) * size, Vector2(6, 10) * size)
+		return Rect2(global_position - Vector2(5, 3) * size, Vector2(10, 6) * size)
+	return Rect2(global_position - Vector2(6, 6) * size, Vector2(12, 12) * size)
+
+
+## v0.9.1: an enemy projectile met this shot. Both explode (no extra damage; the blast is the tell).
+func burst() -> void:
+	if done:
+		return
+	done = true
+	if game:
+		game.explode(global_position, maxf(size * 0.55, 0.8), false)
+	queue_free()
+
+
 func speed() -> float:
 	return 400.0 * size * speed_mult
 
@@ -34,21 +52,25 @@ func setup(g: Node, k: String, p: Vector2, d: int, s: float, sh: Dictionary, dmg
 	size = s
 	shot = sh
 	damaging = dmg_on
-	material = AnimLib.fx_mat
+
+
+func _ready() -> void:
+	var lib: Node = get_node("/root/AnimLib")
+	material = lib.fx_mat
 	if kind == "bolt":
 		spr = Sprite2D.new()
-		spr.texture = AnimLib.spell_tex("bolt")
-		spr.hframes = int(AnimLib.spell_cell("bolt")[2])
+		spr.texture = lib.spell_tex("bolt")
+		spr.hframes = int(lib.spell_cell("bolt")[2])
 		spr.centered = false
 		spr.offset = -Vector2(9, 4)
 		spr.scale = Vector2(-dir * size, size)       # sprite flies LEFT natively
-		spr.material = AnimLib.fx_mat
+		spr.material = lib.fx_mat
 		add_child(spr)
 		if up:
 			spr.scale = Vector2(size, size)          # head left ...
 			spr.rotation = PI / 2.0                  # ... turned 90 deg clockwise: head up
 	else:
-		tex_discs = AnimLib.spell_tex("discs")
+		tex_discs = lib.spell_tex("discs")
 
 
 func _physics_process(delta: float) -> void:
@@ -99,7 +121,7 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	if kind != "fireball":
 		return
-	var cell: Array = AnimLib.spell_cell("discs")
+	var cell: Array = get_node("/root/AnimLib").spell_cell("discs")
 	var w := float(cell[0])
 	for j in range(trail.size() - 1, -1, -1):
 		var p: Vector2 = trail[j] - position

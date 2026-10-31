@@ -15,11 +15,11 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts). **At 100 % rage (not in Fury): SUPER EARTHQUAKE** (v0.8): impact frame, then a 2 s quake, 7 s stun, flat 2 damage to every enemy, every ground breakable on screen destroyed; spends the whole meter + 20 stamina (see GAME_RULES) |
 | **A** (hold) + direction | run, 200 px/s |
 | **B** | back dodge (free): same distance as v0.2 in half the time (800 px/s backwards, animation at 2x). Invulnerable for its first 70 %, as are the dashes |
-| **B + Y** together (within 67 ms, either order, or one held when the other is pressed) | **rising slash** (free), in place: no dodge, no bolt |
+| **B + Y** together (within 67 ms, either order, or one held when the other is pressed) | **rising slash** (free), in place: no dodge, no bolt. v0.9.1: the windup is 4× faster and the rise is twice as fast and twice as high |
 | B + Y, then **Y** (during the rising slash or up to 350 ms after it) | **slam** (free) |
 | **B, then Y** (Y more than 67 ms after B: during the dodge or up to 220 ms after it) | **fast quick fire**: animation at 2x and the bolt at 2x speed (800 px/s × size). 5 stamina, the same as a normal quick fire |
 | **B, then X** (during the dodge or up to 220 ms after it) | dodge attack. It does not chain: more X presses never give the rising slash or the slam |
-| **X** | 1x attack |
+| **X** | 1x attack. v0.9.1: if the hitbox meets an enemy projectile within 150 ms of going live, the shot is **reflected** at its shooter (or the nearest enemy) and damages them. Same in the air (`jatk1`) |
 | X X X (standing or walking forward) | 1x → 2x → 2x-2 (fast mashing works: a 3rd X pressed while 1x is still playing counts) |
 | X X, then hold X (≥ 170 ms) | 1x → 2x → 2x-1 (2x-2 starts at once and upgrades to 2x-1 within 4 frames if the hold completes) |
 | X X Y | 1x → 2x → 3x (with slash). X X Y Y is still 3x, never the beam |
@@ -33,14 +33,14 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | **L1** | heal: drink one carried green potion, +1 size (max 6x). No potion = "fail" cue, nothing happens |
 | **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
-| **L2 just before a hit** (v0.8: pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered 1.2 s, and for 0.9 s Mera's hits do ×2 (gold glow). A projectile parried in the window flies back and hits the first enemy for 3. Same button, no new input: a later press is the normal barrier/lightning |
+| **L2 just before a hit** (v0.8: pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered 1.2 s and **knocked back hard** (v0.9.1; bosses stay), and for 0.9 s Mera's hits do ×2 (gold glow). A projectile parried in the window flies back and hits the first enemy for 3. Same button, no new input: a later press is the normal barrier/lightning |
 | **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
 | **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
 | **R2** alone | in Fury: take off / land. Outside Fury: nothing (HUD hint "Fury is L2 + R2") |
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
 | Fury flight | Up in the air takes off. 8-way movement; Mera tilts head-first toward where she flies and eases upright when hovering. Raised-arms pose while moving, tucked hover while idle. Down at ground level, or R2, lands |
-| Start | controls overlay. Restart after Game Over |
+| Start | **pause** (v0.9.1): gameplay freezes and the controls overlay opens. Start again resumes. Restart after Game Over |
 | Back (Share) | animation gallery (every baked animation). Left/Right = previous/next, A = replay |
 
 ## Keyboard (v0.8 PC layout, user request t86u)
@@ -58,7 +58,7 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **1** (top row only) | L2 | tap = lightning, hold = barrier, just before a hit = parry |
 | **2** (top row only) | R2 | **1 + 2** = Fury. Numpad 1 and 2 are not these |
 | **Q+W+1+2** together (within 150 ms, all held) while Fury is on, or the rage meter is full | L1+R1+L2+R2 | **marked slash**: freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s |
-| Enter or F1 | Start | controls overlay; restart after Game Over |
+| Enter or F1 | Start | pause and the controls overlay; Start again resumes. Restarts after Game Over |
 | Tab or G | Back (gallery) | |
 | F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
 | F11 / Esc | fullscreen / leave fullscreen, then quit | |
