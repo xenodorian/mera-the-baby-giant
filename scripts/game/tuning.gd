@@ -130,7 +130,11 @@ const DRAGON_FLY_LIFT := [250.0, 470.0]   # height range of the lob spots (px ab
 const DRAGON_FLY_SPOTS := [[1, 320.0], [-1, 560.0], [1, 1000.0], [-1, 300.0], [1, 700.0]]
 const DRAGON_FLY_SPOT_JITTER := 70.0
 const DRAGON_FLY_SCREEN := 860.0   # spots stay within this of the camera centre (the screen is +-960), inside the walls
-const DRAGON_BOLT_T := [0.85, 1.6] # lob flight time grows with the distance (0.8 s + d / 1000 px, mouth to target), clamped
+                                   # (v0.8.2: minus 20 % of his body width, and never closer to Mera than mouth + MIN_DX)
+# v0.8.2: bolts leave the mouth HORIZONTALLY (vy0 = 0) and gravity curves them down onto the target:
+# flight time = sqrt(2 * drop / G), vx = dx / time (exact landing). The mouth is measured on the art (spit frame 4).
+const DRAGON_MOUTH := Vector2(-33.5, -12.0)  # native px from the feet pivot, as the art faces (left)
+const DRAGON_BOLT_MIN_DX := 160.0  # the target is at least this far in front of the mouth (lob spots keep the room)
 const DRAGON_BOLT_DMG := 2         # never scales with the dragon's size (enemies never scale damage)
 const DRAGON_BOLT_R := 170.0       # explosion radius
 

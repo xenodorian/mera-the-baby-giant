@@ -14,6 +14,12 @@ var spr: AnimatedSprite2D
 var warn: Node2D
 var done := false
 var hurt_mera := false
+var flight := 1.0               # solved flight time (s)
+var launch_vel := Vector2.ZERO  # tests
+var launch_pos := Vector2.ZERO
+var land_x := NAN               # tests: where it hit the ground / Mera
+## the fireball art (ansimuz hell beast) faces LEFT: blunt round head at -x, flame trail at +x
+const NATIVE_HEAD := -1
 
 
 func setup(g: Node, dr: Node2D, p: Vector2, tgt: Vector2, flight_s: float = -1.0) -> void:
@@ -21,9 +27,17 @@ func setup(g: Node, dr: Node2D, p: Vector2, tgt: Vector2, flight_s: float = -1.0
 	dragon = dr
 	position = p
 	target = tgt
-	var T := Tuning.DRAGON_BOLT_FLIGHT_S if flight_s <= 0.0 else flight_s     # ballistic solve: lands on tgt after T
 	var G := Tuning.DRAGON_BOLT_G
-	vel = Vector2((tgt.x - p.x) / T, (tgt.y - p.y - 0.5 * G * T * T) / T)
+	var drop := tgt.y - p.y
+	if drop > 20.0 and flight_s <= 0.0:
+		# v0.8.2: horizontal launch out of the mouth; gravity alone brings it down onto tgt
+		flight = sqrt(2.0 * drop / G)
+		vel = Vector2((tgt.x - p.x) / flight, 0.0)
+	else:                                          # fallback: a lob with a fixed flight time
+		flight = Tuning.DRAGON_BOLT_FLIGHT_S if flight_s <= 0.0 else flight_s
+		vel = Vector2((tgt.x - p.x) / flight, (drop - 0.5 * G * flight * flight) / flight)
+	launch_vel = vel
+	launch_pos = p
 
 
 func _ready() -> void:
@@ -39,6 +53,7 @@ func _ready() -> void:
 	spr.scale = Vector2(6, 6)
 	spr.modulate = Color(1.6, 0.7, 0.4)
 	add_child(spr)
+	_orient()
 	spr.play("default")
 	warn = Node2D.new()
 	warn.top_level = true
@@ -53,7 +68,7 @@ func _draw_warn() -> void:
 	var c := Telegraph.color("ranged")
 	var r := Tuning.DRAGON_BOLT_R
 	warn.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.22))
-	warn.draw_circle(Vector2.ZERO, r * (0.6 + 0.4 * minf(t / Tuning.DRAGON_BOLT_FLIGHT_S, 1.0)), Color(c.r, c.g, c.b, 0.18 + 0.2 * q))
+	warn.draw_circle(Vector2.ZERO, r * (0.6 + 0.4 * minf(t / flight, 1.0)), Color(c.r, c.g, c.b, 0.18 + 0.2 * q))
 	warn.draw_arc(Vector2.ZERO, r, 0.0, TAU, 48, Color(c.r, c.g, c.b, 0.6 + 0.3 * q), 6.0)
 
 
@@ -67,7 +82,7 @@ func _physics_process(delta: float) -> void:
 	t += delta
 	vel.y += Tuning.DRAGON_BOLT_G * delta
 	position += vel * delta
-	spr.rotation = vel.angle()
+	_orient()
 	warn.queue_redraw()
 	if game == null:
 		return
@@ -83,6 +98,23 @@ func _physics_process(delta: float) -> void:
 		_explode()
 
 
+## blunt head along the velocity, flame trailing behind. The art's head is at -x (NATIVE_HEAD), so it is
+## mirrored (flip_h) to put the head at +x, then rotated to the velocity. When it flies left, flip_v keeps the
+## flame curl on the upper side instead of upside down.
+func _orient() -> void:
+	if spr == null:
+		return
+	spr.flip_h = NATIVE_HEAD < 0
+	spr.rotation = vel.angle()
+	spr.flip_v = vel.x < 0.0
+
+
+## the direction the blunt head points (tests)
+func head_dir() -> Vector2:
+	var hx := float(NATIVE_HEAD) * (-1.0 if spr.flip_h else 1.0)
+	return Vector2(hx, 0.0).rotated(spr.rotation)
+
+
 func _pop() -> void:
 	done = true
 	if game:
@@ -92,6 +124,7 @@ func _pop() -> void:
 
 func _explode() -> void:
 	done = true
+	land_x = global_position.x
 	var c := Vector2(global_position.x, float(game.GROUND_Y))
 	var b := Blast.new()
 	b.setup("explosion", c, 3.2)

@@ -33,8 +33,11 @@ var fly_from := Vector2.ZERO     # (x, lift) at the start of a move
 var fly_to := Vector2.ZERO       # (x, lift) of the current lob spot
 var fly_plan: Array = []
 var fly_base := 0.0              # lift without the bob
-var spit_spots: Array = []       # tests: [dragon x, lift, x - Mera x] at every lob
+var spit_spots: Array = []       # tests: [dragon x, lift, x - Mera x, phase] at every lob
 var bolt_times: Array = []       # tests: flight time of every lob
+var last_bolt: Node2D            # tests
+var last_mouth := Vector2.ZERO   # tests: mouth and head top at the last spit
+var last_head_y := 0.0
 var growths := 0
 
 
@@ -178,7 +181,7 @@ func _phase_tick(delta: float) -> void:
 					if bolt_t >= Tuning.DRAGON_BOLT_TELL_S:
 						marker.visible = false
 						_spit(m)
-						sprite.play()
+						sprite.play()                    # from the open-mouth frame
 						fly_sub = "after"
 						bolt_t = 0.0
 				"after":
@@ -220,9 +223,11 @@ func _next_spot() -> void:
 	var mf: int = int(m.facing) if m and m.get("facing") != null else 1
 	var spot: Array = fly_plan[bolt_i % fly_plan.size()]
 	var d: float = float(spot[1]) + rng.randf_range(-Tuning.DRAGON_FLY_SPOT_JITTER, Tuning.DRAGON_FLY_SPOT_JITTER)
+	# v0.8.2: the bolt leaves the mouth horizontally, so Mera must be in front of his mouth, not under it
+	d = maxf(d, absf(Tuning.DRAGON_MOUTH.x) * k + Tuning.DRAGON_BOLT_MIN_DX)
 	var side: int = int(spot[0]) * (mf if mf != 0 else 1)
 	# keep most of his body on screen: the bigger he is, the closer to the screen centre
-	var reach := clampf(960.0 - hurt_rect().size.x * 0.45, 380.0, Tuning.DRAGON_FLY_SCREEN)
+	var reach := clampf(960.0 - hurt_rect().size.x * 0.2, 380.0, Tuning.DRAGON_FLY_SCREEN)   # >= ~2/3 of him on screen
 	var lo: float = maxf(Levels.EDGE + 200.0, game.cam_x - reach)
 	var hi: float = minf(game.map_w - Levels.EDGE - 200.0, game.cam_x + reach)
 	var x := mx + side * d
@@ -231,6 +236,16 @@ func _next_spot() -> void:
 	x = clampf(x, lo, hi)
 	if absf(x - global_position.x) < 200.0:            # never lob twice from (almost) the same spot
 		x = clampf(mx - (x - mx), lo, hi)
+	var need := absf(Tuning.DRAGON_MOUTH.x) * k + Tuning.DRAGON_BOLT_MIN_DX
+	if absf(x - mx) < need:                            # clamped too close to her: take the side with more room
+		x = mx + need if hi - mx > mx - lo else mx - need
+	# when he is big, the room between "mouth clear of Mera" and the screen edge is small: spread the spots
+	# across it (near / middle / far edge) so he still lobs from different places
+	var sd := signf(x - mx) if x != mx else 1.0
+	var room := (hi - mx) if sd > 0.0 else (mx - lo)
+	if room > need and absf(x - mx) < need + 80.0:
+		var f: float = [0.0, 0.55, 1.0, 0.3, 0.8][bolt_i % 5]
+		x = mx + sd * lerpf(need, room, f)
 	var h: float = rng.randf_range(float(Tuning.DRAGON_FLY_LIFT[0]), float(Tuning.DRAGON_FLY_LIFT[1]))
 	fly_from = Vector2(global_position.x, fly_base)
 	fly_to = Vector2(x, h)
@@ -240,19 +255,32 @@ func _next_spot() -> void:
 		_play("fly")
 
 
+## the mouth in world space for the current facing and size (measured on the spit frames, see DRAGON_MOUTH)
+func mouth_pos() -> Vector2:
+	var mo: Vector2 = Tuning.DRAGON_MOUTH
+	var x := mo.x if facing == native else -mo.x
+	return global_position + Vector2(x, mo.y) * k
+
+
 func _spit(m: Node2D) -> void:
-	var hr := hurt_rect()
-	var mouth := Vector2(global_position.x + facing * hr.size.x * 0.46, hr.position.y + hr.size.y * 0.3)
+	if m:
+		_face(1 if m.global_position.x > global_position.x else -1)   # always spits toward Mera
+	sprite.frame = 3                                 # mouth wide open (plume-free spit frame)
+	var mouth := mouth_pos()
 	var tx: float = m.global_position.x if m else global_position.x + facing * 600.0
 	if bolt_i > 0:
 		tx += rng.randf_range(-Tuning.DRAGON_BOLT_SPREAD, Tuning.DRAGON_BOLT_SPREAD)
+	if (tx - mouth.x) * facing < Tuning.DRAGON_BOLT_MIN_DX:   # never spit backwards / straight down
+		tx = mouth.x + facing * Tuning.DRAGON_BOLT_MIN_DX
 	tx = clampf(tx, Levels.EDGE, game.map_w - Levels.EDGE)
-	var fl := clampf(0.8 + absf(tx - mouth.x) / 1000.0, float(Tuning.DRAGON_BOLT_T[0]), float(Tuning.DRAGON_BOLT_T[1]))
 	var b: Node2D = BOLT.new()
-	b.setup(game, self, mouth, Vector2(tx, float(game.GROUND_Y)), fl)
-	bolt_times.append(fl)
-	spit_spots.append([global_position.x, lift, global_position.x - (m.global_position.x if m else global_position.x)])
+	b.setup(game, self, mouth, Vector2(tx, float(game.GROUND_Y)))
+	last_mouth = mouth
+	last_head_y = hurt_rect().position.y
 	get_parent().add_child(b)
+	last_bolt = b
+	bolt_times.append(b.flight)
+	spit_spots.append([global_position.x, lift, global_position.x - (m.global_position.x if m else global_position.x), phase_thr])
 	bolts_fired += 1
 	played["spit"] = true
 	if game and game.debris:

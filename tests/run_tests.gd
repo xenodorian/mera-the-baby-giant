@@ -1889,6 +1889,7 @@ func _dragon_until_landed(g: Node, dr: Node2D, keep_safe: bool, max_f: int = 150
 
 func _dragon_tests() -> void:
 	var T = load("res://scripts/game/tuning.gd")
+	await _bolt_orientation_tests()
 	var RO = load("res://scripts/game/roster.gd")
 	var fly: Dictionary = RO.art("dragon")["anims"]["fly"]
 	var want := ["_0000_Layer-1", "_0004_Layer-5", "_0003_Layer-4", "_0004_Layer-5"]
@@ -1931,6 +1932,9 @@ func _dragon_tests() -> void:
 	var volley_anims := {}
 	var volley_frames := {}
 	var fly_off := 0
+	var launches: Array = []         # [spawn, mouth, head top y, launch vel, toward-Mera sign ok]
+	var tracked := {}                # bolt -> [last x, mera x]
+	var seen_bolt: Node2D = null
 	for i in 1500:
 		await physics_frame
 		m.invuln = 1.0
@@ -1939,6 +1943,13 @@ func _dragon_tests() -> void:
 			var on_screen: bool = absf(dr.global_position.x - g.cam_x) <= 960.0 and dr.global_position.x > Levels_EDGE() and dr.global_position.x < g.map_w - Levels_EDGE()
 			if not on_screen:
 				fly_off += 1
+		if is_instance_valid(dr.last_bolt) and dr.last_bolt != seen_bolt:
+			seen_bolt = dr.last_bolt
+			var hr0: Rect2 = dr.hurt_rect()
+			launches.append([seen_bolt.launch_pos, dr.last_mouth, dr.last_head_y, seen_bolt.launch_vel, signf(seen_bolt.launch_vel.x) == signf(m.global_position.x - dr.global_position.x)])
+		for bb in dr.get_parent().get_children():
+			if bb.get("launch_vel") != null and not bb.done:
+				tracked[bb.get_instance_id()] = [bb.global_position.x, m.global_position.x]
 		if dr.phase == "volley":
 			volley_anims[String(dr.sprite.animation)] = true
 			volley_frames["%s:%d" % [dr.sprite.animation, dr.sprite.frame]] = dr.sprite.sprite_frames.get_frame_texture(dr.sprite.animation, dr.sprite.frame)
@@ -1980,10 +1991,23 @@ func _dragon_tests() -> void:
 		if uniq:
 			distinct += 1
 	var spread_d: float = (dists.max() - dists.min()) if not dists.is_empty() else 0.0
-	_check("dragon flight: flies around between lobs - %d lobs from %d distinct spots, short to long (%.0f..%.0f px), both sides of Mera" % [xs.size(), distinct, dists.min() if dists else 0.0, dists.max() if dists else 0.0],
-		xs.size() == 5 and distinct >= 3 and spread_d >= 400.0 and sides.size() == 2, "xs=%s d=%s" % [xs, dists])
+	_check("dragon flight: flies around between lobs - %d lobs from %d distinct spots, varied distances (%.0f..%.0f px; at 12x his mouth is 400 px ahead, so the range is narrow), both sides of Mera" % [xs.size(), distinct, dists.min() if dists else 0.0, dists.max() if dists else 0.0],
+		xs.size() == 5 and distinct >= 3 and spread_d >= 60.0 and sides.size() == 2, "xs=%s d=%s" % [xs, dists])
 	_check("dragon flight: stays on screen and inside the walls the whole phase", fly_off == 0, "off-screen frames=%d" % fly_off)
-	_check("dragon flight: each lob's arc is solved for its distance (flight time grows with it)", dr.bolt_times.size() == 5 and dr.bolt_times.max() - dr.bolt_times.min() > 0.15, str(dr.bolt_times))
+	var at_mouth := launches.size() == 5
+	var horiz := launches.size() == 5
+	for L in launches:
+		var sp: Vector2 = L[0]
+		var mo: Vector2 = L[1]
+		at_mouth = at_mouth and sp.distance_to(mo) < 0.5 and sp.y > float(L[2]) + 10.0 * dr.k    # at the mouth, well below the head top
+		var lv: Vector2 = L[3]
+		horiz = horiz and absf(lv.y) <= 0.05 * absf(lv.x) and absf(lv.x) > 50.0 and bool(L[4])
+	_check("dragon bolts: spawn at the mouth for his facing and size (not above the head)", at_mouth, str(launches))
+	_check("dragon bolts: leave the mouth horizontally (vy ~ 0), toward Mera", horiz, str(launches))
+	var near_ok := tracked.size() == 5
+	for key in tracked:
+		near_ok = near_ok and absf(float(tracked[key][0]) - float(tracked[key][1])) <= T.DRAGON_BOLT_SPREAD + 90.0
+	_check("dragon bolts: gravity curves them down onto Mera (every bolt ends within the aim spread of her)", near_ok, str(tracked.values()))
 	_check("dragon flight: wing loop 'fly' between lobs and 'spit' to lob (never the sped-up idle)", volley_anims.has("fly") and volley_anims.has("spit") and not volley_anims.has("idle"), str(volley_anims.keys()))
 	var breath_kept := false
 	for at in dr.attacks:
@@ -2005,6 +2029,13 @@ func _dragon_tests() -> void:
 	dr.take_damage(T.DRAGON_HP_PER_SIZE * 10, m.global_position.x, "explosion")
 	var queued: Array = dr.phase_queue.duplicate()
 	await _dragon_until_landed(g, dr, true, 4000)
+	var d3: Array = []
+	var s3 := {}
+	for sp in dr.spit_spots:
+		if int(sp[3]) == 3:
+			d3.append(absf(float(sp[2])))
+			s3[signf(float(sp[2]))] = true
+	_check("dragon flight at 3x: lobs from short to long range (spread >= 400 px), both sides of Mera", d3.size() == 5 and d3.max() - d3.min() >= 400.0 and s3.size() == 2, str(d3))
 	_check("dragon: a hit past several thresholds queues each owed phase (9, 6, 3) and runs them once, landing every time", queued == [9, 6, 3] and dr.phase_log == [12, 9, 6, 3] and dr.landings == 4 and dr.size == 2, "queued=%s log=%s land=%d size=%d" % [queued, dr.phase_log, dr.landings, dr.size])
 	var big := 9999
 	dr.take_damage(big, m.global_position.x, "explosion")
@@ -2136,3 +2167,53 @@ func _super_quake_tests() -> void:
 
 func Levels_EDGE() -> float:
 	return float(load("res://scripts/game/levels.gd").EDGE)
+
+
+
+## v0.8.2: the bolt's blunt round head leads along the velocity, the flame trails behind
+func _bolt_orientation_tests() -> void:
+	var BOLT = load("res://scripts/game/dragon_bolt.gd")
+	var img: Image = load("res://assets/characters/ansimuz/hell-beast/Fireball/Sprites/frame1.png").get_image()
+	if img.is_compressed():
+		img.decompress()
+	var lm := 0
+	var rm := 0
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).a > 0.15:
+				if x < img.get_width() / 2:
+					lm += 1
+				else:
+					rm += 1
+	_check("fireball art: the blunt head is on the LEFT (more mass), the trail on the right -> NATIVE_HEAD = -1", lm > rm and BOLT.NATIVE_HEAD == -1, "left=%d right=%d" % [lm, rm])
+	var g: Node = await _s4_new(3)
+	var m: Node = g.mera
+	m.position.x = 6000.0
+	g.snap_camera()
+	await _s4_frames(g, 5)
+	var ok := true
+	var info: Array = []
+	# a real lob (fixed flight time: up, apex, down) to the right, and horizontal launches both ways
+	for cfg in [[Vector2(5000, 700), Vector2(5600, 1000), 1.4], [Vector2(7000, 600), Vector2(6500, 1000), 1.2], [Vector2(5200, 400), Vector2(5900, 1000), -1.0], [Vector2(6900, 400), Vector2(6200, 1000), -1.0]]:
+		var b: Node2D = BOLT.new()
+		b.setup(g, null, cfg[0], cfg[1], cfg[2])
+		g.world.add_child(b)
+		var phases := {}
+		for i in 200:
+			await physics_frame
+			m.invuln = 1.0
+			if not is_instance_valid(b) or b.done:
+				break
+			var v: Vector2 = b.vel
+			var dot: float = b.head_dir().dot(v.normalized())
+			var ph := "rise" if v.y < -150.0 else ("apex" if v.y < 150.0 else "descent")
+			if i == 0:
+				ph = "launch"
+			phases[ph] = minf(float(phases.get(ph, 1.0)), dot)
+		for k in phases:
+			ok = ok and float(phases[k]) > 0.97
+		info.append(phases)
+		ok = ok and phases.has("launch") and phases.has("apex") and phases.has("descent")
+	_check("dragon bolts: the blunt head points along the velocity at launch, apex and descent (lobs and horizontal shots, both directions)", ok, str(info))
+	g.queue_free()
+	await physics_frame
