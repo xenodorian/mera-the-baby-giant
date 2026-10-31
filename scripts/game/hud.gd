@@ -13,13 +13,13 @@ const CONTROLS := [
 	["A (hold) + direction", "run      (Down + A = slide)"],
 	["B", "back dodge     B then X = dodge attack (X, X again: rising slash, slam)"],
 	["X", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
-	["X X Y", "1x 2x 3x (with slash)     X X X Y = combo into beam"],
+	["X X Y", "1x 2x 3x (with slash)     X X X Y = combo into beam (Y within 0.3 s of the 3rd X)"],
 	["Y", "quick fire (bolt)     X+Y together = rear explosion"],
 	["A+Y together / Y while running", "ground dash (aerial dash animation)"],
 	["In the air", "X = jump attack (X again: 2nd hit), Y = aerial dash, Up = double jump"],
 	["L1", "heal: drink a green potion, +1 size (max 6x)"],
-	["R1", "heal pose + lightning strike (AOE)"],
-	["L2 (hold)", "heal pose + spherical barrier, blocks hits while held"],
+	["R1 (rage 100 %)", "heal pose + lightning strike from the sky (AOE), uses the whole meter"],
+	["L2 (hold)", "heal pose + spherical barrier, blocks hits while held (R1 works inside)"],
 	["R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air / R2 again)"],
 	["Fury flight", "8-way move, Down on the ground lands, R2 lands"],
 	["Start / Enter / F1", "this overlay (and restart after Game Over)"],
@@ -80,7 +80,9 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482, 100), "%d%%" % int(m.rage), 24)
 	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140, 136), "R2: FURY!", 26, Color(1, 0.3, 0.25))
+		_txt(Vector2(140, 136), "R2: FURY!   or   R1: LIGHTNING", 24, Color(1, 0.3, 0.25))
+	if _flash == "rage" and _flash_t > 0.0:
+		_txt(Vector2(260, 146), "R1 lightning needs a full meter (not in Fury)", 22, Color(1, 0.5, 0.4))
 	# potions
 	var pc := Color(0.45, 0.95, 0.45)
 	if _flash == "potions" and _flash_t > 0.0:

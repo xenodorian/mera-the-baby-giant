@@ -13,8 +13,9 @@ extends Node2D
 const GROUND_Y := 1060.0
 const ART := 5
 const LOOP_W := 384 * ART
-const DEADZONE := 480.0       # camera follows once Mera is within 480 px of either screen edge
-const KNIGHT_GAP := 260.0     # new knights appear this far past the screen edge, ahead of Mera
+const CAM_LOOK := 120.0       # camera always follows Mera: centred on her plus this look-ahead in her facing direction
+const CAM_SMOOTH := 9.0       # follow rate (1/s, exponential smoothing; ~0.1 s to close most of a gap)
+const KNIGHT_GAP := 480.0     # new knights appear this far past the screen edge, ahead of Mera
 const POTION_EVERY := 2600.0  # a potion appears on the ground ahead for every 2600 px of new ground
 
 var mera: Mera
@@ -42,7 +43,10 @@ var shot_at: Array = []
 var wait_frames := 60
 var quit_at := -1
 var demo: Array = []
+var _trace := OS.has_environment("MERA_TRACE")   # debug: print Mera's animation changes (demo tuning)
+var _trace_k := ""
 var defeated := 0
+var last_strike: Node2D = null
 var knight_calm_until := 0   # demo: frame before which the knight does not swing
 
 
@@ -62,6 +66,7 @@ func _ready() -> void:
 	cam.position = Vector2(cam_x, 540)
 	add_child(cam)
 	cam.make_current()
+	snap_camera()
 	debug_draw = Node2D.new()
 	debug_draw.z_index = 50
 	debug_draw.draw.connect(_draw_debug)
@@ -102,6 +107,8 @@ func _parse_args() -> void:
 			mera.potions = int(v)
 		elif a == "--fury":
 			mera.start_fury()
+		elif a.begins_with("--aura-quality="):
+			mera.set_aura_quality(int(v))
 		elif a == "--no-knight":
 			test_mode = true
 		elif a == "--debug":
@@ -131,6 +138,9 @@ func _parse_args() -> void:
 func _physics_process(delta: float) -> void:
 	frame_n += 1
 	_run_demo()
+	if _trace and (mera.anim.key != _trace_k or (frame_n >= int(OS.get_environment("MERA_TRACE")) and frame_n < int(OS.get_environment("MERA_TRACE")) + 80)):
+		_trace_k = mera.anim.key
+		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])
 	_follow_camera(delta)
 	if not test_mode:
 		_manage_knight(delta)
@@ -174,6 +184,8 @@ func _run_demo() -> void:
 				mera.potions = int(st[2])
 			"calm":
 				knight_calm_until = int(st[2])
+			"spawning":                       # demo: stop/allow automatic knight spawns
+				test_mode = not bool(st[2])
 			"overlay":
 				hud.overlay = bool(st[2])
 			"spawn":
@@ -183,10 +195,11 @@ func _run_demo() -> void:
 
 func _follow_camera(delta: float) -> void:
 	var mx := mera.global_position.x
-	if mx > cam_x + DEADZONE:
-		cam_x = mx - DEADZONE
-	elif mx < cam_x - DEADZONE:
-		cam_x = mx + DEADZONE
+	# velocity feed-forward: the smoothing would otherwise trail fast moves (a 6x dash is ~9600 px/s) by v / rate
+	var target := mx + mera.facing * CAM_LOOK * minf(mera.shown, 2.0) + clampf(mera.vel.x / CAM_SMOOTH, -700.0, 700.0)
+	cam_x = lerpf(cam_x, target, 1.0 - exp(-CAM_SMOOTH * delta))
+	if absf(cam_x - target) < 0.5:
+		cam_x = target
 	var off := Vector2.ZERO
 	if shake_t > 0.0:
 		shake_t -= delta
@@ -194,6 +207,12 @@ func _follow_camera(delta: float) -> void:
 		if shake_t <= 0.0:
 			shake_amt = 0.0
 	cam.position = Vector2(roundf(cam_x + off.x), roundf(540 + off.y))
+
+
+## jump the camera onto its target (level start / restart)
+func snap_camera() -> void:
+	cam_x = mera.global_position.x + mera.facing * CAM_LOOK * minf(mera.shown, 2.0)
+	cam.position = Vector2(roundf(cam_x), 540)
 
 
 func camera_x() -> float:
@@ -330,15 +349,18 @@ func call_lightning(m: Mera) -> void:
 	for e in enemies():
 		if absf(e.global_position.x - m.global_position.x) < 1100.0:
 			x = e.global_position.x
-	var b := Blast.new()
-	b.setup("lightning", Vector2(x, GROUND_Y), s)
+	x = clampf(x, cam_x - 900.0, cam_x + 900.0)  # keep the strike on screen at big sizes
+	var b := Strike.new()                    # tessellated: ground impact + segments up past the screen top
 	world.add_child(b)
+	b.setup(self, Vector2(x, GROUND_Y), s)
+	last_strike = b
 	var e2 := Blast.new()
-	e2.setup("electro", Vector2(x, GROUND_Y), s * 1.5)
+	e2.setup("electro", Vector2(x, GROUND_Y), s)
 	world.add_child(e2)
 	shake(8.0 + 2.0 * s, 0.3)
 	Sfx.play("thunder")
-	var r := Rect2(x - 40.0 * s, 0, 80.0 * s, GROUND_Y + 10.0)
+	var top := cam.position.y - 540.0 - Strike.MARGIN
+	var r := Rect2(x - 40.0 * s, top, 80.0 * s, GROUND_Y + 10.0 - top)
 	for e in enemies():
 		if r.intersects(e.hurt_rect()):
 			m.deal(e, 3, x)
@@ -400,5 +422,8 @@ func _draw_debug() -> void:
 		debug_draw.draw_rect(e.hurt_rect(), Color(0.2, 0.8, 1.0, 0.9), false, 2.0)
 		if not (e.hitbox.get_child(0) as CollisionShape2D).disabled:
 			debug_draw.draw_rect(e.attack_rect(), Color(1, 0.5, 0.1, 0.9), false, 3.0)
-	debug_draw.draw_line(Vector2(cam_x - DEADZONE, 0) + o, Vector2(cam_x - DEADZONE, 1080), Color(1, 1, 0, 0.3), 2.0)
-	debug_draw.draw_line(Vector2(cam_x + DEADZONE, 0), Vector2(cam_x + DEADZONE, 1080), Color(1, 1, 0, 0.3), 2.0)
+	debug_draw.draw_line(Vector2(cam_x, 0) + o, Vector2(cam_x, 1080), Color(1, 1, 0, 0.3), 2.0)
+
+
+func _exit_tree() -> void:
+	SegStrip.drain.call_deferred()

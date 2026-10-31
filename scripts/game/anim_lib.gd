@@ -41,6 +41,14 @@ func spell_tex(name: String) -> Texture2D:
 	return _tex[k]
 
 
+## a second sheet of a spell (e.g. the beam's additive light segments)
+func spell_tex_field(name: String, field: String) -> Texture2D:
+	var k := "spell:" + name + ":" + field
+	if not _tex.has(k):
+		_tex[k] = load(DIR + String(spells[name][field]))
+	return _tex[k]
+
+
 ## [w, h, frames] of a spell strip
 func spell_cell(name: String) -> Array:
 	return spells[name]["cell"]

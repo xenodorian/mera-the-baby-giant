@@ -9,9 +9,12 @@ signal size_changed(size: int)
 signal died
 signal move_started(key: String)
 
-const WALK := 100.0
+const WALK := 50.0          # v0.3: 50 px/s at 1x
 const RUN := 200.0
-const DASH := 400.0
+const DASH := 400.0         # slide, dodge attack lunge
+const DASH_FAST := 1600.0   # v0.3 ground/aerial dash: 2x the distance in half the time (4x the old 400 px/s)
+const DODGE := 800.0        # v0.3 back dodge: same distance as before in half the time
+const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0}   # animation playback rate (keeps every key frame)
 const FLY := 320.0
 const GRAVITY := 1500.0
 const JUMP_V := 520.0
@@ -22,6 +25,9 @@ const CHORD_MS := 50.0        # simultaneous-press window (X+Y, A+Y, Up+...)
 const HOLD_MS := 180.0        # "XX hold X": third X held this long -> 2x-1
 const BUFFER_MS := 450.0      # how long a press stays buffered for a chain
 const IFRAMES := 1.2
+const BEAM_Y_MS := 300.0     # X X X Y: the Y may come up to this long after the third X
+const R1_COST := 100.0      # the lightning strike needs a full meter and spends all of it
+const DODGE_KEYS := ["bdodge", "gdash", "adash"]
 const FURY_TIME := 12.0
 const TRACK := ["btn_x", "btn_y", "btn_a", "btn_b", "up", "down", "l1", "r1", "l2", "r2"]
 # base damage per move (x size); beam ticks every BEAM_TICK frames while it is lit
@@ -45,6 +51,7 @@ var _pending := {}
 var invuln := 0.0
 var potions := 1
 var rage := 0.0
+var rage_spending := false     # R1 drained the meter; it empties visibly first
 var fury := false
 var fury_left := 0.0
 var flying := false
@@ -62,14 +69,27 @@ var hurtbox: Area2D
 var hitbox: Area2D
 var aura_mat: ShaderMaterial
 var aura_fx: CPUParticles2D
+var flame_back: Sprite2D           # Kaioken-style Fury flame (shaders/fury_flame.gdshader): behind her ...
+var flame_front: Sprite2D          # ... and thin additive tongues over her; children of anim so they scale/flip/tilt
+var aura_quality := 2              # 2 = both flame layers + 90 embers, 1 = back flame + 45 embers, 0 = outline + 20 embers
+const FLAME_SIZE := Vector2(84, 124)
 var barrier: Sprite2D
 var _neutral := ""
 var _hover_t := 0.0
+var _bob := 0.0
+var tilt_target := 0.0             # flight tilt (rad, clockwise from upright), eased in _tilt_tick
+const TILT_PIVOT := Vector2(0, -27)   # native px: she rotates around her body centre, not her feet
+var beam_strip: SegStrip           # tessellating beam segments (child of anim, so it flips and scales with her)
+var beam_len := 0.0                # native px from the beam origin to its far end this frame (0 = no beam)
+var beam_end_x := 0.0              # world x of the beam's far end, for tests
+const BEAM_MARGIN := 160.0         # screen px the beam runs past the viewport edge
 
 
 func _ready() -> void:
 	anim = LayeredAnim.new()
 	add_child(anim)
+	beam_strip = SegStrip.new()
+	anim.add_child(beam_strip)
 	aura_mat = ShaderMaterial.new()
 	aura_mat.shader = load("res://shaders/mera_aura.gdshader")
 	anim.body.material = aura_mat
@@ -83,15 +103,46 @@ func _ready() -> void:
 	barrier.material = AnimLib.fx_mat
 	barrier.visible = false
 	add_child(barrier)
+	var blank := Image.create(int(FLAME_SIZE.x), int(FLAME_SIZE.y), false, Image.FORMAT_L8)
+	blank.fill(Color.WHITE)
+	var btex := ImageTexture.create_from_image(blank)
+	var fsh: Shader = load("res://shaders/fury_flame.gdshader")
+	for k in 2:
+		var sp := Sprite2D.new()
+		sp.texture = btex
+		sp.centered = false
+		var mat := ShaderMaterial.new()
+		mat.shader = fsh
+		mat.set_shader_parameter("front", float(k))
+		mat.set_shader_parameter("size", FLAME_SIZE)
+		mat.set_shader_parameter("seed", 3.0 + k)
+		if k == 1:
+			mat.shader = load("res://shaders/fury_flame_front.gdshader")
+			mat.set_shader_parameter("front", 1.0)
+		sp.material = mat
+		sp.visible = false
+		anim.add_child(sp)
+		if k == 0:
+			anim.move_child(sp, 0)       # behind the light/body/fx layers
+			flame_back = sp
+		else:
+			flame_front = sp
 	aura_fx = CPUParticles2D.new()
 	aura_fx.emitting = false
-	aura_fx.amount = 40
-	aura_fx.lifetime = 0.7
+	aura_fx.amount = 90
+	aura_fx.lifetime = 0.55
 	aura_fx.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	aura_fx.direction = Vector2(0, -1)
-	aura_fx.spread = 15.0
-	aura_fx.gravity = Vector2(0, -60)
-	aura_fx.color = Color(0.9, 0.08, 0.1, 0.85)
+	aura_fx.spread = 12.0
+	aura_fx.gravity = Vector2(0, -260)
+	var grad := Gradient.new()
+	grad.set_color(0, Color(1.0, 0.62, 0.28, 1.0))
+	grad.set_color(1, Color(0.45, 0.0, 0.06, 0.0))
+	grad.add_point(0.35, Color(1.0, 0.22, 0.12, 0.95))
+	aura_fx.color_ramp = grad
+	var amat := CanvasItemMaterial.new()
+	amat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	aura_fx.material = amat
 	add_child(aura_fx)
 	for a in TRACK:
 		held[a] = false
@@ -178,14 +229,14 @@ func set_size(n: int, instant: bool = false) -> void:
 
 func _apply_size() -> void:
 	anim.scale = Vector2(shown * -facing, shown)
-	barrier.scale = Vector2(shown, shown)
-	barrier.position = Vector2(0, -30 * shown)
-	aura_fx.emission_rect_extents = Vector2(18, 26) * shown
-	aura_fx.position = Vector2(0, -27 * shown)
+	_place_barrier()
+	aura_fx.emission_rect_extents = Vector2(22, 24) * shown
+	aura_fx.position = Vector2(0, -24 * shown)
 	aura_fx.scale_amount_min = shown
 	aura_fx.scale_amount_max = shown * 2.0
-	aura_fx.initial_velocity_min = 20.0 * shown
-	aura_fx.initial_velocity_max = 50.0 * shown
+	aura_fx.initial_velocity_min = 60.0 * shown
+	aura_fx.initial_velocity_max = 140.0 * shown
+	aura_fx.gravity = Vector2(0, -260.0 * shown)
 	_update_boxes()
 
 
@@ -227,15 +278,102 @@ func _update_boxes() -> void:
 	var f: Dictionary = _cur()
 	var hs := hurtbox.get_child(0) as CollisionShape2D
 	var r := LayeredAnim.box_to_rect(f["body"], facing, shown)
+	if anim.rotation != 0.0:                 # tilted in flight: hurtbox = bounds of the rotated body box
+		r = _rot_rect(r)
 	(hs.shape as RectangleShape2D).size = r.size
 	hs.position = r.get_center()
 	var hb := hitbox.get_child(0) as CollisionShape2D
 	var attacking: bool = state == "move" and mv.get("dmg", 0) > 0 and f["hit"] != null
 	hb.disabled = not attacking
 	if attacking:
-		var h := LayeredAnim.box_to_rect(f["hit"], facing, shown)
+		var hbox: Array = f["hit"]
+		if f.has("beam") and beam_len > 0.0:     # the beam's hitbox covers its full tessellated length
+			var bx := float(f["bo"][0])
+			hbox = [minf(float(hbox[0]), bx - beam_len), minf(float(hbox[1]), float(f["beam"][1])), maxf(float(hbox[2]), bx), maxf(float(hbox[3]), float(f["beam"][3]))]
+		var h := LayeredAnim.box_to_rect(hbox, facing, shown)
 		(hb.shape as RectangleShape2D).size = h.size
 		hb.position = h.get_center()
+
+
+## Beam frames carry "bo" (origin just past the wand tip) and "bk" (index within the phase). The baked frame keeps the
+## first `cap` px of the canon beam (start cap); tessellating segments run from there to BEAM_MARGIN past the
+## viewport edge, recomputed every frame from the camera, so the beam is off-screen at any size and position.
+func _update_beam() -> void:
+	var f: Dictionary = _cur() if anim != null and not anim.frames.is_empty() else {}
+	if not f.has("bo"):
+		if beam_len != 0.0 or beam_strip.n > 0:
+			beam_strip.clear()
+		beam_len = 0.0
+		return
+	var info: Dictionary = AnimLib.spells["beam"]
+	var rows: Dictionary = info["rows"]
+	var tw := float(info["tw"])
+	var th := float(info["th"])
+	var cy := float(info["cy"])
+	var cap := float(info["cap"])
+	var bo := Vector2(f["bo"][0], f["bo"][1])
+	var bk := int(f["bk"])
+	var ph := String(f["phase"])
+	var tex := AnimLib.spell_tex("beam")
+	var ltex := AnimLib.spell_tex_field("beam", "light")
+	# native px from the origin to past the viewport edge, in the facing direction
+	var ox := art_to_world(bo).x
+	var edge: float = ox + facing * (1920.0 + BEAM_MARGIN)
+	if game != null:
+		edge = float(game.camera_x()) + facing * (960.0 + BEAM_MARGIN)
+	var total := maxf((edge - ox) * facing / shown, cap)
+	var lf := int(now / float(info["ms"])) % int(rows["sustain"][2])
+	var row := "sustain"
+	var fi := lf
+	var reach := total
+	var end_row := "impact"
+	match ph:
+		"fire":
+			reach = maxf(total * [0.3, 0.62, 0.88][clampi(bk, 0, 2)], cap)
+			end_row = "front"
+		"fade":
+			row = "fade"
+			fi = clampi(bk, 0, int(rows["fade"][2]) - 1)
+			if bk > 2:
+				end_row = ""
+		"recover":
+			row = "linger"
+			fi = clampi(bk, 0, int(rows["linger"][2]) - 1)
+			end_row = ""
+	var mid := maxf(reach - cap, 0.0)
+	beam_strip.begin()
+	var x := bo.x - cap                 # segments run toward -x in art space (the art faces left)
+	var i := 0
+	var left := mid
+	while left > 0.0:
+		var w := minf(tw, left)
+		var v := (i * 7 + 1) % int(rows[row][1])
+		var r0 := Rect2(fi * tw + tw - w, (int(rows[row][0]) + v) * th, w, th)
+		var p := Vector2(x - w, bo.y - cy)
+		if not beam_strip.put(tex, r0, p, AnimLib.fx_mat, 1):
+			break
+		if row != "linger":
+			beam_strip.put(ltex, r0, p, AnimLib.light_mat, 0)
+		x -= w
+		left -= w
+		i += 1
+	if end_row != "":
+		var rr := Rect2(lf * tw, int(rows[end_row][0]) * th, tw, th)
+		beam_strip.put(tex, rr, Vector2(x - tw / 2.0, bo.y - cy), AnimLib.fx_mat, 1)
+		beam_strip.put(ltex, rr, Vector2(x - tw / 2.0, bo.y - cy), AnimLib.light_mat, 0)
+	beam_strip.end()
+	beam_len = bo.x - x
+	beam_end_x = art_to_world(Vector2(x, bo.y)).x
+
+
+func _rot_rect(r: Rect2) -> Rect2:
+	var c := TILT_PIVOT * shown
+	var out := Rect2()
+	var pts := [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]
+	for i in 4:
+		var q: Vector2 = c + (pts[i] - c).rotated(anim.rotation) + Vector2(0, _bob)
+		out = Rect2(q, Vector2.ZERO) if i == 0 else out.expand(q)
+	return out
 
 
 func hit_rect() -> Rect2:
@@ -246,7 +384,34 @@ func hit_rect() -> Rect2:
 	return Rect2(global_position + hb.position - sz / 2.0, sz)
 
 
+## L2 bubble: centre and radius (art px, feet pivot, art faces left) fitted by tools/fit_barrier.py around every opaque
+## pixel of the held barrier pose (heal f5-8, incl. the raised hand and the energy ball) + a 3 px margin
+func barrier_fit() -> Vector3:
+	var b: Dictionary = AnimLib.spells["barrier"]
+	if b.has("fit"):
+		var f: Array = b["fit"]
+		return Vector3(float(f[0]), float(f[1]), float(f[2]))
+	return Vector3(-3.0, -38.0, 46.0)
+
+
+func _place_barrier() -> void:
+	var f := barrier_fit()
+	var k := f.z / float(AnimLib.spells["barrier"].get("rim_r", 36)) * shown
+	barrier.scale = Vector2(k, k)
+	barrier.position = Vector2(-facing * f.x * shown, f.y * shown)
+
+
+## the bubble's circle in world space (centre, radius)
+func barrier_circle() -> Vector3:
+	var f := barrier_fit()
+	var c := global_position + Vector2(-facing * f.x * shown, f.y * shown)
+	return Vector3(c.x, c.y, f.z * shown)
+
+
 func hurt_rect() -> Rect2:
+	if barrier_on:                      # while shielded the bubble is what gets hit (and blocks)
+		var bc := barrier_circle()
+		return Rect2(bc.x - bc.z, bc.y - bc.z, 2.0 * bc.z, 2.0 * bc.z)
 	var hs := hurtbox.get_child(0) as CollisionShape2D
 	var sz := (hs.shape as RectangleShape2D).size
 	return Rect2(global_position + hs.position - sz / 2.0, sz)
@@ -289,6 +454,9 @@ func _physics_process(delta: float) -> void:
 	if state != "gallery":
 		_land_check()
 	anim.step(delta * 1000.0)
+	_tilt_tick(delta)
+	_place_flame()
+	_update_beam()
 	_update_boxes()
 	if state == "move":
 		_do_hits()
@@ -465,8 +633,13 @@ func _special_buttons() -> bool:
 			game.flash_hud("potions" if potions <= 0 else "max")
 	if not r1.is_empty():
 		_use(r1)
-		_start_move("lightning")
-		return true
+		if can_lightning():
+			spend_rage()
+			_start_move("lightning")
+			return true
+		Sfx.play("fail", 1.2, -4.0)
+		if game:
+			game.flash_hud("rage")
 	if not l2.is_empty():
 		_use(l2)
 		_start_move("barrier")
@@ -593,7 +766,13 @@ func _fly_tick(delta: float) -> void:
 	if anim.key != "djump_v" or anim.idx != want:
 		anim.play("djump_v", want)
 		anim.paused = true
-	anim.position.y = 0.0 if want == 2 else roundf(sin(_hover_t * 3.0) * 1.0) * shown
+	_bob = 0.0 if want == 2 else roundf(sin(_hover_t * 3.0) * 1.0) * shown
+	# face the flight direction: her head leads along the velocity (the raised-arms pose reads as flying head-first),
+	# flipped for left/right by _face; in the idle hover she eases back upright
+	if v != Vector2.ZERO:
+		tilt_target = atan2(v.x, -v.y)
+	else:
+		tilt_target = 0.0
 	position.y = clampf(position.y, 40.0 + 60.0 * shown, ground_y)
 	if position.y >= ground_y - 1.0 and pressed("down"):
 		_land_from_flight()
@@ -635,8 +814,18 @@ func _land_from_flight() -> void:
 
 
 # ---------------------------------------------------------------- fury / rage
+## R1 lightning: only with a full meter outside Fury (in Fury the meter is the Fury timer, already spent by R2)
+func can_lightning() -> bool:
+	return not fury and not rage_spending and rage >= R1_COST
+
+
+## spend the whole meter; it drains visibly over ~0.45 s, and nothing refills it until it is empty
+func spend_rage() -> void:
+	rage_spending = true
+
+
 func add_rage(v: float) -> void:
-	if fury:
+	if fury or rage_spending:
 		return
 	rage = clampf(rage + v, 0.0, 100.0)
 
@@ -649,12 +838,103 @@ func start_fury() -> void:
 	Sfx.fury = true
 	Sfx.play("fury")
 	aura_mat.set_shader_parameter("aura", 1.0)
-	aura_fx.emitting = true
+	set_aura_quality(aura_quality)
 	if game:
 		game.shake(10.0, 0.3)
 
 
+## afterimage trail for the fast dashes and the dodge: up to TRAIL_CAP pooled ghost copies of the body frame, one every
+## 2 physics frames, fading over 0.2 s (teal, deep red in Fury)
+const TRAIL_CAP := 8
+var _ghosts: Array = []
+var _ghost_i := 0
+var _trail_n := 0
+
+
+func _trail() -> void:
+	_trail_n += 1
+	if _trail_n % 2 != 0 or game == null or not anim.body.visible:
+		return
+	var g: Sprite2D
+	if _ghosts.size() < TRAIL_CAP:
+		g = Sprite2D.new()
+		g.centered = false
+		g.region_enabled = true
+		game.world.add_child(g)
+		_ghosts.append(g)
+	else:
+		g = _ghosts[_ghost_i % TRAIL_CAP]
+		_ghost_i += 1
+	g.texture = anim.body.texture
+	g.region_rect = anim.body.region_rect
+	g.global_transform = anim.body.global_transform
+	g.z_index = -1
+	g.modulate = Color(1.0, 0.15, 0.15, 0.55) if fury else Color(0.45, 1.0, 0.85, 0.5)
+	g.visible = true
+	g.set_meta("t", 0.2)
+
+
+func _fade_trail(delta: float) -> void:
+	for g in _ghosts:
+		if g.visible:
+			var t: float = float(g.get_meta("t", 0.0)) - delta
+			g.set_meta("t", t)
+			g.modulate.a = maxf(t / 0.2, 0.0) * 0.55
+			if t <= 0.0:
+				g.visible = false
+
+
+func _exit_tree() -> void:
+	for g in _ghosts:
+		if is_instance_valid(g):
+			g.queue_free()
+	_ghosts.clear()
+
+
+func _tilt_tick(delta: float) -> void:
+	_fade_trail(delta)
+	if state != "fly":
+		tilt_target = 0.0
+		_bob = 0.0
+	var rate := 12.0 if state == "fly" and tilt_target != 0.0 else (7.0 if state == "fly" else 22.0)
+	var r := lerp_angle(anim.rotation, tilt_target, 1.0 - exp(-rate * delta))
+	if absf(angle_difference(r, tilt_target)) < 0.002:
+		r = tilt_target
+	anim.rotation = r
+	var c := TILT_PIVOT * shown
+	anim.position = Vector2(0.0, _bob) + c - c.rotated(r)
+
+
+## quality cap for the Fury aura (low-end devices): see aura_quality
+func set_aura_quality(q: int) -> void:
+	aura_quality = clampi(q, 0, 2)
+	aura_fx.amount = [20, 45, 90][aura_quality]
+	if fury:
+		aura_fx.emitting = true
+		flame_back.visible = aura_quality >= 1
+		flame_front.visible = aura_quality >= 2
+
+
+## keep the flame centred on the current frame's body (native px, anim space), feet slightly inside its base
+func _place_flame() -> void:
+	if not flame_back.visible and not flame_front.visible:
+		return
+	var b = _cur().get("body")
+	var cx := 0.0
+	var bot := 0.0
+	if b != null:
+		cx = (float(b[0]) + float(b[2])) / 2.0
+		bot = float(b[3])
+	var p := Vector2(roundf(cx - FLAME_SIZE.x / 2.0), roundf(bot + 6.0 - FLAME_SIZE.y))
+	flame_back.position = p
+	flame_front.position = p
+
+
 func _fury_tick(delta: float) -> void:
+	if rage_spending:
+		rage = maxf(rage - 220.0 * delta, 0.0)
+		if rage <= 0.0:
+			rage_spending = false
 	if not fury:
 		return
 	fury_left -= delta
@@ -666,6 +946,8 @@ func _fury_tick(delta: float) -> void:
 		Sfx.fury = false
 		aura_mat.set_shader_parameter("aura", 0.0)
 		aura_fx.emitting = false
+		flame_back.visible = false
+		flame_front.visible = false
 		if flying:
 			flying = false
 			anim.position.y = 0.0
@@ -690,11 +972,12 @@ func _start_move(k: String) -> void:
 	if flying:
 		vel = Vector2.ZERO
 	_play(a)
+	anim.speed = FAST_ANIMS.get(k, 1.0)
 	match k:
 		"bdodge":
 			Sfx.play("dash", 1.2)
 		"gdash", "adash":
-			vel = Vector2(facing * DASH * shown, 0.0)
+			vel = Vector2(facing * DASH_FAST * shown, 0.0)
 			Sfx.play("dash", 1.0)
 		"slide":
 			Sfx.play("dash", 0.9)
@@ -735,8 +1018,18 @@ func _move_tick(delta: float) -> void:
 			_chain_window(i, 2, 10, 12, "atk1")
 		"atk2":
 			_chain_window_2x(i)
+		"atk2_1", "atk2_2":
+			# X X X Y: a Y that follows the third X within BEAM_Y_MS still becomes the beam combo, even after the
+			# third X already resolved into 2x-1 / 2x-2 (human timing). Only a Y pressed AFTER that third X counts,
+			# so X X Y (3x) and X X Y Y never reach here.
+			if mv.has("x3_t") and i <= 5:
+				var yb := _find("btn_y", float(mv["x3_t"]))
+				if not yb.is_empty() and float(yb["t"]) - float(mv["x3_t"]) <= BEAM_Y_MS:
+					_use(yb)
+					_chain("beam_ender")
 		"bdodge":
-			vel.x = -facing * DASH * shown if i >= 2 and i <= 16 else 0.0
+			vel.x = -facing * DODGE * shown if i >= 2 and i <= 16 else 0.0
+			_trail()
 			if i >= 12 and not _find("btn_x", float(mv["t0"])).is_empty():
 				_use(_find("btn_x", float(mv["t0"])))
 				vel.x = 0.0
@@ -775,7 +1068,8 @@ func _move_tick(delta: float) -> void:
 		"jatk2":
 			vel.x = move_toward(vel.x, 0.0, 300.0 * shown * delta)
 		"adash", "gdash":
-			vel = Vector2(facing * DASH * shown, 0.0)
+			vel = Vector2(facing * DASH_FAST * shown, 0.0)
+			_trail()
 		"slide":
 			vel.x = facing * DASH * shown if i >= 2 and i <= 12 else move_toward(vel.x, 0.0, DASH * 4.0 * shown * delta)
 		"beam_ender":
@@ -796,6 +1090,19 @@ func _move_tick(delta: float) -> void:
 				else:
 					mv["released"] = true
 					anim.seek(9)
+			elif barrier_on and not _find("r1").is_empty():
+				# R1 inside the bubble: same rule as outside (full meter, spends 100 %), she keeps the pose and keeps blocking
+				_use(_find("r1"))
+				if can_lightning():
+					spend_rage()
+					mv["bubble_strikes"] = int(mv.get("bubble_strikes", 0)) + 1
+					if game:
+						game.call_lightning(self)
+					Sfx.play("cast", 0.8)
+				else:
+					Sfx.play("fail", 1.2, -4.0)
+					if game:
+						game.flash_hud("rage")
 			elif barrier_on and not pressed("l2"):
 				barrier_on = false
 				barrier.visible = false
@@ -831,9 +1138,14 @@ func _chain_window_2x(i: int) -> void:
 	var x: Dictionary = px if not px.is_empty() else _find("btn_x", since)
 	var y := _find("btn_y", since)
 	if not y.is_empty():
+		# beam only for X X X Y: a third X pressed before the Y. A Y first means X X Y -> 3x, and any later X or Y
+		# (X X Y Y, X X Y X) is swallowed, never the beam.
 		var beam := not x.is_empty() and float(x["t"]) <= float(y["t"])
 		_use(y)
 		_use(x)
+		for e in presses:
+			if e["a"] == "btn_y" and float(e["t"]) >= float(y["t"]):
+				e["used"] = true
 		mv.erase("pending_x")
 		anim.paused = false
 		_chain("beam_ender" if beam else "atk3")
@@ -852,10 +1164,12 @@ func _chain_window_2x(i: int) -> void:
 		mv.erase("pending_x")
 		anim.paused = false
 		_chain("atk2_1")
+		mv["x3_t"] = float(x["t"])
 	elif not held["btn_x"] and now - float(mv["pend_t"]) >= 60.0:
 		mv.erase("pending_x")
 		anim.paused = false
 		_chain("atk2_2")
+		mv["x3_t"] = float(x["t"])
 
 
 func _on_frame(i: int) -> void:
@@ -996,8 +1310,15 @@ func deal(e: Node, base: int, from_x: float) -> void:
 		game.hit_spark(e.hurt_rect().get_center(), shown)
 
 
+## dodge i-frames: the back dodge and the dashes are invulnerable for their first 70 %
+func dodging() -> bool:
+	return state == "move" and String(mv.get("key", "")) in DODGE_KEYS and anim.idx < int(anim.frames.size() * 0.7)
+
+
 func take_hit(dmg: int, from_x: float) -> void:
 	if state == "dead" or state == "gallery" or invuln > 0.0:
+		return
+	if dodging():
 		return
 	if barrier_on:
 		Sfx.play("block")

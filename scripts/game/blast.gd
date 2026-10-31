@@ -23,11 +23,11 @@ func setup(kind: String, p: Vector2, s: float) -> void:
 			ms = 70.0
 		"electro":
 			var tx: Texture2D = load("res://assets/vfx/ansimuz/grotto-escape-2-fx/spritesheets/electro-shock.png")
-			for i in range(2, 12):
-				frames.append([tx, Rect2(i * 96, 0, 96, 96)])
-			spr.offset = Vector2(-48, -92)
+			for i in range(2, 9):                         # the sheet is 9 frames of 128x96 (0 = dark dot, 1 = flash)
+				frames.append([tx, Rect2(i * 128, 0, 128, 96)])
+			spr.offset = Vector2(-64, -92)
 			spr.material = AnimLib.remap_mat
-			ms = 55.0
+			ms = 60.0
 		"spark":
 			var tx2: Texture2D = load("res://assets/characters/merakintsugi/platformer-character-pack/hit fx/hit fx_01.png")
 			for i in 5:

@@ -17,6 +17,7 @@ import numpy as np
 from PIL import Image
 import beam_cast_sequences as cs
 import projectile_cast as pc
+import tess_spells as ts
 from ase_render import load, frame
 
 ROOT = cs.ROOT; PK = cs.PK; OUT = f'{ROOT}/assets/characters/merakintsugi/game'
@@ -128,7 +129,7 @@ def finish(key, atlas, frames, **extra):
     out = []
     for fr in frames:
         e = dict(ms=fr['ms'], c=ent(fr.get('c')), f=ent(fr.get('f')), l=ent(fr.get('l')), body=fr.get('body'), hit=fr.get('hit'))
-        for kk in ('src', 'phase', 'beam'):
+        for kk in ('src', 'phase', 'beam', 'bo', 'bk'):
             if kk in fr: e[kk] = fr[kk]
         out.append(e)
     ANIMS[key] = dict(sheet=f'{key}.png', size=list(size), frames=out, **extra); print(key, len(out), 'frames', size)
@@ -141,7 +142,13 @@ def bake_pack(key):
         if f is not None and f.getbbox():
             fr['f'] = at.add(f, off[0], off[1], 1); fr['hit'] = rel_box(f, off[0], off[1])
         frs.append(fr)
-    ix = idle_after(key, frames_of(key)[-1], off)
+    # trailing blank frames (2x atk's "short delay" tail is empty in the pack): hold the last drawn pose instead of
+    # vanishing, and match the idle against that pose (matching a blank frame gave atk2 a bogus 343 px end_dx)
+    fl = frames_of(key); last = len(frs) - 1
+    while last > 0 and not body(key, fl[last]).getbbox(): last -= 1
+    for j in range(last + 1, len(frs)):
+        frs[j]['c'] = frs[last]['c']; frs[j]['body'] = frs[last]['body']; frs[j].pop('f', None); frs[j].pop('hit', None)
+    ix = idle_after(key, fl[last], off)
     finish(key, at, frs, loop=key in LOOPS, end_dx=ix[0], end_idle=ix[1], tags=D[key]['tags'], offset=list(off))
 
 # ---------------------------------------------------------------- canon casts
@@ -176,6 +183,7 @@ def bake_cast(key, recs, mode, start, end, extra):
         cb, fx, lt = split_layers(r, mode)
         fr = dict(ms=r['ms'], c=at.add(cb, X0, Y0, 2), body=rel_box(r['spr'], r['pos'][0] + X0, r['pos'][1] + Y0, 3),
                   src=f"{cs.NAMES[r['anim']]} f{r['frame']}", phase=r['phase'])
+        if 'bo' in r: fr['bo'] = r['bo']; fr['bk'] = r['bk']
         if fx.getbbox(): fr['f'] = at.add(fx, X0, Y0, 1)
         if lt is not None and lt.getbbox(): fr['l'] = at.add(lt, X0, Y0, 0)
         hit = None
@@ -201,7 +209,20 @@ def proj_cast(key, name, skip_pre=2):
                   ground_dy=meta['ground'] + 1 - PY - (sy - PY)), canon=f'previews/beam/cast_sequences/{name}_cast.gif'))
 
 def beam_cast(key, name, from_anim='3x'):
-    cs.SPLIT = []; cs.build(name, cs.PICKS[name]); recs = cs.SPLIT; cs.SPLIT = None
+    cs.SPLIT = []; _, log, meta = cs.build(name, cs.PICKS[name]); recs = cs.SPLIT; cs.SPLIT = None
+    # tessellating beam (tools/tess_spells.py): keep only the first CAP px of the baked beam past the wand (start cap);
+    # the game chains segments from there to past the screen edge. bo = beam origin (first px past the wand tip,
+    # pivot-relative native px, beam runs to -x), bk = index within the beam phase.
+    tip = meta['tip_pose_world']; X0, Y0 = meta['world_origin']; last = None
+    for r in recs:
+        if r['phase'] in ('fire', 'sustain', 'fade'):
+            rc = log[r['t']]['recoil']; ox = int(round(tip[0] + rc[0] - X0 - 1)); oy = int(round(tip[1] + rc[1] - Y0))
+            last = (ox, oy)
+        if r['phase'] in ('fire', 'sustain', 'fade', 'recover') and last is not None:
+            ox, oy = last; cut = max(ox - ts.CAP, 0)
+            r['al'] = r['al'].copy(); r['al'][:, :cut] = 0; r['E'] = r['E'].copy(); r['E'][:, :cut] = 0
+            r['light'] = r['light'].copy(); r['light'][:, :cut] = 0
+            r['bo'] = [ox + X0 - PX, oy + Y0 - PY]; r['bk'] = r['k']
     rec = [r for r in recs if r['phase'] not in ('idle', 'idle_end')]
     for r in recs: r['ms'] = 40 if r['phase'] not in ('idle', 'idle_end') else 60
     start = next(i for i, r in enumerate(rec) if r['anim'] == from_anim) if from_anim else 0
@@ -320,5 +341,14 @@ if __name__ == '__main__':
                   potion=dict(sheet='pickup_potion.png', cell=strip(potion_frames(), f'{OUT}/pickup_potion.png'), ms=110),
                   sphere=dict(sheet='pickup_sphere.png', cell=strip(sphere_frames(), f'{OUT}/pickup_sphere.png'), ms=90),
                   barrier=dict(sheet='spell_barrier.png', cell=strip(barrier_frames(), f'{OUT}/spell_barrier.png'), ms=80))
+    import fit_barrier                                   # bubble sized from the barrier pose's opaque pixels (hand + energy ball)
+    spells['barrier']['fit'], spells['barrier']['pose_bounds'] = fit_barrier.fit(ANIMS, OUT); spells['barrier']['rim_r'] = 36
+    br = ts.beam_rows(); order = [(n, v) for n in ('sustain', 'fade', 'linger') for v in range(ts.V)] + [('front', 0), ('impact', 0)]
+    im, info = ts.sheet(br, order, ts.TW, ts.TH, flip=True, layer=0); im.save(f'{OUT}/spell_beam.png')
+    ts.sheet(br, order, ts.TW, ts.TH, flip=True, layer=1)[0].save(f'{OUT}/spell_beam_light.png')
+    spells['beam'] = dict(sheet='spell_beam.png', light='spell_beam_light.png', tw=ts.TW, th=ts.TH, cy=ts.CY, cap=ts.CAP, ms=40, rows=info)
+    lr = ts.lightning_rows(); order = [('mid', v) for v in range(ts.V)] + [('bottom', 0), ('top', 0)]
+    im, info = ts.sheet(lr, order, ts.LW, ts.LTH); im.save(f'{OUT}/spell_lightning_seg.png')
+    spells['lightning_seg'] = dict(sheet='spell_lightning_seg.png', w=ts.LW, h=ts.LTH, ground=ts.LTH - 4, ms=50, rows=info)
     json.dump(dict(pivot_world=[PX, PY], faces='left', palette=P, anims=ANIMS, spells=spells), open(f'{OUT}/anims.json', 'w'), separators=(',', ':'))
     print('wrote', len(ANIMS), 'animations')

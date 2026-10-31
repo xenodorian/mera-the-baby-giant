@@ -1,5 +1,15 @@
 # Mera ground combos
 
+> **In the game (v0.3-playable):**
+> - Buttons are Xbox names: X = attack, Y = special.
+> - X X X = 1x → 2x → 2x-2.
+> - X X, hold X = 1x → 2x → 2x-1.
+> - X X Y = 1x → 2x → 3x.
+> - **X X X Y = beam combo** (`beam_ender` = Combo B below, from 3x atk f0). The Y may come up to 0.3 s after the third X; X X Y Y never gives the beam.
+> - Y = quick fire (pick3 v4), X+Y = rear explosion (pick2 v4 projectile slash).
+> - In the game the beam is tessellated, so it always runs off-screen. Its hitbox covers the full length (it is not the ~150 px strip below).
+> - Full controls are in `docs/CONTROLS.md`, rules in `docs/GAME_RULES.md`. The "A/S" inputs below are the original design proposals, kept for the record.
+
 Source animations are in `assets/characters/merakintsugi/platformer-character-pack/atk/`. Timing comes from the `.aseprite` files: 1x / 2x atk run at 40 ms per frame, 3x atk at 35 ms (shown at 40 ms in the previews). The game has no input map yet, so the inputs below are proposals: **A** = attack, **S** = spell/cast.
 
 ## Combo A: normal 3-hit (pack default)

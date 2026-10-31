@@ -130,6 +130,6 @@ The user asked to replace the rear beam with a projectile that explodes, colour-
 ## Playable test level (decided 2026-10-30)
 - Mera's animations are baked by `tools/export_game_anims.py` into `assets/characters/merakintsugi/game/`: atlas PNGs plus `anims.json`, with body / fx / additive-light layers per frame, feet pivot, hurt and hit boxes. Pack animations use the in-place (non-pivoted) aseprites; the game moves her itself. Canon moves (pick3_v4_bolt quick fire, pick2_v4_projectile_slash rear blast, pick1_combo_beam_slash beam ender) are rendered through `SPLIT` hooks in the canon tools. Their GIFs are unchanged (verified byte-identical). Flying shots and explosions are separate game objects.
 - Fury flight uses `jump/double jump_vertical` frame 2 (active flight) and frame 3 (idle hover), matching the user's reference image.
-- The Fire Knight is drawn at **3x** in play (6x stays the scale-test reference), so a 2x Mera is slightly smaller than him and outgrows him from 3x on.
+- The Fire Knight is drawn at **6x** in play, permanently (user, v0.3: the 6x size is intentional). Enemies never scale with Mera in size or damage.
 - Background: the ansimuz Cemetery is tiled into a 1920 px loop with ±20 px Gaussian-blended seams (`tools/make_loop_bg.py`). The originals are untouched.
 - Effects: the ansimuz ground explosion (rear blast), electro-shock remapped to the explosion palette (lightning impact), and pack hit fx_01 (hit sparks). In Fury every effect pixel is remapped onto a deep-red ramp (`shaders/spell_fx.gdshader`).
