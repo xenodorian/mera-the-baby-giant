@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.8.1-playable (dragon flight fix)._
+_Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal launch)._
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -44,6 +44,7 @@ _Last updated: 2026-10-31, v0.8.1-playable (dragon flight fix)._
 | v0.2-playable | First playable cemetery level |
 | v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
 | v0.3.1 | Camera hard lock |
+| **v0.8.2-playable** | Dragon bolts: fireball art mirrored so the blunt head leads (art faces left), horizontal launch from the measured mouth, gravity-only arc solve, lob spots keep Mera in front of the mouth (336 tests) |
 | **v0.8.1-playable** | Dragon flight: user-picked 4-frame `fly` wing loop (breath 1,5,4,5 without fire, 11 fps), flies to 5 lob spots per phase (short/mid/long, both sides, on screen), arcs solved per distance; volley `spit` frames without the breath plume (331 tests) |
 | **v0.8-playable** (S4) | Hit-stop/sparks/SFX variance, shatter + gore, breakables with smart drops, barrels + chandeliers, juggles + corpse launch, parry (timed L2), secrets (wall, lever door, ledge + crumbling plank), allies scale with Mera, dragon rework (19x size = health, 12/9/6/3 flight phases with lobbed bolts, +3 on a hit), Fire Knight 1/2 damage, dancer skin recolour, Android L2 fix, **Android APK builds**, PC keyboard layout, super earthquake (Down+Y at 100 % rage: impact frame, 2 s quake, 7 s stun, flat 2 to all, ground props destroyed) (323 tests) |
 | **v0.7-playable** (S3) | Ally cards on levels 2-4, R1 summon + picker, Water Priestess (heal to 6x, 30 s cooldown), Leaf Ranger, Brawler Girl, Dancing Girl (non-boss enemies gather and hop), all ally animations used |
@@ -104,6 +105,10 @@ _Last updated: 2026-10-31, v0.8.1-playable (dragon flight fix)._
 - **Baked-in effects in ansimuz frames:** the dragon `breath` frames contain the fire plume. Never reuse them for a different attack. Mask copies instead: the plume uses exactly 3 colours, (242,74,2), (255,141,7) and (255,214,133), found in no other dragon frame. After adding an anim in `tools/build_roster.py`, rebuild `roster.json`, run `--import` and add the PNGs to all three export presets.
 
 - **Roster frame lists:** `tools/build_roster.py` accepts an explicit list of frame paths (repeats allowed) as well as a folder. The dragon `fly` loop uses this. The preview tool for the flight is `tests/shots_v081.gd`; pass `--gif=/abs/dir` to dump 960×540 frames at 20 fps, then assemble them with PIL. Run it with `--fixed-fps 60` so one rendered frame is one physics tick.
+
+- **Check every sprite's native facing before rotating it to a velocity.** The ansimuz hell-beast fireball faces LEFT (blunt head at −x). `rotation = vel.angle()` alone flies it backwards. See `dragon_bolt.gd` `NATIVE_HEAD` / `_orient()`. The dragon also faces left natively (`native = -1`); world offsets measured on his art go through `facing == native` (see `mouth_pos()`).
+- **Concurrent agents:** others may push to this repo. Before branching and again before merging, run `git fetch` and check `gh pr list` and the recent branches, merge `origin/main` into your branch if it moved, and rerun the full suite on the merged result.
+- **Previews:** the Read tool can show a stale image for a reused path. Write review images to new file names.
 
 ## Tips
 - Read `docs/CONTROLS.md` (Timing windows) before touching `mera.gd` input code. Run the human-timing replay tests after any input change.

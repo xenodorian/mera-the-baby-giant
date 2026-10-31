@@ -2,6 +2,21 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.8.2-playable (2026-10-31)
+Dragon bolt fix (user feedback t91u). Pre-release with Windows, Linux and Android (ARM) builds.
+- **Bolts no longer fly backwards.** The ansimuz fireball art faces **left**: blunt round head on the left, flame trail on the right. The bolt used to rotate it as if it faced right. Now it mirrors the art (`flip_h`), rotates it to the velocity, and uses `flip_v` when flying left so the flame curl stays on top. The blunt head leads and the flame trails for the whole arc (`dragon_bolt.gd` `_orient()`, `NATIVE_HEAD`).
+- **Horizontal launch out of the mouth.**
+  - He faces Mera and spits from his mouth (the open-mouth spit frame; mouth measured on the art, scaled and mirrored), with no upward leap from his head.
+  - The bolt leaves horizontally (vy = 0) and gravity curves it down onto the target. The arc is re-solved: flight time = √(2·drop/G), vx = dx/time.
+  - Lob spots keep Mera at least mouth reach + 160 px in front of him; at large sizes they spread across the remaining room (he may now show about 80 % of his body at the screen edge).
+- Tests: **336 pass, 0 fail**. New checks:
+  - the fireball art faces left;
+  - the blunt head points along the velocity at launch, apex and descent (a real lob and horizontal shots, both directions);
+  - every bolt spawns at the mouth, below the head top;
+  - launch vy ≈ 0 and toward Mera;
+  - every bolt ends within the aim spread of Mera;
+  - at 3x the lobs span ≥ 400 px, from both sides.
+
 ## v0.8.1-playable (2026-10-31)
 Infernal Dragon flight fix. Pre-release with Windows, Linux and Android (ARM) builds.
 
