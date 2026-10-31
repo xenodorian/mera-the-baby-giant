@@ -2,19 +2,20 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
-## v0.9.6 (2026-10-31)
-In the repo. No Windows build yet; the latest exe is still [v0.9.5-playable](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.5-playable/Mera_Playable_v0.9.5_Windows.exe).
+## v0.9.6-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.6-playable/Mera_Playable_v0.9.6_Windows.exe
 - Every summon lasts **20 seconds**.
-- **Brawler Girl** runs forward instead of following Mera. Non-boss enemies chase her. Bosses still come for Mera.
+- **Brawler Girl** lands in front of Mera and runs right until she leaves. She stops only to fight, or when a wall or a closed door is in front of her. Non-boss enemies chase her. Bosses still come for Mera.
 - **Dancing Girl** walks out in front of Mera, stops, and dances for **5 seconds**. Then she waits out the rest of the 20.
 - **Water Priestess** heals Mera to 6x when she arrives, and once more just before she leaves.
 - **L1 inside either bubble drinks a potion and the bubble stays up.** Every other button still drops the bubble and does that move.
-- **Summon picker:** the blank white box is gone. Portraits are cropped to the character instead of the whole sprite sheet.
+- **Summon picker:** portraits are cropped to the character. The blank white sheet is gone.
 - **L2 alone is the full bubble.** It is not a lightning tap.
 - **L2+R2 drops lightning** (needs 100 rage, spends the bar). R2 while the bubble is up drops the strike and the bubble stays.
 - **R2 alone starts Fury**, and Fury spends **100 rage** only. A raised meter keeps the rest. The red bar during Fury is the 12 s timer.
-- **Drinking a potion is four times as fast.** The heal plays at 4×: the size lands in about 0.1 s, and she can move again in about 0.25 s.
-- **Any projectile damages objects:** Mera's bolts and fireballs, the ranger's arrows, enemy shots (including ones sent back), and the dragon's bolts.
+- **Drinking a potion is four times as fast.** The heal plays at 4×.
+- **Any projectile damages objects:** bolts, fireballs, ranger arrows, enemy shots, and the dragon's bolts.
 - Android `versionCode` 17, `versionName` 0.9.6 (APK not published).
 
 ## v0.9.5-playable (2026-10-31)

@@ -652,7 +652,7 @@ func dancer() -> Node2D:
 ## the brawler while she is out (monster.gd: non-boss enemies chase her instead of Mera)
 func brawler() -> Node2D:
 	for a in allies():
-		if a.id == "brawler" and a.state != "arrive" and a.state != "leave":
+		if a.id == "brawler" and a.alive() and a.state != "leave" and a.state != "dead":
 			return a
 	return null
 
