@@ -77,6 +77,9 @@ CFG = {
      n_embers=12, ember_r=(3, 12), linger=700),
 }
 TICK = 40
+# game export (tools/export_game_anims.py): when SPLIT is a list, build() skips the GIF and instead appends one record
+# per Mera frame (body, pack fx, energy, light dots) without the flying shot, sparks, embers or explosion.
+SPLIT = None
 
 def build(name, C):
     rng = random.Random(7)
@@ -191,7 +194,8 @@ def build(name, C):
         if T_FIRE <= tm < T_FIRE + TICK:   # muzzle flash
             disc(E, TIP[0] + rc[0] - X0, TIP[1] - Y0, 4.5 if C['big'] else 3.0, 1.05)
             L += 0.8 * np.exp(-np.hypot(XX - (TIP[0] - X0), YY - (TIP[1] - Y0)) / 20); glow = 0.8
-        if C.get('cross') and T_FIRE <= tm < T_HIT:   # quick-fire bolt: elongated level head, short trail, subtle flicker
+        if SPLIT is not None: pass   # game export: the shot is a game object
+        elif C.get('cross') and T_FIRE <= tm < T_HIT:   # quick-fire bolt: elongated level head, short trail, subtle flicker
             px, py = proj_pos(tm); px -= X0; py -= Y0; fk = math.sin(tm * 0.13) * math.sin(tm * 0.047 + 1)
             for j in range(1, 9):
                 qx = px - DIR * j * 2.4; rx, ry = max(1.0, 3.6 - j * 0.3), max(0.7, 1.8 - j * 0.14)
@@ -208,11 +212,11 @@ def build(name, C):
                 qx, qy = proj_pos(tb); qx -= X0; qy -= Y0
                 disc(E, qx, qy + (0.5 * math.sin(tb * 0.06 + j) if j > 3 else 0), max(0.8, r0t - j * dr), 1.0 - j * 0.05)
             disc(E, px, py, r0h, 1.15); L += (0.55 if C['big'] else 0.35) * np.exp(-np.hypot(XX - px, YY - py) / 13)
-        for (t0, lf, x0, y0, vx, vy, e) in sparks:
+        for (t0, lf, x0, y0, vx, vy, e) in ([] if SPLIT is not None else sparks):
             u = life_k(t0, lf, tm)
             if u is None: continue
             dtm = tm - t0; dot(E, x0 + vx * dtm - X0, y0 + vy * dtm + 0.000002 * dtm * dtm - Y0, e * (1 - u) ** 0.8)
-        for (t0, lf, x0, y0, vx, vy, kind) in embers:
+        for (t0, lf, x0, y0, vx, vy, kind) in ([] if SPLIT is not None else embers):
             u = life_k(t0, lf, tm)
             if u is None: continue
             dtm = tm - t0; x, y = x0 + vx * dtm - X0, y0 + vy * dtm - Y0
@@ -221,7 +225,7 @@ def build(name, C):
                 xi, yi = int(round(x)), int(round(y))
                 if 0 <= xi < W - 1 and 0 <= yi < H - 1 and BAY[yi, xi] > u * 0.9: smoke[yi:yi + 2, xi:xi + 2] = 1 if u < 0.55 else 0.5
         exi = None
-        if T_HIT <= tm < T_EXP_END:
+        if SPLIT is None and T_HIT <= tm < T_EXP_END:
             acc = T_HIT; exi = 0
             for i, d in enumerate(EX_MS):
                 if tm < acc + d: exi = i; break
@@ -240,15 +244,25 @@ def build(name, C):
                 if len(xx): arr[yy, xx[0] if DIR < 0 else xx[-1], :3] = col
             spr = Image.fromarray(arr)
         im.alpha_composite(spr, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
-        fxl = C.get('fx', {}).get(a)
+        fxl = C.get('fx', {}).get(a); fxi = None
         if fxl and ph in ('fire', 'recover'):   # pack effect layers, same canvas offset (and recoil) as the body
             fxi = fx_img(a, f, fxl)
             if fxi.getbbox(): im.alpha_composite(fxi, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
+        if SPLIT is not None:
+            return dict(t=int(tm), anim=a, frame=f, phase=ph, pos=(o[0] + rc[0] - X0, o[1] + rc[1] - Y0), spr=spr, fxi=fxi, E=E.copy(),
+                        dots=L > (BAY * 1.1 + 0.18), origin=(X0, Y0), size=(W, H))
         if exi is not None: im.alpha_composite(EX[exi], (ex_pos[0] - X0, ex_pos[1] - Y0))
         out = np.array(im)[..., :3]
         for th, col in BANDS: out[E >= th] = col
         return Image.fromarray(out), dict(t=int(tm), anim=cs.NAMES[a], frame=f, phase=ph, recoil=list(rc), explosion_frame=exi,
                                           projectile=None if not (T_FIRE <= tm < T_HIT) else [round(v, 1) for v in proj_pos(tm)])
+    if SPLIT is not None:   # one record per Mera frame up to idle, plus the shot data the game needs
+        for sg in seg:
+            if sg[0] >= T_IDLE: break
+            r = render(sg[0]); r['ms'] = sg[1]; SPLIT.append(r)
+        SPLIT.append(dict(meta=dict(t_fire=T_FIRE, t_idle=T_IDLE, tip=TIP, spawn=proj_pos(T_FIRE), speed=C['speed'] / TICK, dist=DIST, dir=DIR,
+                          ang=C.get('ang', 0.0), level=bool(C.get('level')), drop=bool(C['drop']), idle_dx=IDLE_OFF[0], idle_frame=best[2], ground=GY)))
+        return None, None, None
     # event clock
     ev = {s[0]: 1 for s in seg}
     for i in range(int((T_HIT - T_FIRE) // TICK) + 1): ev[int(T_FIRE + TICK * i)] = 2

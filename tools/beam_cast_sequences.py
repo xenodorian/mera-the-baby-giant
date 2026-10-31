@@ -88,6 +88,9 @@ PICKS = {
                                 rec=[('d1', i) for i in range(16, 19)]),
 }
 FIRE, SUSTAIN, FADE = mb.FIRE, mb.SUSTAIN, mb.FADE
+# game export (tools/export_game_anims.py): when SPLIT is a list, build() also appends one record per frame (rim-lit
+# body, pack fx, energy bands, additive light). The GIF output is unchanged.
+SPLIT = None
 RANGE = 150; IDLE_PRE = 6; IDLE_POST = 26; S = 4; BG = np.array([18, 16, 30]) / 255
 LW, LH, LOX, LOY = RANGE + 50, 90, 20, 45      # beam-local canvas
 
@@ -252,10 +255,14 @@ def build(name, cfg):
         if glow > 0.2:   # rim light on the beam side
             sp = mb.rim(spr.transpose(Image.FLIP_LEFT_RIGHT), glow).transpose(Image.FLIP_LEFT_RIGHT) if d[0] < 0 else mb.rim(spr, glow)
         im.alpha_composite(sp, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
+        fxi = None
         if a in cfg.get('fx', {}):   # the pack's own effect layers, original pixels, same canvas offset + recoil as the body
             fxi = fx_img(a, f, cfg['fx'][a])
             if fxi.getbbox(): im.alpha_composite(fxi, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
         rgb, al = mb.bands(np.clip(E, 0, 1.2)); base = np.array(im).astype(float) / 255
+        if SPLIT is not None:
+            SPLIT.append(dict(t=t, anim=a, frame=f, phase=p, k=k, pos=(o[0] + rc[0] - X0, o[1] + rc[1] - Y0), spr=sp, fxi=fxi, rgb=rgb, al=al,
+                              light=np.clip(lit[..., None] * mb.TINT * 1.6, 0, 1), E=E.copy(), origin=(X0, Y0), size=(W, H), idle_dx=idle_dx, idle_frame=idle_start))
         out = base[..., :3] * (1 - al[..., None]) + rgb * al[..., None]
         frames.append(Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), 'RGB'))
         durs.append(cfg['lead_ms'][k] if p == 'lead' and 'lead_ms' in cfg else 60 if p in ('idle', 'idle_end') else 40)
