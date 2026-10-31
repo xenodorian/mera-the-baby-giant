@@ -25,6 +25,12 @@ func _new_game(knights: bool = false) -> Node:
 	return g
 
 
+## half the enemy's body width (spawn distances are edge to edge)
+func e_half(RO, eid: String) -> float:
+	var b: Array = RO.art(eid)["body"]
+	return (float(b[2]) - float(b[0])) * float(RO.def(eid)["k"]) * 0.38
+
+
 func _drive(g: Node, steps: Array, frames: int) -> void:
 	var m: Node = g.mera
 	for f in range(1, frames + 1):
@@ -261,6 +267,11 @@ func _run() -> void:
 	_check("R1 without ally cards -> fail cue, no lightning", fails > 0 and gr.last_strike == null and gr.mera.rage == 100.0, "")
 	await _drive(gr, [[5, "l2", true]], 100)
 	_check("L2 held with a full meter -> barrier, no lightning", gr.mera.barrier_on and gr.mera.rage == 100.0 and gr.last_strike == null, "")
+	await _drive(gr, [[3, "btn_y", true], [6, "btn_y", false]], 12)
+	_check("v0.6: Y inside the bubble with a full meter -> lightning, the bubble stays up", gr.last_strike != null and gr.mera.barrier_on and gr.mera.rage_spending and not ("quick_fire" in gr.mera.move_log), "")
+	gr.last_strike = null
+	await _drive(gr, [[3, "btn_y", true], [6, "btn_y", false]], 12)
+	_check("v0.6: Y inside the bubble with the meter spent -> fail cue, no strike, still shielded", gr.last_strike == null and gr.mera.barrier_on, "")
 	await _drive(gr, [[2, "l2", false]], 30)
 	gr.queue_free()
 	await process_frame
@@ -990,6 +1001,14 @@ func _run() -> void:
 		await physics_frame
 		await physics_frame
 		var lo_ok: bool = absf(m.position.x - LV.EDGE) < 1.0
+		if g.exit_locked():                    # v0.6: Infernal Caverns' exit stays shut while the dragon lives
+			m.position.x = LV.map_w() + 900.0
+			await physics_frame
+			await physics_frame
+			_check("level %d: the exit is locked while the boss lives" % (li + 1), not g.cleared, "")
+			g.boss_dead = true
+			m.position.x = 9000.0
+			await physics_frame
 		m.position.x = LV.map_w() + 900.0
 		await physics_frame
 		await physics_frame
@@ -1040,6 +1059,130 @@ func _run() -> void:
 	_check("earthquake without 20 stamina -> nothing", g.quake_t <= 0.0 and not ("roll_land" in m.move_log), "")
 	g.queue_free()
 	await process_frame
+	# ================================================================ v0.6 enemy roster
+	var RO = load("res://scripts/game/roster.gd")
+	var TE = load("res://scripts/game/telegraph.gd")
+	var placed: Array = []
+	var dup := false
+	for li in RO.LEVELS:
+		for eid in RO.LEVELS[li]:
+			if eid in placed:
+				dup = true
+			placed.append(eid)
+	for li in RO.BOSSES:
+		placed.append(RO.BOSSES[li])
+	placed.sort()
+	var all_ids: Array = RO.ids()
+	all_ids.sort()
+	_check("all 16 roster enemies are placed on levels 2-4, each once; level 1 has none", placed == all_ids and all_ids.size() == 16 and not dup and not RO.LEVELS.has(0) and not RO.BOSSES.has(0), "%s" % [placed])
+	var dragon_boss: bool = RO.def("dragon").get("boss", false) and RO.BOSSES.get(3, "") == "dragon"
+	_check("the dragon is the boss of Infernal Caverns", dragon_boss, "")
+	var tell_ok := true
+	var tell_info := ""
+	for eid in all_ids:
+		var sets: Array = [RO.def(eid)["attacks"]]
+		if RO.def(eid).has("attacks_disarmed"):
+			sets.append(RO.def(eid)["attacks_disarmed"])
+		for st2 in sets:
+			for a in st2:
+				if float(a["tell"]) < TE.MIN_TELL or not TE.COLORS.has(String(a["kind"])) or not RO.art(eid)["anims"].has(String(a["anim"])):
+					tell_ok = false
+					tell_info += "%s:%s " % [eid, a["anim"]]
+	_check("telegraph standard: every attack has a known colour, a real animation and a tell >= %.2f s" % TE.MIN_TELL, tell_ok, tell_info)
+	# every enemy, every animation, and every enemy can hurt Mera
+	var runs := {"skeleton": ["plain", "clothed"], "wolf": ["run", "run_skin"]}
+	for eid in all_ids:
+		var used := {}
+		var hits := 0
+		var tells_seen := true
+		var tell_marker := false
+		var k_fixed := true
+		for variant in runs.get(eid, [""]):
+			for dist in [760.0, 150.0]:
+				LV.current = 1
+				g = await _new_game()
+				m = g.mera
+				m.position.x = 6000.0
+				m.set_size(6, true)
+				g.snap_camera()
+				var e: Node2D = g.spawn_enemy(eid, 6000.0 + dist + e_half(RO, eid), {"variant": variant, "seed": 7})
+				var k0: float = e.k
+				var tell_len := 0
+				for f in 420:
+					await physics_frame
+					if f % 30 == 0:
+						m.set_size(6 if f < 300 else 3, true)
+					if e.state == "tell":
+						tell_len += 1
+						if e.marker.visible:
+							tell_marker = true
+					elif tell_len > 0:
+						if tell_len < int(TE.MIN_TELL * 60.0) - 1:
+							tells_seen = false
+						tell_len = 0
+				if e.k != k0 or absf(e.sprite.scale.y) != k0:
+					k_fixed = false
+				if is_instance_valid(e) and e.alive():
+					e.take_damage(e.hp_max / 2 + 1, m.global_position.x)
+					for f in 300:
+						await physics_frame
+						if f % 30 == 0:
+							m.set_size(6, true)
+				if is_instance_valid(e):
+					for a in e.played:
+						used[a] = true
+					hits += e.hits_landed
+				g.queue_free()
+				await process_frame
+		var want: Array = RO.art(eid)["anims"].keys()
+		var miss_a: Array = []
+		for a in want:
+			if not used.has(a):
+				miss_a.append(a)
+		_check("%s uses all its animations %s, hurts Mera (%d hits), tells >= min with the marker, never scales" % [eid, want, hits], miss_a.is_empty() and hits > 0 and tells_seen and tell_marker and k_fixed, "missing=%s tells=%s marker=%s k=%s" % [miss_a, tells_seen, tell_marker, k_fixed])
+	# earthquake: ground enemies stunned, flyers not
+	LV.current = 3
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 6000.0
+	g.snap_camera()
+	g.knight_calm_until = 1 << 30
+	var hh: Node2D = g.spawn_enemy("hell_hound", 6900.0)
+	var fs: Node2D = g.spawn_enemy("fire_skull", 6800.0)
+	await _drive(g, [], 30)
+	g.earthquake()
+	await _drive(g, [], 20)
+	_check("earthquake stuns a roster ground enemy (hell hound) but not a flyer (fire skull)", hh.state == "stun" and fs.state != "stun", "%s %s" % [hh.state, fs.state])
+	g.queue_free()
+	await process_frame
+	# the spawner: walking through Misty Woods meets every enemy on its list; the dragon guards Infernal Caverns' exit
+	for li in [1, 2, 3]:
+		LV.current = li
+		g = await _new_game(true)
+		m = g.mera
+		g.knight_calm_until = 1 << 30
+		m.invuln = 1e9
+		var seen := {}
+		for x in range(800, int(LV.map_w()) - 600, 120):
+			m.position.x = float(x)
+			await physics_frame
+			for e in g.mobs:
+				if is_instance_valid(e):
+					seen[e.id] = true
+					if not e.boss:
+						e.hp = 0
+						e.queue_free()
+			g.mobs = g.mobs.filter(func(e): return is_instance_valid(e) and e.alive() and e.boss)
+		var want_ids: Array = RO.LEVELS[li].duplicate()
+		var miss: Array = []
+		for eid in want_ids:
+			if not seen.has(eid):
+				miss.append(eid)
+		var boss_ok: bool = (not RO.BOSSES.has(li)) or (g.boss != null and is_instance_valid(g.boss) and g.boss.id == RO.BOSSES[li] and g.exit_locked())
+		_check("level %d spawner: every listed enemy appears%s; no knights" % [li + 1, ", the boss guards the locked exit" if RO.BOSSES.has(li) else ""], miss.is_empty() and boss_ok and g.knight == null, "missing=%s boss=%s" % [miss, g.boss])
+		g.queue_free()
+		await process_frame
+	LV.current = 0
 	# menu scene loads and lists the 4 levels
 	var menu: Node = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(menu)

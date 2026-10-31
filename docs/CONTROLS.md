@@ -33,6 +33,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | **L1** | heal: drink one carried green potion, +1 size (max 6x). No potion = "fail" cue, nothing happens |
 | **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
+| **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
 | **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
 | **R2** alone | in Fury: take off / land. Outside Fury: nothing (HUD hint "Fury is L2 + R2") |
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
@@ -60,7 +61,9 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
   - a **hold** gives the barrier.
 - This works without any input delay, because both moves start with the same heal pose. L2 commits at once. If you let go before the bubble forms (heal frame 5, 300 ms), the pose carries on into the lightning. If you're still holding, the bubble forms.
 - With less than 100 % rage a tap just drops the pose.
-- **Lightning from inside the bubble (the v0.3 R1-in-bubble) is gone**, because L2 is already held. R2 while in the bubble now gives Fury.
+- **Lightning from inside the bubble (the v0.3 R1-in-bubble) is back in v0.6, on Y.** v0.5 dropped it because L2 is already held and R1 is now for allies. **Y while the bubble is up** (100 % rage) is the strike.
+  - It's unambiguous: Y never did anything inside the bubble, the earthquake needs a crouch, and quick fire can't start while shielded.
+  - R2 while in the bubble still gives Fury.
 - **Fury = L2 + R2** as a chord (67 ms, either order). L2 pressed first starts the barrier pose, and the R2 converts it into Fury (no stamina spent). R2 alone keeps its Fury-flight role (take off / land).
 
 ## Timing windows (v0.4, all in `scripts/game/tuning.gd`)

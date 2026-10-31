@@ -2,6 +2,41 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.6-playable (2026-10-31)
+Stage S2 of `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.
+
+### Enemy roster: 16 enemies on levels 2-4, using all their animations
+- **Misty Woods:** wolf (2 skins), mutant toad, werewolf, flying eye demon, ogre (disarmed below half HP), minotaur.
+- **Moonlit Town:** skeleton (rises; plain or clothed), hell gato, ghost, Death (rises; loses his lamp), nightmare.
+- **Infernal Caverns:** hell hound, fire skull (doused by hits), hell beast (fireballs + fire pillar), demon (claw + breath), and the **Infernal Dragon boss**.
+  - The dragon has 160 HP, a boss bar, a tail sweep and fire breath.
+  - The exit stays locked until he falls.
+- How it's built:
+  - One data-driven enemy script (`scripts/game/monster.gd`) plus definitions (`scripts/game/roster.gd`).
+  - A manifest of every frame and its opaque box (`assets/enemies/roster.json`, made by `tools/build_roster.py`). Hit boxes are cut from the frames that reach past the body.
+- Enemies never scale, are stunned by the earthquake on the ground (flyers aren't), drop rage spheres and potions, and die in the ansimuz fire puff.
+- Waves cycle through each level's list so every type appears. Level 1 keeps the knights.
+- Full table: `docs/GAME_RULES.md`, "Enemy roster".
+
+### Telegraph standard (research #7)
+- Every enemy attack, knights included, starts with a tell of at least 0.35 s: a frozen wind-up, a colour pulse and a "!" overhead.
+- The colours: orange = melee, white-gold = heavy, red = ranged / fire, purple = rush.
+- See `docs/GAME_RULES.md`, "Telegraphs".
+
+### Lightning inside the bubble is back
+- **Y while the L2 bubble is up** (100 % rage) calls the lightning. Mera stays shielded.
+- The v0.3 behaviour, on a free button. See `docs/CONTROLS.md`.
+
+### Other
+- `scripts/game/demo.gd` now uses the current controls.
+- **Tests:** 248 pass, adding the roster checks:
+  - each enemy uses every animation, hurts Mera, telegraphs at least 0.35 s with the marker, and never scales;
+  - all 16 are placed once each, and the dragon is the boss;
+  - the earthquake stuns ground enemies but not flyers;
+  - each level's spawner meets its whole list, and the boss locks the exit;
+  - lightning works inside the bubble.
+- **Tests now run in ~10 s** with `--fixed-fps 60` (was ~15 min). See `docs/AI_HANDOFF.md`.
+
 ## v0.5-playable (2026-10-31)
 Stage S1 of the plan in `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.
 

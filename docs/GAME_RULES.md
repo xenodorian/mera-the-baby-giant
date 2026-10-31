@@ -136,7 +136,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | # | Level | Art | Enemies |
 |---|---|---|---|
 | 1 | **Moonlit Cemetery** | ansimuz Gothicvania Cemetery | Fire Knight + Blue Knights, no ally cards |
-| 2 | **Misty Woods** | ansimuz Mist Forest | wolf, werewolf, ogre, minotaur (from v0.6; until then the Fire Knight) |
+| 2 | **Misty Woods** | ansimuz Mist Forest | wolf, werewolf, ogre, minotaur (from v0.6; (v0.6: the roster below)) |
 | 3 | **Moonlit Town** | ansimuz Night Town + a procedural cobbled street | ghosts, skeletons, death, nightmare (v0.6) |
 | 4 | **Infernal Caverns** | ansimuz Lava background | demons, hell hounds, hell beast, fire skulls, the boss dragon (v0.6) |
 
@@ -152,3 +152,56 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - Mera stomps (`roll_land` pose). The ground shakes for **1 s**: a 34 px camera shake re-randomised every frame (very fast, violent, the whole map) and dust bursting out of the ground across the screen.
 - Every enemy **touching the ground** at any moment of the quake is **stunned until 5 s after the quake started**. Enemies in the air when it starts are caught if they land before it ends.
 - A stunned enemy wobbles in a dazed yellow tint. It can't act, block or flinch out of it, and takes damage normally.
+
+
+## Telegraphs (v0.6): one standard for every enemy
+Every enemy attack, the knights' included, starts with a **tell**:
+- the attacker freezes on its wind-up frame;
+- its sprite pulses in the attack's colour;
+- a "!" of the same colour pops up over its head.
+
+A tell never lasts less than **0.35 s**. A hit during a tell (or during a ground lunge) cancels the attack; bosses don't flinch. The colour tells you how to answer it:
+
+| Colour | Kind | Answer |
+|---|---|---|
+| Orange | **melee**: a normal strike | step back, dodge (B) or hold the barrier (L2) |
+| White-gold | **heavy**: a special or long-reach strike | get out of range or dodge through it |
+| Red | **ranged**: fire, breath or a projectile | barrier (L2 hold) or jump it |
+| Purple | **rush**: a charge, pounce or swoop with the whole body | jump over it or dodge |
+
+The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scripts/game/telegraph.gd`.
+
+## Enemy roster (v0.6)
+- Sixteen enemies on levels 2-4, built from the ansimuz and chierit packs. **Every one of their animations is used.**
+- Enemies never scale with Mera (fixed size).
+- Each drops a rage sphere (the value is its "rage" %), plus a 20 % chance of a potion and a 25 % chance of a +30 stamina potion.
+- Damage dealt by Mera = base × her size, as for the knights.
+
+| Level | Enemy | HP | Hits cost | Animations and what they do |
+|---|---|---|---|---|
+| 2 Misty Woods | Wolf | 4 | 1 | run cycle, two skins (plain / skinned); charges across (rush) |
+| | Mutant Toad | 8 | 1 | idle, jump (hops toward Mera), attack (tongue, melee) |
+| | Werewolf | 10 | 1 | idle, run, jump (rising) + fall (falling) pounce (rush) |
+| | Flying Eye Demon | 3 | 1 | 8-frame flight; hovers high and swoops (rush) |
+| | Ogre | 18 | 2 | idle, walk, club attack (heavy). **Disarmed below half HP:** unarmed idle / walk and a shoulder shove (rush, 1) |
+| | Minotaur | 26 | 2 | idle, walk, double axe swing (heavy) |
+| 3 Moonlit Town | Skeleton | 6 | 1 | climbs out of the ground (rise), walk, lunge (melee); 50 % come clothed (rise-clothed / walk-clothed) |
+| | Hell Gato | 6 | 1 | run cycle; leaping pounce (rush) |
+| | Ghost | 5 | 1 | drifts half-transparent (no-particles), turns solid with particles to haunt-swoop (rush) |
+| | Death | 9 | 1 | rises with his lamp, lamp walk, reaping glide (rush). **Loses the lamp on the first hit:** lamp-less walk, faster |
+| | Nightmare | 14 | 2 | idle, then a full-screen gallop (run, rush) |
+| 4 Infernal Caverns | Hell Hound | 7 | 1 | idle, walks when far, runs when near, jump pounce (rush) |
+| | Fire Skull | 6 | 1 | burning flight and swoop (rush). **Doused by any hit:** the no-fire skull drifts slowly for 3 s, then re-ignites |
+| | Hell Beast | 14 | 1 / 2 | idle; breath spits fireballs (ranged, 1; the fireball sprite); burn = a pillar of fire when close (heavy, 2) |
+| | Demon | 22 | 2 | hovering idle; claw attack (heavy) up close, blue fire breath (ranged) at mid range |
+| | **Infernal Dragon (boss)** | 160 | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). Appears in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
+
+- Every enemy dies in the ansimuz enemy-death fire puff.
+
+### Spawning on levels 2-4
+- **Waves:** the first wave triggers at x 2200, then one every 1500 px. Wave sizes run 1, 2, 2, 3, ... and each wave cycles through the level's list, so every type shows up.
+- At most 5 enemies are alive at once.
+- **Spawn points:** off-screen ahead of Mera. Risers (skeleton, Death) instead climb out of the ground on screen, ahead of her.
+- **Trickle:** an empty screen for 8 s brings one more.
+- Enemies left 1.6 screens behind are removed.
+- Level 1 keeps the Fire Knight and Blue Knights.

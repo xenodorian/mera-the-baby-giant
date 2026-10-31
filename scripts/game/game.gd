@@ -59,6 +59,16 @@ var quake_age := 0.0
 var quaked := {}             # enemies already stunned by the current quake
 var exit_gate: Node2D
 var test_mode_no_exit := false
+# v0.6 roster (levels 2-4; scripts/game/roster.gd, monster.gd)
+const MONSTER := preload("res://scripts/game/monster.gd")
+var mobs: Array = []
+var boss: Node2D = null
+var boss_spawned := false
+var boss_dead := false
+var wave_i := 0
+var wave_type_i := 0
+var trickle_t := 8.0
+var spawn_arg := ""          # --enemy=ID: one of that enemy ahead of Mera (screenshots)
 
 
 func _ready() -> void:
@@ -118,6 +128,7 @@ func _build_background() -> void:
 		layers.append([sp, float(L["scroll"]), period])
 	exit_gate = load("res://scripts/game/exit_gate.gd").new()
 	exit_gate.position = Vector2(map_w - Levels.EXIT_PAD, GROUND_Y)
+	exit_gate.set("game", self)
 	exit_gate.z_index = -5
 	add_child(exit_gate)
 
@@ -169,6 +180,8 @@ func _parse_args() -> void:
 			wait_frames = int(v)
 		elif a.begins_with("--quit="):
 			quit_at = int(v)
+		elif a.begins_with("--enemy="):
+			spawn_arg = v
 		elif a == "--demo":
 			demo = load("res://scripts/game/demo.gd").STEPS.duplicate()
 
@@ -181,7 +194,10 @@ func _physics_process(delta: float) -> void:
 		_trace_k = mera.anim.key
 		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])
 	if not test_mode:
-		_manage_knight(delta)
+		if Roster.LEVELS.has(Levels.current):
+			_manage_roster(delta)
+		else:
+			_manage_knight(delta)
 		_manage_potions()
 	if over or cleared:
 		over_t += delta
@@ -270,7 +286,101 @@ func enemies() -> Array:
 	for b in blues:
 		if is_instance_valid(b) and b.alive():
 			out.append(b)
+	for e in mobs:
+		if is_instance_valid(e) and e.alive():
+			out.append(e)
 	return out
+
+
+# ---------------------------------------------------------------- v0.6 roster
+## one roster enemy at x (opts: variant, seed)
+func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
+	var e: Node2D = MONSTER.new()
+	e.setup(self, eid, clampf(x, Levels.EDGE, map_w - Levels.EDGE), opts)
+	e.facing = -1 if x > mera.global_position.x else 1
+	world.add_child(e)
+	mobs.append(e)
+	if e.boss:
+		boss = e
+		boss_spawned = true
+	return e
+
+
+## waves every WAVE_EVERY px, cycling through the level's list so every enemy type shows up; a trickle when the
+## screen stays empty; the boss (Infernal Caverns: the dragon) in front of the exit
+func _manage_roster(delta: float) -> void:
+	for e in mobs.duplicate():
+		if not is_instance_valid(e):
+			mobs.erase(e)
+		elif e.alive() and not e.boss and absf(e.global_position.x - mera.global_position.x) > 1920.0 * 1.6:
+			mobs.erase(e)
+			e.queue_free()
+	if over:
+		return
+	if spawn_arg != "":
+		spawn_enemy(spawn_arg, mera.global_position.x + mera.facing * 700.0)
+		spawn_arg = ""
+	var list: Array = Roster.LEVELS[Levels.current]
+	var alive := 0
+	for e in mobs:
+		if is_instance_valid(e) and e.alive():
+			alive += 1
+	var wx := Roster.WAVE_FIRST + wave_i * Roster.WAVE_EVERY
+	if wx < map_w - Roster.BOSS_AT and mera.global_position.x > wx - 900.0:
+		var n: int = Roster.WAVE_SIZES[wave_i % Roster.WAVE_SIZES.size()]
+		wave_i += 1
+		for j in n:
+			if alive >= Roster.MAX_ALIVE:
+				break
+			_spawn_next(list, j)
+			alive += 1
+	trickle_t -= delta
+	if alive == 0 and trickle_t <= 0.0:
+		_spawn_next(list, 0)
+		trickle_t = 8.0
+	elif alive > 0:
+		trickle_t = maxf(trickle_t, 5.0)
+	if Roster.BOSSES.has(Levels.current) and not boss_spawned and mera.global_position.x > map_w - Roster.BOSS_AT:
+		spawn_enemy(Roster.BOSSES[Levels.current], map_w - Roster.BOSS_X)
+		Sfx.play("boom_big", 0.6)
+
+
+func _spawn_next(list: Array, j: int) -> void:
+	var eid: String = list[wave_type_i % list.size()]
+	wave_type_i += 1
+	var side := _spawn_side(mera.facing, 960.0 + 200.0)
+	var x := cam_x + side * (960.0 + 200.0 + j * 240.0)
+	if Roster.def(eid).has("spawn"):        # risers (skeleton, Death) climb out of the ground on screen
+		x = mera.global_position.x + side * (520.0 + j * 200.0)
+	spawn_enemy(eid, x)
+
+
+## v0.6 roster drops: a rage sphere (the enemy's "rage" %), 20 % a potion, 25 % a +30 stamina potion
+func on_enemy_defeated(e: Node2D) -> void:
+	defeated += 1
+	mobs.erase(e)
+	var p: Vector2 = Vector2(e.global_position.x, GROUND_Y)
+	var sp: Pickup = Pickup.new()
+	sp.setup(self, "sphere", p + Vector2(0, -10), float(Roster.def(e.id)["rage"]))
+	world.add_child.call_deferred(sp)
+	if drop_rng.randf() < 0.2:
+		var po: Pickup = Pickup.new()
+		po.setup(self, "potion", p + Vector2(70, 0))
+		world.add_child.call_deferred(po)
+	if drop_rng.randf() < 0.25:
+		var st: Pickup = Pickup.new()
+		st.setup(self, "stamina", p + Vector2(-70, 0))
+		world.add_child.call_deferred(st)
+	if e == boss:
+		boss_dead = true
+		shake(24.0, 0.8)
+		Sfx.play("boom_big", 0.5)
+	else:
+		Sfx.play("boom", 1.8, -10.0)
+
+
+func exit_locked() -> bool:
+	return Roster.BOSSES.has(Levels.current) and not boss_dead
 
 
 func _spawn_knight(side: int = 0) -> void:
@@ -326,7 +436,7 @@ func _clamp_to_map() -> void:
 	mera.position.x = clampf(mera.position.x, lo, hi)
 	for e in enemies():
 		e.position.x = clampf(e.position.x, lo, hi)
-	if not cleared and not over and not test_mode_no_exit and mera.position.x >= map_w - Levels.EXIT_PAD - 40.0:
+	if not cleared and not over and not test_mode_no_exit and not exit_locked() and mera.position.x >= map_w - Levels.EXIT_PAD - 40.0:
 		cleared = true
 		over_t = 0.0
 		Sfx.play("potion", 0.7)
@@ -594,8 +704,9 @@ func _draw_debug() -> void:
 		debug_draw.draw_rect(h, Color(1, 0.2, 0.2, 0.9), false, 3.0)
 	for e in enemies():
 		debug_draw.draw_rect(e.hurt_rect(), Color(0.2, 0.8, 1.0, 0.9), false, 2.0)
-		if not (e.hitbox.get_child(0) as CollisionShape2D).disabled:
-			debug_draw.draw_rect(e.attack_rect(), Color(1, 0.5, 0.1, 0.9), false, 3.0)
+		var ar: Rect2 = e.attack_rect()
+		if ar.size != Vector2.ZERO:
+			debug_draw.draw_rect(ar, Color(1, 0.5, 0.1, 0.9), false, 3.0)
 	debug_draw.draw_line(Vector2(cam_x, 0) + o, Vector2(cam_x, 1080), Color(1, 1, 0, 0.3), 2.0)
 
 

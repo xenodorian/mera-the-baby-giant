@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: S1 (2026-10-31), v0.5-playable._
+_Last updated: S2 (2026-10-31), v0.6-playable._
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -18,9 +18,14 @@ _Last updated: S1 (2026-10-31), v0.5-playable._
 | `layered_anim.gd` | Mera's layered animation player. `AnimLib` autoload loads `assets/characters/merakintsugi/game/anims.json` |
 | `cam_rig.gd` | Camera X hard-locked on Mera, run after physics |
 | `levels.gd` | `Levels` class: the level list from `assets/levels/levels.json`, the current level, map width, edges |
-| `exit_gate.gd` | The exit pillar at the right end of each map |
+| `exit_gate.gd` | The exit pillar at the right end of each map (locked while a level boss lives) |
+| `monster.gd` | v0.6: one data-driven script for all 16 roster enemies (duck-typed like the knights) |
+| `roster.gd` | `Roster` class: enemy definitions, AttackData, which level gets which enemy, wave numbers |
+| `telegraph.gd`, `tell_marker.gd` | `Telegraph` class: the tell colours, the pulse and the "!" marker, shared by every enemy |
+| `enemy_shot.gd` | Enemy projectiles (the hell beast's fireball) |
 
 - Level maps are built by `tools/build_levels.py` into `assets/levels/<id>/*.png`, `thumb.png` and `levels.json`. Re-run it after changing a level, then add any new PNG to the export list.
+- Enemy art manifest: `python3 tools/build_roster.py` writes `assets/enemies/roster.json`: every frame path, its fps and loop, the pivot, and the opaque box of each frame. Hit boxes come from those boxes. Re-run it after changing an enemy pack, then add new frame paths to the export list.
 - Mera's animation frames are baked by `tools/export_game_anims.py`. Spell segments: `tools/tess_spells.py`. Barrier fit: `tools/fit_barrier.py`.
 - Docs: `docs/CONTROLS.md` (inputs and timing windows), `docs/GAME_RULES.md`, `docs/CREDITS.md`, `docs/WORKFLOW.md` (staged plan), and `CHANGELOG.md`.
 
@@ -31,18 +36,18 @@ _Last updated: S1 (2026-10-31), v0.5-playable._
 | v0.2-playable | First playable cemetery level |
 | v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
 | v0.3.1 | Camera hard lock |
+| **v0.6-playable** (S2) | 16-enemy roster on levels 2-4 with all animations, Infernal Dragon boss + locked exit, telegraph standard (knights too), Y-in-bubble lightning, demo on current controls |
 | **v0.5-playable** (S1) | Level select + 4 large native maps (Cemetery, Misty Woods, Moonlit Town, Infernal Caverns; 19,200 px each, walls + exit gate), remap (L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = allies), Down+Y earthquake (1 s shake, 5 s ground stun) |
 | **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
 
 ## Left (see `docs/WORKFLOW.md`)
-- **S2:** enemy roster (16 enemies incl. the boss dragon, all animations) → v0.6.
 - **S3:** ally cards + R1 summon picker + 4 allies → v0.7.
 - **S4:** from `docs/RESEARCH.md` (top-8):
   - impact pass (hit-stop, flash, sparks, SFX variance);
   - breakables with drop tables;
   - explosive barrels and chandeliers;
   - juggle rules;
-  - consistent enemy telegraphs (do it together with S2);
+  - consistent enemy telegraphs: **done in S2**; keep new enemies on the standard;
   - secret walls hiding ally cards.
 
   → v0.8.
@@ -52,7 +57,6 @@ _Last updated: S1 (2026-10-31), v0.5-playable._
   - **Yes** to gore and gibs, using free CC0 gib packs.
   - **No paid packs:** skip Gothicvania Interiors and use free CC0 props.
   - **Shatter:** add a free (MIT/CC0) Godot 4 debris/fracture sim, so destroyed objects and enemies (for gore) shatter into pieces. Either sprite fracture into RigidBody2D shards or CPUParticles2D shards. It must work on the Compatibility renderer and in the Windows exe; prefer pure GDScript.
-- Levels 2-4 still spawn the Fire Knight until S2 adds the roster.
 
 ## Pitfalls (learned the hard way)
 - **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **both** presets, or the exported game silently misses it.
@@ -63,6 +67,9 @@ _Last updated: S1 (2026-10-31), v0.5-playable._
   - Always `git fetch`, then check `git status`, `gh pr list --state all` and `gh release list` before publishing.
   - Never publish a release that already exists. Never force-push.
 - **Local `main` is checked out in another worktree** (`/workspace/sorcery-brawler`; don't touch it). Branch with `git switch -c name origin/main`.
+- **Run headless tests with `--fixed-fps 60`.** The whole suite then takes about 10 s instead of about 15 min, because the game clock is game-time based (`Mera.now`).
+  - Command: `$G --headless --fixed-fps 60 --path . -s tests/run_tests.gd`.
+  - Without the flag, headless Godot runs physics in real time.
 - **Headless test quirks:**
   - Long foreground runs get interrupted. Always run the suite in the background with output to a log, and poll it.
   - Test scripts must not reference `class_name`s whose scripts use autoloads (`Shot`, `Pickup`, `FireKnight`). The test script compiles before the autoloads exist, which breaks those classes for the whole run ("Nonexistent function 'new'"). Use `load("res://...").new()` and duck typing instead.
