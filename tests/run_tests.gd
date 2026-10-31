@@ -2229,6 +2229,8 @@ func _bolt_orientation_tests() -> void:
 ## v0.9 updater (scripts/app/updater.gd) and the title menu's update / credits entries
 func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
+	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
+	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
 	_check("updater: this build's version comes from application/config/version (0.9.0)", U.current_version() == "0.9.0", U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")

@@ -15,7 +15,7 @@ First release from the new **public** repo. Pre-release with Windows, Linux and 
 - **Marked slash** (other agent's PR, carried over): L1+R1+L2+R2 (keyboard Q+W+1+2) with Fury on or a full meter freezes the world for up to 8 s and marks up to 9 enemies 1–9. The matching key, numpad, right-stick flick, swipe or tap cuts each for a flat 3. The numpad is the right stick.
 - Fix: the dragon never reuses a lob spot in a phase, and cramped sides spread near/far/middle (fixes a flaky 12x test).
 - Repo: code and docs are public at `xenodorian/mera-the-baby-giant`; the art packs live in the private `mera-assets` submodule; the old history is archived privately. See `docs/WORKFLOW.md`.
-- Tests: **359 pass, 0 fail**, plus `tools/updater_e2e.sh` (real Linux export: bad checksum refused, swap + relaunch, offline).
+- Tests: **360 pass, 0 fail**, plus `tools/updater_e2e.sh` (real Linux export: bad checksum refused, swap + relaunch, offline).
 
 ## v0.8.2-playable (2026-10-31)
 Dragon bolt fix (user feedback t91u). Pre-release with Windows, Linux and Android (ARM) builds.
