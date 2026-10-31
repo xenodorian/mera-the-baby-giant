@@ -1,6 +1,21 @@
 # Changelog
 
-All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
+All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
+
+## v0.9.0-playable (2026-10-31)
+First release from the new **public** repo. Pre-release with Windows, Linux and Android (ARM) builds, plus `SHA256SUMS.txt`.
+- **In-game updater** (`docs/UPDATER.md`):
+  - the title menu checks the public GitHub releases at launch (no token) and shows a banner when a newer build exists;
+  - **CHECK FOR UPDATES** downloads it, verifies its size and SHA-256 against the release's `SHA256SUMS.txt`, and installs it;
+  - Windows/Linux: a helper swaps the exe after the game exits and relaunches it;
+  - Android: opens the system installer, signed with the same key, so it updates in place;
+  - no network or other errors only show a message.
+- **Credits screen** on the title menu (bottom row → CREDITS): every pack author with license and link (chierit CC-BY 4.0 for Fire Knight, Water Priestess, Leaf Ranger and Minotaur; ansimuz; Merakintsugi; Kenney; Pixel Frog; Jimmy D. Journey; Reactorcore; rubberduck; vk) and Godot's MIT notice (godotengine.org/license). A selects an entry and opens its page.
+- The title menu shows the build version (bottom right). `project.godot` now holds `application/config/version`; the Android version code is 11.
+- **Marked slash** (other agent's PR, carried over): L1+R1+L2+R2 (keyboard Q+W+1+2) with Fury on or a full meter freezes the world for up to 8 s and marks up to 9 enemies 1–9. The matching key, numpad, right-stick flick, swipe or tap cuts each for a flat 3. The numpad is the right stick.
+- Fix: the dragon never reuses a lob spot in a phase, and cramped sides spread near/far/middle (fixes a flaky 12x test).
+- Repo: code and docs are public at `xenodorian/mera-the-baby-giant`; the art packs live in the private `mera-assets` submodule; the old history is archived privately. See `docs/WORKFLOW.md`.
+- Tests: **360 pass, 0 fail**, plus `tools/updater_e2e.sh` (real Linux export: bad checksum refused, swap + relaunch, offline).
 
 ## v0.8.2-playable (2026-10-31)
 Dragon bolt fix (user feedback t91u). Pre-release with Windows, Linux and Android (ARM) builds.

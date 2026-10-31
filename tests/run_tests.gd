@@ -1879,6 +1879,7 @@ func _s4_tests() -> void:
 	HS.clear()
 	await _dragon_tests()
 	await _super_quake_tests()
+	await _updater_tests()
 	LVS.current = 0
 
 
@@ -2223,6 +2224,109 @@ func _bolt_orientation_tests() -> void:
 	g.queue_free()
 	await physics_frame
 
+
+
+## v0.9 updater (scripts/app/updater.gd) and the title menu's update / credits entries
+func _updater_tests() -> void:
+	var U: Node = root.get_node("Updater")
+	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
+	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
+	_check("updater: this build's version comes from application/config/version (0.9.0)", U.current_version() == "0.9.0", U.current_version())
+	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
+	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
+	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:
+		var assets: Array = []
+		for n in names:
+			assets.append({"name": n, "browser_download_url": "https://x/" + tag + "/" + n, "size": 1234})
+		return {"tag_name": tag, "name": tag, "draft": draft, "prerelease": true, "assets": assets, "html_url": "https://x/" + tag}
+	var rs: Array = [rel.call("v0.8.2-playable", ["Mera_Playable_v0.8.2_Windows.exe", "Mera_Playable_v0.8.2_Android.apk", "SHA256SUMS.txt"]),
+		rel.call("v0.9.2-playable", ["Mera_Playable_v0.9.2_Linux.x86_64", "SHA256SUMS.txt"]),
+		rel.call("v0.9.1-playable", ["Mera_Playable_v0.9.1_Windows.exe", "Mera_Playable_v0.9.1_Android.apk", "SHA256SUMS.txt"]),
+		rel.call("v0.9.9-playable", ["Mera_Playable_v0.9.9_Windows.exe"], true),
+		rel.call("v0.1-scale-test", ["Mera_Scale_Test_Windows.zip"])]
+	var old_p: String = U.platform
+	U.platform = "Windows"
+	var w: Dictionary = U.pick_latest(rs, "0.9.0")
+	U.platform = "Android"
+	var a: Dictionary = U.pick_latest(rs, "0.9.0")
+	U.platform = "Linux"
+	var l: Dictionary = U.pick_latest(rs, "0.9.0")
+	var none: Dictionary = U.pick_latest(rs, "0.9.2")
+	U.platform = "Web"
+	var unsup: bool = not U.supported()
+	U.platform = old_p
+	_check("updater: picks the newest non-draft release with this platform's asset (pre-releases count)", String(w.get("tag", "")) == "v0.9.1-playable" and String(w.get("asset", "")).ends_with("_Windows.exe") and String(a.get("asset", "")).ends_with("_Android.apk") and String(l.get("tag", "")) == "v0.9.2-playable" and String(w.get("sums_url", "")).ends_with("SHA256SUMS.txt"), "%s / %s / %s" % [w, a, l])
+	_check("updater: nothing newer -> up to date; unsupported platforms are told so", none.is_empty() and unsup, str(none))
+	var sums: Dictionary = U.parse_sums("2f8d1922a8200a7376b2d1b47a7ae53c94630ecb5f7379aacb89e0df616c6034  Mera_Playable_v0.8.2_Android.apk\nbad line\nE651481F13ACB020679C115A78D0A71D7E35C01186B099216851781A37A2B08F *Mera_Playable_v0.8.2_Windows.exe\n")
+	_check("updater: SHA256SUMS.txt parses (sha256sum format, binary '*' marker, case-insensitive)", sums.size() == 2 and String(sums.get("Mera_Playable_v0.8.2_Windows.exe", "")).begins_with("e651481f"), str(sums))
+	# verification: right file passes, a corrupted one is deleted
+	var p := ProjectSettings.globalize_path("user://upd_test.bin")
+	var f := FileAccess.open(p, FileAccess.WRITE)
+	f.store_string("mera update payload")
+	f.close()
+	U.file_path = p
+	U.latest = {"version": [9, 9, 9], "size": 19, "asset": "x"}
+	U._expect_sha = FileAccess.get_sha256(p)
+	U._verify()
+	var ok_state: String = U.state
+	U._expect_sha = "0".repeat(64)
+	U._verify()
+	_check("updater: a download is accepted only if size AND SHA-256 match; a mismatch is deleted", ok_state == "ready" and U.state == "error" and not FileAccess.file_exists(p), "%s -> %s" % [ok_state, U.state])
+	var bat: String = U.windows_helper(4242, "C:/Games/Mera/Mera.exe.new", "C:/Games/Mera/Mera.exe")
+	_check("updater: Windows helper waits for the PID, swaps the exe, relaunches and deletes itself", bat.find("PID eq 4242") >= 0 and bat.find("move /Y \"C:\\Games\\Mera\\Mera.exe.new\" \"C:\\Games\\Mera\\Mera.exe\"") >= 0 and bat.find("start \"\" \"C:\\Games\\Mera\\Mera.exe\"") >= 0 and bat.find("del \"%~f0\"") >= 0, bat)
+	var sh: String = U.posix_helper(4242, "/g/new", "/g/Mera")
+	_check("updater: Linux helper waits, swaps, chmods and relaunches", sh.find("kill -0 4242") >= 0 and sh.find("mv -f '/g/new' '/g/Mera'") >= 0 and sh.find("exec '/g/Mera'") >= 0, sh)
+	U.state = "idle"
+	U.latest = {}
+	# offline / bad URL: a graceful error, never a crash
+	U.api_url = "http://127.0.0.1:9/none"
+	U.platform = "Linux"
+	U.check()
+	for i in 600:
+		await process_frame
+		if U.state != "checking":
+			break
+	_check("updater: no network -> state 'error' with a message (no crash, the game goes on)", U.state == "error" and String(U.message).find("failed") >= 0, "%s: %s" % [U.state, U.message])
+	U.api_url = ""
+	U.platform = old_p
+	U.state = "idle"
+	# the title menu: bottom row and the credits screen
+	var menu: Control = load("res://scenes/menu.tscn").instantiate() if ResourceLoader.exists("res://scenes/menu.tscn") else null
+	if menu:
+		U.auto_check = false
+		root.add_child(menu)
+		await process_frame
+		var down := InputEventAction.new()
+		down.action = "down"
+		down.pressed = true
+		menu._unhandled_input(down)
+		var right := InputEventAction.new()
+		right.action = "right"
+		right.pressed = true
+		menu._unhandled_input(right)
+		var acc := InputEventAction.new()
+		acc.action = "btn_a"
+		acc.pressed = true
+		menu._unhandled_input(acc)
+		var in_credits: bool = menu.mode == "credits"
+		var back := InputEventAction.new()
+		back.action = "btn_b"
+		back.pressed = true
+		menu._unhandled_input(back)
+		_check("menu: Down -> bottom row, Right -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1, "mode=%s row=%d" % [menu.mode, menu.row])
+		var C = load("res://scripts/app/credits.gd")
+		var whos: Array = []
+		for c in C.ENTRIES:
+			whos.append(String(c["who"]))
+		var need := ["chierit", "Merakintsugi", "Kenney", "Pixel Frog", "Jimmy D. Journey", "Reactorcore", "rubberduck", "vk", "Godot Engine"]
+		var all_in := true
+		for n in need:
+			all_in = all_in and whos.has(n)
+		var chierit: Dictionary = C.ENTRIES[0]
+		_check("credits: every pack author + Godot (MIT, godotengine.org/license); chierit CC-BY 4.0 with his itch link, incl. Minotaur", all_in and whos.any(func(x): return String(x).find("ansimuz") >= 0) and String(chierit["lic"]) == "CC-BY 4.0" and String(chierit["url"]) == "https://chierit.itch.io" and String(chierit["what"]).find("Minotaur") >= 0 and String(C.ENTRIES[C.ENTRIES.size() - 1]["url"]) == "https://godotengine.org/license", str(whos))
+		menu.queue_free()
+		await process_frame
+		U.auto_check = true
 
 func _key(kc: int, pressed: bool) -> void:
 	var e := InputEventKey.new()
