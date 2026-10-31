@@ -60,7 +60,11 @@ TIPS = {
 PICKS = {
  # user [pt30u]: charge on idle 1 (index 0), crouching 1 (index 0) and 3x atk f23, then continue the 3x atk animation
  'pick1_v2_3x_atk_f24': dict(lead=[('idle', 0)] * 10 + [('cr', 0)] * 10 + [('3x', 23)] * 10, pre=0,
-                             pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)], off={'3x': OFF_3X_FROM_CROUCH}, c0=0.3, cexp=1.0),  # name: lead-in [(anim, frame)], pose anim, hold frames, beam angle (deg, 0 = right, y down), recovery
+                             pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)], off={'3x': OFF_3X_FROM_CROUCH}, c0=0.3, cexp=1.0),
+ # user [pt31u]: no holds - each lead-in frame plays once at its normal duration (idle 60 ms, crouching 70 ms as in the
+ # .aseprite files; 3x atk is 35 ms in the file, shown at 40 ms like the rest of 3x atk here, GIF has 10 ms resolution)
+ 'pick1_v3_3x_atk_f24': dict(lead=[('idle', 0), ('cr', 0), ('3x', 23)], lead_ms=[60, 70, 40], pre=0, motes=2.5,
+                             pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)], off={'3x': OFF_3X_FROM_CROUCH}, c0=0.45, cexp=1.0),  # name: lead-in [(anim, frame)], pose anim, hold frames, beam angle (deg, 0 = right, y down), recovery
  'pick1_3x_atk_f24': dict(lead=[('1x', i) for i in range(10)] + [('2x', i) for i in range(10)] + [('3x', i) for i in range(24)],
                           pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)]),
  'pick2_3x_atk_f4': dict(lead=[('1x', i) for i in range(10)] + [('2x', i) for i in range(10)] + [('3x', i) for i in range(4)],
@@ -157,7 +161,7 @@ def build(name, cfg):
             rad = 0.9 + 2.9 * c + 0.35 * math.sin(t * 1.3)
             E = np.maximum(E, np.clip(1.0 - Dd / rad, 0, 1) * (0.55 + 0.5 * c))
             L += 0.5 * c * np.exp(-Dd / 16); glow = c * 0.5
-            for _ in range(int(1 + 4 * c)):
+            for _ in range(int((1 + 4 * c) * cfg.get('motes', 1.0))):
                 aa = rng.uniform(0, 2 * math.pi); r = rng.uniform(8, 16)
                 motes.append([tx + r * math.cos(aa), ty + r * math.sin(aa), rng.randint(4, 7), rng.uniform(0.5, 0.9)])
             if k >= len(lead) - 4:   # rune ring closing in on the last frames
@@ -216,7 +220,7 @@ def build(name, cfg):
         rgb, al = mb.bands(np.clip(E, 0, 1.2)); base = np.array(im).astype(float) / 255
         out = base[..., :3] * (1 - al[..., None]) + rgb * al[..., None]
         frames.append(Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), 'RGB'))
-        durs.append(60 if p in ('idle', 'idle_end') else 40)
+        durs.append(cfg['lead_ms'][k] if p == 'lead' and 'lead_ms' in cfg else 60 if p in ('idle', 'idle_end') else 40)
         log.append(dict(t=t, anim=NAMES[a], frame=f, phase=p, k=k, recoil=list(rc), ms=durs[-1], hover=len(hover),
                         tip=None if p != 'lead' else [round(pts[k][0], 1), round(pts[k][1], 1)], tip_hidden=bool(hidden[k]) if p == 'lead' else None))
     # ---- write GIF (exact palette if possible)
@@ -254,7 +258,7 @@ def keystrip(name, frames, log):
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True); rows = []
     meta = json.load(open(f'{OUT}/cast_sequences.json')) if os.path.exists(f'{OUT}/cast_sequences.json') else {}
-    only = sys.argv[1:] or [k for k in PICKS if k != 'pick1_v2_3x_atk_f24'] + ['pick1_v2_3x_atk_f24']
+    only = sys.argv[1:] or list(PICKS)
     for name in only:
         frames, log, info = build(name, PICKS[name]); keystrip(name, frames, log)
         json.dump(log, open(f'{OUT}/{name}_timeline.json', 'w'), indent=0); meta[name] = info; print(name, info)
