@@ -129,6 +129,7 @@ const DRAGON_FLY_LIFT := [250.0, 470.0]   # height range of the lob spots (px ab
 # short, mid and long, from both sides (he crosses over her to reach them)
 const DRAGON_FLY_SPOTS := [[1, 320.0], [-1, 560.0], [1, 1000.0], [-1, 300.0], [1, 700.0]]
 const DRAGON_FLY_SPOT_JITTER := 70.0
+const DRAGON_FLY_SPOT_GAP := 220.0  # v0.9: lob spots in one phase are at least this far apart when there is room
 const DRAGON_FLY_SCREEN := 860.0   # spots stay within this of the camera centre (the screen is +-960), inside the walls
                                    # (v0.8.2: minus 20 % of his body width, and never closer to Mera than mouth + MIN_DX)
 # v0.8.2: bolts leave the mouth HORIZONTALLY (vy0 = 0) and gravity curves them down onto the target:

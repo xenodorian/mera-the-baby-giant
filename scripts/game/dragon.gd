@@ -32,6 +32,7 @@ var fly_sub := ""                # volley step: move | tell | after
 var fly_from := Vector2.ZERO     # (x, lift) at the start of a move
 var fly_to := Vector2.ZERO       # (x, lift) of the current lob spot
 var fly_plan: Array = []
+var phase_spots: Array = []      # x of the lob spots already used in this phase
 var fly_base := 0.0              # lift without the bob
 var spit_spots: Array = []       # tests: [dragon x, lift, x - Mera x, phase] at every lob
 var bolt_times: Array = []       # tests: flight time of every lob
@@ -139,6 +140,7 @@ func _begin_phase(thr: int) -> void:
 	sprite.speed_scale = 1.0
 	fly_plan = Tuning.DRAGON_FLY_SPOTS.duplicate()
 	fly_plan.shuffle()
+	phase_spots = []
 	fly_sub = ""
 	history.append("phase:%d" % thr)
 	Sfx.play("dash", 0.5, 2.0)
@@ -239,13 +241,33 @@ func _next_spot() -> void:
 	var need := absf(Tuning.DRAGON_MOUTH.x) * k + Tuning.DRAGON_BOLT_MIN_DX
 	if absf(x - mx) < need:                            # clamped too close to her: take the side with more room
 		x = mx + need if hi - mx > mx - lo else mx - need
-	# when he is big, the room between "mouth clear of Mera" and the screen edge is small: spread the spots
-	# across it (near / middle / far edge) so he still lobs from different places
 	var sd := signf(x - mx) if x != mx else 1.0
 	var room := (hi - mx) if sd > 0.0 else (mx - lo)
-	if room > need and absf(x - mx) < need + 80.0:
-		var f: float = [0.0, 0.55, 1.0, 0.3, 0.8][bolt_i % 5]
-		x = mx + sd * lerpf(need, room, f)
+	# v0.9: when he is big, the room between "mouth clear of Mera" and the screen edge is small. Fill each
+	# side near edge -> far edge -> middle, and switch sides if this one is used up, so a phase never lobs twice
+	# from (almost) the same place.
+	var cramped := room - need < 2.0 * Tuning.DRAGON_FLY_SPOT_GAP
+	if cramped or _spot_gap(x) < Tuning.DRAGON_FLY_SPOT_GAP:
+		var best := x
+		var best_gap := -1.0
+		for sgn in [sd, -sd]:
+			var rm: float = (hi - mx) if sgn > 0.0 else (mx - lo)
+			if rm < need:
+				continue
+			var n := 0
+			for u in phase_spots:
+				if signf(float(u) - mx) == sgn:
+					n += 1
+			var cx: float = mx + sgn * lerpf(need, rm, [0.0, 1.0, 0.5, 0.25, 0.75][n % 5])
+			var gp := _spot_gap(cx)
+			if gp >= Tuning.DRAGON_FLY_SPOT_GAP:
+				best = cx
+				break
+			if gp > best_gap:
+				best_gap = gp
+				best = cx
+		x = best
+	phase_spots.append(x)
 	var h: float = rng.randf_range(float(Tuning.DRAGON_FLY_LIFT[0]), float(Tuning.DRAGON_FLY_LIFT[1]))
 	fly_from = Vector2(global_position.x, fly_base)
 	fly_to = Vector2(x, h)
@@ -253,6 +275,13 @@ func _next_spot() -> void:
 	bolt_t = 0.0
 	if sprite.animation != "fly":
 		_play("fly")
+
+
+func _spot_gap(x: float) -> float:
+	var gmin := INF
+	for u in phase_spots:
+		gmin = minf(gmin, absf(float(u) - x))
+	return gmin
 
 
 ## the mouth in world space for the current facing and size (measured on the spit frames, see DRAGON_MOUTH)
