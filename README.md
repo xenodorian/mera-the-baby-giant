@@ -3,7 +3,7 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.9.5-playable** (every level ends: 5 knights, then the gate)
+## Current release: **v0.9.5-playable** (level endpoints). v0.9.6 is in the repo and not exported yet.
 - Download: GitHub → Releases → [`v0.9.5-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.5-playable/Mera_Playable_v0.9.5_Windows.exe) (Windows `.exe` and `SHA256SUMS.txt`). Linux and Android stay on `v0.9.0-playable` until those builds are attached. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
   - `main` = the current playable game (v0.8).

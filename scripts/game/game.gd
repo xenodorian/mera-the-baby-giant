@@ -349,6 +349,14 @@ func targets() -> Array:
 	return out
 
 
+## the first breakable a projectile's rect touches (bolts, arrows, enemy shots, dragon bolts)
+func prop_at(r: Rect2) -> Node2D:
+	for p in props:
+		if is_instance_valid(p) and p.alive() and r.intersects(p.hurt_rect()):
+			return p
+	return null
+
+
 # ---------------------------------------------------------------- v0.8 props, secrets, smart drops
 func _place_props() -> void:
 	var cards_by_i := {}
@@ -637,6 +645,14 @@ func allies() -> Array:
 func dancer() -> Node2D:
 	for a in allies():
 		if a.dancing():
+			return a
+	return null
+
+
+## the brawler while she is out (monster.gd: non-boss enemies chase her instead of Mera)
+func brawler() -> Node2D:
+	for a in allies():
+		if a.id == "brawler" and a.state != "arrive" and a.state != "leave":
 			return a
 	return null
 

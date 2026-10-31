@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.6 (2026-10-31): summons, and projectiles break props
+All four last 20 s. Brawler runs forward on `march` and non-bosses chase `game.brawler()`. Dancer walks ahead and dances for `DANCE_S` (5). Priestess heals on arrival and once as she leaves. Bolts, arrows, enemy shots and dragon bolts damage breakables via `game.prop_at`. Potions play the heal at 4×. Not exported; the Windows exe is still `v0.9.5-playable`.
+
 ## v0.9.5 (2026-10-31): every level ends
 Cemetery stops after `Roster.KNIGHT_CAP` (5) Fire Knights. Woods and Town stop the empty-screen trickle once the waves are done, and the gate waits for a clear field. Caverns still waits on the dragon. The last clear returns to the menu. Windows exe is `v0.9.5-playable`.
 

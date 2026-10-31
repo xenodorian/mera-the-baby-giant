@@ -56,6 +56,11 @@ func _physics_process(delta: float) -> void:
 				Sfx.play("hit_heavy", 1.1)
 				queue_free()
 				return
+		var bounced: Node2D = game.prop_at(rect())
+		if bounced != null:
+			bounced.take_damage(Tuning.DEFLECT_DMG, global_position.x, "bolt")
+			game.hit_spark(global_position, 3.0)
+			queue_free()
 		return
 	var m: Node2D = game.mera
 	if m.state != "dead" and rect().intersects(m.hurt_rect()):
@@ -65,6 +70,20 @@ func _physics_process(delta: float) -> void:
 		m.take_hit(dmg, global_position.x, shooter if is_instance_valid(shooter) else null)
 		if is_instance_valid(shooter):
 			shooter.hits_landed += 1
+		queue_free()
+		return
+	if game.has_method("allies"):
+		for a in game.allies():
+			if a.alive() and rect().intersects(a.hurt_rect()):
+				a.take_hit(dmg, global_position.x)
+				if is_instance_valid(shooter):
+					shooter.hits_landed += 1
+				queue_free()
+				return
+	var pr: Node2D = game.prop_at(rect())
+	if pr != null:
+		pr.take_damage(dmg, global_position.x, "bolt")
+		game.hit_spark(pr.hurt_rect().get_center(), 2.0)
 		queue_free()
 
 

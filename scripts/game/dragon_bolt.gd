@@ -97,6 +97,11 @@ func _physics_process(delta: float) -> void:
 			return
 		_explode()
 		return
+	var pr: Node2D = game.prop_at(rect())
+	if pr != null:
+		pr.take_damage(Tuning.DRAGON_BOLT_DMG, global_position.x, "bolt")
+		_explode()
+		return
 	if position.y >= float(game.GROUND_Y) - 10.0 or t > 4.0:
 		position.y = minf(position.y, float(game.GROUND_Y) - 10.0)
 		_explode()
@@ -165,6 +170,11 @@ func _deflected_tick(delta: float) -> void:
 				HitStop.stop(Tuning.HITSTOP_HEAVY_MS)
 				pop_clash()
 				return
+		var pr: Node2D = game.prop_at(rect())
+		if pr != null:
+			pr.take_damage(Tuning.DEFLECT_DMG, global_position.x, "bolt")
+			pop_clash()
+			return
 	if t > 2.5 or (game != null and position.y >= float(game.GROUND_Y)):
 		pop_clash()
 
@@ -204,4 +214,7 @@ func _explode() -> void:
 		for a in game.allies():
 			if is_instance_valid(a) and absf(a.global_position.x - c.x) <= r:
 				a.take_hit(Tuning.DRAGON_BOLT_DMG, c.x)
+	for pr in game.props:
+		if is_instance_valid(pr) and pr.alive() and pr.hurt_rect().get_center().distance_to(c) <= r:
+			pr.take_damage(Tuning.DRAGON_BOLT_DMG, c.x, "explosion")
 	queue_free()

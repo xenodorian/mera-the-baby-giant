@@ -454,6 +454,14 @@ func _run() -> void:
 	gr.queue_free()
 	await process_frame
 	gr = await _new_game()
+	gr.mera.potions = 2
+	gr.mera.set_size(3, true)
+	await _drive(gr, [[5, "l2", true]], 80)
+	await _drive(gr, [[3, "l1", true], [6, "l1", false]], 20)
+	_check("L1 inside the full bubble drinks and the bubble stays", gr.mera.barrier_on and gr.mera.size == 4 and gr.mera.potions == 1, "on=%s size=%d pot=%d" % [gr.mera.barrier_on, gr.mera.size, gr.mera.potions])
+	gr.queue_free()
+	await process_frame
+	gr = await _new_game()
 	gr.mera.rage = 100.0
 	await _drive(gr, [[5, "up", true], [9, "up", false], [20, "l2", true], [21, "r2", true], [25, "l2", false], [25, "r2", false]], 40)
 	_check("L2+R2 in the air -> Fury", gr.mera.fury, "")
@@ -519,6 +527,18 @@ func _run() -> void:
 	_check("starts at 2x with 1 potion", m.size == 2 and m.potions == 1, "size=%d potions=%d" % [m.size, m.potions])
 	await _drive(g, [[5, "l1", true], [8, "l1", false]], 90)
 	_check("L1 drinks a potion: 2x -> 3x", m.size == 3 and m.potions == 0, "size=%d potions=%d" % [m.size, m.potions])
+	var gt: Node = await _new_game()
+	var mt: Node = gt.mera
+	await _drive(gt, [[1, "l1", true]], 1)
+	var waited := 0
+	for i in 30:
+		await physics_frame
+		waited += 1
+		if mt.size >= 3:
+			break
+	_check("a potion lands within 0.2 s (the drink plays at 4x)", mt.size == 3 and mt.potions == 0 and waited <= 10 and is_equal_approx(float(mt.anim.speed), 4.0), "frames=%d speed=%s size=%d" % [waited, mt.anim.speed, mt.size])
+	gt.queue_free()
+	await process_frame
 	await _drive(g, [[5, "l1", true], [8, "l1", false]], 60)
 	_check("L1 without potions does nothing", m.size == 3 and not ("heal" in m.move_log.slice(m.move_log.rfind("heal") + 1)), "size=%d" % m.size)
 	m.potions = 9
@@ -1440,7 +1460,7 @@ func _run() -> void:
 	_check("R1 with several card types -> the picker opens (game paused); choosing summons that one", opened and not paused and g.allies().size() == 1 and g.allies()[0].id == "dancer" and int(g.cards["dancer"]) == 1 and int(g.cards["ranger"]) == 1, "open=%s" % opened)
 	g.queue_free()
 	await process_frame
-	# the priestess heals Mera up to 6x, with a cooldown
+	# the priestess heals once when she arrives, and once more as she leaves
 	g = await _new_game()
 	m = g.mera
 	m.position.x = 6000.0
@@ -1451,11 +1471,11 @@ func _run() -> void:
 	await _drive(g, [], 150)
 	var healed1: bool = m.size == 6 and prs.heals == 1
 	m.set_size(2, true)
-	await _drive(g, [], 600)
+	await _drive(g, [], 180)
 	var held_off: bool = m.size == 2 and prs.heals == 1
-	prs.heal_cd = 0.0
-	await _drive(g, [], 120)
-	_check("Water Priestess heals Mera to 6x, then waits out the %d s cooldown before healing again" % int(AL.HEAL_CD), healed1 and held_off and m.size == 6 and prs.heals == 2, "h1=%s off=%s size=%d heals=%d" % [healed1, held_off, m.size, prs.heals])
+	prs.age = prs.stay - 0.05
+	await _drive(g, [], 80)
+	_check("Water Priestess heals to 6x when she arrives, not again while she stays, then once more as she leaves", healed1 and held_off and m.size == 6 and prs.heals == 2 and prs.state == "leave", "h1=%s off=%s size=%d heals=%d state=%s" % [healed1, held_off, m.size, prs.heals, prs.state])
 	g.queue_free()
 	await process_frame
 	# every ally uses all her animations and the fighters hurt enemies
@@ -1469,6 +1489,7 @@ func _run() -> void:
 		g.cards[aid] = 1
 		var aly: Node2D = g.summon_type(aid)
 		aly.stay = 1e9
+		aly.hp = 40
 		await _ally_stage(g, aly, "", 0.0, 90)
 		if aid != "dancer":
 			await _ally_stage(g, aly, "mutant_toad", 500.0, 240)
@@ -1479,6 +1500,7 @@ func _run() -> void:
 			m.position.x += 1500.0
 			await _ally_stage(g, aly, "", 0.0, 200)
 			var dealt: int = aly.hits_landed
+			aly.hp = 8
 			for i in 14:
 				if is_instance_valid(aly) and aly.alive():
 					aly.state = "idle"
@@ -1519,7 +1541,7 @@ func _run() -> void:
 			near_ok = false
 		if w.cheer_hops > 0 or (w.flyer and w.state == "cheer"):
 			hop_ok = true
-	await _drive(g, [], 60)
+	await _drive(g, [], 20)
 	for w in watchers:
 		if w.state == "tell" or w.state == "atk":
 			tells += 1
@@ -1534,6 +1556,76 @@ func _run() -> void:
 	bz.age = bz.stay - 0.05
 	await _drive(g, [], 10)
 	_check("allies leave when their time is up (%d s)" % int(AL.STAY_S["brawler"]), bz.state == "leave", bz.state)
+	g.queue_free()
+	await process_frame
+	_check("every summon lasts 20 s and the dance is 5 s", AL.STAY_S["priestess"] == 20.0 and AL.STAY_S["ranger"] == 20.0 and AL.STAY_S["brawler"] == 20.0 and AL.STAY_S["dancer"] == 20.0 and AL.DANCE_S == 5.0, "")
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 6000.0
+	m.facing = 1
+	g.snap_camera()
+	g.knight_calm_until = 1 << 30
+	g.cards = {"brawler": 1}
+	var br: Node2D = g.summon_type("brawler")
+	await _drive(g, [], 100)
+	var bx: float = br.global_position.x
+	await _drive(g, [], 40)
+	var ran: bool = br.global_position.x > bx + 60.0 and br.global_position.x > m.global_position.x
+	var tail: Node2D = g.spawn_enemy("wolf", br.global_position.x - 650.0)
+	tail.cooldown = 99.0
+	var tx: float = tail.global_position.x
+	await _drive(g, [], 90)
+	_check("Brawler Girl runs forward and enemies come to her instead of trailing Mera", ran and tail.global_position.x > tx + 30.0 and tail.global_position.x > m.global_position.x, "br=%.0f mera=%.0f wolf %.0f -> %.0f" % [br.global_position.x, m.global_position.x, tx, tail.global_position.x])
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 6000.0
+	m.facing = 1
+	g.snap_camera()
+	g.cards = {"dancer": 1}
+	var dg: Node2D = g.summon_type("dancer")
+	await _drive(g, [], 120)
+	var walked: bool = dg.dancing() and dg.global_position.x > m.global_position.x + 200.0
+	dg.t_state = AL.DANCE_S - 0.02
+	await _drive(g, [], 8)
+	_check("Dancing Girl walks ahead, dances, and stops after 5 s", walked and not dg.dancing() and dg.state != "leave", "walked=%s state=%s x=%.0f" % [walked, dg.state, dg.global_position.x])
+	g.queue_free()
+	await process_frame
+	# any projectile damages a breakable
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 5000.0
+	g.snap_camera()
+	var PROP = load("res://scripts/game/prop.gd")
+	var candle: Node2D = PROP.new()
+	candle.setup(g, "candle", 5400.0, {})
+	g.world.add_child(candle)
+	g.props.append(candle)
+	var cc: Vector2 = candle.hurt_rect().get_center()
+	g.spawn_bolt(m, cc + Vector2(-120.0, 0.0), 1, 2.0, true)
+	await _drive(g, [], 30)
+	_check("a quick-fire bolt breaks a candle", not candle.alive(), "hp=%d" % candle.hp)
+	var urn: Node2D = PROP.new()
+	urn.setup(g, "urn", 5600.0, {})
+	g.world.add_child(urn)
+	g.props.append(urn)
+	var uc: Vector2 = urn.hurt_rect().get_center()
+	var es: Node2D = load("res://scripts/game/enemy_shot.gd").new()
+	es.setup(g, "hell_beast", "fireball", uc + Vector2(-160.0, 0.0), Vector2(700.0, 0.0), 1, 4.0)
+	g.world.add_child(es)
+	await _drive(g, [], 30)
+	_check("an enemy shot breaks an urn", not urn.alive(), "hp=%d" % urn.hp)
+	var crate: Node2D = PROP.new()
+	crate.setup(g, "crate", 5900.0, {})
+	g.world.add_child(crate)
+	g.props.append(crate)
+	var db: Node2D = load("res://scripts/game/dragon_bolt.gd").new()
+	var dc: Vector2 = crate.hurt_rect().get_center()
+	db.setup(g, null, dc + Vector2(-80.0, -200.0), dc, 0.4)
+	g.world.add_child(db)
+	await _drive(g, [], 40)
+	_check("a dragon bolt breaks a crate", not crate.alive(), "hp=%d state=%s" % [crate.hp, crate.state])
 	g.queue_free()
 	await process_frame
 	LV.current = 0
@@ -2259,7 +2351,7 @@ func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
-	_check("updater: this build's version comes from application/config/version (0.9.5)", U.current_version() == "0.9.5", U.current_version())
+	_check("updater: this build's version comes from application/config/version (0.9.6)", U.current_version() == "0.9.6", U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
 	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:
@@ -3016,5 +3108,13 @@ func _queued_tests() -> void:
 		await physics_frame
 	await _drive(g, [[2, "btn_x", true], [5, "btn_x", false]], 8)
 	_check("a button inside the small bubble drops it and does that move", not m.crouch_bubble_on() and "atk1" in m.move_log, "on=%s log=%s" % [m.crouch_bubble_on(), m.move_log])
+	m._go_neutral()
+	m.potions = 1
+	m.set_size(3, true)
+	m.forced = {"down": true}
+	for i in 10:
+		await physics_frame
+	await _drive(g, [[2, "l1", true], [5, "l1", false]], 12)
+	_check("L1 inside the small bubble drinks and the bubble stays", m.crouch_bubble_on() and m.size == 4 and m.potions == 0, "on=%s size=%d pot=%d" % [m.crouch_bubble_on(), m.size, m.potions])
 	g.queue_free()
 	await physics_frame
