@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.3-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.3-playable/Mera_Playable_v0.9.3_Windows.exe
+- **Parry knockback** is a set distance, not a long shove. A timed full-bubble parry slides the attacker **400 px** and stuns them for **2 s**. A timed crouch-bubble parry slides them **200 px** and stuns them for **1 s**. Holding the full bubble, after the parry window, slides them **200 px** and does not stun. Bosses stay put.
+- Android `versionCode` 14, `versionName` 0.9.3 (APK not published).
+
 ## v0.9.2-playable (2026-10-31)
 Windows build only. Linux and Android are not attached (the release keystore is not in this checkout). `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.2-playable/Mera_Playable_v0.9.2_Windows.exe

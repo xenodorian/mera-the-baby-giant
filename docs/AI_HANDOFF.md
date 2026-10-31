@@ -1,11 +1,11 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.2 crouch bubble. 411 tests. Windows exe is `v0.9.2-playable`._
+_Last updated: 2026-10-31, v0.9.3 parry knockback distances. Windows exe is `v0.9.3-playable`._
 
 
-## v0.9.2 status (2026-10-31)
-Holding crouch raises a small free bubble (`Tuning.CROUCH_BUBBLE_R` 32 art px, `CROUCH_BUBBLE_KEEP` 0.25). A crouch started within `PARRY_MS` parries like L2 (`parry_ready` also checks `crouch_t`). After that, `take_hit` adds a quarter of the damage to `chip` and drops a size each time `chip` reaches 1. She stays crouched. No stamina. Linux and Android are still not attached. Android version code is 13.
+## v0.9.3 status (2026-10-31)
+Parry knockback is a distance (`shove` / `knock_left` on monsters and the Fire Knight), not `vx` held for the whole stun. Full-bubble parry: 400 px, 2 s stun. Crouch parry: 200 px, 1 s stun. Held full bubble: 200 px, no stun. Bosses are not shoved. Android version code is 14. Linux and Android builds are still not attached.
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change. Do not leave work only on the machine.
 Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 

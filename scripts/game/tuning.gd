@@ -106,11 +106,15 @@ const SFX_JITTER := 0.08          # impact sounds play at a random pitch within 
 const PARRY_MS := 150.0           # L2 pressed at most this long before the hit = parry (no damage)
 const PARRY_COUNTER_S := 0.9      # ... then Mera's hits do PARRY_COUNTER_MULT damage for this long ...
 const PARRY_COUNTER_MULT := 2
-const PARRY_STUN_S := 1.2         # ... and the attacker is staggered this long
+const PARRY_STUN_S := 2.0         # full-bubble parry: the attacker is staggered this long
+const CROUCH_PARRY_STUN_S := 1.0  # small-bubble parry: staggered this long
 const PARRY_IFRAMES_S := 0.25
 const DEFLECT_SPEED := 1.6        # a parried projectile flies back this much faster ...
 const DEFLECT_DMG := 3            # ... and deals this much (fixed) to the first enemy it meets
-const PARRY_KNOCK_VX := 920.0     # v0.9.1: a melee parry also shoves the attacker this fast (away from Mera)
+const PARRY_KNOCK_PX := 400.0     # full-bubble parry: slide this far (px), then the stun holds them
+const CROUCH_PARRY_KNOCK_PX := 200.0  # small-bubble parry
+const BARRIER_KNOCK_PX := 200.0   # full bubble held, with no parry window: this far, no stun
+const PARRY_KNOCK_SPEED := 800.0  # how fast that slide plays (px/s). The distance above is what they travel.
 const SWING_PARRY_MS := 150.0     # v0.9.1: X (atk1 / jatk1) reflects a projectile if the hitbox meets it within this of going live
 # ---------------------------------------------------------------- v0.9.2 crouch bubble: free, small, 75% damage reduction, same parry as L2
 const CROUCH_BUBBLE_R := 32.0    # art px. The full barrier is ~46, fitted around the standing pose. This wraps the crouch.

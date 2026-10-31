@@ -56,6 +56,7 @@ var t_state := 0.0
 var hits_done := {}                  # window index -> true
 var vy := 0.0
 var vx := 0.0
+var knock_left := 0.0          # signed px still to slide from a parry or a held barrier (v0.9.3)
 var on_ground := true
 var dash_t := 0.0
 var dash_cd := 0.0
@@ -281,6 +282,24 @@ func take_damage(amount: int, from_x: float, kind: String = "melee") -> bool:
 	return true
 
 
+## slide `dist` px (signed) and stop. Does not stun.
+func shove(dist: float) -> void:
+	if hp <= 0:
+		return
+	knock_left = dist
+	vx = 0.0
+
+
+func _apply_knock(delta: float) -> void:
+	if absf(knock_left) < 0.5:
+		knock_left = 0.0
+		return
+	vx = 0.0
+	var step := signf(knock_left) * minf(absf(knock_left), Tuning.PARRY_KNOCK_SPEED * delta)
+	position.x += step
+	knock_left -= step
+
+
 ## v0.8 parry: Mera parried his swing -> staggered (dazed like the quake stun, but also in the air)
 func parried(t: float) -> void:
 	if hp <= 0:
@@ -337,6 +356,7 @@ func _physics_process(delta: float) -> void:
 	flash -= delta
 	if hp <= 0 or game == null:
 		return
+	_apply_knock(delta)
 	dash_cd -= delta
 	block_cd -= delta
 	air_cd -= delta

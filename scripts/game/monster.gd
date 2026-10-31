@@ -34,6 +34,7 @@ var cooldown := 0.8
 var hop_cd := 0.6
 var tell_t := 0.0
 var vx := 0.0
+var knock_left := 0.0          # signed px still to slide from a parry or a held barrier (v0.9.3)
 var vy := 0.0
 var on_ground := true
 var rest_y := 0.0
@@ -414,6 +415,24 @@ func _wall_bounce() -> void:
 				_die()
 
 
+## slide `dist` px (signed) and stop. Does not stun. Bosses stay put.
+func shove(dist: float) -> void:
+	if hp <= 0 or boss:
+		return
+	knock_left = dist
+	vx = 0.0
+
+
+func _apply_knock(delta: float) -> void:
+	if absf(knock_left) < 0.5:
+		knock_left = 0.0
+		return
+	vx = 0.0
+	var step := signf(knock_left) * minf(absf(knock_left), Tuning.PARRY_KNOCK_SPEED * delta)
+	position.x += step
+	knock_left -= step
+
+
 ## v0.8 parry: staggered (any enemy; flyers drift back)
 func parried(t: float) -> void:
 	if hp <= 0 or boss:
@@ -542,6 +561,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if hp <= 0 or game == null:
 		return
+	_apply_knock(delta)
 	if state == "juggle":
 		_juggle_tick(delta)
 		return
