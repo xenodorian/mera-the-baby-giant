@@ -15,25 +15,29 @@ const TRIGGER_AXES := [JOY_AXIS_TRIGGER_LEFT, JOY_AXIS_TRIGGER_RIGHT]
 const GUARD_FRAMES := 6  # ~100 ms at 60 fps: a Start/Select this close to trigger activity is a collision
 var last_trigger_frame := -100000
 # action: [keys], [joy buttons], [joy axis, sign]
+## v0.8 PC keyboard (user t86u): arrows = D-pad, Z = A, X = B, A = X, S = Y, Q = L1, W = R1, 1 = L2, 2 = R2
+## (top row; keypad 1/2 too). Space also jumps. No key is shared between actions (tests/run_tests.gd "input map").
 const MAP := {
-	"left": [[KEY_LEFT, KEY_A], [JOY_BUTTON_DPAD_LEFT], [JOY_AXIS_LEFT_X, -1.0]],
-	"right": [[KEY_RIGHT, KEY_D], [JOY_BUTTON_DPAD_RIGHT], [JOY_AXIS_LEFT_X, 1.0]],
-	"up": [[KEY_UP, KEY_W], [JOY_BUTTON_DPAD_UP], [JOY_AXIS_LEFT_Y, -1.0]],
-	"down": [[KEY_DOWN, KEY_S], [JOY_BUTTON_DPAD_DOWN], [JOY_AXIS_LEFT_Y, 1.0]],
-	"btn_a": [[KEY_SHIFT, KEY_SPACE], [JOY_BUTTON_A], []],
-	"btn_b": [[KEY_L], [JOY_BUTTON_B], []],
-	"btn_x": [[KEY_J], [JOY_BUTTON_X], []],
-	"btn_y": [[KEY_K], [JOY_BUTTON_Y], []],
-	"l1": [[KEY_U], [JOY_BUTTON_LEFT_SHOULDER], []],
-	"r1": [[KEY_I], [JOY_BUTTON_RIGHT_SHOULDER], []],
-	"l2": [[KEY_O], [ANDROID_L2], [JOY_AXIS_TRIGGER_LEFT, 1.0]],
-	"r2": [[KEY_P], [ANDROID_R2], [JOY_AXIS_TRIGGER_RIGHT, 1.0]],
+	"left": [[KEY_LEFT], [JOY_BUTTON_DPAD_LEFT], [JOY_AXIS_LEFT_X, -1.0]],
+	"right": [[KEY_RIGHT], [JOY_BUTTON_DPAD_RIGHT], [JOY_AXIS_LEFT_X, 1.0]],
+	"up": [[KEY_UP], [JOY_BUTTON_DPAD_UP], [JOY_AXIS_LEFT_Y, -1.0]],
+	"down": [[KEY_DOWN], [JOY_BUTTON_DPAD_DOWN], [JOY_AXIS_LEFT_Y, 1.0]],
+	"btn_a": [[KEY_Z, KEY_SPACE], [JOY_BUTTON_A], []],
+	"btn_b": [[KEY_X], [JOY_BUTTON_B], []],
+	"btn_x": [[KEY_A], [JOY_BUTTON_X], []],
+	"btn_y": [[KEY_S], [JOY_BUTTON_Y], []],
+	"l1": [[KEY_Q], [JOY_BUTTON_LEFT_SHOULDER], []],
+	"r1": [[KEY_W], [JOY_BUTTON_RIGHT_SHOULDER], []],
+	"l2": [[KEY_1, KEY_KP_1], [ANDROID_L2], [JOY_AXIS_TRIGGER_LEFT, 1.0]],
+	"r2": [[KEY_2, KEY_KP_2], [ANDROID_R2], [JOY_AXIS_TRIGGER_RIGHT, 1.0]],
 	"start": [[KEY_ENTER, KEY_F1], [JOY_BUTTON_START], []],
 	"select": [[KEY_TAB, KEY_G], [JOY_BUTTON_BACK], []],
 	"debug": [[KEY_F2], [], []],
 	"size_up": [[KEY_PAGEUP, KEY_EQUAL], [], [JOY_AXIS_RIGHT_Y, -1.0]],
 	"size_down": [[KEY_PAGEDOWN, KEY_MINUS], [], [JOY_AXIS_RIGHT_Y, 1.0]],
 }
+## keys the game reads directly (game.gd / menu.gd): never bind them to an action
+const RAW_KEYS := [KEY_ESCAPE, KEY_F11]
 
 
 func _ready() -> void:
@@ -87,3 +91,18 @@ static func joy_bindings() -> Dictionary:
 			var key := "axis:%d:%s" % [m[2][0], "+" if m[2][1] > 0.0 else "-"]
 			out[key] = out.get(key, []) + [action]
 	return out
+
+
+## every keyboard binding: physical keycode -> [actions] (used by the collision test)
+static func key_bindings() -> Dictionary:
+	var out := {}
+	for action in MAP:
+		for kc in MAP[action][0]:
+			out[kc] = out.get(kc, []) + [action]
+	return out
+
+
+## keyboard label of an action for the overlay ("Z", "1")
+static func key_label(action: String) -> String:
+	var ks: Array = MAP[action][0]
+	return OS.get_keycode_string(ks[0]) if not ks.is_empty() else ""

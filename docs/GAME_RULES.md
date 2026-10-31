@@ -194,7 +194,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 | | Fire Skull | 6 | 1 | burning flight and swoop (rush). **Doused by any hit:** the no-fire skull drifts slowly for 3 s, then re-ignites |
 | | Hell Beast | 14 | 1 / 2 | idle; breath spits fireballs (ranged, 1; the fireball sprite); burn = a pillar of fire when close (heavy, 2) |
 | | Demon | 22 | 2 | hovering idle; claw attack (heavy) up close, blue fire breath (ranged) at mid range |
-| | **Infernal Dragon (boss)** | 160 | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). Appears in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
+| | **Infernal Dragon (boss)** | 19 sizes × 8 (v0.8, see below) | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). Appears in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
 
 - Every enemy dies in the ansimuz enemy-death fire puff.
 
@@ -269,3 +269,14 @@ Each of levels 2-4 hides **3 of its 4 ally cards**:
 
 ## Allies scale with Mera (v0.8)
 - Allies are drawn at **1.1 × Mera's current height** (never bigger than their full 4x art, never below 35 % of it) and follow her size changes smoothly.
+
+
+## Infernal Dragon (v0.8 rework)
+`scripts/game/dragon.gd` (extends `monster.gd`), bolts `scripts/game/dragon_bolt.gd`, numbers `tuning.gd` `DRAGON_*`.
+- **Size is health, like Mera's.** He starts at **19x** (drawn at k = 19) and loses **one size per 8 damage** (`DRAGON_HP_PER_SIZE`; a 2x Mera combo takes about one size), down to **1x**. A hit can never take him below 1x; **any hit at 1x kills him**. The size change is tweened; his feet stay on the ground line and his hit boxes scale with him.
+- **His damage never scales with his size** (tail 3, breath 2, bolts 2).
+- **Phases at 12x, 9x, 6x, 3x**, each **exactly once**, when his size first drops to or past it. **Choice for big hits:** a hit that skips several thresholds **queues every owed phase**, and they run back to back, each once (not just the highest).
+- **A phase:** he takes off (0.9 s up to 380 px; the ansimuz pack has **no wing frames**, so flight is faked with a lift tween + a bob and the idle frames played fast, like flapping), then spits **5 explosive fire bolts** from his mouth. Each bolt has a **red (ranged) tell**: he pulses red with the "!" for 0.5 s, then the bolt **lobs on a ballistic arc** and falls onto Mera from above (the first aimed at her, the rest within ±220 px); a red ring on the ground shows where it lands. It explodes on touching Mera or the ground (**170 px** blast, **2 damage**, fixed). Then he **lands, always** (0.8 s), and goes back to the ground fight.
+- **If any bolt hurts Mera during a phase, he grows +3 sizes** (once per phase, not per bolt; capped at 19x). Growing back never re-arms a threshold he has already used.
+- The barrier blocks bolts; a parry (L2 in the window) pops one harmlessly. The earthquake can't stun him while he flies. The Dancing Girl doesn't distract him.
+- **Boss bar:** "INFERNAL DRAGON 12x" plus a bar with one notch per size.

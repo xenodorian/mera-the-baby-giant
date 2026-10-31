@@ -1,5 +1,5 @@
 extends Control
-## v0.5 title / level select: four levels (scripts/game/levels.gd). Left/Right (d-pad, stick, arrows/WASD) choose,
+## v0.5 title / level select: four levels (scripts/game/levels.gd). Left/Right (d-pad, stick, arrows) choose,
 ## A / Start / Enter (or a click) plays. Esc quits.
 
 var sel := 0
@@ -94,5 +94,5 @@ func _draw() -> void:
 		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 34,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
 		draw_string(font, Vector2(r.position.x, r.end.y + 90), String(lv["sub"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24, Color(0.8, 0.8, 0.85))
-	draw_string(font, Vector2(0, 900), "Left / Right: choose      A / Start / Enter: play      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, Color(0.85, 0.85, 0.9))
-	draw_string(font, Vector2(0, 950), "In game: Start / F1 = controls    Game Over or Level Clear: B = back here", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.7, 0.7, 0.78))
+	draw_string(font, Vector2(0, 900), "Left / Right (arrows): choose      A / Start (Z / Enter): play      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 950), "In game: Start / F1 = controls    Game Over or Level Clear: B (X key) = back here", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.7, 0.7, 0.78))

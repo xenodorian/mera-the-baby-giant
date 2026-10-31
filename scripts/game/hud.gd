@@ -8,29 +8,30 @@ var font: Font
 var _flash := ""
 var _flash_t := 0.0
 
+## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does]
 const CONTROLS := [
-	["D-pad / left stick", "walk left / right, Up = jump, Down = crouch"],
-	["A (hold) + direction", "run      (Down + A = slide)"],
-	["B", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire (2x anim + bolt, 5 stamina)"],
-	["B+Y together", "rising slash, no dodge (free)    Y again during it = slam (free)"],
-	["X", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
-	["X X Y", "1x 2x 3x (with slash)     X X X Y = combo into beam (Y during the 3rd hit), 20 stamina"],
-	["Y", "quick fire (bolt) 5 stamina     X+Y together = rear explosion 12 stamina"],
-	["A+Y together / Y while running", "ground dash (aerial dash animation), 6 stamina"],
-	["In the air", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 stamina, Up = double jump"],
-	["Down + Y (crouching)", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 stamina)"],
-	["L1", "heal: drink a green potion, +1 size (max 6x)"],
-	["L2 tap (rage 100 %)", "lightning strike from the sky (AOE), uses the whole meter"],
-	["L2 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
-	["L2 just before a hit", "PARRY (within 0.15 s): no damage, attacker staggered, shots fly back, x2 counter"],
-	["Y in the bubble (rage 100 %)", "lightning strike while staying shielded"],
-	["L2 + R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
-	["R1", "summon an ally (needs an ally card; several cards: picker)"],
-	["Fury flight", "8-way move, Down on the ground lands, R2 lands"],
-	["Start / Enter / F1", "this overlay (and restart after Game Over)"],
-	["Back(Share) / Tab / G", "animation gallery (Left/Right: previous/next, A: replay)"],
-	["F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
-	["Keyboard", "arrows/WASD move, Shift A, L B, J X, K Y, U L1, I R1, O L2, P R2"],
+	["D-pad / left stick", "arrows", "walk left / right, Up = jump, Down = crouch"],
+	["A (hold) + direction", "Z (hold) + arrow", "run      (Down + A = slide)"],
+	["B", "X", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire"],
+	["B+Y together", "X+S", "rising slash, no dodge (free)    Y again during it = slam (free)"],
+	["X", "A", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
+	["X X Y", "A A S", "1x 2x 3x (with slash)     X X X Y = combo into beam, 20 stamina"],
+	["Y", "S", "quick fire (bolt) 5 stamina     X+Y together = rear explosion 12 stamina"],
+	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 stamina"],
+	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 stamina, Up = double jump"],
+	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 stamina)"],
+	["L1", "Q", "heal: drink a green potion, +1 size (max 6x)"],
+	["L2 tap (rage 100 %)", "1 tap", "lightning strike from the sky (AOE), uses the whole meter"],
+	["L2 hold", "1 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
+	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered, shots fly back, x2 counter"],
+	["Y in the bubble (rage 100 %)", "S in the bubble", "lightning strike while staying shielded"],
+	["L2 + R2 (rage 100 %)", "1 + 2", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
+	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
+	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
+	["Start", "Enter / F1", "this overlay (and restart after Game Over)"],
+	["Back (Share)", "Tab / G", "animation gallery (Left/Right: previous/next, A: replay)"],
+	["-", "F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
+	["Menus", "arrows, Z ok, X back", "level select, ally picker, level clear / Game Over (Esc quits, F11 fullscreen)"],
 ]
 
 
@@ -134,30 +135,41 @@ func _draw_ui() -> void:
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
 	_txt(Vector2(1300, 76), "defeated: %d    F1 / Start: controls" % game.defeated, 22, Color(0.8, 0.8, 0.85))
-	var bs: Node2D = game.boss
+	var bs = game.boss                                          # untyped: may be a freed instance
 	if bs != null and is_instance_valid(bs) and bs.alive():        # v0.6 boss bar
 		ui.draw_rect(Rect2(460, 1000, 1000, 34), Color(0.05, 0.02, 0.03, 0.85))
 		ui.draw_rect(Rect2(465, 1005, 990.0 * float(bs.hp) / float(bs.hp_max), 24), Color(0.85, 0.15, 0.1))
-		_txt(Vector2(470, 990), "INFERNAL DRAGON", 28, Color(1, 0.7, 0.5))
+		if bs.get("size") != null:                                   # v0.8: its size is its health
+			var hps := float(bs.hps)
+			for i in range(1, int(bs.hp_max / bs.hps)):
+				var tx := 465.0 + 990.0 * float(i) * hps / float(bs.hp_max)
+				ui.draw_line(Vector2(tx, 1005), Vector2(tx, 1029), Color(0, 0, 0, 0.5), 2.0)
+			_txt(Vector2(470, 990), "INFERNAL DRAGON   %dx" % bs.size, 28, Color(1, 0.7, 0.5))
+		else:
+			_txt(Vector2(470, 990), "INFERNAL DRAGON", 28, Color(1, 0.7, 0.5))
 	if m.state == "gallery":
 		var ks: Array = AnimLib.keys()
 		_txt(Vector2(660, 150), "GALLERY  %d/%d  %s   (Left/Right, A replay, Back/Tab exit)" % [m.gallery_idx + 1, ks.size(), ks[m.gallery_idx]], 30, Color(1, 0.85, 0.5))
 	if m.debug:
 		_txt(Vector2(1300, 106), "DEBUG: boxes on, PageUp/PageDown size   x %d" % int(m.global_position.x), 22, Color(1, 1, 0.4))
 	if overlay:
-		ui.draw_rect(Rect2(260, 190, 1400, 760), Color(0.03, 0.02, 0.06, 0.88))
-		_txt(Vector2(300, 240), "CONTROLS  (Xbox names; PS4: A = Cross, B = Circle, X = Square, Y = Triangle)", 28, Color(1, 0.8, 0.5))
+		ui.draw_rect(Rect2(140, 130, 1640, 900), Color(0.03, 0.02, 0.06, 0.9))
+		_txt(Vector2(180, 175), "CONTROLS  (pad: Xbox names; PS4: A = Cross, B = Circle, X = Square, Y = Triangle)", 26, Color(1, 0.8, 0.5))
+		_txt(Vector2(180, 215), "GAMEPAD", 20, Color(1, 0.75, 0.45))
+		_txt(Vector2(530, 215), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
 		for i in CONTROLS.size():
-			_txt(Vector2(300, 290 + i * 38), String(CONTROLS[i][0]), 24, Color(1, 0.75, 0.45))
-			_txt(Vector2(720, 290 + i * 38), String(CONTROLS[i][1]), 24)
+			var y := 250 + i * 35
+			_txt(Vector2(180, y), String(CONTROLS[i][0]), 20, Color(1, 0.75, 0.45))
+			_txt(Vector2(530, y), String(CONTROLS[i][1]), 20, Color(0.55, 0.85, 1.0))
+			_txt(Vector2(760, y), String(CONTROLS[i][2]), 20)
 	if game.over and game.over_t > 0.9:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_txt(Vector2(700, 520), "GAME OVER", 110, Color(0.95, 0.2, 0.2))
-		_txt(Vector2(560, 600), "Mera shrank past 1x.   Start / Enter: restart    B: level select", 30)
+		_txt(Vector2(420, 600), "Mera shrank past 1x.   A / Start (Z / Enter): restart    B (X): level select", 30)
 	if game.cleared and game.over_t > 0.3:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
 		_txt(Vector2(640, 500), "LEVEL CLEAR", 110, Color(1.0, 0.85, 0.45))
-		_txt(Vector2(620, 590), "A / Start: next level      B: level select", 32)
+		_txt(Vector2(470, 590), "A / Start (Z / Enter): next level      B (X): level select", 32)
 	if game.frame_n < 150 and not game.test_mode:
 		var lv: Dictionary = Levels.level()
 		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)

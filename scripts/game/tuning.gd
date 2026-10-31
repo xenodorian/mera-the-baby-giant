@@ -96,3 +96,22 @@ const CORPSE_MAX_S := 1.4
 # ---------------------------------------------------------------- v0.8 debris / gore
 const SHARDS_MAX := 420           # live debris pieces at most (oldest are recycled)
 const GORE := true                # gibs + blood on enemy deaths (props only shatter)
+
+# ---------------------------------------------------------------- v0.8 dragon boss (docs/GAME_RULES.md "Infernal Dragon")
+const DRAGON_START_SIZE := 19      # drawn at k = its size; its size IS its health, like Mera's
+const DRAGON_HP_PER_SIZE := 8      # damage that costs one size (a 2x Mera combo ~ 1 size)
+const DRAGON_PHASES := [12, 9, 6, 3]   # each fires once, when its size first drops to or past it
+const DRAGON_GROW := 3             # sizes regained when a phase bolt hits Mera (once per phase)
+const DRAGON_SIZE_RATE := 3.0      # size tween speed (x the gap, per second; at least 1 size/s)
+const DRAGON_FLY_H := 380.0        # take-off height (px above the ground line)
+const DRAGON_TAKEOFF_S := 0.9
+const DRAGON_LAND_S := 0.8
+const DRAGON_BOLTS := 5            # explosive fire bolts per phase ...
+const DRAGON_BOLT_TELL_S := 0.5    # ... each with a red (ranged) tell ...
+const DRAGON_BOLT_GAP_S := 0.45    # ... then this pause before the next tell
+const DRAGON_BOLT_FLIGHT_S := 1.15 # lob time from the mouth to the ground
+const DRAGON_BOLT_G := 1900.0      # bolt gravity (ballistic arc)
+const DRAGON_BOLT_SPREAD := 220.0  # aim spread around Mera (the first bolt is aimed straight at her)
+const DRAGON_BOLT_DMG := 2         # never scales with the dragon's size (enemies never scale damage)
+const DRAGON_BOLT_R := 170.0       # explosion radius
+

@@ -43,19 +43,27 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | Start | controls overlay. Restart after Game Over |
 | Back (Share) | animation gallery (every baked animation). Left/Right = previous/next, A = replay |
 
-## Keyboard
-| Key | Pad equivalent |
-|---|---|
-| Arrows / WASD | d-pad |
-| Shift or Space | A |
-| L | B |
-| J | X |
-| K | Y |
-| U / I / O / P | L1 / R1 / L2 / R2 (so Fury = O + P) |
-| Enter or F1 | Start |
-| Tab or G | Back (gallery) |
-| F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x |
-| F11 / Esc | fullscreen / leave fullscreen, then quit |
+## Keyboard (v0.8 PC layout, user request t86u)
+Every key is just another binding of the same action, so combos, chords (67 ms window), L2 tap vs hold and the parry window behave exactly as on a pad. No key is shared between two actions (test "input map: no key is shared").
+
+| Key | Pad equivalent | Examples |
+|---|---|---|
+| Arrows | d-pad (move, Up = jump, Down = crouch) | Down + S = earthquake |
+| **Z** (or Space) | A | Z (hold) + arrow = run, Z+S = ground dash |
+| **X** | B | X = back dodge, X+S = rising slash |
+| **A** | X | A A A = 1x 2x 2x-2, A+S = rear explosion |
+| **S** | Y | S = quick fire |
+| **Q** | L1 | heal (potion) |
+| **W** | R1 | summon an ally |
+| **1** (or keypad 1) | L2 | tap = lightning, hold = barrier, just before a hit = parry |
+| **2** (or keypad 2) | R2 | **1 + 2** = Fury |
+| Enter or F1 | Start | controls overlay; restart after Game Over |
+| Tab or G | Back (gallery) | |
+| F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
+| F11 / Esc | fullscreen / leave fullscreen, then quit | |
+
+**Menus** (level select, ally picker, Level Clear / Game Over): arrows choose, **Z** = confirm (A), **X** = back/cancel (B); Enter also confirms. The controls overlay (Start / Enter / F1) lists the keyboard key next to every pad button.
+Until v0.7 the keys were WASD/Shift/L/J/K/U/I/O/P; those are gone (A, S, W and Q now mean pad buttons).
 
 ## v0.5 button remap: the decision
 - The user asked for lightning on L2, Fury on R2+L2, and R1 freed for allies. The barrier also lived on L2, so **L2 now does both, split by press length**:

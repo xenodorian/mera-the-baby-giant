@@ -62,6 +62,7 @@ var exit_gate: Node2D
 var test_mode_no_exit := false
 # v0.6 roster (levels 2-4; scripts/game/roster.gd, monster.gd)
 const MONSTER := preload("res://scripts/game/monster.gd")
+const DRAGON := preload("res://scripts/game/dragon.gd")
 var mobs: Array = []
 var boss: Node2D = null
 var boss_spawned := false
@@ -466,7 +467,7 @@ func _blast_props(c: Vector2, r: float, src: Node2D) -> void:
 # ---------------------------------------------------------------- v0.6 roster
 ## one roster enemy at x (opts: variant, seed)
 func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
-	var e: Node2D = MONSTER.new()
+	var e: Node2D = (DRAGON if eid == "dragon" else MONSTER).new()     # v0.8: the dragon has its own boss script
 	e.setup(self, eid, clampf(x, Levels.EDGE, map_w - Levels.EDGE), opts)
 	e.facing = -1 if x > mera.global_position.x else 1
 	world.add_child(e)
@@ -910,10 +911,16 @@ func _on_died() -> void:
 	over_t = 0.0
 
 
+var restart_requests := 0       # tests
+
+
 func restart() -> void:
+	restart_requests += 1
 	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
+	if get_tree().current_scene == null:      # headless tests add the game under root by hand: nothing to reload
+		return
 	get_tree().reload_current_scene()
 
 
@@ -972,6 +979,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if cleared and over_t > 1.0 and (event.is_action_pressed("btn_a") or event.is_action_pressed("start")) and not event.is_echo():
 		next_level()
+		return
+	if over and not cleared and over_t > 1.0 and event.is_action_pressed("btn_a") and not event.is_echo():
+		restart()                                   # v0.8: A (Z key) restarts too, like Start
 		return
 	if event.is_action_pressed("start") and not event.is_echo():
 		if over and over_t > 1.0:

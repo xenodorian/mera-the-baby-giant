@@ -206,6 +206,27 @@ func _input_map_tests() -> void:
 			if (e is InputEventJoypadMotion and e.axis in C.TRIGGER_AXES) or (e is InputEventJoypadButton and e.button_index in [15, 16]):
 				leak.append(String(a))
 	_check("input map: no other action (ui_* included) listens to a trigger", leak.is_empty(), "%s" % [leak])
+	var kb: Dictionary = C.key_bindings()
+	var kshared: Array = []
+	for kc in kb:
+		if kb[kc].size() > 1:
+			kshared.append("%s=%s" % [OS.get_keycode_string(kc), kb[kc]])
+	var raw_hit: Array = []
+	for kc in C.RAW_KEYS:
+		if kb.has(kc):
+			raw_hit.append(OS.get_keycode_string(kc))
+	_check("input map: no key is shared by two actions, none uses Esc/F11 (read raw)", kshared.is_empty() and raw_hit.is_empty(), "%s %s" % [kshared, raw_hit])
+	var want := {"left": KEY_LEFT, "right": KEY_RIGHT, "up": KEY_UP, "down": KEY_DOWN, "btn_a": KEY_Z, "btn_b": KEY_X, "btn_x": KEY_A, "btn_y": KEY_S,
+		"l1": KEY_Q, "r1": KEY_W, "l2": KEY_1, "r2": KEY_2}
+	var kbad: Array = []
+	for a in want:
+		var ok := false
+		for e in InputMap.action_get_events(a):
+			if e is InputEventKey and e.physical_keycode == want[a]:
+				ok = true
+		if not ok:
+			kbad.append(a)
+	_check("keyboard (v0.8): arrows = d-pad, Z A, X B, A X, S Y, Q L1, W R1, 1 L2, 2 R2", kbad.is_empty(), "%s" % [kbad])
 	var g: Node = await _new_game()
 	for i in 10:
 		await physics_frame
@@ -245,6 +266,74 @@ func _input_map_tests() -> void:
 		await physics_frame
 	_check("plain joypad Start (no trigger) still toggles the controls overlay", g.hud.overlay != ov0, "overlay=%s" % g.hud.overlay)
 	g.queue_free()
+	await physics_frame
+	await _keyboard_tests()
+
+
+## v0.8 PC keyboard: real key events (Input.parse_input_event), same chords and tap/hold as the pad
+func _kdrive(steps: Array, frames: int) -> void:
+	for f in frames:
+		for st in steps:
+			if int(st[0]) == f:
+				var e := InputEventKey.new()
+				e.physical_keycode = st[1]
+				e.pressed = st[2]
+				Input.parse_input_event(e)
+		await physics_frame
+
+
+func _keyboard_tests() -> void:
+	var g: Node = await _new_game()
+	var m: Node = g.mera
+	await _kdrive([], 10)
+	var n0: int = m.move_log.size()
+	await _kdrive([[2, KEY_A, true], [2, KEY_S, true], [6, KEY_A, false], [6, KEY_S, false]], 40)
+	_check("keyboard: A+S together (X+Y) -> rear explosion", "rear_blast" in m.move_log.slice(n0), "%s" % [m.move_log.slice(n0)])
+	await _kdrive([], 60)
+	n0 = m.move_log.size()
+	await _kdrive([[2, KEY_A, true], [5, KEY_A, false], [15, KEY_A, true], [18, KEY_A, false], [28, KEY_A, true], [31, KEY_A, false]], 120)
+	var chain: Array = m.move_log.slice(n0)
+	_check("keyboard: A A A -> 1x 2x 2x-2", "atk1" in chain and "atk2" in chain and "atk2_2" in chain, "%s" % [chain])
+	await _kdrive([], 40)
+	m.rage = 100.0
+	g.last_strike = null
+	var struck := false
+	await _kdrive([[2, KEY_1, true], [5, KEY_1, false]], 10)
+	for i in 80:
+		await physics_frame
+		if is_instance_valid(g.last_strike):
+			struck = true
+	_check("keyboard: 1 tap at full rage -> lightning (like an L2 tap)", struck and m.rage == 0.0, "rage=%f" % m.rage)
+	await _kdrive([[2, KEY_1, true]], 40)
+	var shield: bool = m.barrier_on
+	await _kdrive([[0, KEY_1, false]], 30)
+	_check("keyboard: 1 hold -> barrier (like an L2 hold), released -> down", shield and not m.barrier_on, "")
+	m.rage = 100.0
+	await _kdrive([[2, KEY_1, true], [3, KEY_2, true], [6, KEY_1, false], [6, KEY_2, false]], 20)
+	_check("keyboard: 1 + 2 -> Fury (L2 + R2)", m.fury, "")
+	g.queue_free()
+	await physics_frame
+	g = await _new_game()
+	m = g.mera
+	await _kdrive([], 10)
+	await _kdrive([[2, KEY_DOWN, true], [12, KEY_S, true], [15, KEY_S, false], [30, KEY_DOWN, false]], 40)
+	_check("keyboard: Down + S -> earthquake", g.quake_t > 0.0 or "quake" in String(m.move_log), "%s" % [m.move_log.slice(-4)])
+	# menus: game over -> Z restarts; level clear B = X key -> menu (checked via the action map)
+	var xb := false
+	for e in InputMap.action_get_events("btn_b"):
+		if e is InputEventKey and e.physical_keycode == KEY_X:
+			xb = true
+	g.over = true
+	g.over_t = 2.0
+	var e2 := InputEventKey.new(); e2.physical_keycode = KEY_Z; e2.pressed = true
+	Input.parse_input_event(e2)
+	await physics_frame
+	e2.pressed = false; Input.parse_input_event(e2)
+	await physics_frame
+	await physics_frame
+	_check("keyboard menus: Z restarts after Game Over; X is B (back to level select)", g.restart_requests == 1 and xb, "restarts=%d" % g.restart_requests)
+	if is_instance_valid(g):
+		g.queue_free()
 	await physics_frame
 
 
@@ -1782,4 +1871,102 @@ func _s4_tests() -> void:
 	await physics_frame
 	HS.enabled = false
 	HS.clear()
+	await _dragon_tests()
 	LVS.current = 0
+
+
+
+## v0.8 dragon boss: size is health (19x), phases at 12/9/6/3 once each, +3 when a phase bolt hurts Mera, always lands
+func _dragon_until_landed(g: Node, dr: Node2D, keep_safe: bool, max_f: int = 1500) -> void:
+	for i in max_f:
+		await physics_frame
+		if keep_safe:
+			g.mera.invuln = 1.0
+		if not is_instance_valid(dr) or (dr.phase == "" and dr.phase_queue.is_empty()):
+			return
+
+
+func _dragon_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var g: Node = await _s4_new(3)
+	var m: Node = g.mera
+	m.position.x = 12000.0
+	m.set_size(6, true)
+	g.snap_camera()
+	var dr: Node2D = g.spawn_enemy("dragon", 12900.0)
+	await _s4_frames(g, 30)
+	_check("dragon: starts at 19x (drawn at k 19), %d HP per size" % T.DRAGON_HP_PER_SIZE, dr.size == 19 and absf(dr.k - 19.0) < 0.01 and dr.hp == 19 * T.DRAGON_HP_PER_SIZE and absf(absf(dr.sprite.scale.x) - 19.0) < 0.01, "size=%d k=%f hp=%d" % [dr.size, dr.k, dr.hp])
+	var feet0: float = dr.global_position.y
+	dr.take_damage(T.DRAGON_HP_PER_SIZE * 6, m.global_position.x, "melee")
+	var shrunk: bool = dr.size == 13 and dr.phase == "" and dr.phase_queue.is_empty()
+	await _s4_frames(g, 60)
+	_check("dragon: damage shrinks it (19x -> 13x, tweened), feet stay on the ground line, no phase above 12x", shrunk and absf(dr.k - 13.0) < 0.05 and absf(dr.global_position.y - feet0) < 0.5 and dr.hurt_rect().end.y <= feet0 + 1.0, "k=%f" % dr.k)
+	dr.take_damage(T.DRAGON_HP_PER_SIZE, m.global_position.x, "melee")
+	await _s4_frames(g, 2)
+	var flying: bool = dr.phase != "" and dr.phase_thr == 12
+	var max_lift := 0.0
+	var tells := 0
+	var was_tell := false
+	for i in 1500:
+		await physics_frame
+		m.invuln = 1.0
+		max_lift = maxf(max_lift, dr.lift)
+		var tl: bool = dr.marker.visible and dr.phase == "volley"
+		if tl and not was_tell:
+			tells += 1
+		was_tell = tl
+		if dr.phase == "" and dr.phase_queue.is_empty():
+			break
+	_check("dragon phase 12x: takes off, 5 bolts each with a red tell, then lands", flying and max_lift > T.DRAGON_FLY_H * 0.9 and dr.bolts_fired == 5 and tells == 5 and dr.landings == 1 and dr.phase_log == [12] and absf(dr.global_position.y - feet0) < 0.5 and dr.state != "fly",
+		"fly=%s lift=%f bolts=%d tells=%d land=%d log=%s" % [flying, max_lift, dr.bolts_fired, tells, dr.landings, dr.phase_log])
+	_check("dragon: no growth when no bolt hurts Mera (she was invulnerable)", dr.size == 12 and dr.growths == 0, "size=%d" % dr.size)
+	# one huge hit skips 9x, 6x and 3x: every crossed phase runs once, in order, each landing
+	dr.take_damage(T.DRAGON_HP_PER_SIZE * 10, m.global_position.x, "explosion")
+	var queued: Array = dr.phase_queue.duplicate()
+	await _dragon_until_landed(g, dr, true, 4000)
+	_check("dragon: a hit past several thresholds queues each owed phase (9, 6, 3) and runs them once, landing every time", queued == [9, 6, 3] and dr.phase_log == [12, 9, 6, 3] and dr.landings == 4 and dr.size == 2, "queued=%s log=%s land=%d size=%d" % [queued, dr.phase_log, dr.landings, dr.size])
+	var big := 9999
+	dr.take_damage(big, m.global_position.x, "explosion")
+	_check("dragon: a hit can't take it below 1x (any size above 1x -> 1x)", dr.alive() and dr.size == 1, "size=%d hp=%d" % [dr.size, dr.hp])
+	await _s4_frames(g, 30)
+	dr.take_damage(1, m.global_position.x, "melee")
+	_check("dragon: dies when hit at 1x; no phase ever repeats", not dr.alive() and dr.phase_log == [12, 9, 6, 3], "hp=%d" % dr.hp)
+	for i in 240:
+		await physics_frame
+		m.invuln = 1.0
+	_check("dragon: its death unlocks the exit", not g.exit_locked(), "")
+	g.queue_free()
+	await physics_frame
+	# growth: a phase bolt that hurts Mera -> +3 sizes, once per phase, and the used threshold is not re-armed
+	g = await _s4_new(3)
+	m = g.mera
+	m.position.x = 12000.0
+	m.set_size(6, true)
+	g.snap_camera()
+	dr = g.spawn_enemy("dragon", 12900.0, {"size": 13})
+	await _s4_frames(g, 30)
+	dr.cooldown = 99.0
+	dr.take_damage(T.DRAGON_HP_PER_SIZE, m.global_position.x, "melee")
+	m.invuln = 0.0
+	m.last_l2_t = -1e9
+	var hurt := 0
+	var sz_prev: int = m.size
+	for i in 1500:
+		await physics_frame
+		m.position.x = 12000.0
+		if m.size < sz_prev:
+			hurt += 1
+		sz_prev = m.size
+		if m.size <= 2:
+			m.set_size(6, true)
+			sz_prev = 6
+		if dr.phase == "" and dr.phase_queue.is_empty():
+			break
+	_check("dragon: bolts lob onto Mera from above and hurt her (%d hits, fixed %d each)" % [hurt, T.DRAGON_BOLT_DMG], hurt >= 1 and dr.landings == 1, "hurt=%d land=%d" % [hurt, dr.landings])
+	_check("dragon: a bolt hit grows it +%d sizes, once per phase (12x -> 15x)" % T.DRAGON_GROW, dr.growths == 1 and dr.size == 15, "growths=%d size=%d" % [dr.growths, dr.size])
+	await _s4_frames(g, 60)
+	dr.take_damage(T.DRAGON_HP_PER_SIZE * 3, m.global_position.x, "melee")
+	await _s4_frames(g, 5)
+	_check("dragon: growing back past 12x does not re-arm the 12x phase", dr.size == 12 and dr.phase == "" and dr.phase_queue.is_empty() and dr.phase_log == [12], "size=%d phase=%s log=%s" % [dr.size, dr.phase, dr.phase_log])
+	g.queue_free()
+	await physics_frame

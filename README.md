@@ -3,10 +3,10 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.7-playable** (allies: cards, R1 summon + picker, Water Priestess heal, Leaf Ranger, Brawler Girl, Dancing Girl)
-- Download: GitHub → Releases → `v0.7-playable` (Windows `.exe`, Linux `.x86_64`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.8-playable** (impact pass, breakables, barrels, chandeliers, juggles, parry, secrets, dragon boss rework; first Android build)
+- Download: GitHub → Releases → `v0.8-playable` (Windows `.exe`, Linux `.x86_64`, **Android `.apk`**, ARM phones/tablets, play with a gamepad). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
-  - `main` = the current playable game (v0.7).
+  - `main` = the current playable game (v0.8).
   - `playable-level` = the playable-level development branch.
   - `beam-attack` = the canon beam/projectile cast work (already in `playable-level`/`main`).
   - `mera-scale-test` = v0.1.
@@ -16,7 +16,7 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
   - B [○]: back dodge (B then X: dodge attack, B then Y: fast quick fire). **B+Y: rising slash** (Y again: slam). A+Y: ground dash. In the air, X: jump attack, Y: aerial dash.
   - L1: potion. **L2 tap: lightning** (100 % rage), **L2 hold: barrier**. **Y in the bubble: lightning.** **L2+R2: Fury.** R1: summon an ally (cards). **Down+Y crouching: earthquake.**
   - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **stamina** (60, +1/s).
-  - Keyboard: arrows/WASD, Shift=A, L=B, J=X, K=Y, U/I/O/P = L1/R1/L2/R2.
+  - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (Fury = 1+2), Enter/F1 = Start.
 
 ### Clone and open
 ```bash
@@ -63,6 +63,7 @@ G=/workspace/tools/Godot_v4.7.2-stable_linux.x86_64
 $G --headless --path . -s tests/run_tests.gd                       # headless gameplay tests (v0.4: human-timing input replays, knights, stamina, aura)
 $G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe
 $G --headless --path . --export-release "Linux" build/linux/Mera_Playable.x86_64
+source /home/box/.android-keys/release.env && $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk   # see docs/AI_HANDOFF.md
 ```
 Test/capture args (after `--`): `--size=N --rage=N --potions=N --fury --no-knight --debug --overlay --gallery=ANIM --demo --shots=PREFIX --at=F1,F2 --quit=F`.
 The export list in `export_presets.cfg` is explicit (textures are loaded by path), plus the include filter for `anims.json`. Add new assets there.

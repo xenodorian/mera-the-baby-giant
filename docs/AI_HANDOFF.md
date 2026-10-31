@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: S3 (2026-10-31), v0.7-playable._
+_Last updated: S4 (2026-10-31), v0.8-playable._
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -26,6 +26,11 @@ _Last updated: S3 (2026-10-31), v0.7-playable._
 | `allies.gd` | `Allies` class: ally numbers, colours, card spots per level, heal cooldown |
 | `ally.gd`, `ally_arrow.gd` | v0.7 ally behaviour (all four) and the ranger's arrow |
 | `ally_card.gd`, `ally_picker.gd` | The map cards and the R1 picker (a CanvasLayer that pauses the tree; `PROCESS_MODE_ALWAYS`) |
+| `hit_stop.gd` | v0.8 autoload `HitStop`: freezes via `Engine.time_scale`, counts down per physics tick, `input_dt()` for Mera's clock |
+| `debris.gd` | v0.8 shatter/debris sim (textured polygon shards in one `_draw`), spark and blood `CPUParticles2D` pools, gibs |
+| `props.gd`, `prop.gd` | v0.8 prop kinds/numbers/layouts/secrets (`Props` data) and one prop node (breakables, barrel, chandelier, wall, lever, door, plank, ledge) |
+| `dragon.gd`, `dragon_bolt.gd` | v0.8 Infernal Dragon boss (extends `monster.gd`): size = health, flight phases, lobbed bolts |
+| `controls.gd` | autoload `Controls`: the input map in code, plus the Android trigger guard (`trigger_near`, `joy_bindings`) |
 
 - Level maps are built by `tools/build_levels.py` into `assets/levels/<id>/*.png`, `thumb.png` and `levels.json`. Re-run it after changing a level, then add any new PNG to the export list.
 - Enemy art manifest: `python3 tools/build_roster.py` writes `assets/enemies/roster.json`: every frame path, its fps and loop, the pivot, and the opaque box of each frame. Hit boxes come from those boxes. Re-run it after changing an enemy pack, then add new frame paths to the export list.
@@ -39,30 +44,18 @@ _Last updated: S3 (2026-10-31), v0.7-playable._
 | v0.2-playable | First playable cemetery level |
 | v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
 | v0.3.1 | Camera hard lock |
+| **v0.8-playable** (S4) | Hit-stop/sparks/SFX variance, shatter + gore, breakables with smart drops, barrels + chandeliers, juggles + corpse launch, parry (timed L2), secrets (wall, lever door, ledge + crumbling plank), allies scale with Mera, dragon rework (19x size = health, 12/9/6/3 flight phases with lobbed bolts, +3 on a hit), Fire Knight 1/2 damage, dancer skin recolour, Android L2 fix, **Android APK builds** (305 tests) |
 | **v0.7-playable** (S3) | Ally cards on levels 2-4, R1 summon + picker, Water Priestess (heal to 6x, 30 s cooldown), Leaf Ranger, Brawler Girl, Dancing Girl (non-boss enemies gather and hop), all ally animations used |
 | **v0.6-playable** (S2) | 16-enemy roster on levels 2-4 with all animations, Infernal Dragon boss + locked exit, telegraph standard (knights too), Y-in-bubble lightning, demo on current controls |
 | **v0.5-playable** (S1) | Level select + 4 large native maps (Cemetery, Misty Woods, Moonlit Town, Infernal Caverns; 19,200 px each, walls + exit gate), remap (L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = allies), Down+Y earthquake (1 s shake, 5 s ground stun) |
 | **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
 
 ## Left (see `docs/WORKFLOW.md`)
-- **S4:** from `docs/RESEARCH.md` (top-8):
-  - impact pass (hit-stop, flash, sparks, SFX variance);
-  - breakables with drop tables;
-  - explosive barrels and chandeliers;
-  - juggle rules;
-  - consistent enemy telegraphs: **done in S2**; keep new enemies on the standard;
-  - secret walls hiding ally cards.
-
-  → v0.8.
-- **User decisions for S4 (t79u, 2026-10-31):**
-  - **Yes** to all research recommendations, including the parry.
-  - **Parry** = a perfectly timed barrier raise (L2 pressed within about 0.15 s before a hit lands): parry, then a counter window, and projectiles are deflected. No new button.
-  - **Yes** to gore and gibs, using free CC0 gib packs.
-  - **No paid packs:** skip Gothicvania Interiors and use free CC0 props.
-  - **Shatter:** add a free (MIT/CC0) Godot 4 debris/fracture sim, so destroyed objects and enemies (for gore) shatter into pieces. Either sprite fracture into RigidBody2D shards or CPUParticles2D shards. It must work on the Compatibility renderer and in the Windows exe; prefer pure GDScript.
+- S0-S4 of the 2026-10-31 plan are done. Nothing from that plan is open. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
+- **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
 
 ## Pitfalls (learned the hard way)
-- **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **both** presets, or the exported game silently misses it.
+- **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **all three** presets (Windows, Linux, Android), or the exported game silently misses it.
   - Never `grep` the file with broad patterns: the list is one enormous line.
   - Add entries with `sed`/python right after `"res://scripts/game/cam_rig.gd", `.
 - **Git LFS:** PNG/GIF/WAV/ZIP/etc. go through LFS. After pushing, also run `git lfs push origin <branch>`. Commit `*.import` and `*.uid` files, but never `.godot/`.
@@ -86,12 +79,17 @@ _Last updated: S3 (2026-10-31), v0.7-playable._
 - **Test harness:** the human-timing generator must not press a button again while it is still held (it cuts the earlier hold 20 ms before the next press). Otherwise it fakes dropped inputs.
 - **Screenshots** need a real GL context: `xvfb-run -a -s "-screen 0 1920x1080x24" $G --path . --rendering-driver opengl3 --resolution 1920x1080 -s tests/shots_vXX.gd`. Headless rendering is blank.
 - **Particles:** use `CPUParticles2D` (GPU particles are unreliable on Compatibility). Set `local_coords = false` for world-space trails.
-- With the requested numbers, a Fire Knight hit (2) kills a 2x Mera. This is intended, so don't "fix" it.
+- v0.8 balance: the Fire Knight deals **1** per normal hit and **2** for the special (user request t80u; was 2/3).
+- **Android L2 bug (fixed in v0.8)**: on Android, Godot reports a digital L2/R2 as joypad **button 15/16** (`GodotInputHandler.java getGodotButton`: KEYCODE_BUTTON_L2 -> 15, R2 -> 16, SELECT/BACK -> 4, START/MENU -> 6) and analog axes **by device order** (`joystick.axes` sorted), then applies the SDL gamecontrollerdb mapping by GUID. A pad whose mapping puts L2 on Back/Start fired the shield and the gallery/controls overlay (text on screen). Fix: `controls.gd` binds 15/16 to l2/r2, a test asserts no two actions share a joypad button or axis direction and nothing else listens to a trigger, and `game.gd` defers joypad Start/Select by 6 physics frames and drops them when `Controls.trigger_near()` (trigger moved within +-6 frames or L2/R2 held). Keyboard is unaffected. Don't bind anything else to buttons 15/16 or axes 4/5.
+- **Hit-stop vs `--fixed-fps`:** in fixed-fps runs the engine does NOT scale deltas by `Engine.time_scale`, and a hit landing mid-frame changes the scale after the frame's delta was handed out. So `HitStop` counts the freeze down per physics tick (real time) and samples "frozen" at the start of each physics frame (`process_physics_priority = -1000`); Mera's clock uses `HitStop.input_dt(delta)`. Don't go back to `delta / Engine.time_scale`.
+- Props, the dragon and debris can `queue_free()` themselves in the same frame (chandelier on landing, broken walls, burst corpses): tests must `is_instance_valid()` before touching them. HUD code must not type a possibly-freed node (`var bs: Node2D = game.boss` crashed; now untyped).
+- **Keyboard (v0.8, user t86u):** arrows/Z/X/A/S/Q/W/1/2 = d-pad/A/B/X/Y/L1/R1/L2/R2, all in `controls.gd MAP`. A, S, W, Q now mean pad buttons, so don't bring WASD movement back. Esc/F11 are read raw (`Controls.RAW_KEYS`); the input-map test fails if an action uses them or two actions share a key. The overlay table in `hud.gd CONTROLS` has [pad, keyboard, text] columns; keep them in sync.
+- The dragon pack has no wing/flight frames: flight is a lift tween + bob on the idle frames.
 - `tools/make_loop_bg.py` created the old looping cemetery. It is superseded by large native maps from S1 on.
 
 - **New `class_name` scripts** are only found after the global class cache is refreshed: run `$G --headless --path . --import` once after adding one. Otherwise you get "Identifier not declared".
 - **Never `git stash -u` while the test suite is running.** It removes untracked assets (e.g. level PNGs) from disk for a moment, and the running tests can fail to load them.
-- Add export entries with `python3 tools/add_export_files.py res://a res://b` (idempotent, both presets), or `--include "glob"` for the include filter.
+- Add export entries with `python3 tools/add_export_files.py res://a res://b` (idempotent, every preset), or `--include "glob"` for the include filter.
 - **Research constraints** (from `docs/RESEARCH.md`):
   - use `CPUParticles2D`, not GPU particles;
   - test the exported `.exe` when using GDExtension add-ons (Ropesim, LimboAI, Rapier);
@@ -120,3 +118,8 @@ _Last updated: S3 (2026-10-31), v0.7-playable._
 | ffmpeg | 7.1.5 (videos/GIFs, no longer required) |
 | unzip | 6.0 |
 | Aseprite | not installed; `tools/ase_info.py` and `tools/ase_render.py` read `.aseprite` files in Python |
+| **OpenJDK 17** (Android export) | Eclipse Temurin 17 at `/workspace/tools/jdk17` (tarball `/workspace/tools/jdk17.tar.gz`, from api.adoptium.net). Debian trixie has no openjdk-17 package; don't use the system 21 |
+| **Android SDK** (Android export) | `/workspace/tools/android`: cmdline-tools `latest` (commandlinetools-linux-13114758, zip `/workspace/tools/cmdtools.zip`), `platform-tools`, `build-tools;35.0.1` and `36.0.0`, `platforms;android-35` and `android-36` (Godot 4.7.2 targets SDK 36). Licences accepted. Install more with `JAVA_HOME=/workspace/tools/jdk17 /workspace/tools/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=/workspace/tools/android "<pkg>"` |
+| Godot Android templates | already in the 4.7.2 templates dir (`android_debug.apk`, `android_release.apk`, `android_source.zip`); the preset uses the prebuilt template (`gradle_build/use_gradle_build=false`), so no Gradle build is needed |
+| Godot editor settings | `~/.config/godot/editor_settings-4.7.tres`: `export/android/java_sdk_path`, `android_sdk_path`, `debug_keystore` (+ user/pass) point at the paths here |
+| **Keystores** (never commit) | `/home/box/.android-keys/` (mode 700): `debug.keystore` (androiddebugkey / android), `mera-release.keystore` (alias `mera`, random password) and `release.env`, which exports `GODOT_ANDROID_KEYSTORE_RELEASE_PATH/USER/PASSWORD` for `--export-release "Android"`. Losing the release keystore means the next APK can't update an installed one (uninstall first). `.gitignore` blocks `*.keystore` / `*.jks` |

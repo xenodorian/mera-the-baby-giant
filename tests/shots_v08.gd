@@ -159,4 +159,50 @@ func _run() -> void:
 		await _shot("shot_secret_wall_broken.png")
 		g.queue_free()
 		await _wait(3)
+	if _go("dragon"):
+		# v0.8 dragon boss: a 12x phase, in the air, bolts lobbing down onto Mera
+		g = await _new(3)
+		m = g.mera
+		m.position.x = 12000.0
+		m.set_size(4, true)
+		g.snap_camera()
+		var dr: Node2D = g.spawn_enemy("dragon", 12750.0)
+		await _phys(g, 30)
+		await _shot("shot_dragon_19x.png")
+		dr.take_damage(8 * 7, m.global_position.x, "melee")
+		var shot_n := 0
+		for i in 900:
+			await physics_frame
+			m.invuln = 1.0
+			m.position.x = 12000.0
+			var bolts := 0
+			for c in g.world.get_children():
+				if c.get("warn") != null:
+					bolts += 1
+			if dr.phase == "volley" and bolts >= 2 and shot_n == 0:
+				await _shot("shot_dragon_flying_bolts.png")
+				shot_n += 1
+			if dr.phase == "" and dr.landings > 0:
+				break
+		g.queue_free()
+		await _wait(3)
+	if _go("dancer"):
+		g = await _new(2)
+		m = g.mera
+		m.position.x = 6000.0
+		m.set_size(3, true)
+		g.snap_camera()
+		g.cards = {"dancer": 1}
+		g.summon_type("dancer")
+		await _phys(g, 150)
+		await _shot("shot_dancer_skin.png")
+		g.queue_free()
+		await _wait(3)
+	if _go("overlay"):
+		g = await _new(0)
+		g.hud.overlay = true
+		await _phys(g, 10)
+		await _shot("shot_controls_keyboard.png")
+		g.queue_free()
+		await _wait(3)
 	quit()
