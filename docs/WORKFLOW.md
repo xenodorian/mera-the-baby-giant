@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.8 (2026-10-31): the run persists across levels
+`game.carry` is packed in `next_level` and applied in `_ready`. It holds potions, cards, size, stamina, stamina_max, rage and rage_max. Dying reloads the same snapshot (what you entered the level with). The level select clears it. Windows exe is `v0.9.8-playable`.
+
 ## v0.9.7 (2026-10-31): three 100-rage attacks, enemies stay on Mera
 R2 is Fury, L2+R2 is lightning, L1+R1+L2+R2 is the freeze slash (`_try_mark`). Each spends `FURY_COST` (100) through `start_fury` or `pay_rage`. The slash does not call `start_fury`. `monster._prey` is always Mera. `_distracted` includes bosses, and the dragon and the Fire Knight honor it too. Windows exe is `v0.9.7-playable`.
 

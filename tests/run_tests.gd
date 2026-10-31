@@ -2883,6 +2883,28 @@ func _v091_tests() -> void:
 		g.queue_free(); await process_frame
 	LVS.current = 0
 
+	g = await _new_game()
+	m = g.mera
+	m.potions = 4
+	m.stamina_max = 90.0
+	m.stamina = 12.0
+	m.rage_max = 130.0
+	m.rage = 40.0
+	m.set_size(5, true)
+	g.cards = {"ranger": 2, "brawler": 1}
+	var bag: Dictionary = g._pack_run()
+	m.potions = 0
+	m.stamina = 0.0
+	m.stamina_max = 50.0
+	m.rage = 0.0
+	m.rage_max = 100.0
+	m.set_size(2, true)
+	g.cards = {}
+	g._apply_run(bag)
+	_check("a cleared level keeps potions, cards, size, mana, rage and both upgrades", m.potions == 4 and m.size == 5 and m.stamina_max == 90.0 and absf(m.stamina - 12.0) < 0.1 and m.rage_max == 130.0 and absf(m.rage - 40.0) < 0.1 and int(g.cards.get("ranger", 0)) == 2 and int(g.cards.get("brawler", 0)) == 1, "p=%d size=%d mana %.0f/%.0f rage %.0f/%.0f cards=%s" % [m.potions, m.size, m.stamina, m.stamina_max, m.rage, m.rage_max, g.cards])
+	g.drop_run()
+	g.queue_free(); await process_frame
+
 	# ---------------------------------------------------------------- export list: every runtime script is exported
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var missing: Array = []

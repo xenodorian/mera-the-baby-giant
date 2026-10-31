@@ -185,6 +185,8 @@ func _draw_ui() -> void:
 		var last: bool = game.has_method("is_last_level") and game.is_last_level()
 		_txt(Vector2(640, 500), "JOURNEY COMPLETE" if last else "LEVEL CLEAR", 90, Color(1.0, 0.85, 0.45))
 		_txt(Vector2(470, 590), "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32)
+		if not last:
+			_txt(Vector2(430, 640), "potions, cards, size, mana and rage come with you", 28, Color(0.8, 0.9, 1.0))
 	if game.frame_n < 150 and not game.test_mode:
 		var lv: Dictionary = Levels.level()
 		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)
