@@ -108,3 +108,28 @@ Free $0 tier = idle + walk sample only (kept in `assets/_source/merakintsugi/sam
 - Verdict: **not compatible** without a full redraw. Downscaling 1/3 gives the right height (42 px) but turns to mush
   (`style_closeup_kira_downscaled_x6.png`); at native size she's a giant. Only plausible as a separate HD-sprite game.
   Proofs: `previews/spritekitchen/`.
+
+## Spell VFX: explosion for Mera's projectiles (decided 2026-10-30)
+The user asked to replace the rear beam with a projectile that explodes, colour-matched to the explosion.
+- **Chosen: ansimuz Ground Explosion** (`assets/vfx/ansimuz/ground-explosion/`, Legacy Collection, CC0).
+  - 9 frames, 112×128, 70 ms each. The blast is about 100 px at its widest, at 1:1.
+  - 8 flat colours: cream #fff8e6, peach #faa953, orange #cf5638, red #a32121, wine #691b2b, deep #4a1427, mauve smoke #825861.
+  - Its clustered shading and dark wine/red ramp match Mera's coloured outlines, her deep-red boots and the Gothicvania stages better than the flat cartoon-yellow Explosions Pack.
+  - It lands on the ground, which suits a shot that drops.
+  - The projectile, charge orb, motes, rune ring, sparks, embers and smoke all use exactly these colours (`tools/projectile_cast.py`).
+- **Small impacts** (the quick dodge-attack bolt): ansimuz Explosions Pack `explosion-1-a`.
+  - 8 frames, 32×32, CC0; also on OpenGameArt as "Animated Explosions".
+  - Its 3 colours are remapped in memory to cream, peach and orange from the Ground Explosion palette, so both shots read as one spell family.
+- Considered:
+  - Explosions Pack 1-c (16 × 80 px, flat yellow/orange): too cartoony and the wrong palette.
+  - Explosions Pack 1-d / 1-e (128 / 192 px): too big.
+  - Grotto Escape 2 energy-smack (cyan): wrong family.
+  - PinoGames Ground Magic VFX: licence forbids redistribution, 128 px canvas.
+- Caveat: at 1:1 the ground blast is about 2× Mera's width. That's intentional for a heavy finisher; use explosion 1-b (64 px) for a smaller variant.
+
+## Playable test level (decided 2026-10-30)
+- Mera's animations are baked by `tools/export_game_anims.py` into `assets/characters/merakintsugi/game/`: atlas PNGs plus `anims.json`, with body / fx / additive-light layers per frame, feet pivot, hurt and hit boxes. Pack animations use the in-place (non-pivoted) aseprites; the game moves her itself. Canon moves (pick3_v4_bolt quick fire, pick2_v4_projectile_slash rear blast, pick1_combo_beam_slash beam ender) are rendered through `SPLIT` hooks in the canon tools. Their GIFs are unchanged (verified byte-identical). Flying shots and explosions are separate game objects.
+- Fury flight uses `jump/double jump_vertical` frame 2 (active flight) and frame 3 (idle hover), matching the user's reference image.
+- The Fire Knight is drawn at **6x** in play, permanently (user, v0.3: the 6x size is intentional). Enemies never scale with Mera in size or damage.
+- Background: the ansimuz Cemetery is tiled into a 1920 px loop with ±20 px Gaussian-blended seams (`tools/make_loop_bg.py`). The originals are untouched.
+- Effects: the ansimuz ground explosion (rear blast), electro-shock remapped to the explosion palette (lightning impact), and pack hit fx_01 (hit sparks). In Fury every effect pixel is remapped onto a deep-red ramp (`shaders/spell_fx.gdshader`).

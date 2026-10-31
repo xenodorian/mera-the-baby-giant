@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/tests/beam_test.gd" id="1_test"]
+[ext_resource type="Script" path="res://scripts/mera.gd" id="2_mera"]
+[ext_resource type="Script" path="res://scripts/attacks/mera_beam_attack.gd" id="3_beam"]
+[ext_resource type="Script" path="res://scripts/tests/beam_target.gd" id="4_tgt"]
+
+[node name="BeamTest" type="Node2D"]
+script = ExtResource("1_test")
+
+[node name="Background" type="Node2D" parent="."]
+z_index = -10
+
+[node name="Target" type="Node2D" parent="."]
+script = ExtResource("4_tgt")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Target"]
+
+[node name="Hurtbox" type="Area2D" parent="Target"]
+
+[node name="Shape" type="CollisionShape2D" parent="Target/Hurtbox"]
+
+[node name="Mera" type="Node2D" parent="."]
+script = ExtResource("2_mera")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Mera"]
+
+[node name="Hurtbox" type="Area2D" parent="Mera"]
+
+[node name="Shape" type="CollisionShape2D" parent="Mera/Hurtbox"]
+
+[node name="BeamAttack" type="Node2D" parent="Mera"]
+script = ExtResource("3_beam")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Info" type="Label" parent="HUD"]
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 1900.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
