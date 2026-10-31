@@ -13,8 +13,8 @@ extends Node2D
 const GROUND_Y := 1060.0
 const ART := 5
 const LOOP_W := 384 * ART
-const CAM_LOOK := 120.0       # camera always follows Mera: centred on her plus this look-ahead in her facing direction
-const CAM_SMOOTH := 9.0       # follow rate (1/s, exponential smoothing; ~0.1 s to close most of a gap)
+# v0.3.1: the camera is hard-locked horizontally on Mera's feet pivot, with no look-ahead and no smoothing, so turning
+# around never shifts the view and fast moves never drift. Vertical stays fixed (the level is one screen tall).
 const KNIGHT_GAP := 480.0     # new knights appear this far past the screen edge, ahead of Mera
 const POTION_EVERY := 2600.0  # a potion appears on the ground ahead for every 2600 px of new ground
 
@@ -65,6 +65,9 @@ func _ready() -> void:
 	cam = Camera2D.new()
 	cam.position = Vector2(cam_x, 540)
 	add_child(cam)
+	var rig := preload("res://scripts/game/cam_rig.gd").new()   # camera update after Mera has moved this frame
+	rig.game = self
+	add_child(rig)
 	cam.make_current()
 	snap_camera()
 	debug_draw = Node2D.new()
@@ -141,7 +144,6 @@ func _physics_process(delta: float) -> void:
 	if _trace and (mera.anim.key != _trace_k or (frame_n >= int(OS.get_environment("MERA_TRACE")) and frame_n < int(OS.get_environment("MERA_TRACE")) + 80)):
 		_trace_k = mera.anim.key
 		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])
-	_follow_camera(delta)
 	if not test_mode:
 		_manage_knight(delta)
 		_manage_potions()
@@ -193,13 +195,9 @@ func _run_demo() -> void:
 				knight.position.x = mera.global_position.x + (float(st[2]) if absi(int(st[2])) > 1 else signf(float(st[2])) * 900.0)
 
 
+## called by cam_rig.gd after all physics this frame: X locked on Mera, independent of her facing
 func _follow_camera(delta: float) -> void:
-	var mx := mera.global_position.x
-	# velocity feed-forward: the smoothing would otherwise trail fast moves (a 6x dash is ~9600 px/s) by v / rate
-	var target := mx + mera.facing * CAM_LOOK * minf(mera.shown, 2.0) + clampf(mera.vel.x / CAM_SMOOTH, -700.0, 700.0)
-	cam_x = lerpf(cam_x, target, 1.0 - exp(-CAM_SMOOTH * delta))
-	if absf(cam_x - target) < 0.5:
-		cam_x = target
+	cam_x = mera.global_position.x
 	var off := Vector2.ZERO
 	if shake_t > 0.0:
 		shake_t -= delta
@@ -211,7 +209,7 @@ func _follow_camera(delta: float) -> void:
 
 ## jump the camera onto its target (level start / restart)
 func snap_camera() -> void:
-	cam_x = mera.global_position.x + mera.facing * CAM_LOOK * minf(mera.shown, 2.0)
+	cam_x = mera.global_position.x
 	cam.position = Vector2(roundf(cam_x), 540)
 
 

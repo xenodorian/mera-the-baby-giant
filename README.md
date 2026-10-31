@@ -3,10 +3,10 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.3-playable**
-- Download: GitHub → Releases → `v0.3-playable` (Windows `.exe`, Linux `.x86_64`). Notes: `CHANGELOG.md`.
+## Current release: **v0.3.1-playable** (the v0.3 game, with the camera locked on Mera)
+- Download: GitHub → Releases → `v0.3.1-playable` (Windows `.exe`, Linux `.x86_64`). Notes: `CHANGELOG.md`.
 - Branches:
-  - `main` = the current playable game (v0.3 merged).
+  - `main` = the current playable game (v0.3.1).
   - `playable-level` = the playable-level development branch.
   - `beam-attack` = the canon beam/projectile cast work (already in `playable-level`/`main`).
   - `mera-scale-test` = v0.1.
@@ -55,12 +55,12 @@ Headless check:
 /workspace/tools/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 5
 ```
 
-## Playable test level (current, branch `playable-level`, releases v0.2-playable, v0.3-playable)
+## Playable test level (current, branch `playable-level`, releases v0.2-playable, v0.3-playable, v0.3.1-playable)
 `scenes/game.tscn` (main scene): an endless looping cemetery where Mera fights Fire Knights one at a time. It uses all of her pack animations and the canon moves (quick fire, rear explosion, beam combo), plus potions, rage/Fury and flight.
 Controls: `docs/CONTROLS.md`. Rules: `docs/GAME_RULES.md`. Mera's frames are baked by `tools/export_game_anims.py`.
 ```bash
 G=/workspace/tools/Godot_v4.7.2-stable_linux.x86_64
-$G --headless --path . -s tests/run_tests.gd                       # 122 headless gameplay tests
+$G --headless --path . -s tests/run_tests.gd                       # 128 headless gameplay tests
 $G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe
 $G --headless --path . --export-release "Linux" build/linux/Mera_Playable.x86_64
 ```

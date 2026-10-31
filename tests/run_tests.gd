@@ -363,19 +363,52 @@ func _run() -> void:
 					absf(d / d_old - 1.0) < 0.15 and absf(t_new / (t_old / 2.0) - 1.0) < 0.15, "")
 			g.queue_free()
 			await process_frame
-	# camera: always follows Mera (centred + look-ahead), no edge dead zone
+	# camera (v0.3.1): hard-locked on Mera's X every frame, no look-ahead, turning never moves it
 	g = await _new_game()
 	m = g.mera
 	await _drive(g, [], 3)
 	var c_start: float = g.cam_x
-	var la: float = g.CAM_LOOK * minf(m.shown, 2.0)
-	_check("camera starts centred on Mera (+ look-ahead)", is_equal_approx(c_start, m.global_position.x + m.facing * la), "cam=%f m=%f" % [c_start, m.global_position.x])
-	await _drive(g, [[1, "right", true], [90, "right", false]], 90)
-	var lag: float = absf(g.cam_x - (m.global_position.x + la))
-	_check("walking: camera scrolls with her every frame (lag < 60 px)", lag < 60.0 and g.cam_x > c_start + 100.0, "lag=%f" % lag)
+	_check("camera starts exactly centred on Mera", is_equal_approx(c_start, m.global_position.x), "cam=%f m=%f" % [c_start, m.global_position.x])
+	var max_off := 0.0
+	for f in 90:
+		m.forced["right"] = f < 80
+		await physics_frame
+		max_off = maxf(max_off, absf(g.cam_x - m.global_position.x))
+	_check("walking: camera stays locked on her X every frame (0 px drift)", max_off < 0.01 and g.cam_x > c_start + 30.0, "max_off=%f" % max_off)
+	# turning in place: tap Left / Right / Left with no room to walk -> camera X unchanged
+	for sz in [1, 2, 6]:
+		m.set_size(sz, true)
+		await _drive(g, [], 20)
+		var turn_off := 0.0
+		var faces := {}
+		for f in 120:
+			var d: String = ["left", "right"][(f / 15) % 2]
+			m.forced["left"] = d == "left" and f % 15 < 2
+			m.forced["right"] = d == "right" and f % 15 < 2
+			await physics_frame
+			faces[m.facing] = true
+			turn_off = maxf(turn_off, absf(g.cam_x - m.global_position.x))
+		m.forced["left"] = false
+		m.forced["right"] = false
+		_check("turning around at %dx: both facings seen, camera X never leaves her (max %.2f px)" % [sz, turn_off], faces.size() == 2 and turn_off < 0.01, "")
+	var cx0: float = g.cam_x
+	var mx0: float = m.global_position.x
+	m._face(-m.facing)
+	await physics_frame
+	await physics_frame
+	_check("a pure turn (no movement) leaves the camera X unchanged", is_equal_approx(g.cam_x, cx0) and is_equal_approx(m.global_position.x, mx0), "dcam=%f" % (g.cam_x - cx0))
 	m.position.x += 300.0
-	await _drive(g, [], 45)
-	_check("camera recentres on her after a jump in position (no dead zone)", absf(g.cam_x - (m.global_position.x + m.facing * la)) < 2.0, "off=%f" % (g.cam_x - m.global_position.x))
+	await physics_frame
+	_check("camera follows a jump in position on the same frame", is_equal_approx(g.cam_x, m.global_position.x), "off=%f" % (g.cam_x - m.global_position.x))
+	for sz in [1, 6]:   # during a 4x-speed dash the camera still sits exactly on her
+		m.set_size(sz, true)
+		m._start_move("gdash")
+		var dash_off := 0.0
+		for f in 12:
+			await physics_frame
+			dash_off = maxf(dash_off, absf(g.cam_x - m.global_position.x))
+		_check("ground dash at %dx: camera locked (max %.2f px)" % [sz, dash_off], dash_off < 0.01, "")
+		await _drive(g, [], 30)
 	g.queue_free()
 	await process_frame
 	# ---- Fire Knight: fixed 6x, exactly 1 size per connecting swing at any Mera size
@@ -437,7 +470,7 @@ func _run() -> void:
 						var hr: Rect2 = m.hit_rect()
 						var far: float = hr.end.x if fc > 0 else hr.position.x
 						hit_worst = minf(hit_worst, (far - edge) * fc)
-				_check("beam %dx at screen %+d facing %s reaches off-screen (hitbox too)" % [sz, int(where), "R" if fc > 0 else "L"],
+				_check("beam %dx placed %+d px off the camera, facing %s: reaches off-screen (hitbox too) with the locked camera" % [sz, int(where), "R" if fc > 0 else "L"],
 					lit > 5 and worst > 0.0 and hit_worst > 0.0 and m.beam_strip.dropped == 0, "lit=%d past=%.0f hit_past=%.0f dropped=%d" % [lit, worst, hit_worst, m.beam_strip.dropped])
 				g.queue_free()
 				await process_frame
@@ -454,7 +487,7 @@ func _run() -> void:
 				await process_frame
 				if is_instance_valid(st) and st.top_y > g.cam.position.y - 540.0:
 					top_ok = false
-			_check("lightning %dx at screen %+d runs from above the screen top to the ground" % [sz, int(where)],
+			_check("lightning %dx placed %+d px off the camera: runs from above the screen top to the ground" % [sz, int(where)],
 				top_ok and st.segs > 0 and st.dropped == 0, "top=%.0f segs=%d" % [st.top_y if is_instance_valid(st) else 0.0, st.segs if is_instance_valid(st) else -1])
 			g.queue_free()
 			await process_frame
