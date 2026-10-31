@@ -54,6 +54,15 @@ var last_strike: Node2D = null
 var knight_calm_until := 0   # demo: frame before which the knight does not swing
 var layers: Array = []       # [Sprite2D, scroll, period] parallax layers of the level map
 var map_w := 19200.0
+var run_mode := false
+var stage_n := 1
+var lives := 0
+var quota := 3
+var run_spawned := 0
+var run_title := ""
+var run_wiped := false
+var _clear_saved := false
+var cleared_stage := 0
 var cleared := false
 var quake_t := 0.0           # v0.5 earthquake: time left of the 1 s quake
 var quake_age := 0.0
@@ -96,9 +105,19 @@ var marker: Node2D
 
 
 func _ready() -> void:
+	var forced_level := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--level="):
 			Levels.current = clampi(int(a.get_slice("=", 1)) - 1, 0, 3)
+			forced_level = true
+	if not test_mode and not forced_level:
+		run_mode = true
+		if carry.is_empty():
+			_load_run()
+		if not carry.is_empty():
+			stage_n = maxi(int(carry.get("stage", 1)), 1)
+			lives = maxi(int(carry.get("lives", 0)), 0)
+			quota = maxi(int(carry.get("quota", Roster.RUN_START)), Roster.RUN_START)
 	map_w = Levels.map_w()
 	_build_background()
 	world = Node2D.new()
@@ -153,6 +172,14 @@ func _ready() -> void:
 
 
 func _build_background() -> void:
+	if run_mode:
+		RunMaps.build(self)
+		exit_gate = load("res://scripts/game/exit_gate.gd").new()
+		exit_gate.position = Vector2(map_w - Levels.EXIT_PAD, GROUND_Y)
+		exit_gate.set("game", self)
+		exit_gate.z_index = -5
+		add_child(exit_gate)
+		return
 	var lv := Levels.level()
 	RenderingServer.set_default_clear_color(Color8(int(lv["bg"][0]), int(lv["bg"][1]), int(lv["bg"][2])))
 	for L in lv["layers"]:
@@ -247,7 +274,9 @@ func _physics_process(delta: float) -> void:
 		_trace_k = mera.anim.key
 		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])
 	if not test_mode and not mark_lock:
-		if Roster.LEVELS.has(Levels.current):
+		if run_mode:
+			_manage_run()
+		elif Roster.LEVELS.has(Levels.current):
 			_manage_roster(delta)
 		else:
 			_manage_knight(delta)
@@ -272,7 +301,8 @@ func _process(_delta: float) -> void:
 		_save_t += _delta
 		if _save_t >= 2.0:
 			_save_t = 0.0
-			_bank(false)
+			if not run_mode:
+				_bank(false)
 
 
 func _save(path: String) -> void:
@@ -376,7 +406,7 @@ func _place_props() -> void:
 			if absf(float(lv_cards[i][0]) - c.global_position.x) < 1.0:
 				cards_by_i[i] = c
 	var doors := {}
-	for it in Props.layout(Levels.current, map_w):
+	for it in Props.layout(_layout_level(), map_w):
 		var pr: Node2D = PROP.new()
 		pr.setup(self, String(it[0]), float(it[1]), it[2])
 		world.add_child(pr)
@@ -628,8 +658,15 @@ func on_enemy_defeated(e: Node2D) -> void:
 
 
 # ---------------------------------------------------------------- v0.7 allies
+func _layout_level() -> int:
+	if run_mode:
+		return 1 + posmod(stage_n - 1, 3)
+	return Levels.current
+
+
 func _place_cards() -> void:
-	for pair in Allies.CARDS.get(Levels.current, []):
+	var idx := _layout_level()
+	for pair in Allies.CARDS.get(idx, []):
 		var c: Node2D = CARD.new()
 		c.setup(self, String(pair[1]), Vector2(float(pair[0]), GROUND_Y - 40.0))
 		world.add_child(c)
@@ -641,7 +678,8 @@ func collect_card(c: Node2D) -> void:
 	card_nodes.erase(c)
 	Sfx.play("sphere", 0.8)
 	hud.flash("pickup:%s card  (R1: summon)" % Allies.NAMES[c.ally_id])
-	_bank(false)
+	if not run_mode:
+		_bank(false)
 
 
 func allies() -> Array:
@@ -711,6 +749,8 @@ func summon_type(aid: String) -> Node2D:
 
 
 func exit_locked() -> bool:
+	if run_mode:
+		return defeated < quota or _roster_threat()
 	if not Roster.LEVELS.has(Levels.current):
 		return knights_spawned < Roster.KNIGHT_CAP or _knight_fight_live()
 	if Roster.BOSSES.has(Levels.current):
@@ -831,6 +871,31 @@ func _clamp_to_map() -> void:
 		cleared = true
 		over_t = 0.0
 		Sfx.play("potion", 0.7)
+		if run_mode and not _clear_saved:
+			cleared_stage = stage_n
+			lives += 1
+			stage_n += 1
+			quota += 1
+			_clear_saved = true
+			_bank(false, true)
+
+
+func _manage_run() -> void:
+	for e in mobs.duplicate():
+		if not is_instance_valid(e):
+			mobs.erase(e)
+	if over or cleared or run_spawned >= quota:
+		return
+	var spacing := (map_w - 2800.0) / float(maxi(quota, 1))
+	while run_spawned < quota:
+		var x := 1600.0 + float(run_spawned) * spacing
+		if mera.global_position.x < x - 1200.0:
+			return
+		var rng := RandomNumberGenerator.new()
+		rng.seed = stage_n * 1000 + run_spawned
+		var pool: Array = Roster.RUN_POOL
+		spawn_enemy(String(pool[rng.randi() % pool.size()]), x)
+		run_spawned += 1
 
 
 ## v0.4: a Blue Knight comes in from off-screen behind Mera (he prefers her back)
@@ -922,7 +987,8 @@ func collect(p: Pickup) -> void:
 		mera.add_rage(p.value)
 		Sfx.play("sphere")
 	on_potions_changed()
-	_bank(false)
+	if not run_mode:
+		_bank(false)
 
 
 func on_potions_changed() -> void:
@@ -1163,6 +1229,13 @@ func _quake_tick(delta: float) -> void:
 func _on_died() -> void:
 	over = true
 	over_t = 0.0
+	if run_mode:
+		if lives > 0:
+			lives -= 1
+			_bank(true, true)
+		else:
+			_wipe_run()
+		return
 	_bank(true)
 
 
@@ -1184,6 +1257,9 @@ func _pack_run() -> Dictionary:
 		"rage_max": mera.rage_max,
 		"size": mera.size,
 		"cards": cards.duplicate(true),
+		"stage": stage_n,
+		"lives": lives,
+		"quota": quota,
 	}
 
 
@@ -1198,12 +1274,18 @@ func _apply_run(bag: Dictionary) -> void:
 	for k in saved_cards:
 		clean[String(k)] = int(saved_cards[k])
 	cards = clean
+	if bag.has("stage"):
+		stage_n = maxi(int(bag["stage"]), 1)
+		lives = maxi(int(bag.get("lives", 0)), 0)
+		quota = maxi(int(bag.get("quota", Roster.RUN_START)), Roster.RUN_START)
 	mera.set_size(int(bag.get("size", mera.size)), true)
 	on_potions_changed()
 
 
-func _bank(reset_size: bool) -> void:
-	if test_mode or mera == null:
+func _bank(reset_size: bool, checkpoint := false) -> void:
+	if test_mode or mera == null or run_wiped:
+		return
+	if run_mode and not checkpoint:
 		return
 	var bag := _pack_run()
 	if reset_size:
@@ -1239,8 +1321,20 @@ func death_bag() -> Dictionary:
 	return bag
 
 
+func _wipe_run() -> void:
+	run_wiped = true
+	carry = {}
+	var abs_path := ProjectSettings.globalize_path(RUN_PATH)
+	if FileAccess.file_exists(abs_path):
+		DirAccess.remove_absolute(abs_path)
+
+
 func restart() -> void:
-	_bank(true)
+	if run_wiped:
+		to_menu()
+		return
+	if not run_mode:
+		_bank(true)
 	restart_requests += 1
 	HitStop.clear()
 	AnimLib.set_fury(false)
@@ -1251,7 +1345,10 @@ func restart() -> void:
 
 
 func to_menu() -> void:
-	_bank(over and not cleared)
+	if run_wiped:
+		carry = {}
+	elif not run_mode:
+		_bank(over and not cleared)
 	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
@@ -1259,11 +1356,12 @@ func to_menu() -> void:
 
 
 func next_level() -> void:
-	_bank(false)
-	if is_last_level():
-		to_menu()
-		return
-	Levels.current += 1
+	if not run_mode:
+		_bank(false)
+		if is_last_level():
+			to_menu()
+			return
+		Levels.current += 1
 	restart_requests += 1
 	HitStop.clear()
 	AnimLib.set_fury(false)

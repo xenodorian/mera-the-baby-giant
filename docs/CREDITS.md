@@ -6,6 +6,8 @@
 | Elementals: Fire Knight, Water Priestess, Leaf Ranger (free) | **chierit** — https://chierit.itch.io | CC-BY 4.0 | **Credit "chierit"** in the game credits or link the itch page. Edits + commercial use OK. Author asks: don't resell. |
 | Minotaur (free) | **chierit** | **CC-BY 4.0** (verified on the item page, https://chierit.itch.io) | Credit "chierit". |
 | Legacy Collection (Gothicvania characters, environments, VFX) | **Luis Zuno (ansimuz)** — https://ansimuz.itch.io | CC0 | None (courtesy credit welcome). `docs/licenses/ansimuz-legacy-collection-CC0.pdf` |
+| Monsters Creatures Fantasy (goblin, mushroom, skeleton, flying eye) — v0.10 | **LuizMelo** — https://luizmelo.itch.io/monsters-creatures-fantasy | CC0 | None (courtesy credit in the game) |
+| Animated Monsters (zombie, skeleton, witch) — v0.10 | **Stealthix** — https://stealthix.itch.io/animated-monsters | CC0 | None (courtesy credit in the game) |
 | Ground Explosion and Explosions Pack VFX (Mera's spell impacts) | **ansimuz**: from the Legacy Collection; Explosions Pack is also at https://opengameart.org/content/animated-explosions | CC0 | None. `docs/licenses/ansimuz-legacy-collection-CC0.pdf`, `assets/vfx/ansimuz/SOURCES.md` |
 | Gothicvania Cemetery | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-gothicvania-cemetery-CC0.pdf` |
 | Streets of Fight (Brawler Girl, Enemy Punk, stage); Brawler Girl skin recolored by this project | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-streets-of-fight-CC0.pdf` |

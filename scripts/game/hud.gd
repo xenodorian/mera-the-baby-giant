@@ -116,6 +116,8 @@ func _draw_ui() -> void:
 	if _flash == "potions" and _flash_t > 0.0:
 		pc = Color(1, 0.3, 0.3)
 	_txt(Vector2(36, 146), "POTIONS  %d" % m.potions, 26, pc)
+	if game.run_mode:
+		_txt(Vector2(280, 146), "STAGE %d    LIVES %d    FOES %d" % [game.stage_n, game.lives, maxi(game.quota - game.defeated, 0)], 26, Color(1.0, 0.86, 0.55))
 	if _flash == "max" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "max size for potions is 6x", 22, Color(1, 0.6, 0.4))
 	# stamina (v0.4): bar length grows with the max (60 -> 120)
@@ -179,16 +181,29 @@ func _draw_ui() -> void:
 	if game.over and game.over_t > 0.9:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_txt(Vector2(700, 520), "GAME OVER", 110, Color(0.95, 0.2, 0.2))
-		_txt(Vector2(360, 600), "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28)
+		if game.run_mode and game.run_wiped:
+			_txt(Vector2(430, 600), "No lives left. The save is gone.   A / Start: title    B: title", 28)
+		elif game.run_mode:
+			_txt(Vector2(300, 600), "Back at 2x. One life spent (%d left). Items stay.   A: retry this map    B: title" % game.lives, 28)
+		else:
+			_txt(Vector2(360, 600), "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28)
 	if game.cleared and game.over_t > 0.3:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
-		var last: bool = game.has_method("is_last_level") and game.is_last_level()
-		_txt(Vector2(640, 500), "JOURNEY COMPLETE" if last else "LEVEL CLEAR", 90, Color(1.0, 0.85, 0.45))
-		_txt(Vector2(470, 590), "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32)
-		if not last:
-			_txt(Vector2(380, 640), "potions, cards, mana and rage come with you. A death returns her to 2x", 28, Color(0.8, 0.9, 1.0))
+		var last: bool = game.has_method("is_last_level") and game.is_last_level() and not game.run_mode
+		_txt(Vector2(640, 500), "JOURNEY COMPLETE" if last else ("STAGE CLEAR" if game.run_mode else "LEVEL CLEAR"), 90, Color(1.0, 0.85, 0.45))
+		if game.run_mode:
+			_txt(Vector2(280, 590), "Stage %d cleared. Saved. +1 life (%d). Next map has %d foes.   A: continue    B: title" % [game.cleared_stage, game.lives, game.quota], 30)
+			_txt(Vector2(420, 640), "Upgrades and items come with you. A death with no lives ends the run.", 28, Color(0.8, 0.9, 1.0))
+		else:
+			_txt(Vector2(470, 590), "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32)
+			if not last:
+				_txt(Vector2(380, 640), "potions, cards, mana and rage come with you. A death returns her to 2x", 28, Color(0.8, 0.9, 1.0))
 	if game.frame_n < 150 and not game.test_mode:
-		var lv: Dictionary = Levels.level()
 		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)
-		_txt(Vector2(700, 330), "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
-		_txt(Vector2(760, 380), String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
+		if game.run_mode:
+			_txt(Vector2(560, 330), "STAGE %d   %s" % [game.stage_n, game.run_title], 54, Color(1, 0.85, 0.5, al))
+			_txt(Vector2(620, 380), "%d foes. Clear it for a life." % game.quota, 30, Color(0.9, 0.9, 0.95, al))
+		else:
+			var lv: Dictionary = Levels.level()
+			_txt(Vector2(700, 330), "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
+			_txt(Vector2(760, 380), String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
