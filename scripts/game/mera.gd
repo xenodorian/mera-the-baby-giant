@@ -85,6 +85,8 @@ var barrier: Sprite2D
 # v0.8 (S4) parry: L2 pressed at most Tuning.PARRY_MS before a hit lands -> no damage, the attacker staggers,
 # projectiles fly back, and Mera's hits do double damage for a moment (the counter window)
 var last_l2_t := -1e9          # Mera.now of the latest L2 press
+var crouch_t := -1e9           # Mera.now when this crouch started (the small bubble's parry window)
+var chip := 0.0                # leftover damage the crouch bubble did not fully absorb
 var counter_until := -1e9      # Mera.now until which her hits count as counters
 var parries := 0               # tests / stats
 var deflects := 0
@@ -241,7 +243,10 @@ func set_size(n: int, instant: bool = false) -> void:
 
 func _apply_size() -> void:
 	anim.scale = Vector2(shown * -facing, shown)
-	_place_barrier()
+	if crouch_bubble_on():
+		_place_crouch_bubble()
+	else:
+		_place_barrier()
 	aura_fx.emission_rect_extents = Vector2(22, 24) * shown
 	aura_fx.position = Vector2(0, -24 * shown)
 	aura_fx.scale_amount_min = shown
@@ -456,10 +461,45 @@ func barrier_circle() -> Vector3:
 	return Vector3(c.x, c.y, f.z * shown)
 
 
+## v0.9.2: holding crouch raises a small free bubble. It is up for the whole crouch, not during the stand-up.
+func crouch_bubble_on() -> bool:
+	return state == "ground" and _neutral == "crouch"
+
+
+func crouch_bubble_circle() -> Vector3:
+	var body := body_rect()
+	var c := body.get_center()
+	return Vector3(c.x, c.y, Tuning.CROUCH_BUBBLE_R * shown)
+
+
+func _place_crouch_bubble() -> void:
+	var c := crouch_bubble_circle()
+	var rim := float(AnimLib.spells["barrier"].get("rim_r", 36))
+	var k := c.z / rim
+	barrier.scale = Vector2(k, k)
+	barrier.position = to_local(Vector2(c.x, c.y))
+	barrier.visible = true
+
+
+func _sync_crouch_bubble() -> void:
+	if barrier_on:
+		return
+	if crouch_bubble_on():
+		if not barrier.visible:
+			Sfx.play("barrier", 0.45)
+		_place_crouch_bubble()
+	elif barrier.visible:
+		barrier.visible = false
+		_place_barrier()
+
+
 func hurt_rect() -> Rect2:
 	if barrier_on:                      # while shielded the bubble is what gets hit (and blocks)
 		var bc := barrier_circle()
 		return Rect2(bc.x - bc.z, bc.y - bc.z, 2.0 * bc.z, 2.0 * bc.z)
+	if crouch_bubble_on():
+		var cc := crouch_bubble_circle()
+		return Rect2(cc.x - cc.z, cc.y - cc.z, 2.0 * cc.z, 2.0 * cc.z)
 	var hs := hurtbox.get_child(0) as CollisionShape2D
 	var sz := (hs.shape as RectangleShape2D).size
 	return Rect2(global_position + hs.position - sz / 2.0, sz)
@@ -523,6 +563,7 @@ func _physics_process(delta: float) -> void:
 		_track_swing()
 	if game != null:
 		game.resolve_projectiles()
+	_sync_crouch_bubble()
 	if barrier.visible:
 		barrier.frame = int(now / float(AnimLib.spells["barrier"]["ms"])) % barrier.hframes
 
@@ -559,6 +600,7 @@ func _ground_tick(delta: float) -> void:
 		vel.x = 0.0
 		if _neutral != "crouch":
 			_neutral = "crouch"
+			crouch_t = now
 			_play("crouch")
 			anim.section(6, 8)
 		return
@@ -1964,9 +2006,30 @@ func _counter_tint() -> void:
 		anim.modulate = Color(1, 1, 1, a)
 
 
-## v0.8 parry: L2 pressed at most PARRY_MS ago (the barrier pose was just raised, the bubble isn't up yet)
+## v0.8 parry: L2 pressed at most PARRY_MS ago (the barrier pose was just raised, the bubble isn't up yet).
+## v0.9.2: a crouch started within the same window parries the same way, small bubble and all.
 func parry_ready() -> bool:
-	return state not in ["dead", "gallery", "hurt"] and not barrier_on and now - last_l2_t <= Tuning.PARRY_MS
+	if state in ["dead", "gallery", "hurt"]:
+		return false
+	if not barrier_on and now - last_l2_t <= Tuning.PARRY_MS:
+		return true
+	return crouch_bubble_on() and now - crouch_t <= Tuning.PARRY_MS
+
+
+func _crouch_chip(dmg: int, from_x: float) -> void:
+	chip += float(dmg) * Tuning.CROUCH_BUBBLE_KEEP
+	Sfx.play("block")
+	if game:
+		game.shake(3.0, 0.08)
+		game.hit_spark(Vector2(global_position.x, global_position.y - 18.0 * shown), shown * 0.45)
+	var whole := int(floor(chip + 0.0001))
+	if whole <= 0:
+		return
+	chip -= float(whole)
+	if size - whole < SIZE_MIN:
+		_die(from_x)
+		return
+	set_size(size - whole)
 
 
 func _parry(src: Node, from_x: float) -> void:
@@ -2015,6 +2078,9 @@ func take_hit(dmg: int, from_x: float, src: Node = null) -> void:
 		Sfx.play("block")
 		if game:
 			game.shake(4.0, 0.1)
+		return
+	if crouch_bubble_on():             # v0.9.2: the small bubble leaks a quarter of the hit and does not knock her down
+		_crouch_chip(dmg, from_x)
 		return
 	if size - dmg < SIZE_MIN:          # hit at 1x (or a hit bigger than her) -> death
 		_die(from_x)

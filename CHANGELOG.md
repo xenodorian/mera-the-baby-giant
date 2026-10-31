@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.2-playable (2026-10-31)
+Windows build only. Linux and Android are not attached (the release keystore is not in this checkout). `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.2-playable/Mera_Playable_v0.9.2_Windows.exe
+- **Crouch bubble:** holding Down raises a small barrier for free (no stamina). It is smaller than the L2 bubble (radius 32 art px, around the crouch, versus ~46 for the full barrier).
+- A crouch started within 150 ms of a hit **parries** like L2: no damage, the attacker is staggered and knocked back, projectiles fly back, and the counter window (hits ×2 for 0.9 s) opens.
+- Holding the crouch past that window **cuts the damage by 75%** (a quarter gets through, and four hits of 1 drop one size). She stays crouched. It does not knock her down.
+- Android `versionCode` 13, `versionName` 0.9.2 (APK not published).
+
 ## v0.9.1-playable (2026-10-31)
 Windows build only, published as a full release (not a pre-release). Linux and Android are not attached (the release keystore is not in this checkout). `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.1-playable/Mera_Playable_v0.9.1_Windows.exe
