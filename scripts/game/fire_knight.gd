@@ -79,6 +79,7 @@ var sprite: AnimatedSprite2D
 var hurtbox: Area2D
 var hitbox: Area2D
 var bar: Node2D
+var marker: Node2D                   # v0.6 telegraph "!" (scripts/game/telegraph.gd)
 static var _frames: SpriteFrames
 static var played_all := {}          # every chierit animation any knight has played (tests: all 14 are used)
 static var _blue_mat: ShaderMaterial
@@ -126,6 +127,9 @@ func _ready() -> void:
 	bar.position = Vector2(0, -52 * k)
 	bar.draw.connect(_draw_bar)
 	add_child(bar)
+	marker = Telegraph.marker()
+	marker.position = Vector2(0, -62 * k)
+	add_child(marker)
 	_anim("idle")
 	_face(facing)
 
@@ -152,6 +156,10 @@ func _anim(s: String, a: String = "") -> void:
 	state = s
 	t_state = 0.0
 	history.append(s if a == "" else a)
+	if marker:
+		marker.visible = s == "tell"
+		if s == "tell":
+			marker.set_kind("heavy" if a == "sp" else "melee")
 	match s:
 		"tell":                         # hold the first frame of the coming attack while glowing
 			_play(a)

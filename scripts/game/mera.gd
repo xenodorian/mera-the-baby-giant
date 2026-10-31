@@ -1422,6 +1422,19 @@ func _move_tick(delta: float) -> void:
 					anim.seek(9)
 			elif mv.get("released", false) and not barrier_on and i < 9 and i >= 5:
 				anim.seek(9)
+			elif barrier_on and not _find("btn_y", float(mv["t0"])).is_empty():
+				# v0.6: Y inside the bubble = lightning (full meter, spends 100 %); she keeps the pose and keeps blocking
+				_use(_find("btn_y", float(mv["t0"])))
+				if can_lightning():
+					spend_rage()
+					mv["bubble_strikes"] = int(mv.get("bubble_strikes", 0)) + 1
+					if game:
+						game.call_lightning(self)
+					Sfx.play("cast", 0.8)
+				else:
+					Sfx.play("fail", 1.2, -4.0)
+					if game:
+						game.flash_hud("rage")
 			elif barrier_on and not pressed("l2"):
 				barrier_on = false
 				barrier.visible = false

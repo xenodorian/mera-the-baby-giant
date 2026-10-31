@@ -25,6 +25,8 @@ The **Blue Knight** is chierit's Fire Knight (CC-BY 4.0) recoloured at runtime b
 
 The v0.5 level maps (`assets/levels/`, built by `tools/build_levels.py`) are composed from copies of the ansimuz CC0 packs: Gothicvania Cemetery, Mist Forest Background, Night Town Background and Lava Background. The cobbled street in Moonlit Town and the exit gate are made in this project.
 
+The v0.6 enemies come from copies of: ansimuz (CC0) Ogre, Werewolf, Wolf running cycle, Hell Hound, Hell Beast, Demon, Flying Eye Demon, Death, Nightmare, Enemy Ghost, Fire Skull, Mutant Toad, Grotto Escape 2 boss dragon, Gothicvania Cemetery hell-gato, skeleton and enemy-death; and chierit's Minotaur. `tools/build_roster.py` only reads them; wolf frames are cut from its sprite sheets into `assets/enemies/wolf/`.
+
 ## Suggested credits text
 > Main character art: Merakintsugi (merakintsugi.itch.io).
 > Alternate-form character art: "Elementals" series by chierit (chierit.itch.io), CC-BY 4.0.

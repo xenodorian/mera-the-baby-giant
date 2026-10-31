@@ -22,6 +22,7 @@ const CONTROLS := [
 	["L1", "heal: drink a green potion, +1 size (max 6x)"],
 	["L2 tap (rage 100 %)", "lightning strike from the sky (AOE), uses the whole meter"],
 	["L2 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
+	["Y in the bubble (rage 100 %)", "lightning strike while staying shielded"],
 	["L2 + R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
 	["R1", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "8-way move, Down on the ground lands, R2 lands"],
@@ -114,7 +115,12 @@ func _draw_ui() -> void:
 	# state line
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
-	_txt(Vector2(1300, 76), "knights defeated: %d    F1 / Start: controls" % game.defeated, 22, Color(0.8, 0.8, 0.85))
+	_txt(Vector2(1300, 76), "defeated: %d    F1 / Start: controls" % game.defeated, 22, Color(0.8, 0.8, 0.85))
+	var bs: Node2D = game.boss
+	if bs != null and is_instance_valid(bs) and bs.alive():        # v0.6 boss bar
+		ui.draw_rect(Rect2(460, 1000, 1000, 34), Color(0.05, 0.02, 0.03, 0.85))
+		ui.draw_rect(Rect2(465, 1005, 990.0 * float(bs.hp) / float(bs.hp_max), 24), Color(0.85, 0.15, 0.1))
+		_txt(Vector2(470, 990), "INFERNAL DRAGON", 28, Color(1, 0.7, 0.5))
 	if m.state == "gallery":
 		var ks: Array = AnimLib.keys()
 		_txt(Vector2(660, 150), "GALLERY  %d/%d  %s   (Left/Right, A replay, Back/Tab exit)" % [m.gallery_idx + 1, ks.size(), ks[m.gallery_idx]], 30, Color(1, 0.85, 0.5))
