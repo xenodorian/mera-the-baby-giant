@@ -39,6 +39,9 @@ Branch `playable-level`, merged into `main`. Windows and Linux builds.
 - **The back dodge covers the same distance in half the time** (800 px/s; animation and i-frame window compressed 2x).
 - The dashes and the dodge leave a pooled afterimage trail.
 
+### Fixes
+- **2x atk without a follow-up** no longer makes Mera vanish for 6 frames and then teleport 343 px × size. The pack's blank "short delay" tail now holds her last pose, and the idle hand-off is -19 px.
+
 ### Tests, docs and capture
 - Headless tests went from 82 to 122. They cover:
   - the knight's size and damage invariance, and beam/lightning reach;
