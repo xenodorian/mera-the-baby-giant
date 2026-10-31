@@ -32,6 +32,8 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 - Still to do for these: screenshots/GIF of the Y chain, doc updates (CONTROLS, GAME_RULES, CHANGELOG), and a visual check of the f14 spawn point (-32,-41), the heal-pose tip (-15,-74) and the vbeam look.
 
 **QUEUED, not started:**
+- (t108u) Rising slash: make the windup 4x faster, and the vertical rise 2x faster and 2x the distance.
+- (t108u) Start/Enter must actually PAUSE the game (freeze gameplay), not just bring up the controls.
 - t103u (1) projectile parry. A timed basic attack (X, `atk1`/`jatk1`) whose hitbox meets an enemy projectile within about 150 ms of the hitbox going live reflects it at its shooter (or the nearest enemy), friendly and damaging. This includes dragon bolts, which need a `deflect()` like `enemy_shot.gd`.
 - t103u (2) an L2 bubble parry of a melee attack also knocks the attacker back hard (plus the existing parry effects).
 - Player/enemy projectile collisions: both explode, and beams destroy enemy projectiles.
