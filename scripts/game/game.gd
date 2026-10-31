@@ -484,7 +484,7 @@ func _blast_props(c: Vector2, r: float, src: Node2D) -> void:
 			pr.blast_hit(Props.BARREL_CHAIN_S)
 
 
-## Q+W+1+2 while Fury is on, or the meter is full: freeze the world and mark up to 9 nearest enemies.
+## Q+W+1+2 at 100 rage: freeze the world and mark up to 9 nearest enemies. Costs 100. Does not start Fury.
 func begin_mark() -> bool:
 	if mark_lock or marker == null:
 		return false

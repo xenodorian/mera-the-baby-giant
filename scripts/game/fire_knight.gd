@@ -357,6 +357,9 @@ func _physics_process(delta: float) -> void:
 	if hp <= 0 or game == null:
 		return
 	_apply_knock(delta)
+	if _watch_dancer(delta):
+		_air_physics(delta)
+		return
 	dash_cd -= delta
 	block_cd -= delta
 	air_cd -= delta
@@ -438,6 +441,26 @@ func _tint() -> void:
 # ---------------------------------------------------------------- movement
 func _gy() -> float:
 	return float(game.GROUND_Y)
+
+
+## the dancer is performing: drop the fight, run to her, and hop. Otherwise the knight chases Mera.
+func _watch_dancer(_delta: float) -> bool:
+	if game == null or not game.has_method("dancer") or state in ["death", "hit", "stun"]:
+		return false
+	var dn: Node2D = game.dancer()
+	if dn == null or absf(global_position.x - game.cam_x) > 1100.0:
+		return false
+	var tx := dn.global_position.x + (90.0 if global_position.x < dn.global_position.x else -90.0)
+	var d := tx - global_position.x
+	if absf(d) > 40.0:
+		vx = signf(d) * float(cfg["speed"]) * 1.5
+		if on_ground and state != "run":
+			_anim("run")
+	else:
+		vx = 0.0
+		if on_ground:
+			_jump(0.0, 680.0)
+	return true
 
 
 func _air_physics(delta: float) -> void:

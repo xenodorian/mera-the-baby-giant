@@ -1548,8 +1548,7 @@ func _run() -> void:
 	for w in watchers:
 		if w.state == "tell" or w.state == "atk":
 			tells += 1
-	_check("Dancing Girl: on-screen non-boss enemies gather at her side and jump up and down, no attacks", dz.dancing() and near_ok and hop_ok and tells == 0, "near=%s hop=%s tells=%d" % [near_ok, hop_ok, tells])
-	_check("...the boss is not distracted", drg.distracted_t == 0.0, "")
+	_check("Dancing Girl: every on-screen enemy, the boss included, gathers and jumps, no attacks", dz.dancing() and near_ok and hop_ok and tells == 0 and drg.distracted_t > 0.0, "near=%s hop=%s tells=%d boss=%f" % [near_ok, hop_ok, tells, drg.distracted_t])
 	g.queue_free()
 	await process_frame
 	g = await _new_game()
@@ -1578,7 +1577,7 @@ func _run() -> void:
 	tail.cooldown = 99.0
 	var tx: float = tail.global_position.x
 	await _drive(g, [], 90)
-	_check("Brawler Girl runs forward and enemies come to her instead of trailing Mera", ran and tail.global_position.x > tx + 30.0 and tail.global_position.x > m.global_position.x, "br=%.0f mera=%.0f wolf %.0f -> %.0f" % [br.global_position.x, m.global_position.x, tx, tail.global_position.x])
+	_check("Brawler Girl runs right, and enemies still chase Mera", ran and tail.global_position.x < br.global_position.x - 80.0, "br=%.0f mera=%.0f wolf %.0f -> %.0f" % [br.global_position.x, m.global_position.x, tx, tail.global_position.x])
 	g.queue_free()
 	await process_frame
 	g = await _new_game()
@@ -2528,7 +2527,7 @@ func _mark_tests() -> void:
 	var x1: float = e.global_position.x
 	for i in 20:
 		await physics_frame
-	_check("full meter + Q+W+1+2 freezes Mera and the enemy", g.mark_lock and m.fury and m.vel == Vector2.ZERO and absf(e.global_position.x - x1) < 0.5, "lock=%s x %f->%f vel=%s" % [g.mark_lock, x1, e.global_position.x, m.vel])
+	_check("100 rage + Q+W+1+2 freezes Mera and the enemy, costs 100, does not start Fury", g.mark_lock and not m.fury and m.rage == 0.0 and m.vel == Vector2.ZERO and absf(e.global_position.x - x1) < 0.5, "lock=%s rage=%f fury=%s" % [g.mark_lock, m.rage, m.fury])
 	_check("keyboard prompts are digits 1-9", g.marker.on and not g.marker.arrows and g.marker.marks.size() == 1 and int(g.marker.marks[0]["n"]) >= 1, "n=%s" % g.marker.marks[0]["n"])
 	var n: int = int(g.marker.marks[0]["n"])
 	if n == 5:
@@ -2549,7 +2548,7 @@ func _mark_tests() -> void:
 	C.clear_gestures()
 	g = await _new_game()
 	m = g.mera
-	m.rage = 50.0
+	m.rage = 150.0
 	m.fury = true
 	m.fury_left = 4.0
 	var mobs: Array = []
@@ -2562,7 +2561,7 @@ func _mark_tests() -> void:
 	var nums := {}
 	for mk in g.marker.marks:
 		nums[int(mk["n"])] = true
-	_check("in Fury the same chord marks at most 9 enemies, arrows on a pad, unique directions", g.mark_lock and g.marker.arrows and g.marker.marks.size() == 9 and nums.size() == 9, "n=%d arrows=%s" % [g.marker.marks.size(), g.marker.arrows])
+	_check("the freeze slash costs 100 even during Fury, and marks at most 9", g.mark_lock and m.fury and absf(m.rage - 50.0) < 0.1 and g.marker.arrows and g.marker.marks.size() == 9 and nums.size() == 9, "n=%d rage=%f" % [g.marker.marks.size(), m.rage])
 	var mk0: Dictionary = g.marker.marks[0]
 	var foe: Node2D = mk0["e"]
 	var fn: int = int(mk0["n"])

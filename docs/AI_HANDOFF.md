@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.6. Windows exe is `v0.9.6-playable`. L2 is the bubble, L2+R2 is lightning, R2 alone is Fury and spends 100 rage. The brawler runs right, in front of Mera._
+_Last updated: 2026-10-31, v0.9.7. Windows exe is `v0.9.7-playable`. Enemies chase Mera, and the dancer. R2 is Fury, L2+R2 is lightning, L1+R1+L2+R2 is the freeze slash. Each costs 100 rage._
 
 
 ## v0.9.6 status (2026-10-31)

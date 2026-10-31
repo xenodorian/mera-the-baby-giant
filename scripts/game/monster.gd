@@ -573,7 +573,7 @@ func _physics_process(delta: float) -> void:
 			_play(_cur_idle())
 	var m: Node2D = game.mera
 	_physics(delta)
-	if (state == "tell" or state == "atk") and not boss and game.has_method("dancer") and game.dancer() != null and absf(global_position.x - game.cam_x) <= 1100.0:
+	if (state == "tell" or state == "atk") and game.has_method("dancer") and game.dancer() != null and absf(global_position.x - game.cam_x) <= 1100.0:
 		swoop_v = Vector2.ZERO           # the dancing girl starts: wind-ups and attacks are dropped to go watch her
 		_to_idle(0.0)
 	match state:
@@ -608,13 +608,13 @@ func _physics_process(delta: float) -> void:
 	_ai(_prey(), delta)
 
 
-## v0.7 dancing girl: every non-boss enemy on screen rushes to her side and jumps up and down, cheering
+## the dancer is out: every enemy on screen, bosses included, runs to her and jumps. Otherwise they chase Mera.
 var distracted_t := 0.0
 var cheer_hops := 0
 
 
 func _distracted(delta: float) -> bool:
-	if boss or game == null or not game.has_method("dancer"):
+	if game == null or not game.has_method("dancer"):
 		return false
 	var dn: Node2D = game.dancer()
 	if dn == null or absf(global_position.x - game.cam_x) > 1100.0 or absf(dn.global_position.x - global_position.x) > 1600.0:
@@ -674,10 +674,6 @@ func _physics(delta: float) -> void:
 
 
 func _prey() -> Node2D:
-	if not boss and game != null and game.has_method("brawler"):
-		var b: Node2D = game.brawler()
-		if b != null:
-			return b
 	return game.mera
 
 
