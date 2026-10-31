@@ -3,7 +3,7 @@
 _Last updated: 2026-10-30 18:45 (America/Chicago)._
 
 ## Art direction (decided 2026-10-30)
-**The merakintsugi Platformer Character Pack hero is the MAIN CHARACTER** (purchased by the owner, $15).
+**Mera — the merakintsugi Platformer Character Pack hero — is the MAIN CHARACTER** of *Mera: The Baby Giant* (purchased by the owner, $15). Her signature mechanic is size-shifting (1x–19x).
 Every other pack only supplies **shapeshifted alternate forms** (chierit Elementals), **enemies / bosses** and **side characters** (ansimuz).
 Mixed packs are tuned toward the hero's look (pastel, chibi, coloured outlines) — see "Hero-anchored compatibility" below.
 
