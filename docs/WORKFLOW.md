@@ -4,16 +4,16 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
-## v0.9.1 (2026-10-31): queued list implemented, not released
-PR #4 merged the Y-chain branch onto `main`. The paused queue is now in the working tree:
+## v0.9.1 (2026-10-31): queued list implemented, Windows exe published
+PR #4 merged the Y-chain branch onto `main`. PR #5 merged the combat queue. The Windows exe is the GitHub release `v0.9.1-playable` (full release, not a pre-release), with `SHA256SUMS.txt`.
 - t108u rising slash: windup 4× (`RSLASH_WINDUP_SPEED`), rise 2× speed and distance (`RSLASH_VY` -760, frames 7–11 still at 1×).
 - t108u Start/Enter/F1 pauses the tree (`game.paused_play`); the HUD stays `PROCESS_MODE_ALWAYS` so Start resumes. Game Over still restarts.
 - t103u swing parry: `atk1` / `jatk1`, `Tuning.SWING_PARRY_MS` 150. `enemy_shot.deflect` and `dragon_bolt.deflect` aim at the shooter or the nearest enemy.
 - t103u melee parry also sets `vx` to `PARRY_KNOCK_VX` away from Mera (not bosses).
 - Player shot vs foe shot: both `explode` with damage off. Combo beam (`beam_world_rect`) and vertical beam destroy foe shots.
-- Still not done: screenshots, Windows exe, Linux binary, Android APK, `SHA256SUMS.txt`, and a **Latest** (not pre-release) `v0.9.1-playable`. Android `version/code` is already 12. The release keystore is not in this checkout.
+- Still not done: screenshots, Linux binary, Android APK. Android `version/code` is already 12. The release keystore is not in this checkout, so do not publish an APK signed with a different key.
 - Y-chain (t99u / t101u) is on `main` via PR #4, including the `mark_slash.gd` export fix. Docs for those moves are in CONTROLS / GAME_RULES / CHANGELOG as of v0.9.1. Screenshots of the Y chain are still outstanding.
-- Repo rulesets 26282516 (branches) and 26282517 (tags) block creating branches and tags, and block tag updates. Pushing to an existing branch is allowed. Disabling one needs the owner's approval; re-enable it right after.
+- Repo rulesets 26282516 (branches: creation, non-fast-forward, deletion) and 26282517 (tags: non-fast-forward, deletion, update) are active. Pushing to an existing branch is allowed. Creating a **new** tag is allowed. Do not move or delete a tag. Disabling a ruleset needs the owner's approval; re-enable it right after.
 
 ## Stages
 | Stage | Content | Release |
@@ -27,6 +27,7 @@ PR #4 merged the Y-chain branch onto `main`. The paused queue is now in the work
 Level 1 (cemetery, Fire Knight + Blue Knights, no ally cards) stays as it is, apart from being rebuilt as a large native map.
 
 ## Stage checklist
+0. **Between updates:** after each change, update `CHANGELOG.md` and `docs/AI_HANDOFF.md` (and `README.md` when the current release changes), commit, and push before starting the next change. Do not leave work only on the machine. A published build is not done until its GitHub release exists and the download link is in those notes.
 1. `git fetch`, then `git status`, `gh pr list --state all`, `gh release list`. Another worker may share `/workspace/mera-play`. **Never duplicate a publish.**
 2. Branch from fresh `origin/main`: `git switch -c sN-topic origin/main`. Local `main` is checked out in another worktree, so don't `git switch main`.
 3. Implement. Keep tunables in `scripts/game/tuning.gd`. Copy new runtime files into **both** presets' explicit file lists in `export_presets.cfg`.
