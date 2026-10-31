@@ -116,9 +116,21 @@ const DRAGON_LAND_S := 0.8
 const DRAGON_BOLTS := 5            # explosive fire bolts per phase ...
 const DRAGON_BOLT_TELL_S := 0.5    # ... each with a red (ranged) tell ...
 const DRAGON_BOLT_GAP_S := 0.45    # ... then this pause before the next tell
-const DRAGON_BOLT_FLIGHT_S := 1.15 # lob time from the mouth to the ground
+const DRAGON_BOLT_FLIGHT_S := 1.15 # default lob time from the mouth to the ground (v0.8.1: per lob, see DRAGON_BOLT_T)
 const DRAGON_BOLT_G := 1900.0      # bolt gravity (ballistic arc)
-const DRAGON_BOLT_SPREAD := 220.0  # aim spread around Mera (the first bolt is aimed straight at her)
+const DRAGON_BOLT_SPREAD := 140.0  # aim spread around Mera (the first bolt is aimed straight at her)
+# v0.8.1 flight: the dragon flies around between lobs (docs/GAME_RULES.md "Infernal Dragon")
+const DRAGON_FLY_FPS := 11.0       # the user-picked 4-frame wing loop (breath 1,5,4,5 without fire)
+const DRAGON_FLY_BOB := 26.0       # px, bob amplitude ...
+const DRAGON_FLY_BOB_HZ := 1.6     # ... and speed (one bob per ~0.6 s)
+const DRAGON_FLY_MOVE_S := 0.8     # flight time between two lob spots (eased)
+const DRAGON_FLY_LIFT := [250.0, 470.0]   # height range of the lob spots (px above the ground line)
+# lob spots: [side, distance from Mera] in her facing frame (+1 = in front of her, -1 = behind), shuffled per phase:
+# short, mid and long, from both sides (he crosses over her to reach them)
+const DRAGON_FLY_SPOTS := [[1, 320.0], [-1, 560.0], [1, 1000.0], [-1, 300.0], [1, 700.0]]
+const DRAGON_FLY_SPOT_JITTER := 70.0
+const DRAGON_FLY_SCREEN := 860.0   # spots stay within this of the camera centre (the screen is +-960), inside the walls
+const DRAGON_BOLT_T := [0.85, 1.6] # lob flight time grows with the distance (0.8 s + d / 1000 px, mouth to target), clamped
 const DRAGON_BOLT_DMG := 2         # never scales with the dragon's size (enemies never scale damage)
 const DRAGON_BOLT_R := 170.0       # explosion radius
 

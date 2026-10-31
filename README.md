@@ -3,8 +3,8 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.8-playable** (impact pass, breakables, barrels, chandeliers, juggles, parry, secrets, dragon boss rework; first Android build)
-- Download: GitHub → Releases → `v0.8-playable` (Windows `.exe`, Linux `.x86_64`, **Android `.apk`**, ARM phones/tablets, play with a gamepad). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.8.1-playable** (dragon flight fix: wing loop, flies around between lobs, no breath plume in the volley; on top of v0.8: impact pass, breakables, barrels, chandeliers, juggles, parry, secrets, dragon boss rework, first Android build)
+- Download: GitHub → Releases → `v0.8.1-playable` (Windows `.exe`, Linux `.x86_64`, **Android `.apk`**, ARM phones/tablets, play with a gamepad). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
   - `main` = the current playable game (v0.8).
   - `playable-level` = the playable-level development branch.

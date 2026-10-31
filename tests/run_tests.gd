@@ -1889,6 +1889,26 @@ func _dragon_until_landed(g: Node, dr: Node2D, keep_safe: bool, max_f: int = 150
 
 func _dragon_tests() -> void:
 	var T = load("res://scripts/game/tuning.gd")
+	var RO = load("res://scripts/game/roster.gd")
+	var fly: Dictionary = RO.art("dragon")["anims"]["fly"]
+	var want := ["_0000_Layer-1", "_0004_Layer-5", "_0003_Layer-4", "_0004_Layer-5"]
+	var order_ok: bool = fly["frames"].size() == 4 and bool(fly["loop"]) and float(fly["fps"]) >= 10.0
+	var fly_fire := 0
+	var min_x := 999
+	for i in fly["frames"].size():
+		var fp: String = fly["frames"][i]
+		order_ok = order_ok and fp.find("/spit-nofire/") >= 0 and fp.get_file().get_basename() == want[i]
+		var img: Image = load(fp).get_image()
+		if img.is_compressed():
+			img.decompress()
+		min_x = mini(min_x, img.get_used_rect().position.x)
+		for y in img.get_height():
+			for x in img.get_width():
+				var c: Color = img.get_pixel(x, y)
+				if c.a > 0.5 and Vector3i(c.r8, c.g8, c.b8) in [Vector3i(242, 74, 2), Vector3i(255, 141, 7), Vector3i(255, 214, 133)]:
+					fly_fire += 1
+	_check("dragon fly loop: the user's 4 frames in order (breath 1,5,4,5, plume-free copies), looping at >= 10 fps", order_ok, str(fly["frames"]))
+	_check("dragon fly loop: no fire at all (no plume pixel, nothing in front of the head: no small fireball)", fly_fire == 0 and min_x >= 55, "fire=%d min_x=%d" % [fly_fire, min_x])
 	var g: Node = await _s4_new(3)
 	var m: Node = g.mera
 	m.position.x = 12000.0
@@ -1910,10 +1930,15 @@ func _dragon_tests() -> void:
 	var was_tell := false
 	var volley_anims := {}
 	var volley_frames := {}
+	var fly_off := 0
 	for i in 1500:
 		await physics_frame
 		m.invuln = 1.0
 		max_lift = maxf(max_lift, dr.lift)
+		if dr.phase != "":
+			var on_screen: bool = absf(dr.global_position.x - g.cam_x) <= 960.0 and dr.global_position.x > Levels_EDGE() and dr.global_position.x < g.map_w - Levels_EDGE()
+			if not on_screen:
+				fly_off += 1
 		if dr.phase == "volley":
 			volley_anims[String(dr.sprite.animation)] = true
 			volley_frames["%s:%d" % [dr.sprite.animation, dr.sprite.frame]] = dr.sprite.sprite_frames.get_frame_texture(dr.sprite.animation, dr.sprite.frame)
@@ -1937,7 +1962,29 @@ func _dragon_tests() -> void:
 					var c8 := Vector3i(c.r8, c.g8, c.b8)
 					if c8 == Vector3i(242, 74, 2) or c8 == Vector3i(255, 141, 7) or c8 == Vector3i(255, 214, 133):   # the plume palette
 						fire_px += 1
-	_check("dragon volley: plays the plume-free 'spit' frames (idle between bolts, never 'breath'), no fire pixels in any shown frame", not volley_anims.has("breath") and volley_anims.has("spit") and volley_frames.size() >= 3 and fire_px == 0, "anims=%s frames=%d fire_px=%d" % [volley_anims.keys(), volley_frames.size(), fire_px])
+	_check("dragon volley: plays the plume-free 'spit'/'fly' frames (never 'breath'), no fire pixels in any shown frame", not volley_anims.has("breath") and volley_anims.has("spit") and volley_frames.size() >= 3 and fire_px == 0, "anims=%s frames=%d fire_px=%d" % [volley_anims.keys(), volley_frames.size(), fire_px])
+	# v0.8.1 flight: lob spots
+	var xs: Array = []
+	var dists: Array = []
+	var sides := {}
+	for sp in dr.spit_spots:
+		xs.append(float(sp[0]))
+		dists.append(absf(float(sp[2])))
+		sides[signf(float(sp[2]))] = true
+	var distinct := 0
+	for i in xs.size():
+		var uniq := true
+		for j in i:
+			if absf(xs[i] - xs[j]) < 150.0:
+				uniq = false
+		if uniq:
+			distinct += 1
+	var spread_d: float = (dists.max() - dists.min()) if not dists.is_empty() else 0.0
+	_check("dragon flight: flies around between lobs - %d lobs from %d distinct spots, short to long (%.0f..%.0f px), both sides of Mera" % [xs.size(), distinct, dists.min() if dists else 0.0, dists.max() if dists else 0.0],
+		xs.size() == 5 and distinct >= 3 and spread_d >= 400.0 and sides.size() == 2, "xs=%s d=%s" % [xs, dists])
+	_check("dragon flight: stays on screen and inside the walls the whole phase", fly_off == 0, "off-screen frames=%d" % fly_off)
+	_check("dragon flight: each lob's arc is solved for its distance (flight time grows with it)", dr.bolt_times.size() == 5 and dr.bolt_times.max() - dr.bolt_times.min() > 0.15, str(dr.bolt_times))
+	_check("dragon flight: wing loop 'fly' between lobs and 'spit' to lob (never the sped-up idle)", volley_anims.has("fly") and volley_anims.has("spit") and not volley_anims.has("idle"), str(volley_anims.keys()))
 	var breath_kept := false
 	for at in dr.attacks:
 		if at["anim"] == "breath" and at["mode"] == "frames":
@@ -2084,3 +2131,8 @@ func _super_quake_tests() -> void:
 	_check("super quake: not in Fury (the meter is the Fury timer) -> normal earthquake, Fury goes on", fury0 and m.fury and m.super_quakes == 0 and not g.super_on and g.quake_t > 0.0, "fury=%s sq=%d" % [m.fury, m.super_quakes])
 	g.queue_free()
 	await physics_frame
+
+
+
+func Levels_EDGE() -> float:
+	return float(load("res://scripts/game/levels.gd").EDGE)

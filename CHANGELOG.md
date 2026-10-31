@@ -2,10 +2,29 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
-## Unreleased (v0.8.1, merged to main; ships with the dragon flight fix)
-- **Dragon volley: no more breath plume.** The ansimuz breath frames have the fire plume baked in, and the volley played them, so every lobbed bolt came out with a full breath. The volley now plays new **`spit`** frames, copies of the breath frames with the 3 plume colours made transparent (`tools/build_dragon_spit.py`; the originals are untouched). A small muzzle spark marks each launch. The ground fire breath attack is unchanged (separate code path).
-- Wing/flight motion: not changed yet (pending review of the raw animations).
-- Tests: **325 pass, 0 fail**. New: the volley never shows `breath` and no shown frame has a plume pixel; the ground breath still has its plume.
+## v0.8.1-playable (2026-10-31)
+Infernal Dragon flight fix. Pre-release with Windows, Linux and Android (ARM) builds.
+
+### Dragon flight
+- **Wing loop:** while flying he plays a new looping **`fly`** animation. These are the 4 frames the user picked from the ansimuz breath frames, in their order (breath 1, 5, 4, 5), at **11 fps**. They use the plume-free copies, so there's no fire at all, including the small fireball in breath frame 4. This replaces the old trick of playing the idle frames 2.2x faster. The bob is snappier: 26 px at 1.6 Hz.
+- **He flies around the map between lobs.** In each phase (12x, 9x, 6x, 3x) he flies to a new spot before each of the 5 bolts:
+  - the spots are short, mid and long from Mera, in front of her and behind (he crosses over her), at heights of 250–470 px, in a new order every phase;
+  - he glides there in 0.8 s, gives the red tell, then lobs one bolt on the `spit` frames;
+  - he stays inside the walls and mostly on screen: the bigger he is, the closer he stays to the screen centre;
+  - each lob's arc is solved for its distance, with a flight time of 0.8 s + 1 s per 1000 px (0.85–1.6 s). The first bolt is aimed at Mera; the others land within ±140 px of her (was ±220).
+- **Unchanged:** each phase runs once per threshold; any bolt hit gives +3 sizes, once per phase; he always lands afterwards (now wherever he is); the ground fire breath keeps its plume.
+
+### Dragon volley: no breath plume
+- The ansimuz breath frames have the fire plume drawn in, and the volley played them, so every lobbed bolt came out with a full breath. The volley now uses **`spit`** frames: copies of the breath frames with the plume's 3 colours made transparent (`tools/build_dragon_spit.py`; the originals are untouched). A small muzzle spark marks each launch. The ground fire breath attack is unchanged (separate code path).
+
+### Tests
+- **331 pass, 0 fail** (`--fixed-fps 60`). New checks:
+  - the fly loop's frames and order, and no fire in it;
+  - the volley never shows `breath` or the idle frames, and no plume pixel in any frame shown;
+  - 5 lobs from at least 3 distinct spots, with distances spread over at least 400 px, from both sides of Mera;
+  - on screen and inside the walls the whole phase;
+  - flight time grows with distance;
+  - the ground breath keeps its plume.
 
 ## v0.8-playable (2026-10-31)
 Stage S4 of `docs/WORKFLOW.md`. Pre-release with **Windows, Linux and Android (ARM) builds**. From now on every version ships a Windows `.exe` **and** an Android APK.

@@ -4,9 +4,10 @@ extends "res://scripts/game/monster.gd"
 ##   damage, down to 1x. A hit can't take it below 1x; any hit at 1x kills it. The size change is tweened.
 ## - PHASES at 12x, 9x, 6x, 3x, each exactly once, when its size first drops to or past the threshold. A big hit
 ##   that skips several thresholds QUEUES every crossed one, and they run back to back (each once).
-##   A phase: take off (the pack has no wing frames, so flight is faked: a lift tween + bob on the idle frames,
-##   played fast like flapping), spit DRAGON_BOLTS explosive fire bolts that lob onto Mera from above (each with a
-##   red "ranged" tell), then LAND, always. If any bolt hurts Mera, it grows +DRAGON_GROW sizes, once per phase;
+##   A phase: take off on the "fly" wing loop (v0.8.1: the user-picked breath frames 1,5,4,5 without fire), then
+##   DRAGON_BOLTS times: fly to a lob spot (short/mid/long, in front of or behind Mera, varied heights, on screen,
+##   inside the walls), red "ranged" tell, spit one explosive bolt on a ballistic arc solved for that distance.
+##   Then LAND, always, where he is. If any bolt hurts Mera, it grows +DRAGON_GROW sizes, once per phase;
 ##   growing never re-arms a used threshold.
 ## Its damage never scales with its size.
 
@@ -27,6 +28,13 @@ var bolt_fired := false
 var bolts_fired := 0
 var lift := 0.0
 var landings := 0
+var fly_sub := ""                # volley step: move | tell | after
+var fly_from := Vector2.ZERO     # (x, lift) at the start of a move
+var fly_to := Vector2.ZERO       # (x, lift) of the current lob spot
+var fly_plan: Array = []
+var fly_base := 0.0              # lift without the bob
+var spit_spots: Array = []       # tests: [dragon x, lift, x - Mera x] at every lob
+var bolt_times: Array = []       # tests: flight time of every lob
 var growths := 0
 
 
@@ -124,8 +132,11 @@ func _begin_phase(thr: int) -> void:
 	marker.visible = false
 	sprite.play()
 	_set_state("fly")
-	_play(idle_a)
-	sprite.speed_scale = 2.2                        # fast "flapping" on the idle frames (no wing frames in the pack)
+	_play("fly")                                    # v0.8.1 wing loop (no fire), DRAGON_FLY_FPS
+	sprite.speed_scale = 1.0
+	fly_plan = Tuning.DRAGON_FLY_SPOTS.duplicate()
+	fly_plan.shuffle()
+	fly_sub = ""
 	history.append("phase:%d" % thr)
 	Sfx.play("dash", 0.5, 2.0)
 	if game:
@@ -137,42 +148,56 @@ func _phase_tick(delta: float) -> void:
 	var m: Node2D = game.mera
 	if m and m.state != "dead":
 		_face(1 if m.global_position.x > global_position.x else -1)
+	var bob := sin(phase_t * TAU * Tuning.DRAGON_FLY_BOB_HZ) * Tuning.DRAGON_FLY_BOB
 	match phase:
 		"takeoff":
 			var q := clampf(phase_t / Tuning.DRAGON_TAKEOFF_S, 0.0, 1.0)
-			lift = Tuning.DRAGON_FLY_H * (1.0 - pow(1.0 - q, 2.0))
+			fly_base = Tuning.DRAGON_FLY_H * (1.0 - pow(1.0 - q, 2.0))
+			lift = fly_base + bob * q
 			if q >= 1.0:
 				phase = "volley"
-				phase_t = 0.0
+				_next_spot()
 		"volley":
-			lift = Tuning.DRAGON_FLY_H + sin(phase_t * 3.0) * 22.0
 			bolt_t += delta
-			if bolt_i < Tuning.DRAGON_BOLTS:
-				if not bolt_fired:
-					sprite.modulate = TELE.pulse("ranged", bolt_t)          # red tell before every bolt
-					marker.set_kind("ranged")
-					marker.visible = true
-					if sprite.animation != "spit":
-						_play("spit")                      # v0.8.1: breath frames with the fire plume masked out (no plume in the volley)
+			match fly_sub:
+				"move":                                  # glide to the lob spot, wings beating
+					var q := clampf(bolt_t / Tuning.DRAGON_FLY_MOVE_S, 0.0, 1.0)
+					var e := q * q * (3.0 - 2.0 * q)
+					position.x = lerpf(fly_from.x, fly_to.x, e)
+					fly_base = lerpf(fly_from.y, fly_to.y, e)
+					if q >= 1.0:
+						fly_sub = "tell"
+						bolt_t = 0.0
+						_play("spit")
 						sprite.pause()
 						sprite.frame = 0
+				"tell":                                  # red tell, then one lob
+					sprite.modulate = TELE.pulse("ranged", bolt_t)
+					marker.set_kind("ranged")
+					marker.visible = true
 					if bolt_t >= Tuning.DRAGON_BOLT_TELL_S:
-						_spit(m)
-						bolt_fired = true
 						marker.visible = false
+						_spit(m)
 						sprite.play()
-				elif bolt_t >= Tuning.DRAGON_BOLT_TELL_S + Tuning.DRAGON_BOLT_GAP_S:
-					bolt_i += 1
-					bolt_t = 0.0
-					bolt_fired = false
-			elif bolt_t >= 0.6:
-				phase = "land"
-				phase_t = 0.0
-				_play(idle_a)
-				sprite.speed_scale = 1.4
-		"land":
+						fly_sub = "after"
+						bolt_t = 0.0
+				"after":
+					if bolt_t >= Tuning.DRAGON_BOLT_GAP_S:
+						bolt_i += 1
+						if bolt_i < Tuning.DRAGON_BOLTS:
+							_next_spot()
+						else:
+							fly_sub = "done"
+							_play("fly")
+				"done":
+					if bolt_t >= Tuning.DRAGON_BOLT_GAP_S + 0.6:
+						phase = "land"
+						phase_t = 0.0
+						fly_from = Vector2(position.x, fly_base + bob)
+			lift = fly_base + bob
+		"land":                                          # always lands, where he is
 			var q := clampf(phase_t / Tuning.DRAGON_LAND_S, 0.0, 1.0)
-			lift = Tuning.DRAGON_FLY_H * (1.0 - q * q)
+			lift = fly_from.y * (1.0 - q * q)
 			if q >= 1.0:
 				lift = 0.0
 				phase = ""
@@ -180,11 +205,39 @@ func _phase_tick(delta: float) -> void:
 				phase_log.append(phase_thr)
 				position.y = rest_y
 				on_ground = true
+				sprite.speed_scale = 1.0
 				if game:
 					game.shake(14.0, 0.3)
 				Sfx.play("boom_big", 0.6, -4.0)
 				_to_idle(1.2)
 	position.y = rest_y - lift
+
+
+## pick the next lob spot (short / mid / long, in front of or behind Mera, varied height), on screen, inside the walls
+func _next_spot() -> void:
+	var m: Node2D = game.mera
+	var mx: float = m.global_position.x if m else global_position.x
+	var mf: int = int(m.facing) if m and m.get("facing") != null else 1
+	var spot: Array = fly_plan[bolt_i % fly_plan.size()]
+	var d: float = float(spot[1]) + rng.randf_range(-Tuning.DRAGON_FLY_SPOT_JITTER, Tuning.DRAGON_FLY_SPOT_JITTER)
+	var side: int = int(spot[0]) * (mf if mf != 0 else 1)
+	# keep most of his body on screen: the bigger he is, the closer to the screen centre
+	var reach := clampf(960.0 - hurt_rect().size.x * 0.45, 380.0, Tuning.DRAGON_FLY_SCREEN)
+	var lo: float = maxf(Levels.EDGE + 200.0, game.cam_x - reach)
+	var hi: float = minf(game.map_w - Levels.EDGE - 200.0, game.cam_x + reach)
+	var x := mx + side * d
+	if x < lo or x > hi:                               # no room on that side: take the same distance on the other
+		x = mx - side * d
+	x = clampf(x, lo, hi)
+	if absf(x - global_position.x) < 200.0:            # never lob twice from (almost) the same spot
+		x = clampf(mx - (x - mx), lo, hi)
+	var h: float = rng.randf_range(float(Tuning.DRAGON_FLY_LIFT[0]), float(Tuning.DRAGON_FLY_LIFT[1]))
+	fly_from = Vector2(global_position.x, fly_base)
+	fly_to = Vector2(x, h)
+	fly_sub = "move"
+	bolt_t = 0.0
+	if sprite.animation != "fly":
+		_play("fly")
 
 
 func _spit(m: Node2D) -> void:
@@ -194,8 +247,11 @@ func _spit(m: Node2D) -> void:
 	if bolt_i > 0:
 		tx += rng.randf_range(-Tuning.DRAGON_BOLT_SPREAD, Tuning.DRAGON_BOLT_SPREAD)
 	tx = clampf(tx, Levels.EDGE, game.map_w - Levels.EDGE)
+	var fl := clampf(0.8 + absf(tx - mouth.x) / 1000.0, float(Tuning.DRAGON_BOLT_T[0]), float(Tuning.DRAGON_BOLT_T[1]))
 	var b: Node2D = BOLT.new()
-	b.setup(game, self, mouth, Vector2(tx, float(game.GROUND_Y)))
+	b.setup(game, self, mouth, Vector2(tx, float(game.GROUND_Y)), fl)
+	bolt_times.append(fl)
+	spit_spots.append([global_position.x, lift, global_position.x - (m.global_position.x if m else global_position.x)])
 	get_parent().add_child(b)
 	bolts_fired += 1
 	played["spit"] = true
