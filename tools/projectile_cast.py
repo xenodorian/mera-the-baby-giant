@@ -45,6 +45,12 @@ CFG = {
      hold=[('3x', 24)] * 4, recoil=[3, 2, 1, 0], rec=[('3x', i) for i in range(25, 34)], pose=('3x', 24),
      speed=10, dist=120, drop=True, big=True, ex=ground_explosion, anchor='ground', c0=0.45, n_motes=46, ring=3,
      n_embers=34, ember_r=(8, 34), linger=1000),
+ # user [pt39u]: the "rear blast" is pick2 v2 -> same fireball + Ground Explosion, fired right ~11 deg down along the wand
+ 'pick2_v3_projectile': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('2x', 0, 40), ('3x', 0, 40), ('3x', 2, 40)],
+     offs={'2x': cs.OFF_2X_FROM_IDLE, '3x': cs.OFF_3X_FROM_2X0}, hidden={('3x', 0)},
+     hold=[('3x', 4)] * 4, recoil=[3, 2, 1, 0], rec=[('3x', i) for i in range(5, 34)], pose=('3x', 4), dir=+1, ang=11.0,
+     speed=10, dist=130, drop=True, big=True, ex=ground_explosion, anchor='ground', c0=0.45, n_motes=46, ring=3,
+     n_embers=34, ember_r=(8, 34), linger=1000),
  'pick3_v2_projectile': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('d1', i, 40) for i in range(14)], offs={},
      hold=[('d1', 14), ('d1', 15)], recoil=[2, 1], rec=[('d1', i) for i in range(16, 19)], pose=('d1', 14),
      speed=12, dist=90, drop=False, big=False, ex=small_pop, anchor='centre', c0=0.15, n_motes=40, ring=3,
@@ -76,12 +82,20 @@ def build(name, C):
             if s[0] <= tm < s[0] + s[1]: return s
         return seg[-1]
     def woff(a, ph): return IDLE_OFF if ph == 'idle_end' else OFFS[a]
-    def tip_world(a, f): tx, ty = cs.TIPS[a][f]; o = OFFS[a]; return tx + o[0], ty + o[1]
+    DIR = C.get('dir', -1); TANA = math.tan(math.radians(C.get('ang', 0.0))); HID = C.get('hidden', set())
+    def tip_world(a, f):
+        if (a, f) in HID:   # wand hidden behind her: midway between the neighbouring lead-in tips
+            L_ = [(x, y) for x, y, _ in C['lead']]; i = L_.index((a, f))
+            p0 = tip_world(*L_[i - 1]); p1 = tip_world(*L_[i + 1]) if i + 1 < len(L_) else tip_world(*C['pose'])
+            return (p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2
+        tx, ty = cs.TIPS[a][f]; o = OFFS[a]; return tx + o[0], ty + o[1]
     TIP = tip_world(*C['pose']); GY = cs.GROUND; R0 = C['recoil'][0]
     def proj_pos(tm):
-        s = (tm - T_FIRE) * SPEED; u = s / DIST; x0, y0 = TIP[0] + R0 - 2, TIP[1]
-        y = y0 + (GY - 3 - y0) * u * u if C['drop'] else y0 + 0.08 * s
-        return x0 - s, y + 0.6 * math.sin(s * 0.35)
+        s = (tm - T_FIRE) * SPEED; u = s / DIST; x0, y0 = TIP[0] - DIR * (R0 - 2), TIP[1]
+        if C['drop']:   # leaves along the wand angle, curves down to land just above the ground at DIST
+            k = (GY - 3 - y0 - DIST * TANA) / (DIST * DIST); y = y0 + s * TANA + k * s * s
+        else: y = y0 + 0.08 * s
+        return x0 + DIR * s, y + 0.6 * math.sin(s * 0.35)
     X_HIT, Y_HIT = proj_pos(T_HIT)
     # particles (analytic in time, deterministic)
     motes = [(rng.uniform(0, T_FIRE - 40), rng.uniform(110, 200), rng.uniform(0, 6.28), rng.uniform(7, 15), rng.uniform(0.55, 0.95)) for _ in range(C['n_motes'])]
@@ -92,7 +106,7 @@ def build(name, C):
             sparks.append((tt, rng.uniform(500, 1200) * (1 if C['big'] else 0.7), x + rng.uniform(1, 5), y + rng.uniform(-2, 2), rng.uniform(-0.002, 0.004), rng.uniform(-0.006, -0.001), rng.uniform(0.6, 0.98)))
         tt += 20
     for _ in range(10 if C['big'] else 5):
-        sparks.append((T_FIRE, rng.uniform(200, 450), TIP[0] + 1, TIP[1] + rng.uniform(-1, 1), rng.uniform(0.005, 0.03), rng.uniform(-0.02, 0.02), 0.95))
+        sparks.append((T_FIRE, rng.uniform(200, 450), TIP[0] - DIR, TIP[1] + rng.uniform(-1, 1), -DIR * rng.uniform(0.005, 0.03), rng.uniform(-0.02, 0.02), 0.95))
     embers = []
     cy = GY - 6 if C['anchor'] == 'ground' else Y_HIT
     for _ in range(C['n_embers']):
@@ -118,12 +132,13 @@ def build(name, C):
     nl = len(C['lead'])
     def render(tm):
         s = mera_at(tm); a, f, ph, li = s[2], s[3], s[4], s[5]
-        o = woff(a, ph); rc = (C['recoil'][li] if ph == 'fire' and li < len(C['recoil']) else 0, 0) if ph == 'fire' else (0, 0)
+        o = woff(a, ph); rc = (-DIR * C['recoil'][li] if li < len(C['recoil']) else 0, 0) if ph == 'fire' else (0, 0)
         E = np.zeros((H, W)); L = np.zeros((H, W)); smoke = np.zeros((H, W)); glow = 0.0
         if ph == 'lead':   # charge orb + motes + rune ring, peak on the last lead-in frame
             tx, ty = tip_world(a, f); tx -= X0; ty -= Y0
             c = C['c0'] + (1 - C['c0']) * (li + 1) / nl; sz = 1.0 if C['big'] else 0.75
-            disc(E, tx, ty, (1.0 + 2.9 * c + 0.3 * math.sin(tm * 0.05)) * sz, 0.6 + 0.45 * c)
+            dimf = 0.55 if (a, f) in HID else 1.0
+            disc(E, tx, ty, (1.0 + 2.9 * c + 0.3 * math.sin(tm * 0.05)) * sz, (0.6 + 0.45 * c) * dimf)
             L += 0.55 * c * np.exp(-np.hypot(XX - tx, YY - ty) / 15); glow = 0.5 * c
             if li >= nl - C['ring']:
                 R = 5 + (nl - 1 - li) * 1.2
@@ -170,11 +185,11 @@ def build(name, C):
         img[L > (BAY * 1.1 + 0.18)] = P['deep']
         img[smoke >= 1] = P['smoke']; img[(smoke > 0) & (smoke < 1)] = P['deep']
         im = Image.fromarray(img).convert('RGBA'); spr = cs.img(a, f)
-        if glow > 0.2:   # rim light on her left edge (the side the shot leaves from), palette colour
+        if glow > 0.2:   # rim light on the edge the shot leaves from, palette colour
             arr = np.array(spr); m = arr[..., 3] > 0; col = P['hot'] if glow > 0.55 else P['mid']
             for yy in range(arr.shape[0]):
                 xx = np.nonzero(m[yy])[0]
-                if len(xx): arr[yy, xx[0], :3] = col
+                if len(xx): arr[yy, xx[0] if DIR < 0 else xx[-1], :3] = col
             spr = Image.fromarray(arr)
         im.alpha_composite(spr, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
         if exi is not None: im.alpha_composite(EX[exi], (ex_pos[0] - X0, ex_pos[1] - Y0))
