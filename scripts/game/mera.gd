@@ -570,6 +570,9 @@ func _try_ground_actions() -> bool:
 			return true
 	# v0.4: X and Y commit on the frame they are pressed (no waiting to see whether a chord follows). A chord partner
 	# that lands within CHORD_MS converts the just-started move in its first frames (see _chord_convert).
+	if not y.is_empty() and pressed("down") and _neutral == "crouch":   # v0.5 Down+Y crouching -> earthquake
+		_use(y)
+		return _stamina_move("earthquake")
 	if not y.is_empty():
 		var xx := _find("btn_x", float(y["t"]) - CHORD_MS)
 		var aa := _find("btn_a", float(y["t"]) - CHORD_MS)
@@ -769,17 +772,23 @@ func _special_buttons() -> bool:
 	var r1 := _find("r1")
 	var l2 := _find("l2")
 	var r2 := _find("r2")
+	# v0.5: Fury = L2 + R2 together (within CHORD_MS, either order, or R2 while L2 is held). R2 alone in Fury takes
+	# off / lands. L2 alone: tap = lightning (full meter), hold = barrier (see the "barrier" move).
 	if not r2.is_empty():
-		_use(r2)
 		if fury:
+			_use(r2)
 			if not flying:
 				_take_off()
 				return true
-		elif rage >= 100.0:
-			start_fury()
-			return false
 		else:
-			Sfx.play("fail", 1.4, -6.0)
+			var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
+			if not l2c.is_empty() or held["l2"]:
+				_use(r2); _use(l2c)
+				return _try_fury()
+			if now - float(r2["t"]) > CHORD_MS:          # no L2 partner came: R2 alone does nothing outside Fury
+				_use(r2)
+				if game:
+					game.flash_hud("fury_chord")
 	if not l1.is_empty():
 		_use(l1)
 		if potions > 0 and size < SIZE_HEAL_MAX:
@@ -788,18 +797,36 @@ func _special_buttons() -> bool:
 		Sfx.play("fail")
 		if game:
 			game.flash_hud("potions" if potions <= 0 else "max")
-	if not r1.is_empty():
+	if not r1.is_empty():                               # v0.5: R1 = summon an ally (cards: S3)
 		_use(r1)
-		if can_lightning():
-			spend_rage()
-			_start_move("lightning")
-			return true
+		if game and game.has_method("summon_ally"):
+			if game.summon_ally():
+				return false
 		Sfx.play("fail", 1.2, -4.0)
 		if game:
-			game.flash_hud("rage")
+			game.flash_hud("ally")
 	if not l2.is_empty():
 		_use(l2)
-		return _stamina_move("barrier")
+		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
+		if not r2c.is_empty() and not fury:              # R2 first, then L2 -> Fury
+			_use(r2c)
+			return _try_fury()
+		if fury:                                         # during Fury the meter is the timer: no lightning
+			_start_move("barrier")
+			mv["no_tap"] = true
+			return true
+		_start_move("barrier")                           # commits now: released before the bubble forms = tap
+		return true
+	return false
+
+
+func _try_fury() -> bool:
+	if rage >= 100.0 and not rage_spending and not fury:
+		start_fury()
+		return false
+	Sfx.play("fail", 1.4, -6.0)
+	if game:
+		game.flash_hud("rage")
 	return false
 
 
@@ -872,13 +899,25 @@ func _air_tick(delta: float) -> void:
 
 func _special_air() -> bool:
 	var r2 := _find("r2")
+	var l2 := _find("l2")
 	if not r2.is_empty():
-		_use(r2)
 		if fury:
+			_use(r2)
 			_take_off()
 			return true
-		if rage >= 100.0:
-			start_fury()
+		var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
+		if not l2c.is_empty() or held["l2"]:
+			_use(r2); _use(l2c)
+			_try_fury()
+		elif now - float(r2["t"]) > CHORD_MS:
+			_use(r2)
+	elif not l2.is_empty() and not fury:
+		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
+		if not r2c.is_empty() or held["r2"]:
+			_use(l2); _use(r2c)
+			_try_fury()
+		elif now - float(l2["t"]) > CHORD_MS:
+			_use(l2)                                     # L2 alone in the air does nothing
 	return false
 
 
@@ -1197,6 +1236,8 @@ func _start_move(k: String) -> void:
 			a = "adash"
 		"lightning", "barrier":
 			a = "heal"
+		"earthquake":
+			a = "roll_land"
 	mv = {"key": k, "anim": a, "dmg": DMG.get(k, 0), "hits": {}, "hitwin": false, "t0": now, "fired": false, "beam_n": 0}
 	mv.merge(extra)
 	state = "move"
@@ -1215,6 +1256,10 @@ func _start_move(k: String) -> void:
 			Sfx.play("dash", 0.9)
 		"barrier":
 			pass
+		"earthquake":
+			vel = Vector2.ZERO
+			if game:
+				game.earthquake()
 		"quick_fire", "rear_blast":
 			Sfx.play("charge", 1.6 if k == "quick_fire" else 1.2)
 		"atk1", "atk2", "atk2_1", "atk2_2", "jatk1", "jatk2", "datk1":
@@ -1347,8 +1392,27 @@ func _move_tick(delta: float) -> void:
 			else:
 				vel.x = move_toward(vel.x, 0.0, 1800.0 * shown * delta)
 		"barrier":
+			# v0.5: R2 with L2 (chord or L2 held) -> Fury
+			var r2b := _find("r2", float(mv["t0"]) - CHORD_MS)
+			if not r2b.is_empty() and not fury:
+				_use(r2b)
+				if barrier_on:
+					barrier_on = false
+					barrier.visible = false
+				_try_fury()
+				_go_neutral()
+				return
+			# L2 released before the bubble forms = a tap: lightning with a full meter (same heal pose, strike at f7)
+			if not barrier_on and not mv.get("released", false) and i < Tuning.L2_TAP_FRAMES and not pressed("l2"):
+				mv["released"] = true
+				if can_lightning() and not mv.get("no_tap", false):
+					spend_rage()
+					mv["key"] = "lightning"
+					return
+				if game:
+					game.flash_hud("rage")
 			if not barrier_on and not mv.get("released", false) and i >= 5 and i < 9:
-				if pressed("l2"):
+				if pressed("l2") and spend_stamina("barrier"):
 					barrier_on = true
 					barrier.visible = true
 					anim.section(5, 8)
@@ -1356,19 +1420,8 @@ func _move_tick(delta: float) -> void:
 				else:
 					mv["released"] = true
 					anim.seek(9)
-			elif barrier_on and not _find("r1").is_empty():
-				# R1 inside the bubble: same rule as outside (full meter, spends 100 %), she keeps the pose and keeps blocking
-				_use(_find("r1"))
-				if can_lightning():
-					spend_rage()
-					mv["bubble_strikes"] = int(mv.get("bubble_strikes", 0)) + 1
-					if game:
-						game.call_lightning(self)
-					Sfx.play("cast", 0.8)
-				else:
-					Sfx.play("fail", 1.2, -4.0)
-					if game:
-						game.flash_hud("rage")
+			elif mv.get("released", false) and not barrier_on and i < 9 and i >= 5:
+				anim.seek(9)
 			elif barrier_on and not pressed("l2"):
 				barrier_on = false
 				barrier.visible = false

@@ -23,6 +23,8 @@ The playable level also uses ansimuz **Grotto Escape 2 FX** `electro-shock.png`,
 The Fury flame aura (v0.4: CPU particles with a procedural flame-tongue texture, `Mera._make_flame`), the dash afterimages and the blue/blue-and-white stamina potions are made in this project too.
 The **Blue Knight** is chierit's Fire Knight (CC-BY 4.0) recoloured at runtime by `shaders/knight_blue.gdshader`; the original sheets are not modified. Credit: chierit.
 
+The v0.5 level maps (`assets/levels/`, built by `tools/build_levels.py`) are composed from copies of the ansimuz CC0 packs: Gothicvania Cemetery, Mist Forest Background, Night Town Background and Lava Background. The cobbled street in Moonlit Town and the exit gate are made in this project.
+
 ## Suggested credits text
 > Main character art: Merakintsugi (merakintsugi.itch.io).
 > Alternate-form character art: "Elementals" series by chierit (chierit.itch.io), CC-BY 4.0.

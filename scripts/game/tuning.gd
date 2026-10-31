@@ -22,7 +22,7 @@ const CHAIN_2X := 9               # 2x atk resolves its branch (2x-1 / 2x-2 / 3x
 const STAMINA_START := 60.0
 const STAMINA_MAX_CAP := 120.0    # +5 max potions stop here
 const STAMINA_REGEN := 1.0        # per second
-const STAMINA_COST := {
+const STAMINA_COST := {"earthquake": 20, 
 	"quick_fire": 5.0,
 	"gdash": 6.0,
 	"adash": 6.0,
@@ -58,3 +58,10 @@ const AIR_CHASE_COOLDOWN_S := 1.6
 const SPECIAL_EVERY := 3          # the Fire Knight's special replaces every 3rd attack string
 const BLUE_STAMINA_P := 0.35      # blue knight drops: +30 stamina potion ...
 const BLUE_MAX_P := 0.10          # ... and, rolled independently, a +5 max-stamina potion
+
+# ---------------------------------------------------------------- v0.5 earthquake (Down+Y while crouching)
+const QUAKE_S := 1.0            # the ground shakes this long
+const QUAKE_STUN_S := 5.0       # enemies touching the ground are stunned until this long after the quake started
+const QUAKE_SHAKE := 34.0       # px, re-randomised every frame (very fast, violent)
+# ---------------------------------------------------------------- v0.5 L2 / R2 remap
+const L2_TAP_FRAMES := 5        # L2 released before the bubble forms (heal frame 5, 300 ms) = a tap = lightning

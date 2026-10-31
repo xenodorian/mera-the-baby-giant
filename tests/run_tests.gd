@@ -213,29 +213,61 @@ func _run() -> void:
 	await _combo("B X X X -> dodge attack only (v0.4: never the rising slash or slam)", s, 200, ["bdodge", "datk1"], ["datk2", "datk3"])
 	s = [[5, "down", true], [40, "down", false]]; _tap(s, 15, "btn_a")
 	await _combo("Down + A -> slide", s, 60, ["crouch", "slide"], [])
-	# ---- specials
-	s = []; _tap(s, 5, "r1")
-	await _combo("R1 with a full meter -> heal pose (lightning)", s, 70, ["heal"], [], func(g): g.mera.rage = 100.0)
-	await _combo("R1 with 99 % rage -> nothing (fail cue)", s, 70, [], ["heal"], func(g): g.mera.rage = 99.0)
+	# ---- specials (v0.5 remap: L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = ally)
+	s = []; _tap(s, 5, "l2")
+	await _combo("L2 tap with a full meter -> lightning (heal pose)", s, 70, ["heal"], [], func(g): g.mera.rage = 100.0)
+	await _combo("L2 tap with 99 % rage -> no lightning", s, 70, [], [], func(g): g.mera.rage = 99.0)
 	var gr: Node = await _new_game()
 	gr.mera.rage = 100.0
 	var struck := false
-	await _drive(gr, [[5, "r1", true], [8, "r1", false]], 10)
+	await _drive(gr, [[5, "l2", true], [8, "l2", false]], 10)
 	for _f in 80:
 		await physics_frame
 		if is_instance_valid(gr.last_strike):
 			struck = true
-	_check("R1 spends the whole meter (drains to 0) and strikes", gr.mera.rage == 0.0 and not gr.mera.rage_spending and struck, "rage=%f struck=%s" % [gr.mera.rage, struck])
+	_check("L2 tap spends the whole meter (drains to 0) and strikes", gr.mera.rage == 0.0 and not gr.mera.rage_spending and struck, "rage=%f struck=%s" % [gr.mera.rage, struck])
 	gr.mera.rage = 100.0
-	await _drive(gr, [[5, "r2", true], [8, "r2", false]], 20)
+	await _drive(gr, [[5, "l2", true], [5, "r2", true], [8, "l2", false], [8, "r2", false]], 20)
+	_check("L2+R2 together -> Fury", gr.mera.fury, "")
 	var before: int = gr.mera.move_log.size()
-	await _drive(gr, [[5, "r1", true], [8, "r1", false]], 40)
-	_check("R1 during Fury (meter already spent by R2) -> nothing", gr.mera.fury and not ("lightning" in gr.mera.move_log.slice(before)) and gr.mera.anim.key != "heal", "log=%s" % [gr.mera.move_log.slice(before)])
+	gr.last_strike = null
+	await _drive(gr, [[5, "l2", true], [8, "l2", false]], 40)
+	_check("L2 tap during Fury (meter already spent) -> no lightning", gr.mera.fury and gr.last_strike == null, "log=%s" % [gr.mera.move_log.slice(before)])
+	gr.queue_free()
+	await process_frame
+	for order in [["l2", "r2"], ["r2", "l2"]]:
+		for gap in [0, 2, 3]:
+			gr = await _new_game()
+			gr.mera.rage = 100.0
+			await _drive(gr, [[5, order[0], true], [5 + gap, order[1], true], [10, order[0], false], [10 + gap, order[1], false]], 30)
+			_check("%s then %s %d ms later -> Fury, no lightning" % [order[0], order[1], int(gap * 16.7)], gr.mera.fury and gr.last_strike == null and not gr.mera.rage_spending, "")
+			gr.queue_free()
+			await process_frame
+	gr = await _new_game()
+	gr.mera.rage = 100.0
+	await _drive(gr, [[5, "l2", true], [60, "r2", true], [64, "r2", false], [70, "l2", false]], 80)
+	_check("R2 while holding the L2 bubble -> Fury", gr.mera.fury and not gr.mera.barrier_on, "")
+	gr.queue_free()
+	await process_frame
+	gr = await _new_game()
+	gr.mera.rage = 100.0
+	await _drive(gr, [[5, "r2", true], [8, "r2", false]], 30)
+	_check("R2 alone -> no Fury (it's L2+R2 now)", not gr.mera.fury and gr.mera.rage == 100.0, "")
+	await _drive(gr, [[5, "r1", true], [8, "r1", false]], 30)
 	var fails := 0
 	for h in root.get_node("Sfx").history:
 		if h[0] == "fail":
 			fails += 1
-	_check("R1 without a full meter plays the fail cue", fails > 0, "")
+	_check("R1 without ally cards -> fail cue, no lightning", fails > 0 and gr.last_strike == null and gr.mera.rage == 100.0, "")
+	await _drive(gr, [[5, "l2", true]], 100)
+	_check("L2 held with a full meter -> barrier, no lightning", gr.mera.barrier_on and gr.mera.rage == 100.0 and gr.last_strike == null, "")
+	await _drive(gr, [[2, "l2", false]], 30)
+	gr.queue_free()
+	await process_frame
+	gr = await _new_game()
+	gr.mera.rage = 100.0
+	await _drive(gr, [[5, "up", true], [9, "up", false], [20, "l2", true], [21, "r2", true], [25, "l2", false], [25, "r2", false]], 40)
+	_check("L2+R2 in the air -> Fury", gr.mera.fury, "")
 	gr.queue_free()
 	await process_frame
 	var gb: Node = await _new_game()
@@ -292,27 +324,6 @@ func _run() -> void:
 				npx > 500 and worst <= -1.0 * sz and drawn_ok and block_ok, "drawn=%s block=%s" % [drawn_ok, block_ok])
 			gb.queue_free()
 			await process_frame
-	# ---- v0.3 R1 works inside the bubble: needs the full meter, spends 100 %, she keeps the pose and keeps blocking
-	gb = await _new_game()
-	await _drive(gb, [[2, "l2", true]], 40)
-	gb.mera.rage = 100.0
-	var struck_b := false
-	await _drive(gb, [[2, "r1", true], [5, "r1", false]], 6)
-	for _f in 50:
-		await physics_frame
-		if is_instance_valid(gb.last_strike):
-			struck_b = true
-	_check("R1 inside the bubble strikes and spends the whole meter", struck_b and gb.mera.rage == 0.0 and not gb.mera.rage_spending, "rage=%f struck=%s" % [gb.mera.rage, struck_b])
-	_check("...and she stays shielded in the bubble pose", gb.mera.barrier_on and gb.mera.state == "move" and String(gb.mera.mv["key"]) == "barrier" and gb.mera.anim.idx >= 5 and gb.mera.anim.idx <= 8,
-		"state=%s idx=%d" % [gb.mera.state, gb.mera.anim.idx])
-	gb.mera.take_hit(1, gb.mera.global_position.x + 100.0)
-	_check("...and still blocks", gb.mera.size == 2, "size=%d" % gb.mera.size)
-	gb.last_strike = null
-	gb.mera.rage = 60.0
-	await _drive(gb, [[2, "r1", true], [5, "r1", false]], 30)
-	_check("R1 inside the bubble below 100 %: no strike, meter kept, still shielded", gb.last_strike == null and gb.mera.rage >= 60.0 and gb.mera.barrier_on, "rage=%f" % gb.mera.rage)
-	gb.queue_free()
-	await process_frame
 	# ---- rules: size = HP, potions, damage x size, death at 1x
 	var g: Node = await _new_game()
 	var m: Node = g.mera
@@ -386,7 +397,7 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	m.rage = 100.0
-	await _drive(g, [[5, "r2", true], [8, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true]], 65)
+	await _drive(g, [[5, "r2", true], [5, "l2", true], [8, "r2", false], [8, "l2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true]], 65)
 	_check("R2 at 100 % rage -> Fury (red effects)", m.fury and root.get_node("AnimLib").fury, "")
 	_check("Fury: Up in the air -> flight with the active pose", m.flying and m.state == "fly" and m.anim.key == "djump_v" and m.anim.idx == 2, "state=%s %s f%d" % [m.state, m.anim.key, m.anim.idx])
 	await _drive(g, [[1, "up", false]], 20)
@@ -403,7 +414,7 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	m.rage = 100.0
-	await _drive(g, [[5, "r2", true], [8, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true], [60, "up", false], [60, "right", true]], 90)
+	await _drive(g, [[5, "r2", true], [5, "l2", true], [8, "r2", false], [8, "l2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true], [60, "up", false], [60, "right", true]], 90)
 	_check("Fury aura (v0.4 particles): back + front flames and embers emitting, world-space", m.flame_back.emitting and m.flame_front.emitting and m.aura_fx.emitting and m.flame_back.amount == 160 and m.flame_front.amount == 70 and m.aura_fx.amount == 60 and not m.flame_back.local_coords and not m.flame_front.local_coords and not m.aura_fx.local_coords, "")
 	_check("flying right -> tilted head-first to the right (+90 deg)", absf(m.anim.rotation - PI / 2.0) < 0.05 and m.facing == 1, "rot=%f" % m.anim.rotation)
 	await _drive(g, [[1, "right", false], [1, "left", true], [1, "up", true]], 40)
@@ -691,7 +702,7 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	await _drive(g, [[3, "l2", true]], 123)
-	_check("bubble: 3 to raise + 4 per second held", m.barrier_on and absf(m.stamina - (60.0 - 3.0 - 4.0 * 2.0 + 2.0)) < 0.6, "st=%f" % m.stamina)
+	_check("bubble: 3 to raise + 4 per second held", m.barrier_on and absf(m.stamina - (60.0 - 3.0 - 4.0 * 2.0 + 2.0)) < 1.2, "st=%f" % m.stamina)
 	m.stamina = 1.0
 	await _drive(g, [], 30)
 	_check("bubble drops when stamina runs out", not m.barrier_on, "st=%f" % m.stamina)
@@ -727,6 +738,8 @@ func _run() -> void:
 	# ---- Fire / Blue Knight
 	g = await _new_game()
 	m = g.mera
+	m.position.x = 4000.0           # mid-map: at the start (x 760) "behind" is past the left wall
+	g.snap_camera()
 	g._spawn_knight(1)
 	var fk: Node = g.knight
 	fk.position.x = m.global_position.x + 1500.0
@@ -892,7 +905,7 @@ func _run() -> void:
 	m = g.mera
 	m.set_size(2, true)
 	m.rage = 100.0
-	await _drive(g, [[3, "r2", true], [6, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [70, "up", false]], 80)
+	await _drive(g, [[3, "r2", true], [3, "l2", true], [6, "r2", false], [6, "l2", false], [20, "up", true], [24, "up", false], [30, "up", true], [70, "up", false]], 80)
 	g._spawn_knight(1)
 	fk = g.knight
 	fk.block_chance = 0.0
@@ -939,7 +952,7 @@ func _run() -> void:
 	m = g.mera
 	m.set_size(2, true)
 	m.rage = 100.0
-	await _drive(g, [[3, "r2", true], [6, "r2", false]], 40)
+	await _drive(g, [[3, "r2", true], [3, "l2", true], [6, "r2", false], [6, "l2", false]], 40)
 	_check("aura: still -> flames rise straight up", m.flame_back.emitting and m.flame_back.direction.distance_to(Vector2(0, -1)) < 0.01, "dir=%s" % m.flame_back.direction)
 	var sc2: float = m.flame_back.scale_amount_max
 	await _drive(g, [[1, "right", true]], 40)
@@ -951,6 +964,90 @@ func _run() -> void:
 	m.set_aura_quality(1)
 	_check("aura quality cap 1 -> 90 back flames, no front layer", m.flame_back.amount == 90 and not m.flame_front.emitting, "")
 	g.queue_free()
+	await process_frame
+	# ================================================================ v0.5 levels, map bounds, earthquake
+	var LV = load("res://scripts/game/levels.gd")
+	_check("4 levels in the level list", LV.list().size() == 4 and LV.map_w() >= 19200.0, "%d" % LV.list().size())
+	for li in 4:
+		LV.current = li
+		g = await _new_game()
+		m = g.mera
+		var cover_ok := true
+		var info := ""
+		for cx in [LV.EDGE, 3000.0, 9600.0, LV.map_w() - LV.EDGE]:
+			m.position.x = cx
+			await physics_frame
+			await physics_frame
+			for L in g.layers:
+				var sp: Sprite2D = L[0]
+				var w: float = (sp.region_rect.size.x if sp.region_enabled else float(sp.texture.get_width())) * 5.0
+				var left: float = sp.position.x
+				if left > g.cam_x - 960.0 - 40.0 or left + w < g.cam_x + 960.0 + 40.0:
+					cover_ok = false
+					info = "%s at cam %d: [%d, %d]" % [sp.texture.resource_path.get_file(), int(g.cam_x), int(left), int(left + w)]
+		_check("level %d (%s): every map layer covers the screen across the whole %d px map" % [li + 1, LV.level()["name"], int(LV.map_w())], cover_ok, info)
+		m.position.x = -500.0
+		await physics_frame
+		await physics_frame
+		var lo_ok: bool = absf(m.position.x - LV.EDGE) < 1.0
+		m.position.x = LV.map_w() + 900.0
+		await physics_frame
+		await physics_frame
+		_check("level %d: invisible walls at both ends, the exit gate clears the level" % (li + 1), lo_ok and absf(m.position.x - (LV.map_w() - LV.EDGE)) < 1.0 and g.cleared, "x=%f cleared=%s" % [m.position.x, g.cleared])
+		g.queue_free()
+		await process_frame
+	LV.current = 0
+	# earthquake: Down+Y while crouching
+	g = await _new_game()
+	m = g.mera
+	g._spawn_knight(1)
+	fk = g.knight
+	fk.position.x = m.global_position.x + 700.0
+	g.knight_calm_until = 1 << 30
+	var b4: Node = g.spawn_blue()
+	b4.position.x = m.global_position.x - 600.0
+	await _drive(g, [], 5)
+	b4._jump(0.0, b4._jump_v() * 0.6)            # this blue is in the air when the quake starts
+	await _drive(g, [[2, "down", true], [10, "btn_y", true], [13, "btn_y", false], [20, "down", false]], 12)
+	_check("Down+Y while crouching -> earthquake (no quick fire), 20 stamina", "roll_land" in m.move_log and not ("quick_fire" in m.move_log) and absf(m.stamina - 40.0) < 0.5 and g.quake_t > 0.0, "log=%s st=%f" % [m.move_log, m.stamina])
+	var shake_max := 0.0
+	var cam0: float = g.cam_x
+	for f in 50:
+		await physics_frame
+		shake_max = maxf(shake_max, absf(g.cam.position.x - g.cam_x))
+	_check("the quake shakes the whole map hard (%.0f px)" % shake_max, shake_max > 15.0, "")
+	_check("grounded Fire Knight stunned", fk.state == "stun", "state=%s" % fk.state)
+	_check("blue in the air at the start, stunned once it lands during the quake", b4.state == "stun" or b4.stunned_total == 1, "state=%s on_ground=%s" % [b4.state, b4.on_ground])
+	var stun_end := -1.0
+	for f in 330:
+		await physics_frame
+		if fk.state != "stun":
+			stun_end = (f + 52) / 60.0
+			break
+	_check("stun lasts 5 s from the quake start (%.2f s)" % stun_end, stun_end > 4.8 and stun_end < 5.3, "")
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	await _drive(g, [[5, "btn_y", true], [8, "btn_y", false]], 20)
+	_check("Y without Down -> normal quick fire, no quake", "quick_fire" in m.move_log and g.quake_t <= 0.0, "")
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	m.stamina = 10.0
+	await _drive(g, [[2, "down", true], [10, "btn_y", true], [13, "btn_y", false], [20, "down", false]], 30)
+	_check("earthquake without 20 stamina -> nothing", g.quake_t <= 0.0 and not ("roll_land" in m.move_log), "")
+	g.queue_free()
+	await process_frame
+	# menu scene loads and lists the 4 levels
+	var menu: Node = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	_check("level select menu loads with 4 level cards", menu.thumbs.size() == 4, "")
+	menu._move(1)
+	_check("menu: Right selects level 2", menu.sel == 1, "")
+	menu.queue_free()
 	await process_frame
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)

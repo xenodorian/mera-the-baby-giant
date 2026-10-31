@@ -133,3 +133,10 @@ The user asked to replace the rear beam with a projectile that explodes, colour-
 - The Fire Knight is drawn at **6x** in play, permanently (user, v0.3: the 6x size is intentional). Enemies never scale with Mera in size or damage.
 - Background: the ansimuz Cemetery is tiled into a 1920 px loop with ±20 px Gaussian-blended seams (`tools/make_loop_bg.py`). The originals are untouched.
 - Effects: the ansimuz ground explosion (rear blast), electro-shock remapped to the explosion palette (lightning impact), and pack hit fx_01 (hit sparks). In Fury every effect pixel is remapped onto a deep-red ramp (`shaders/spell_fx.gdshader`).
+
+## v0.5: level maps
+- **Cemetery:** the original Gothicvania Cemetery layers, now one native 19,200 px strip. Graves, trees and statues are sliced from the tileset and placed by a seeded RNG; distant layers are mirrored pairs so no seam is visible.
+- **Misty Woods:** ansimuz Mist Forest Background (mist, back trees, trees, rocks), plus a ground slab with pillars.
+- **Moonlit Town:** ansimuz Night Town Background (sky, clouds, mountains, far buildings, forest), plus houses placed along a procedural cobbled street (pixel-drawn, nearest-neighbour).
+- **Infernal Caverns:** ansimuz Lava Background (cavern, pillars, lava floor).
+- **Skipped for now:** Gothicvania Castle and the other tilesets. Their tile sheets need hand-made maps; they can come back in S4 with breakable walls.
