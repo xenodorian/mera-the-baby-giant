@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.9 (2026-10-31): no fresh runs, death is 2x
+`game.carry` and `user://mera_run.json` hold potions, cards, size, stamina, stamina_max, rage and rage_max. Nothing clears it. `_on_died` and `restart` bank with size 2. Windows exe is `v0.9.9-playable`.
+
 ## v0.9.8 (2026-10-31): the run persists across levels
 `game.carry` is packed in `next_level` and applied in `_ready`. It holds potions, cards, size, stamina, stamina_max, rage and rage_max. Dying reloads the same snapshot (what you entered the level with). The level select clears it. Windows exe is `v0.9.8-playable`.
 
