@@ -27,7 +27,7 @@ This is a variation of Combo A. Hits 1 and 2 and the opening of hit 3 are identi
 
 - **Cost:** the hold adds 23 × 40 = 0.92 s over Combo A's ending, so it should cost meter or have a cooldown.
 - The beam can hit anything behind her (a back-attack ender). The hitbox is a horizontal strip about 150 px long starting at the wand tip during fire and sustain.
-- **Variant:** a single fireball that explodes (Ground Explosion) instead of the beam. It doesn't delay her: the fire pose plays 4 × 40 ms, then she recovers normally. The user's choice for the rear projectile is **pick2 v3** (`pick2_v3_projectile_cast.gif`, fired on 3x atk f4). pick1 v4 (`pick1_v4_projectile_cast.gif`, fired on f24) is the same idea on this ender, and `pick1_v4_projectile_sfx.mp4` adds sound (melee swipe on f26).
+- **Variant:** a single fireball that explodes (Ground Explosion) instead of the beam. It doesn't delay her: the fire pose plays 4 × 40 ms, then she recovers normally. The user's choice for the rear projectile is **pick2 v3** (`pick2_v3_projectile_cast.gif`, fired on 3x atk f4). pick1 v4 (`pick1_v4_projectile_cast.gif`, fired on f24) is the same idea on this ender.
 - **Root motion:** the combo moves her about 15 px left over the whole string, measured idle to idle.
 
 ## Quick-fire ranged attack (dodge atk 1x bolt, pick3 v3)
