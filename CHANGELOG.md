@@ -2,6 +2,20 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.3.1-playable (2026-10-31)
+Pre-release with Windows and Linux builds. v0.3-playable stays as it was.
+
+- **The camera stays centred on Mera and no longer swaps view when she turns around.**
+  - It's hard-locked on her X every frame, with no facing look-ahead and no smoothing, so there's no lag or drift.
+  - It runs after all physics (`scripts/game/cam_rig.gd`). Vertical is unchanged.
+- The beam and lightning off-screen length logic is unchanged and re-verified against the locked camera (all reach tests pass).
+- Tests: 128 pass. New ones check that:
+  - the camera stays locked while walking;
+  - turning in place at 1x, 2x and 6x never moves the camera X;
+  - a pure turn leaves the camera X unchanged;
+  - the camera follows a position jump on the same frame;
+  - the camera stays locked during a ground dash at 1x and 6x.
+
 ## v0.3-playable (2026-10-31)
 Branch `playable-level`, merged into `main`. Windows and Linux builds.
 

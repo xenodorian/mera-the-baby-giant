@@ -86,8 +86,8 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - 2 s after the previous one is defeated, or
   - when Mera has moved too far away (he is off-screen and more than 2400 px behind). He is then removed and replaced ahead of her.
 - The level loops forever: the cemetery background tiles every 1920 px, with blurred seams.
-- **Camera:** it always scrolls with Mera; there is no edge dead zone.
-  - It stays centred on her, plus a look-ahead of 120 px × her size (capped at 2x, so 240 px) in her facing direction.
-  - Smoothing is exponential at 9/s, so a gap mostly closes in about 0.1 s.
-  - It snaps onto her at level start and restart.
+- **Camera (v0.3.1):** hard-locked horizontally on Mera's feet pivot, so she is always at the exact screen centre.
+  - There is no look-ahead and no smoothing. Turning around never shifts the view, and dashes never drift.
+  - It updates after all physics each frame (`scripts/game/cam_rig.gd`), so there is no one-frame lag.
+  - Vertical is fixed (the level is one screen tall), apart from screen shake.
   - Beam and lightning lengths are computed against this camera every frame.
