@@ -56,6 +56,7 @@ var layers: Array = []       # [Sprite2D, scroll, period] parallax layers of the
 var map_w := 19200.0
 var run_mode := false
 var stage_n := 1
+var run_seed := 1
 var lives := 0
 var quota := 3
 var run_spawned := 0
@@ -118,6 +119,9 @@ func _ready() -> void:
 			stage_n = maxi(int(carry.get("stage", 1)), 1)
 			lives = maxi(int(carry.get("lives", 0)), 0)
 			quota = maxi(int(carry.get("quota", Roster.RUN_START)), Roster.RUN_START)
+			run_seed = int(carry.get("seed", 0))
+		if run_seed == 0:
+			run_seed = randi() % 100000 + 1
 	map_w = Levels.map_w()
 	_build_background()
 	world = Node2D.new()
@@ -1260,6 +1264,7 @@ func _pack_run() -> Dictionary:
 		"stage": stage_n,
 		"lives": lives,
 		"quota": quota,
+		"seed": run_seed,
 	}
 
 

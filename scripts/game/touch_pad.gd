@@ -3,10 +3,23 @@ extends CanvasLayer
 ## Grayscale. Xbox diamond (Y top, B right, A bottom, X left), not Xbox colors.
 ## The phone's volume buttons pause and open the controls list. There is no Start button.
 
-const CELL := 112.0
-const GAP := 16.0
-const STEP := CELL + GAP
-const SHOULDER := Vector2(236.0, 76.0)
+## Positions copied from the 2128x912 mockup, then scaled to the live viewport.
+const MOCK_W := 2128.0
+const MOCK_H := 912.0
+const LAYOUT := [
+	["l2", 86.0, 172.0, 264.0, 98.0, false],
+	["l1", 86.0, 292.0, 264.0, 100.0, false],
+	["left", 86.0, 562.0, 122.0, 116.0, false],
+	["up", 210.0, 442.0, 122.0, 116.0, false],
+	["down", 210.0, 680.0, 122.0, 116.0, false],
+	["right", 334.0, 562.0, 122.0, 116.0, false],
+	["r2", 1774.0, 172.0, 264.0, 98.0, false],
+	["r1", 1784.0, 292.0, 254.0, 100.0, false],
+	["btn_x", 1702.0, 570.0, 100.0, 100.0, true],
+	["btn_y", 1810.0, 462.0, 100.0, 100.0, true],
+	["btn_a", 1812.0, 678.0, 100.0, 100.0, true],
+	["btn_b", 1920.0, 570.0, 100.0, 100.0, true],
+]
 
 var _root: Control
 var _buttons: Array = []
@@ -18,66 +31,71 @@ var _vol_ms := 0
 var _font: Font
 var _box: StyleBoxFlat
 var _box_down: StyleBoxFlat
+var _laid := Vector2.ZERO
 
 
 func _ready() -> void:
-	layer = 16
+	layer = 30
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	if OS.get_name() != "Android":
 		set_process(false)
 		set_process_input(false)
 		return
 	_font = ThemeDB.fallback_font
-	_box = _style(Color(0.16, 0.16, 0.18, 0.82), Color(0.82, 0.82, 0.86, 0.95))
-	_box_down = _style(Color(0.55, 0.55, 0.58, 0.92), Color(1, 1, 1, 1))
+	_box = _style(Color(0.16, 0.16, 0.18, 0.82), Color(0.82, 0.82, 0.86, 0.95), 22)
+	_box_down = _style(Color(0.55, 0.55, 0.58, 0.92), Color(1, 1, 1, 1), 22)
 	_root = Control.new()
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_root)
-	_build()
 	Input.joy_connection_changed.connect(func(_d, _c): _scan_pads())
 	_scan_pads()
+	_layout()
 
 
-func _style(fill: Color, edge: Color) -> StyleBoxFlat:
+func _style(fill: Color, edge: Color, radius: int) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.bg_color = fill
 	s.border_color = edge
 	s.set_border_width_all(4)
-	s.set_corner_radius_all(22)
+	s.set_corner_radius_all(radius)
 	return s
 
 
-func _build() -> void:
-	var left := Vector2(230.0, 900.0)
-	var right := Vector2(1690.0, 900.0)
-	_diamond(left, [
-		["up", Vector2(0, -STEP), "up"],
-		["down", Vector2(0, STEP), "down"],
-		["left", Vector2(-STEP, 0), "left"],
-		["right", Vector2(STEP, 0), "right"],
-	], false)
-	_diamond(right, [
-		["btn_y", Vector2(0, -STEP), "Y"],
-		["btn_a", Vector2(0, STEP), "A"],
-		["btn_x", Vector2(-STEP, 0), "X"],
-		["btn_b", Vector2(STEP, 0), "B"],
-	], true)
-	_shoulders(left, "l2", "l1", "L2", "L1")
-	_shoulders(right, "r2", "r1", "R2", "R1")
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_SIZE_CHANGED:
+		_layout()
 
 
-func _diamond(center: Vector2, slots: Array, round: bool) -> void:
-	for s in slots:
-		_add(String(s[0]), Rect2(center + s[1] - Vector2(CELL, CELL) * 0.5, Vector2(CELL, CELL)), String(s[2]), round)
+func _layout() -> void:
+	if _root == null:
+		return
+	var vs := get_viewport().get_visible_rect().size
+	if vs.x < 200.0 or vs.y < 200.0 or vs == _laid:
+		return
+	_laid = vs
+	_release_all()
+	for b in _buttons:
+		b.free()
+	_buttons.clear()
+	var sx := vs.x / MOCK_W
+	var sy := vs.y / MOCK_H
+	for item in LAYOUT:
+		var rect := Rect2(float(item[1]) * sx, float(item[2]) * sy, float(item[3]) * sx, float(item[4]) * sy)
+		_add(String(item[0]), rect, _label(String(item[0])), bool(item[5]))
 
 
-func _shoulders(anchor: Vector2, top_action: String, bot_action: String, top_label: String, bot_label: String) -> void:
-	var up_top := anchor.y - STEP - CELL * 0.5
-	var bot_y := up_top - GAP - SHOULDER.y
-	var top_y := bot_y - GAP - SHOULDER.y
-	_add(bot_action, Rect2(anchor.x - SHOULDER.x * 0.5, bot_y, SHOULDER.x, SHOULDER.y), bot_label, false)
-	_add(top_action, Rect2(anchor.x - SHOULDER.x * 0.5, top_y, SHOULDER.x, SHOULDER.y), top_label, false)
+func _label(action: String) -> String:
+	match action:
+		"l1": return "L1"
+		"l2": return "L2"
+		"r1": return "R1"
+		"r2": return "R2"
+		"btn_a": return "A"
+		"btn_b": return "B"
+		"btn_x": return "X"
+		"btn_y": return "Y"
+		_: return action
 
 
 func _add(action: String, rect: Rect2, label: String, round: bool) -> void:
