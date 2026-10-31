@@ -226,7 +226,12 @@ func _input_map_tests() -> void:
 				ok = true
 		if not ok:
 			kbad.append(a)
-	_check("keyboard (v0.8): arrows = d-pad, Z A, X B, A X, S Y, Q L1, W R1, 1 L2, 2 R2", kbad.is_empty(), "%s" % [kbad])
+	var kp_bound := false
+	for a in ["l2", "r2"]:
+		for e in InputMap.action_get_events(a):
+			if e is InputEventKey and e.physical_keycode in [KEY_KP_1, KEY_KP_2]:
+				kp_bound = true
+	_check("keyboard (v0.8): arrows = d-pad, Z A, X B, A X, S Y, Q L1, W R1, 1 L2, 2 R2", kbad.is_empty() and not kp_bound, "%s kp=%s" % [kbad, kp_bound])
 	var g: Node = await _new_game()
 	for i in 10:
 		await physics_frame
@@ -1515,6 +1520,7 @@ func _run() -> void:
 	menu.queue_free()
 	await process_frame
 	await _s4_tests()
+	await _mark_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -2170,7 +2176,6 @@ func Levels_EDGE() -> float:
 	return float(load("res://scripts/game/levels.gd").EDGE)
 
 
-
 ## v0.8.2: the bolt's blunt round head leads along the velocity, the flame trails behind
 func _bolt_orientation_tests() -> void:
 	var BOLT = load("res://scripts/game/dragon_bolt.gd")
@@ -2320,3 +2325,138 @@ func _updater_tests() -> void:
 		menu.queue_free()
 		await process_frame
 		U.auto_check = true
+
+func _key(kc: int, pressed: bool) -> void:
+	var e := InputEventKey.new()
+	e.physical_keycode = kc
+	e.pressed = pressed
+	Input.parse_input_event(e)
+
+
+func _mark_tests() -> void:
+	var C = root.get_node("Controls")
+	C.scheme = "key"
+	C.joy_r = Vector2.ZERO
+	C.pad_keys.clear()
+	C.clear_gestures()
+	_key(KEY_KP_1, true)
+	await physics_frame
+	var kp_l2: bool = Input.is_action_pressed("l2")
+	_key(KEY_KP_1, false)
+	_key(KEY_1, true)
+	await physics_frame
+	var row_l2: bool = Input.is_action_pressed("l2")
+	_key(KEY_1, false)
+	await physics_frame
+	_check("numpad 1 does not press L2; top-row 1 does", not kp_l2 and row_l2, "kp=%s row=%s" % [kp_l2, row_l2])
+	C.clear_gestures()
+	_key(KEY_KP_8, true)
+	await physics_frame
+	var flick8: int = C.consume_flick()
+	var up_n: int = C.compass_n(Vector2(0, -1))
+	var held_v: Vector2 = C.right_vector()
+	_key(KEY_KP_8, false)
+	await physics_frame
+	_check("numpad 8 (Num Lock) is a right-stick flick up, and counts as the pad", flick8 == 8 and C.scheme == "pad" and up_n == 8, "flick=%d scheme=%s up=%d vec=%s" % [flick8, C.scheme, up_n, held_v])
+	_key(KEY_KP_5, true)
+	await physics_frame
+	var r3: bool = C.consume_r3()
+	_key(KEY_KP_5, false)
+	await physics_frame
+	_check("numpad 5 is R3", r3, "")
+	var t := InputEventScreenTouch.new()
+	t.index = 0
+	t.pressed = true
+	t.position = Vector2(300, 300)
+	Input.parse_input_event(t)
+	await physics_frame
+	var d := InputEventScreenDrag.new()
+	d.index = 0
+	d.position = Vector2(300, 300 - 120)
+	Input.parse_input_event(d)
+	await physics_frame
+	var swipe: int = C.consume_flick()
+	t.pressed = false
+	Input.parse_input_event(t)
+	await physics_frame
+	_check("a touch swipe is that direction, and a device of its own", swipe == 8 and C.scheme == "touch", "swipe=%d scheme=%s" % [swipe, C.scheme])
+	C.scheme = "key"
+	C.joy_r = Vector2.ZERO
+	C.pad_keys.clear()
+	C.clear_gestures()
+	var g: Node = await _new_game()
+	var m: Node = g.mera
+	m.rage = 40.0
+	await _drive(g, [[2, "l1", true], [2, "r1", true], [2, "l2", true], [2, "r2", true], [8, "l1", false], [8, "r1", false], [8, "l2", false], [8, "r2", false]], 12)
+	_check("Q+W+1+2 below a full meter does not freeze", not g.mark_lock and not m.fury, "lock=%s fury=%s" % [g.mark_lock, m.fury])
+	g.queue_free()
+	await physics_frame
+	g = await _new_game()
+	m = g.mera
+	var e: Node2D = g.spawn_enemy("werewolf", m.global_position.x + 420.0)
+	await physics_frame
+	e.cooldown = 99.0
+	var hp0: int = e.hp
+	var x0: float = e.global_position.x
+	m.rage = 100.0
+	await _drive(g, [[2, "l1", true], [2, "r1", true], [2, "l2", true], [2, "r2", true]], 3)
+	var x1: float = e.global_position.x
+	for i in 20:
+		await physics_frame
+	_check("full meter + Q+W+1+2 freezes Mera and the enemy", g.mark_lock and m.fury and m.vel == Vector2.ZERO and absf(e.global_position.x - x1) < 0.5, "lock=%s x %f->%f vel=%s" % [g.mark_lock, x1, e.global_position.x, m.vel])
+	_check("keyboard prompts are digits 1-9", g.marker.on and not g.marker.arrows and g.marker.marks.size() == 1 and int(g.marker.marks[0]["n"]) >= 1, "n=%s" % g.marker.marks[0]["n"])
+	var n: int = int(g.marker.marks[0]["n"])
+	if n == 5:
+		C.r3_pending = true
+	else:
+		_key(KEY_1 + n - 1, true)
+	await physics_frame
+	if n != 5:
+		_key(KEY_1 + n - 1, false)
+	await physics_frame
+	var sfx = root.get_node("Sfx")
+	var last_sfx: String = sfx.history[-1][0] if sfx.history.size() else ""
+	_check("the matching number slashes that enemy for a flat 3 and plays the slice", e.hp == hp0 - 3 and g.marker.slashed == 1 and not g.mark_lock and last_sfx == "swipe", "hp %d->%d slashed=%d lock=%s sfx=%s" % [hp0, e.hp, g.marker.slashed, g.mark_lock, last_sfx])
+	_check("she did not walk off while frozen", absf(m.global_position.x - 760.0) < 2.0, "x=%f" % m.global_position.x)
+	g.queue_free()
+	await physics_frame
+	C.scheme = "pad"
+	C.clear_gestures()
+	g = await _new_game()
+	m = g.mera
+	m.rage = 50.0
+	m.fury = true
+	m.fury_left = 4.0
+	var mobs: Array = []
+	for i in 10:
+		var w: Node2D = g.spawn_enemy("wolf", m.global_position.x + 500.0 + i * 80.0)
+		w.cooldown = 99.0
+		mobs.append(w)
+	await physics_frame
+	await _drive(g, [[2, "l1", true], [2, "r1", true], [2, "l2", true], [2, "r2", true], [6, "l1", false], [6, "r1", false], [6, "l2", false], [6, "r2", false]], 8)
+	var nums := {}
+	for mk in g.marker.marks:
+		nums[int(mk["n"])] = true
+	_check("in Fury the same chord marks at most 9 enemies, arrows on a pad, unique directions", g.mark_lock and g.marker.arrows and g.marker.marks.size() == 9 and nums.size() == 9, "n=%d arrows=%s" % [g.marker.marks.size(), g.marker.arrows])
+	var mk0: Dictionary = g.marker.marks[0]
+	var foe: Node2D = mk0["e"]
+	var fn: int = int(mk0["n"])
+	var fhp: int = foe.hp
+	if fn == 5:
+		C.r3_pending = true
+	else:
+		C.joy_r = C.vector_for(fn)
+		C.armed = true
+	await physics_frame
+	C.joy_r = Vector2.ZERO
+	await physics_frame
+	_check("a right-stick flick in that direction deals the flat 3", foe.hp == fhp - 3 and g.marker.slashed == 1, "hp %d->%d n=%d" % [fhp, foe.hp, fn])
+	g.queue_free()
+	await physics_frame
+	C.scheme = "key"
+	C.joy_r = Vector2.ZERO
+	C.pad_keys.clear()
+	C.clear_gestures()
+	_key(KEY_1, false)
+	_key(KEY_2, false)
+	await physics_frame

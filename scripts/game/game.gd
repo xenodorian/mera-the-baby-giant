@@ -85,6 +85,8 @@ var debris: Debris
 var props: Array = []
 var secrets_found := 0
 var drops_made: Array = []           # [tier, kind] of every smart drop (tests)
+var mark_lock := false
+var marker: Node2D
 
 
 func _ready() -> void:
@@ -121,6 +123,9 @@ func _ready() -> void:
 	picker = load("res://scripts/game/ally_picker.gd").new()
 	picker.game = self
 	add_child(picker)
+	marker = load("res://scripts/game/mark_slash.gd").new()
+	marker.game = self
+	add_child(marker)
 	HitStop.clear()
 	debris = Debris.new()
 	debris.game = self
@@ -230,7 +235,7 @@ func _physics_process(delta: float) -> void:
 	if _trace and (mera.anim.key != _trace_k or (frame_n >= int(OS.get_environment("MERA_TRACE")) and frame_n < int(OS.get_environment("MERA_TRACE")) + 80)):
 		_trace_k = mera.anim.key
 		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])
-	if not test_mode:
+	if not test_mode and not mark_lock:
 		if Roster.LEVELS.has(Levels.current):
 			_manage_roster(delta)
 		else:
@@ -463,6 +468,29 @@ func _blast_props(c: Vector2, r: float, src: Node2D) -> void:
 		var reach := r * (1.8 if pr.kind == "chandelier" else 1.0)
 		if absf(pc.x - c.x) <= reach and (pr.kind == "chandelier" or pc.distance_to(c) <= reach):
 			pr.blast_hit(Props.BARREL_CHAIN_S)
+
+
+## Q+W+1+2 while Fury is on, or the meter is full: freeze the world and mark up to 9 nearest enemies.
+func begin_mark() -> bool:
+	if mark_lock or marker == null:
+		return false
+	var pool: Array = enemies()
+	if pool.is_empty():
+		return false
+	pool.sort_custom(func(a, b): return mera.global_position.distance_squared_to(a.global_position) < mera.global_position.distance_squared_to(b.global_position))
+	if pool.size() > 9:
+		pool = pool.slice(0, 9)
+	Controls.clear_gestures()
+	marker.open(pool, Controls.prompt_arrows())
+	mark_lock = true
+	world.process_mode = Node.PROCESS_MODE_DISABLED
+	return true
+
+
+func end_mark() -> void:
+	mark_lock = false
+	if world:
+		world.process_mode = Node.PROCESS_MODE_INHERIT
 
 
 # ---------------------------------------------------------------- v0.6 roster

@@ -26,6 +26,7 @@ const CONTROLS := [
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered, shots fly back, x2 counter"],
 	["Y in the bubble (rage 100 %)", "S in the bubble", "lightning strike while staying shielded"],
 	["L2 + R2 (rage 100 %)", "1 + 2", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
+	["L1+R1+L2+R2 (Fury, or meter full)", "Q+W+1+2", "freeze; slash marked enemies (number, swipe, or right stick) for 3"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
 	["Start", "Enter / F1", "this overlay (and restart after Game Over)"],

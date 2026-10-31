@@ -434,6 +434,14 @@ func _physics_process(delta: float) -> void:
 	# so a press made during the freeze is judged exactly as it would be without it
 	now += HitStop.input_dt(delta) * 1000.0
 	_poll_input()
+	if game != null and game.mark_lock:
+		for e in presses:
+			e["used"] = true
+		vel = Vector2.ZERO
+		return
+	if _try_mark():
+		vel = Vector2.ZERO
+		return
 	_step_size(delta)
 	if invuln > 0.0:
 		invuln -= delta
@@ -780,6 +788,32 @@ func _chord_convert(k: String) -> bool:
 	if into != "datk2" and not spend_stamina(into):
 		return false
 	_start_move(into)
+	return true
+
+
+## L1+R1+L2+R2 together (Q+W+1+2), while Fury is on or the meter is full: mark-slash freeze.
+func _try_mark() -> bool:
+	if game == null or state in ["dead", "gallery"]:
+		return false
+	if not fury and (rage < 100.0 or rage_spending):
+		return false
+	var got: Array = []
+	var newest := -1e9
+	for a in ["l1", "r1", "l2", "r2"]:
+		var e := _find(a, now - Tuning.MARK_CHORD_MS)
+		if e.is_empty() or not held[a]:
+			return false
+		got.append(e)
+		newest = maxf(newest, float(e["t"]))
+	for e in got:
+		if newest - float(e["t"]) > Tuning.MARK_CHORD_MS:
+			return false
+	if not game.begin_mark():
+		return false
+	for e in got:
+		_use(e)
+	if not fury:
+		start_fury()
 	return true
 
 
