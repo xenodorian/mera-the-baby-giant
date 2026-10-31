@@ -31,6 +31,27 @@ func e_half(RO, eid: String) -> float:
 	return (float(b[2]) - float(b[0])) * float(RO.def(eid)["k"]) * 0.38
 
 
+## v0.7: run an ally against one enemy for a while (eid "": nothing), Mera kept safe
+func _ally_stage(g: Node, a: Node2D, eid: String, dx: float, frames: int, force_tell: bool = false) -> void:
+	var e: Node2D = null
+	if eid != "":
+		e = g.spawn_enemy(eid, a.global_position.x + dx)
+		await physics_frame
+		await physics_frame
+	if force_tell and is_instance_valid(a) and is_instance_valid(e):
+		a.state = "idle"
+		e.cooldown = 99.0
+		e._start_tell(e.attacks[0], -1 if e.global_position.x > a.global_position.x else 1)
+	for f in frames:
+		await physics_frame
+		g.mera.invuln = 1.0
+		if not is_instance_valid(a):
+			break
+	if e != null and is_instance_valid(e):
+		g.mobs.erase(e)
+		e.queue_free()
+
+
 func _drive(g: Node, steps: Array, frames: int) -> void:
 	var m: Node = g.mera
 	for f in range(1, frames + 1):
@@ -1182,6 +1203,148 @@ func _run() -> void:
 		_check("level %d spawner: every listed enemy appears%s; no knights" % [li + 1, ", the boss guards the locked exit" if RO.BOSSES.has(li) else ""], miss.is_empty() and boss_ok and g.knight == null, "missing=%s boss=%s" % [miss, g.boss])
 		g.queue_free()
 		await process_frame
+	LV.current = 0
+	# ================================================================ v0.7 allies
+	var AL = load("res://scripts/game/allies.gd")
+	var cards_ok := true
+	for li in [1, 2, 3]:
+		var ids: Array = []
+		for pr in AL.CARDS[li]:
+			ids.append(pr[1])
+		ids.sort()
+		var want_c: Array = AL.IDS.duplicate()
+		want_c.sort()
+		if ids != want_c:
+			cards_ok = false
+	var cols := {}
+	for aid in AL.IDS:
+		cols[str(AL.COLORS[aid])] = true
+	_check("levels 2-4 each hold one colour-coded card per ally (4 distinct colours); level 1 has none", cards_ok and cols.size() == 4 and not AL.CARDS.has(0), "")
+	LV.current = 0
+	g = await _new_game()
+	_check("level 1 (cemetery) is left as is: no ally cards on the map", g.card_nodes.is_empty(), "")
+	g.queue_free()
+	await process_frame
+	LV.current = 1
+	g = await _new_game()
+	m = g.mera
+	var c0: Node2D = g.card_nodes[0]
+	var cid: String = c0.ally_id
+	m.position.x = c0.global_position.x
+	await _drive(g, [], 4)
+	_check("touching a card collects it", int(g.cards.get(cid, 0)) == 1 and not g.card_nodes.has(c0), "%s" % [g.cards])
+	await _drive(g, [[3, "r1", true], [6, "r1", false]], 10)
+	_check("R1 with one card type -> that ally is summoned at once (no picker), the card is used", g.allies().size() == 1 and g.allies()[0].id == cid and int(g.cards[cid]) == 0 and not g.picker.open, "")
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	g.cards = {"ranger": 1, "dancer": 2}
+	await _drive(g, [[3, "r1", true], [6, "r1", false]], 8)
+	var opened: bool = g.picker.open and paused and g.picker.choices == ["ranger", "dancer"]
+	g.picker.move(1)
+	g.picker.confirm()
+	await process_frame
+	await physics_frame
+	_check("R1 with several card types -> the picker opens (game paused); choosing summons that one", opened and not paused and g.allies().size() == 1 and g.allies()[0].id == "dancer" and int(g.cards["dancer"]) == 1 and int(g.cards["ranger"]) == 1, "open=%s" % opened)
+	g.queue_free()
+	await process_frame
+	# the priestess heals Mera up to 6x, with a cooldown
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 6000.0
+	g.snap_camera()
+	m.set_size(2, true)
+	g.cards = {"priestess": 1}
+	var prs: Node2D = g.summon_type("priestess")
+	await _drive(g, [], 150)
+	var healed1: bool = m.size == 6 and prs.heals == 1
+	m.set_size(2, true)
+	await _drive(g, [], 600)
+	var held_off: bool = m.size == 2 and prs.heals == 1
+	prs.heal_cd = 0.0
+	await _drive(g, [], 120)
+	_check("Water Priestess heals Mera to 6x, then waits out the %d s cooldown before healing again" % int(AL.HEAL_CD), healed1 and held_off and m.size == 6 and prs.heals == 2, "h1=%s off=%s size=%d heals=%d" % [healed1, held_off, m.size, prs.heals])
+	g.queue_free()
+	await process_frame
+	# every ally uses all her animations and the fighters hurt enemies
+	for aid in AL.IDS:
+		LV.current = 1
+		g = await _new_game()
+		m = g.mera
+		m.position.x = 6000.0
+		m.set_size(2, true)
+		g.snap_camera()
+		g.cards[aid] = 1
+		var aly: Node2D = g.summon_type(aid)
+		aly.stay = 1e9
+		await _ally_stage(g, aly, "", 0.0, 90)
+		if aid != "dancer":
+			await _ally_stage(g, aly, "mutant_toad", 500.0, 240)
+			await _ally_stage(g, aly, "mutant_toad", 130.0, 240)
+			await _ally_stage(g, aly, "flying_eye", 160.0, 200)
+			await _ally_stage(g, aly, "minotaur", 200.0, 120, true)
+			await _ally_stage(g, aly, "wolf", 220.0, 90, true)
+			m.position.x += 1500.0
+			await _ally_stage(g, aly, "", 0.0, 200)
+			var dealt: int = aly.hits_landed
+			for i in 14:
+				if is_instance_valid(aly) and aly.alive():
+					aly.state = "idle"
+					aly.take_hit(1, aly.global_position.x + 50.0)
+					await _drive(g, [], 30)
+			var miss_al: Array = []
+			for an in RO.art(aid)["anims"]:
+				if not aly.played.has(an):
+					miss_al.append(an)
+			_check("%s uses all %d animations, hits enemies (%d), falls when beaten" % [aid, RO.art(aid)["anims"].size(), dealt], miss_al.is_empty() and dealt > 0 and not aly.alive(), "missing=%s" % [miss_al])
+		else:
+			await _ally_stage(g, aly, "", 0.0, 400)
+			var miss_d: Array = []
+			for an in RO.art(aid)["anims"]:
+				if not aly.played.has(an):
+					miss_d.append(an)
+			_check("dancer uses all her animations (skip in, 4 dances)", miss_d.is_empty(), "missing=%s" % [miss_d])
+		g.queue_free()
+		await process_frame
+	# the dancing girl: non-boss enemies on screen rush over and hop; the boss ignores her; nobody attacks
+	LV.current = 3
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 12000.0
+	g.snap_camera()
+	m.set_size(4, true)
+	var watchers: Array = [g.spawn_enemy("hell_hound", 12700.0), g.spawn_enemy("fire_skull", 11300.0), g.spawn_enemy("demon", 12500.0)]
+	var drg: Node2D = g.spawn_enemy("dragon", 12900.0)
+	await _drive(g, [], 20)
+	g.cards = {"dancer": 1}
+	var dz: Node2D = g.summon_type("dancer")
+	await _drive(g, [], 300)
+	var near_ok := true
+	var hop_ok := false
+	var tells := 0
+	for w in watchers:
+		if absf(w.global_position.x - dz.global_position.x) > 420.0:
+			near_ok = false
+		if w.cheer_hops > 0 or (w.flyer and w.state == "cheer"):
+			hop_ok = true
+	await _drive(g, [], 60)
+	for w in watchers:
+		if w.state == "tell" or w.state == "atk":
+			tells += 1
+	_check("Dancing Girl: on-screen non-boss enemies gather at her side and jump up and down, no attacks", dz.dancing() and near_ok and hop_ok and tells == 0, "near=%s hop=%s tells=%d" % [near_ok, hop_ok, tells])
+	_check("...the boss is not distracted", drg.distracted_t == 0.0, "")
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	g.cards = {"brawler": 1}
+	var bz: Node2D = g.summon_type("brawler")
+	await _drive(g, [], 90)
+	bz.age = bz.stay - 0.05
+	await _drive(g, [], 10)
+	_check("allies leave when their time is up (%d s)" % int(AL.STAY_S["brawler"]), bz.state == "leave", bz.state)
+	g.queue_free()
+	await process_frame
 	LV.current = 0
 	# menu scene loads and lists the 4 levels
 	var menu: Node = load("res://scenes/menu.tscn").instantiate()

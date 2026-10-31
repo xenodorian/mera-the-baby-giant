@@ -86,6 +86,30 @@ E = {
                              "rise_clothed": ("ansimuz/cemetery-skeleton/skeleton-rise-clothed", 8, False),
                              "walk_clothed": ("ansimuz/cemetery-skeleton/Sprites/walk-clothed", 8, True)}),
 }
+WP = "chierit/water-priestess/png/"
+LR = "chierit/leaf-ranger/animations/PNG/"
+BG = "ansimuz/brawler-girl/skin-recolor/sprites/"
+DG = "ansimuz/dancing-girl/sprites/"
+# v0.7 allies (same manifest format; scripts/game/allies.gd + ally.gd)
+ALLIES = {
+    "priestess": (1, False, {"idle": (WP + "01_idle", 10, True), "walk": (WP + "02_walk", 12, True), "surf": (WP + "03_surf", 12, True),
+                             "j_up": (WP + "04_j_up", 10, True), "j_down": (WP + "05_j_down", 10, True), "tumble": (WP + "06_tumble", 14, False),
+                             "atk1": (WP + "07_1_atk", 14, False), "atk2": (WP + "08_2_atk", 16, False), "atk3": (WP + "09_3_atk", 16, False),
+                             "sp": (WP + "10_sp_atk", 16, False), "heal": (WP + "11_heal", 12, False), "defend": (WP + "12_defend", 12, False),
+                             "hit": (WP + "13_take_hit", 12, False), "death": (WP + "14_death", 12, False), "air": (WP + "air_atk", 14, False)}),
+    "ranger": (1, False, {"idle": (LR + "idle", 12, True), "run": (LR + "run", 14, True), "jump": (LR + "jump_full", 16, False),
+                          "j_up": (LR + "jump_up", 10, True), "j_down": (LR + "jump_down", 10, True), "roll": (LR + "roll", 14, False),
+                          "slide": (LR + "slide", 14, False), "slide_loop": (LR + "slide_loop", 12, True),
+                          "atk1": (LR + "1_atk", 14, False), "atk2": (LR + "2_atk", 14, False), "atk3": (LR + "3_atk", 14, False),
+                          "sp": (LR + "sp_atk", 14, False), "air": (LR + "air_atk", 18, False), "defend": (LR + "defend", 14, False),
+                          "defend_pose": (LR + "defend_pose", 1, True), "hit": (LR + "take_hit", 12, False), "death": (LR + "death", 12, False),
+                          "arrow": (LR + "projectiles_and_effects/arrow", 1, True), "arrow_hit": (LR + "projectiles_and_effects/arrow_hit", 14, False)}),
+    "brawler": (1, False, {"idle": (BG + "Idle", 8, True), "walk": (BG + "Walk", 12, True), "jab": (BG + "Jab", 12, False),
+                           "punch": (BG + "Punch", 12, False), "kick": (BG + "Kick", 12, False), "jump": (BG + "Jump", 8, False),
+                           "jump_kick": (BG + "Jump_kick", 10, False), "dive_kick": (BG + "Dive_kick", 12, False), "hurt": (BG + "Hurt", 8, False)}),
+    "dancer": (1, False, {"skip": (DG + "Skip", 10, True), "hips": (DG + "hips", 8, True), "snap": (DG + "snap", 8, True),
+                          "balancing": (DG + "Balancing", 8, True), "slide": (DG + "slide", 8, True)}),
+}
 BODY = {"death": "walk", "skeleton": "walk"}     # the hurt box / pivot comes from this animation's first frame
 FX = {"enemy_death": ("ansimuz/cemetery-enemydeath/Sprites", 12, False)}
 
@@ -120,7 +144,7 @@ def anim_entry(eid, name, src, fps, loop, flyer, pivot=None):
 
 def main():
     out = {}
-    for eid, (face, flyer, anims) in E.items():
+    for eid, (face, flyer, anims) in list(E.items()) + list(ALLIES.items()):
         e = {"facing": face, "flyer": flyer, "anims": {}}
         base = None
         first = BODY.get(eid, next(iter(anims)))
@@ -129,7 +153,7 @@ def main():
             src, fps, loop = anims[name]
             ent = anim_entry(eid, name, src, fps, loop, flyer)
             # same frame size as the first animation -> share its pivot so poses don't jump
-            if base is not None and ent["size"] == base["size"] and name != "fireball":
+            if base is not None and ent["size"] == base["size"] and name not in ("fireball", "arrow", "arrow_hit"):
                 ent = anim_entry(eid, name, src, fps, loop, flyer, base["pivot"])
             if base is None:
                 base = ent
