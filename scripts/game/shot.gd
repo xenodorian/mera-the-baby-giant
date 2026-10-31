@@ -18,6 +18,7 @@ var spr: Sprite2D
 var tex_discs: Texture2D
 var done := false
 var speed_mult := 1.0          # v0.4: B, Y fast quick fire = 2.0
+var up := false                # v0.9.1 Up+Y: the same bolt flies straight up (sprite rotated head-up)
 
 
 func speed() -> float:
@@ -43,6 +44,9 @@ func setup(g: Node, k: String, p: Vector2, d: int, s: float, sh: Dictionary, dmg
 		spr.scale = Vector2(-dir * size, size)       # sprite flies LEFT natively
 		spr.material = AnimLib.fx_mat
 		add_child(spr)
+		if up:
+			spr.scale = Vector2(size, size)          # head left ...
+			spr.rotation = PI / 2.0                  # ... turned 90 deg clockwise: head up
 	else:
 		tex_discs = AnimLib.spell_tex("discs")
 
@@ -52,17 +56,20 @@ func _physics_process(delta: float) -> void:
 		return
 	t += delta
 	if kind == "bolt":
-		position.x += dir * speed() * delta
+		if up:
+			position.y -= speed() * delta
+		else:
+			position.x += dir * speed() * delta
 		spr.frame = int(t * 1000.0 / 40.0) % spr.hframes
-		var r := Rect2(position - Vector2(5, 3) * size, Vector2(10, 6) * size)
+		var r := Rect2(position - Vector2(3, 5) * size, Vector2(6, 10) * size) if up else Rect2(position - Vector2(5, 3) * size, Vector2(10, 6) * size)
 		if damaging:
 			for e in game.enemies():
 				if e.alive() and r.intersects(e.hurt_rect()):
-					game.mera.deal(e, 1, position.x - dir * 50.0, "bolt")
+					game.mera.deal(e, 1, position.x if up else position.x - dir * 50.0, "bolt")
 					game.hit_spark(position, size)
 					queue_free()
 					return
-		if absf(position.x - game.camera_x()) > 1920.0:
+		if absf(position.x - game.camera_x()) > 1920.0 or (up and position.y < game.cam.position.y - 700.0):
 			queue_free()
 		return
 	# fireball

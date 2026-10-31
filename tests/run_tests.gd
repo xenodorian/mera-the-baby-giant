@@ -162,7 +162,7 @@ func _replay(g: Node, ev: Array, tail_ms: float = 2200.0, watch: String = "") ->
 
 
 ## N seeded human trials of one combo
-func _human_combo(name: String, steps: Array, want: Array, forbid: Array, trials: int = 8, check: Callable = Callable()) -> void:
+func _human_combo(name: String, steps: Array, want: Array, forbid: Array, trials: int = 8, check: Callable = Callable(), keys: bool = false) -> void:
 	var rng := RandomNumberGenerator.new()
 	var bad := []
 	for n in trials:
@@ -170,7 +170,7 @@ func _human_combo(name: String, steps: Array, want: Array, forbid: Array, trials
 		var g: Node = await _new_game()
 		var ev := _human_events(rng, steps)
 		var r: Dictionary = await _replay(g, ev, 2200.0, String(want[0]) if want.size() > 0 else "")
-		var log: Array = g.mera.move_log
+		var log: Array = g.mera.move_keys if keys else g.mera.move_log
 		var ok := _has_seq(log, want)
 		for f in forbid:
 			if f in log:
@@ -1880,6 +1880,7 @@ func _s4_tests() -> void:
 	await _dragon_tests()
 	await _super_quake_tests()
 	await _updater_tests()
+	await _v091_tests()
 	LVS.current = 0
 
 
@@ -2462,3 +2463,322 @@ func _mark_tests() -> void:
 	_key(KEY_1, false)
 	_key(KEY_2, false)
 	await physics_frame
+
+
+# ================================================================ v0.9.1 (owner t99u, t101u)
+## forced-input drive that also records every Mera bolt that appears: returns {bolts: [Shot], ...}
+func _vdrive(g: Node, steps: Array, frames: int, each: Callable = Callable()) -> Dictionary:
+	var m: Node = g.mera
+	var seen := {}
+	var out := {"bolts": [], "up": [], "air_bubble": 0, "max_air_vy": 0.0, "vx_bubble": []}
+	for f in range(1, frames + 1):
+		for st in steps:
+			if int(st[0]) == f:
+				m.forced[st[1]] = st[2]
+		await physics_frame
+		m.invuln = maxf(m.invuln, 0.5)
+		for c in g.world.get_children():
+			if c.get("kind") == "bolt" and c.get("speed_mult") != null and not seen.has(c.get_instance_id()):
+				seen[c.get_instance_id()] = true
+				out["bolts"].append(c)
+				if c.up:
+					out["up"].append({"node": c, "p0": c.position, "rot": c.spr.rotation, "speed": c.speed(), "mera_y": m.global_position.y})
+		if m.barrier_on and not m.on_ground:
+			out["air_bubble"] = int(out["air_bubble"]) + 1
+			out["vx_bubble"].append(m.vel.x)
+			out["max_air_vy"] = maxf(float(out["max_air_vy"]), m.vel.y)
+		if each.is_valid():
+			each.call(g, f)
+	for a in ["btn_x", "btn_y", "btn_a", "btn_b", "up", "down", "left", "right", "l2", "r2"]:
+		m.forced[a] = false
+	return out
+
+
+func _v091_tests() -> void:
+	LVS.current = 0
+	var g: Node
+	var m: Node
+	var r: Dictionary
+	var s: Array
+	# ---------------------------------------------------------------- Y chain
+	g = await _new_game(); m = g.mera
+	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y")
+	r = await _vdrive(g, s, 110)
+	var log: Array = m.move_log
+	_check("Y chain: Y Y -> quick fire, then a follow-up shot (2 bolts)", _has_seq(log, ["quick_fire", "quick_fire"]) and r["bolts"].size() == 2 and m.ychain_log.size() == 1, "log=%s bolts=%d ychain=%s" % [log, r["bolts"].size(), m.ychain_log])
+	_check("Y chain: the follow-up fires on quick-fire f14 (canon GIF frame 16), the first on f10 (GIF frame 12)", m.ychain_log.size() == 1 and int(m.ychain_log[0][1]) == 14 and int(AnimLib_fire("quick_fire")) == 10, "%s" % [m.ychain_log])
+	var b2: Node = r["bolts"][1] if r["bolts"].size() >= 2 else null
+	_check("Y chain: the follow-up is the same bolt (same speed, damage path), fired forward", b2 != null and is_instance_valid(b2) and not b2.up and b2.dir == m.facing and is_equal_approx(b2.speed(), 400.0 * m.shown), "")
+	g.queue_free(); await process_frame
+
+	g = await _new_game(); m = g.mera
+	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y"); _tap(s, 35, "btn_y")
+	r = await _vdrive(g, s, 140)
+	_check("Y chain: Y Y Y -> 3 shots, no beam", r["bolts"].size() == 3 and not ("beam_ender" in m.move_log) and m.ychain_log.size() == 2 and int(m.ychain_log[1][2]) == 3, "bolts=%d %s" % [r["bolts"].size(), m.ychain_log])
+	g.queue_free(); await process_frame
+
+	g = await _new_game(); m = g.mera
+	var st0: float = m.stamina
+	var beam_seen := {"len": 0.0, "st": -1.0}
+	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y"); _tap(s, 35, "btn_y"); _tap(s, 50, "btn_y")
+	r = await _vdrive(g, s, 260, func(gg, _f):
+		if gg.mera.anim.key == "beam_ender":
+			beam_seen["len"] = maxf(float(beam_seen["len"]), gg.mera.beam_len)
+			if float(beam_seen["st"]) < 0.0:
+				beam_seen["st"] = gg.mera.stamina)
+	_check("Y chain: Y Y Y Y -> the beam attack (the X X X Y beam_ender: same animation, 20 stamina, beam past the screen edge)", "beam_ender" in m.move_log and r["bolts"].size() == 3 and float(beam_seen["len"]) > 300.0 and absf((st0 - 15.0 - 20.0) - float(beam_seen["st"])) < 1.5, "log=%s bolts=%d beam=%s st0=%.1f" % [m.move_log, r["bolts"].size(), beam_seen, st0])
+	g.queue_free(); await process_frame
+
+	# Y Y Y, L2 -> pulse wave: knockback only (the enemies arrive after the 3 bolts are gone)
+	g = await _new_game(); m = g.mera
+	var pe := {"e1": null, "e2": null, "g1": 0.0, "g2": 0.0, "hp1": 0, "hp2": 0, "rage": 0.0}
+	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y"); _tap(s, 35, "btn_y"); _tap(s, 52, "l2", 6)
+	r = await _vdrive(g, s, 150, func(gg, f):
+		var mm: Node = gg.mera
+		if f == 58:
+			for c in gg.world.get_children():
+				if c.get("kind") == "bolt":
+					c.queue_free()                         # the 3 quick-fire bolts must not touch the test enemies
+		if f == 60:
+			pe["e1"] = gg.spawn_enemy("ogre", mm.global_position.x + mm.facing * 330.0)
+			pe["e2"] = gg.spawn_enemy("wolf", mm.global_position.x - mm.facing * 360.0)
+		if f == 61:
+			pe["g1"] = absf(pe["e1"].global_position.x - mm.global_position.x)
+			pe["g2"] = absf(pe["e2"].global_position.x - mm.global_position.x)
+			pe["hp1"] = pe["e1"].hp
+			pe["hp2"] = pe["e2"].hp
+			pe["rage"] = mm.rage
+		for k in ["e1", "e2"]:
+			if pe[k] != null and is_instance_valid(pe[k]):
+				pe[k].cooldown = 99.0)
+	var e1: Node2D = pe["e1"]
+	var e2: Node2D = pe["e2"]
+	var moved1 := absf(e1.global_position.x - m.global_position.x) - float(pe["g1"])
+	var moved2 := absf(e2.global_position.x - m.global_position.x) - float(pe["g2"])
+	_check("Y chain: Y Y Y, L2 -> pulse wave (no bubble, no lightning)", "pulse" in m.move_keys and not ("barrier" in m.move_keys) and not ("lightning" in m.move_keys) and g.pulses.size() == 1, "keys=%s pulses=%s" % [m.move_keys, g.pulses])
+	_check("Y chain: the pulse pushes enemies on both sides away (>= 120 px) and deals 0 damage (no rage)", moved1 >= 120.0 and moved2 >= 120.0 and e1.hp == int(pe["hp1"]) and e2.hp == int(pe["hp2"]) and absf(m.rage - float(pe["rage"])) < 0.01, "moved %.0f/%.0f hp %d/%d %d/%d" % [moved1, moved2, e1.hp, int(pe["hp1"]), e2.hp, int(pe["hp2"])])
+	g.queue_free(); await process_frame
+
+	# Y Y Y, X -> vertical beam: hits flyers in the column, never ground enemies
+	g = await _new_game(); m = g.mera
+	var fl: Node2D = g.spawn_enemy("flying_eye", m.global_position.x + m.facing * 10.0)
+	fl.cooldown = 99.0
+	var fl_hp: int = fl.hp
+	var gv := {"gr": null, "hp": 0}
+	var keep := func(gg, f):
+		var mm: Node = gg.mera
+		if is_instance_valid(fl):
+			fl.cooldown = 99.0
+			fl.position.x = mm.global_position.x + mm.facing * 15.0 * mm.shown
+			fl.position.y = mm.global_position.y - 520.0
+		if f == 58:
+			for c in gg.world.get_children():
+				if c.get("kind") == "bolt":
+					c.queue_free()
+		if f == 60:
+			gv["gr"] = gg.spawn_enemy("ogre", mm.global_position.x + mm.facing * 40.0)
+		if f == 61:
+			gv["hp"] = gv["gr"].hp
+		if gv["gr"] != null and is_instance_valid(gv["gr"]):
+			gv["gr"].cooldown = 99.0
+	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y"); _tap(s, 35, "btn_y"); _tap(s, 52, "btn_x")
+	var vb := {"top": 1e9, "hits": 0}
+	r = await _vdrive(g, s, 170, func(gg, f):
+		keep.call(gg, f)
+		if is_instance_valid(gg.last_vbeam):
+			vb["top"] = minf(float(vb["top"]), gg.last_vbeam.top_y)
+			vb["hits"] = gg.last_vbeam.hits)
+	_check("Y chain: Y Y Y, X -> heal pose + vertical beam (no 1x attack)", "vbeam" in m.move_keys and not ("atk1" in m.move_keys) and "heal" in m.move_log, "log=%s" % [m.move_log])
+	_check("Y chain: the vertical beam reaches above the top of the screen", float(vb["top"]) < g.cam.position.y - 540.0, "top=%.0f screen top=%.0f" % [float(vb["top"]), g.cam.position.y - 540.0])
+	var gr: Node2D = gv["gr"]
+	_check("Y chain: the vertical beam hits the flyer above her (3 x size) and not the ogre on the ground", (not is_instance_valid(fl) or fl.hp < fl_hp or fl.hp <= 0) and int(vb["hits"]) >= 1 and is_instance_valid(gr) and gr.hp == int(gv["hp"]), "fl %s gr %d/%d hits=%d" % [str(fl.hp) if is_instance_valid(fl) else "dead", gr.hp, int(gv["hp"]), int(vb["hits"])])
+	g.queue_free(); await process_frame
+
+	# Y Y, X: only after the 3rd shot -> otherwise a plain 1x attack follows
+	g = await _new_game(); m = g.mera
+	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y"); _tap(s, 40, "btn_x")
+	r = await _vdrive(g, s, 140)
+	_check("Y chain: Y Y, X -> no vertical beam (X after 2 shots is the 1x attack)", not ("vbeam" in m.move_keys) and "atk1" in m.move_keys, "keys=%s" % [m.move_keys])
+	g.queue_free(); await process_frame
+
+	# post-recovery grace: Y just after the quick fire recovered still chains; a late Y is a fresh quick fire
+	g = await _new_game(); m = g.mera
+	var fin := {"f": -1}
+	s = []; _tap(s, 5, "btn_y")
+	await _vdrive(g, s, 80, func(gg, f):
+		if int(fin["f"]) < 0 and gg.mera.state == "ground" and f > 10:
+			fin["f"] = f)
+	g.queue_free(); await process_frame
+	var rec: int = int(fin["f"])
+	g = await _new_game(); m = g.mera
+	s = []; _tap(s, 5, "btn_y"); _tap(s, rec + 6, "btn_y")
+	await _vdrive(g, s, rec + 80)
+	_check("Y chain: a Y within 220 ms after the quick fire recovered still chains (follow-up from f14)", m.ychain_log.size() == 1, "rec=%d log=%s %s" % [rec, m.move_log, m.ychain_log])
+	g.queue_free(); await process_frame
+	g = await _new_game(); m = g.mera
+	s = []; _tap(s, 5, "btn_y"); _tap(s, rec + 25, "btn_y")
+	await _vdrive(g, s, rec + 90)
+	_check("Y chain: a Y 400 ms after recovery starts a fresh quick fire (no chain)", m.ychain_log.is_empty() and m.move_keys.count("quick_fire") == 2, "log=%s %s" % [m.move_log, m.ychain_log])
+	g.queue_free(); await process_frame
+
+	# human timing
+	var Y := {"a": "btn_y"}
+	await _human_combo("Y Y Y Y -> 3 shots, then the beam", [Y, Y, Y, Y], ["quick_fire", "qf_chain", "qf_chain", "beam_ender"], ["rear_blast", "atk1", "adash"], 8, Callable(), true)
+	await _human_combo("Y Y Y, L2 -> pulse wave", [Y, Y, Y, {"a": "l2"}], ["quick_fire", "qf_chain", "qf_chain", "pulse"], ["barrier", "lightning", "beam_ender"], 8, Callable(), true)
+	await _human_combo("Y Y Y, X -> vertical beam", [Y, Y, Y, {"a": "btn_x"}], ["quick_fire", "qf_chain", "qf_chain", "vbeam"], ["atk1", "rear_blast", "beam_ender"], 8, Callable(), true)
+	await _human_combo("X X X Y still -> the beam (unchanged)", [{"a": "btn_x"}, {"a": "btn_x"}, {"a": "btn_x"}, Y], ["atk1", "atk2", "beam_ender"], ["qf_chain", "vbeam", "pulse"], 8, Callable(), true)
+
+	# ---------------------------------------------------------------- air bubble
+	g = await _new_game(); m = g.mera
+	await _vdrive(g, [], 5)
+	var x0: float = m.global_position.x
+	s = [[3, "btn_a", true], [3, "right", true], [30, "up", true], [33, "up", false], [38, "l2", true], [41, "right", false], [41, "btn_a", false], [140, "l2", false]]
+	r = await _vdrive(g, s, 170)
+	var vxs: Array = r["vx_bubble"]
+	var steady := vxs.size() > 3
+	for v in vxs:
+		if absf(float(v) - float(vxs[0])) > 0.5:
+			steady = false
+	_check("air bubble: L2 in the air raises the barrier (bubble up while airborne)", int(r["air_bubble"]) >= 6 and "barrier" in m.move_keys, "air frames=%d log=%s" % [int(r["air_bubble"]), m.move_log])
+	_check("air bubble: she keeps her running momentum after letting go of the stick (vx unchanged, not zeroed) and falls with normal gravity", steady and absf(float(vxs[-1])) > 300.0 and float(r["max_air_vy"]) > 100.0, "vx=%s max vy=%.0f" % [vxs.slice(0, 6), float(r["max_air_vy"])])
+	_check("air bubble: she lands still bubbled and stops sliding", m.on_ground and (m.barrier_on or "barrier" in m.move_keys) and absf(m.vel.x) < 1.0, "on_ground=%s vx=%.1f" % [m.on_ground, m.vel.x])
+	g.queue_free(); await process_frame
+	g = await _new_game(); m = g.mera
+	var sz0: int = m.size
+	s = [[5, "up", true], [8, "up", false], [12, "l2", true], [80, "l2", false]]
+	var blocked := {"n": 0}
+	await _vdrive(g, s, 60, func(gg, f):
+		if f == 40 and gg.mera.barrier_on and not gg.mera.on_ground:
+			gg.mera.invuln = 0.0
+			gg.mera.take_hit(1, gg.mera.global_position.x + 100.0)
+			blocked["n"] = 1)
+	_check("air bubble: still blocks hits in the air", int(blocked["n"]) == 1 and m.size == sz0, "size %d -> %d" % [sz0, m.size])
+	g.queue_free(); await process_frame
+
+	# ---------------------------------------------------------------- Up+Y vertical quick fire (t101u)
+	var up_cases := [
+		["Up+Y same frame", [[5, "up", true], [5, "btn_y", true], [9, "up", false], [9, "btn_y", false]]],
+		["Up, then Y 33 ms later", [[5, "up", true], [7, "btn_y", true], [10, "up", false], [11, "btn_y", false]]],
+		["Y, then Up 33 ms later", [[5, "btn_y", true], [7, "up", true], [9, "btn_y", false], [11, "up", false]]],
+	]
+	for c in up_cases:
+		g = await _new_game(); m = g.mera
+		var gy: float = m.global_position.y
+		var maxlift := {"v": 0.0}
+		r = await _vdrive(g, c[1], 70, func(gg, _f):
+			maxlift["v"] = maxf(float(maxlift["v"]), gy - gg.mera.global_position.y))
+		var ub: Array = r["up"]
+		_check("Up+Y: %s -> vertical quick fire (heal pose, one bolt straight up), no jump / aerial dash" % c[0], "vfire" in m.move_keys and ub.size() == 1 and r["bolts"].size() == 1 and not ("adash" in m.move_log) and not ("djump_v" in m.move_log) and m.on_ground and float(maxlift["v"]) < 40.0 * m.shown, "log=%s up=%d bolts=%d lift=%.0f" % [m.move_log, ub.size(), r["bolts"].size(), float(maxlift["v"])])
+		g.queue_free(); await process_frame
+	g = await _new_game(); m = g.mera
+	var fe: Node2D = g.spawn_enemy("flying_eye", m.global_position.x)
+	var fe_hp: int = fe.hp
+	var trace := {"y": [], "x": []}
+	r = await _vdrive(g, [[5, "up", true], [5, "btn_y", true], [9, "up", false], [9, "btn_y", false]], 130, func(gg, _f):
+		if is_instance_valid(fe):
+			fe.cooldown = 99.0
+			fe.position = Vector2(gg.mera.global_position.x + gg.mera.facing * 15.0 * gg.mera.shown, gg.mera.global_position.y - 700.0)
+			var ub = gg.last_up_bolt
+			if ub != null and is_instance_valid(ub):
+				fe.position.x += ub.position.x - fe.hurt_rect().get_center().x
+		if not r_up_empty(gg):
+			pass)
+	var u: Dictionary = r["up"][0] if r["up"].size() > 0 else {}
+	_check("Up+Y: same bolt as quick fire (400 px/s x size), rotated head-up (sprite rot 90 deg), spawned above her head", not u.is_empty() and is_equal_approx(float(u["speed"]), 400.0 * m.shown) and is_equal_approx(float(u["rot"]), PI / 2.0) and Vector2.LEFT.rotated(float(u["rot"])).y < -0.99 and float(u["p0"].y) < float(u["mera_y"]) - 55.0 * m.shown, "%s" % [u])
+	_check("Up+Y: the up bolt hits a flyer above her for the quick-fire damage (1 x size)", not is_instance_valid(fe) or fe.hp == fe_hp - 1 * m.size or fe.hp <= 0, "hp %s / %d" % [str(fe.hp) if is_instance_valid(fe) else "dead", fe_hp])
+	g.queue_free(); await process_frame
+	g = await _new_game(); m = g.mera
+	r = await _vdrive(g, [[5, "up", true], [8, "up", false], [15, "btn_y", true], [18, "btn_y", false]], 70)
+	_check("Up+Y: Up, then Y 167 ms later -> still the aerial dash (jump not converted)", "adash" in m.move_log and not ("vfire" in m.move_keys) and r["up"].is_empty(), "log=%s" % [m.move_log])
+	g.queue_free(); await process_frame
+	g = await _new_game(); m = g.mera
+	r = await _vdrive(g, [[5, "up", true], [8, "up", false]], 40)
+	_check("Up+Y: Up alone still jumps at once", "jump" in m.move_log and not ("vfire" in m.move_keys), "log=%s" % [m.move_log])
+	g.queue_free(); await process_frame
+	# keyboard: Up arrow + S
+	g = await _new_game(); m = g.mera
+	await _kdrive([], 10)
+	var nk: int = m.move_keys.size()
+	await _kdrive([[2, KEY_UP, true], [2, KEY_S, true], [6, KEY_UP, false], [6, KEY_S, false]], 50)
+	_check("keyboard: Up arrow + S -> vertical quick fire", "vfire" in m.move_keys.slice(nk) and not ("adash" in m.move_keys.slice(nk)), "%s" % [m.move_keys.slice(nk)])
+	g.queue_free(); await process_frame
+
+	# ---------------------------------------------------------------- monsters from behind (levels 2-4)
+	for L in [0, 1, 2, 3]:
+		LVS.current = L
+		g = await _new_game(true); m = g.mera
+		m.facing = 1
+		var bx := 400.0
+		var walked := []
+		for step in 70:
+			bx += 180.0
+			if bx > g.map_w - 4000.0:
+				break
+			m.position.x = bx
+			m.facing = 1
+			g.snap_camera()
+			for k in 3:
+				await physics_frame
+				m.invuln = 1.0
+			for e in g.mobs.duplicate():           # keep the screen clear so every wave spawns
+				if is_instance_valid(e) and not e.boss and not g.behind_spawns.any(func(b): return b["node"] == e):
+					g.mobs.erase(e)
+					e.queue_free()
+		var bs: Array = g.behind_spawns
+		var ok := bs.size() == (0 if L == 0 else 2)
+		for b in bs:
+			if float(b["x"]) > float(b["mera_x"]) - 960.0 or int(b["facing"]) != 1:
+				ok = false                               # off-screen behind her (she faces right: x < mera - 960)
+		_check("level %d: %d monsters come from behind (off-screen, behind her)" % [L + 1, 0 if L == 0 else 2], ok, "%s" % [bs.map(func(b): return [b["id"], int(b["x"] - b["mera_x"])])])
+		if L > 0:
+			for e in g.mobs.duplicate():
+				if is_instance_valid(e) and not e.boss:
+					g.mobs.erase(e)
+					e.queue_free()
+			m.position.x = 6000.0
+			m.facing = 1
+			g.snap_camera()
+			await physics_frame
+			var n0: int = g.behind_spawns.size()
+			for k in 8:
+				if g._spawn_next(g.Roster_list(), 0, true):
+					break
+			var ok2: bool = g.behind_spawns.size() == n0 + 1
+			var info := "no walker"
+			if ok2:
+				var bsp: Dictionary = g.behind_spawns[-1]
+				var e: Node2D = bsp["node"]
+				var d0 := absf(e.global_position.x - m.global_position.x)
+				var d1 := d0
+				for k in 150:
+					await physics_frame
+					m.invuln = 1.0
+					m.position.x = 6000.0
+					if is_instance_valid(e):
+						d1 = absf(e.global_position.x - m.global_position.x)
+				ok2 = d1 < d0 - 150.0 and float(bsp["x"]) < 6000.0 - 960.0
+				info = "%s %.0f -> %.0f" % [bsp["id"], d0, d1]
+			_check("level %d: a monster from behind starts off-screen behind her and walks in toward her" % [L + 1], ok2, info)
+		g.queue_free(); await process_frame
+	LVS.current = 0
+
+	# ---------------------------------------------------------------- export list: every runtime script is exported
+	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var missing: Array = []
+	for dir in ["res://scripts/game", "res://scripts/app"]:
+		for f in DirAccess.get_files_at(dir):
+			if f.ends_with(".gd"):
+				var path: String = dir + "/" + f
+				if ep.count("\"" + path + "\"") != 3:
+					missing.append(path)
+	if ep.count("\"res://scripts/menu.gd\"") != 3:
+		missing.append("res://scripts/menu.gd")
+	_check("export: every runtime script (scripts/game, scripts/app, menu) is in all 3 presets (v0.9.0 shipped without mark_slash.gd)", missing.is_empty(), "%s" % [missing])
+
+
+func AnimLib_fire(k: String) -> int:
+	return int(root.get_node("AnimLib").anims[k]["fire_frame"])
+
+
+func r_up_empty(_g: Node) -> bool:
+	return true

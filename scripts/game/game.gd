@@ -71,6 +71,10 @@ var wave_i := 0
 var wave_type_i := 0
 var trickle_t := 8.0
 var spawn_arg := ""
+var last_up_bolt: Node2D = null   # v0.9.1 tests
+var last_vbeam: Node2D = null
+var pulses: Array = []
+var behind_spawns: Array = []     # v0.9.1 monsters that came from behind Mera (tests)
 # v0.7 allies (scripts/game/allies.gd, ally.gd, ally_card.gd, ally_picker.gd)
 const ALLY := preload("res://scripts/game/ally.gd")
 const CARD := preload("res://scripts/game/ally_card.gd")
@@ -81,6 +85,8 @@ var picker: CanvasLayer
 var card_nodes: Array = []          # --enemy=ID: one of that enemy ahead of Mera (screenshots)
 # v0.8 (S4) impact pass, breakables, secrets, debris (scripts/game/props.gd, prop.gd, debris.gd, hit_stop.gd)
 const PROP := preload("res://scripts/game/prop.gd")
+const PULSE_FX := preload("res://scripts/game/pulse_wave.gd")   # v0.9.1
+const VBEAM := preload("res://scripts/game/vbeam.gd")
 var debris: Debris
 var props: Array = []
 var secrets_found := 0
@@ -529,11 +535,16 @@ func _manage_roster(delta: float) -> void:
 	var wx := Roster.WAVE_FIRST + wave_i * Roster.WAVE_EVERY
 	if wx < map_w - Roster.BOSS_AT and mera.global_position.x > wx - 900.0:
 		var n: int = Roster.WAVE_SIZES[wave_i % Roster.WAVE_SIZES.size()]
+		var behind: bool = wave_i in Roster.BEHIND_WAVES.get(Levels.current, [])
 		wave_i += 1
+		var jf := 0                                   # slots ahead / behind are numbered separately
 		for j in n:
 			if alive >= Roster.MAX_ALIVE:
 				break
-			_spawn_next(list, j)
+			if _spawn_next(list, jf, behind):
+				behind = false                         # one walker per listed wave comes from behind
+			else:
+				jf += 1
 			alive += 1
 	trickle_t -= delta
 	if alive == 0 and trickle_t <= 0.0:
@@ -546,14 +557,26 @@ func _manage_roster(delta: float) -> void:
 		Sfx.play("boom_big", 0.6)
 
 
-func _spawn_next(list: Array, j: int) -> void:
+## the current level's roster list (tests)
+func Roster_list() -> Array:
+	return Roster.LEVELS[Levels.current]
+
+
+## returns true when this one came from behind Mera (v0.9.1: `behind` asks for it; risers never do)
+func _spawn_next(list: Array, j: int, behind: bool = false) -> bool:
 	var eid: String = list[wave_type_i % list.size()]
 	wave_type_i += 1
-	var side := _spawn_side(mera.facing, 960.0 + 200.0)
-	var x := cam_x + side * (960.0 + 200.0 + j * 240.0)
-	if Roster.def(eid).has("spawn"):        # risers (skeleton, Death) climb out of the ground on screen
+	var riser: bool = Roster.def(eid).has("spawn")
+	var back := behind and not riser and String(Roster.def(eid).get("ai", "")) != "turret"   # it has to walk in
+	var side := _spawn_side(-mera.facing if back else mera.facing, 960.0 + 200.0)
+	back = back and side == -mera.facing    # no room behind (map end): it comes from ahead as before
+	var x := cam_x + side * (960.0 + 200.0 + (0 if back else j) * 240.0)
+	if riser:                               # risers (skeleton, Death) climb out of the ground on screen
 		x = mera.global_position.x + side * (520.0 + j * 200.0)
-	spawn_enemy(eid, x)
+	var e := spawn_enemy(eid, x)
+	if back:
+		behind_spawns.append({"id": eid, "x": x, "mera_x": mera.global_position.x, "facing": mera.facing, "level": Levels.current, "node": e})
+	return back
 
 
 ## v0.6 roster drops: a rage sphere (the enemy's "rage" %), 20 % a potion, 25 % a +30 stamina potion
@@ -834,6 +857,56 @@ func spawn_bolt(_m: Node, p: Vector2, d: int, s: float, dmg: bool, speed_mult: f
 	sh.setup(self, "bolt", p, d, s, {}, dmg)
 	sh.speed_mult = speed_mult
 	world.add_child(sh)
+
+
+## v0.9.1 Up+Y: the same quick-fire bolt (damage, speed, sprite), flying straight up
+func spawn_bolt_up(_m: Node, p: Vector2, s: float, dmg: bool) -> Node2D:
+	var sh := Shot.new()
+	sh.up = true
+	sh.setup(self, "bolt", p, 1, s, {}, dmg)
+	world.add_child(sh)
+	last_up_bolt = sh
+	return sh
+
+
+## v0.9.1 Y Y Y, L2: every enemy within reach is pushed away from Mera (bosses stay put). Knockback only: no damage,
+## no rage, no stun; a wind-up in progress is cancelled.
+func pulse_wave(m: Mera) -> Array:
+	var s := m.shown
+	var c := m.global_position + Vector2(0, -30.0 * s)
+	var reach := Tuning.PULSE_REACH * s / 2.0
+	var pushed: Array = []
+	var fx: Node2D = PULSE_FX.new()
+	fx.setup(c, reach, s)
+	world.add_child(fx)
+	shake(5.0 + s, 0.15)
+	Sfx.play("barrier", 0.7)
+	for e in enemies():
+		if not e.alive() or e.get("boss"):
+			continue
+		var d: Vector2 = e.hurt_rect().get_center() - c
+		if absf(d.x) > reach or absf(d.y) > reach:
+			continue
+		var away := 1.0 if d.x >= 0.0 else -1.0
+		var to := clampf(e.position.x + away * Tuning.PULSE_PUSH * s / 2.0, Levels.EDGE, map_w - Levels.EDGE)
+		if e.has_method("_to_idle") and String(e.get("state")) in ["tell", "atk"]:
+			e._to_idle(0.4)
+		var tw: Tween = e.create_tween()
+		tw.tween_property(e, "position:x", to, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		pushed.append(e)
+	pulses.append({"t": frame_n, "pushed": pushed.size(), "reach": reach})
+	return pushed
+
+
+## v0.9.1 Y Y Y, X: vertical anti-air beam from the raised wand
+func vertical_beam(m: Mera, p: Vector2) -> Node2D:
+	var b: Node2D = VBEAM.new()
+	world.add_child(b)
+	b.setup(self, p, m.shown)
+	last_vbeam = b
+	shake(4.0 + m.shown, 0.2)
+	Sfx.play("beam", 1.2)
+	return b
 
 
 func spawn_fireball(_m: Node, p: Vector2, d: int, s: float, shot: Dictionary, dmg: bool) -> void:

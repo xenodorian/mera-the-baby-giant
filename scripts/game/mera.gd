@@ -58,6 +58,11 @@ var flying := false
 var air_jumps := 1
 var air_dashes := 1
 var barrier_on := false
+var jump_t0 := -1e9            # v0.9.1 Up+Y: when the last ground jump started, from where, and its Up press time
+var jump_y0 := 0.0
+var jump_up_t := -1e9
+var move_keys: Array = []      # v0.9.1 every move key started (move_log has animation keys) (tests)
+var ychain_log: Array = []     # v0.9.1 Y chain: [move key, frame the shot / effect came out] (tests)
 var stamina := Tuning.STAMINA_START
 var stamina_max := Tuning.STAMINA_START
 var combo_after := {}          # a combo hit that just recovered to neutral: {from, until, x3_t} (COMBO_GRACE_MS)
@@ -598,6 +603,10 @@ func _try_ground_actions() -> bool:
 		_use(y)
 		return _stamina_move("earthquake")
 	if not y.is_empty():
+		var uu := _find("up", float(y["t"]) - CHORD_MS)
+		if not uu.is_empty():                                        # v0.9.1 Up+Y (same frame) -> vertical quick fire
+			_use(uu); _use(y)
+			return _stamina_move("vfire")
 		var xx := _find("btn_x", float(y["t"]) - CHORD_MS)
 		var aa := _find("btn_a", float(y["t"]) - CHORD_MS)
 		if not xx.is_empty():                                        # X+Y -> rear explosion
@@ -612,7 +621,10 @@ func _try_ground_actions() -> bool:
 			_start_move("datk2")
 			return true
 		_use(y)                                                      # Y -> quick fire, now
-		return _stamina_move("quick_fire")
+		var ok := _stamina_move("quick_fire")
+		if state == "move" and String(mv.get("key", "")) == "quick_fire":
+			mv["chain_since"] = float(y["t"])
+		return ok
 	if not x.is_empty():                                             # X -> 1x (combo starter), now
 		_use(x)
 		_start_move("atk1")
@@ -631,6 +643,7 @@ func _try_ground_actions() -> bool:
 		return true
 	if not up.is_empty():
 		_use(up)
+		jump_up_t = float(up["t"])
 		_jump()
 		return true
 	if _special_buttons():
@@ -697,6 +710,10 @@ func _combo_continue(x: Dictionary, y: Dictionary) -> bool:
 	var nxt := ""
 	var use_x := false
 	var use_y := false
+	if from == "ychain":
+		var n := int(combo_after["yn"])
+		var since := float(combo_after["since"])
+		return _ychain_next(n, since)        # a move that starts clears combo_after; otherwise the grace runs on
 	match from:
 		"bdodge":                    # right after the dodge: Y -> fast quick fire, X -> dodge attack
 			if not y.is_empty():
@@ -744,6 +761,77 @@ func _combo_continue(x: Dictionary, y: Dictionary) -> bool:
 	return true
 
 
+## v0.9.1 Y chain (owner t99u). `n` shots fired so far in the chain (1 = the plain quick fire), presses counted from
+## `since` (the current shot's start). Y (n < 3) -> another shot from f14; after the 3rd shot the first of
+## Y -> beam (exactly the X X X Y beam), X -> vertical beam (heal pose), L2 -> pulse wave (knockback only) wins.
+## Returns true when a new move started.
+func _ychain_next(n: int, since: float) -> bool:
+	var y := _find("btn_y", since)
+	if n < 3:
+		if y.is_empty():
+			return false
+		_use(y)
+		if not spend_stamina("quick_fire"):
+			return false
+		_start_aligned("qf_chain", Tuning.YCHAIN_START)
+		mv["yn"] = n + 1
+		mv["chain_since"] = float(y["t"])     # presses after this Y (even ones made during an earlier shot) count
+		return true
+	var x := _find("btn_x", since)
+	var l2 := _find("l2", since)
+	var pick := ""
+	var best := 1e18
+	for c in [["y", y], ["x", x], ["l2", l2]]:
+		var e: Dictionary = c[1]
+		if not e.is_empty() and float(e["t"]) < best:
+			best = float(e["t"])
+			pick = c[0]
+	match pick:
+		"y":
+			_use(y)
+			if not spend_stamina("beam_ender"):
+				return false
+			_start_aligned("beam_ender", 0)
+			ychain_log.append(["beam_ender", 0])
+			return true
+		"x":
+			_use(x)
+			if not spend_stamina("vbeam"):
+				return false
+			_start_aligned("vbeam", 0)
+			return true
+		"l2":
+			_use(l2)
+			if not spend_stamina("pulse"):
+				return false
+			_start_aligned("pulse", 0)
+			return true
+	return false
+
+
+## start a move whose first frame comes from another animation, keeping the body where it is (no visible jump)
+func _start_aligned(k: String, start: int) -> void:
+	var old_cx := _body_cx(_cur())
+	_start_move(k)
+	if start > 0:
+		anim.seek(start)
+	position.x += -facing * (old_cx - _body_cx(_cur())) * shown
+
+
+func _body_cx(f: Dictionary) -> float:
+	var b = f.get("body") if not f.is_empty() else null
+	if b == null:
+		return 0.0
+	return (float(b[0]) + float(b[2])) / 2.0
+
+
+## the heal-pose moves (vertical fire, pulse, vertical beam) end at HEAL_POSE_END, before the heal burst frames
+func _end_pose() -> void:
+	anim.section(-1, -1)
+	_root_from_body()
+	_go_neutral()
+
+
 ## X X Y Y / X X Y X: once 3x is chosen, later Y presses are swallowed (never the beam)
 func _swallow_y(t: float) -> void:
 	for e in presses:
@@ -773,6 +861,9 @@ func _chord_convert(k: String) -> bool:
 		e = _find("btn_x", since)
 		if not e.is_empty():
 			into = "rear_blast"
+		elif not _find("up", since).is_empty():             # v0.9.1 Y then Up within CHORD_MS -> vertical quick fire
+			e = _find("up", since)
+			into = "vfire"
 		elif not _find("btn_b", since).is_empty():        # Y then B within CHORD_MS -> rising slash
 			e = _find("btn_b", since)
 			into = "datk2"
@@ -881,6 +972,8 @@ func _try_fury() -> bool:
 
 
 func _jump() -> void:
+	jump_t0 = now
+	jump_y0 = position.y
 	on_ground = false
 	position.y -= 1.0
 	vel.y = -JUMP_V * shown
@@ -898,6 +991,16 @@ func _air_tick(delta: float) -> void:
 	var x := _find("btn_x")
 	var y := _find("btn_y")
 	var up := _find("up")
+	# v0.9.1 Up then Y within CHORD_MS: the jump that Up started a moment ago becomes the vertical quick fire
+	if not y.is_empty() and now - jump_t0 <= CHORD_MS and float(y["t"]) - jump_up_t <= CHORD_MS \
+			and stamina + 0.001 >= stamina_cost("vfire"):
+		_use(y)
+		jump_t0 = -1e9
+		position.y = jump_y0
+		vel = Vector2.ZERO
+		on_ground = true
+		_stamina_move("vfire")
+		return
 	if not combo_after.is_empty() and combo_after.get("from", "") == "datk2" and now <= float(combo_after["until"]):
 		if not y.is_empty():             # Y right after the rising slash -> slam (not the aerial dash)
 			_use(y)
@@ -961,13 +1064,19 @@ func _special_air() -> bool:
 			_try_fury()
 		elif now - float(r2["t"]) > CHORD_MS:
 			_use(r2)
-	elif not l2.is_empty() and not fury:
+	elif not l2.is_empty():
 		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
-		if not r2c.is_empty() or held["r2"]:
+		if not fury and (not r2c.is_empty() or held["r2"]):
 			_use(l2); _use(r2c)
 			_try_fury()
-		elif now - float(l2["t"]) > CHORD_MS:
-			_use(l2)                                     # L2 alone in the air does nothing
+		elif not flying:
+			# v0.9.1: L2 in the air raises the barrier too (tap = lightning, hold = bubble, R2 within CHORD_MS = Fury,
+			# as on the ground). She keeps falling and keeps her momentum while bubbled.
+			_use(l2)
+			_start_move("barrier")
+			if fury:
+				mv["no_tap"] = true
+			return true
 	return false
 
 
@@ -993,6 +1102,8 @@ func _on_landed() -> void:
 			Sfx.play("boom", 1.3, -4.0)
 		elif k == "datk2":
 			pass
+		elif k in ["barrier", "lightning"]:          # v0.9.1 air bubble: she lands in it and stops
+			vel.x = 0.0
 	elif state == "hurt" or state == "dead":
 		vel.y = 0.0
 
@@ -1284,12 +1395,15 @@ func _start_move(k: String) -> void:
 	match k:
 		"gdash":
 			a = "adash"
-		"lightning", "barrier":
+		"lightning", "barrier", "vfire", "pulse", "vbeam":
 			a = "heal"
+		"qf_chain":
+			a = "quick_fire"
 		"earthquake":
 			a = "roll_land"
 	mv = {"key": k, "anim": a, "dmg": DMG.get(k, 0), "hits": {}, "hitwin": false, "t0": now, "fired": false, "beam_n": 0}
 	mv.merge(extra)
+	move_keys.append(k)
 	state = "move"
 	_neutral = ""
 	if flying:
@@ -1315,15 +1429,17 @@ func _start_move(k: String) -> void:
 					game.super_earthquake()
 				else:
 					game.earthquake()
-		"quick_fire", "rear_blast":
-			Sfx.play("charge", 1.6 if k == "quick_fire" else 1.2)
+		"quick_fire", "rear_blast", "vfire":
+			Sfx.play("charge", 1.2 if k == "rear_blast" else 1.6)
 		"atk1", "atk2", "atk2_1", "atk2_2", "jatk1", "jatk2", "datk1":
 			Sfx.play("swipe", randf_range(0.95, 1.1))
-	if k in ["atk1", "quick_fire", "rear_blast", "bdodge", "heal", "lightning", "barrier", "slide", "gdash"]:
+	var keep_air := not on_ground and k in ["barrier", "lightning"]     # v0.9.1 air bubble keeps her momentum
+	if k in ["atk1", "quick_fire", "qf_chain", "rear_blast", "bdodge", "heal", "lightning", "barrier", "slide", "gdash", "vfire", "pulse", "vbeam"] and not keep_air:
 		vel.x = 0.0 if k not in ["gdash"] else vel.x
 
 
 func _chain(next: String) -> void:
+	move_keys.append(next)
 	# same combo context: frames already carry the chain's offsets, so the position stays put
 	var keep_hits := false
 	mv = {"key": next, "anim": next, "dmg": DMG.get(next, 0), "hits": {} if not keep_hits else mv["hits"], "hitwin": false,
@@ -1355,6 +1471,52 @@ func _move_tick(delta: float) -> void:
 				return
 			if on_ground:
 				vel.x = 0.0
+			if i >= Tuning.YCHAIN_FIRST_FRAME and on_ground and not flying and _ychain_next(int(mv.get("yn", 1)), float(mv.get("chain_since", mv["t0"]))):
+				return
+		"qf_chain":
+			if on_ground:
+				vel.x = 0.0
+			if i >= Tuning.YCHAIN_FIRE and not mv.get("fired", false):
+				mv["fired"] = true
+				if game:
+					game.spawn_bolt(self, art_to_world(Vector2(Tuning.YCHAIN_SPAWN[0], Tuning.YCHAIN_SPAWN[1])), facing, shown, true)
+				Sfx.play("cast", randf_range(1.0, 1.1))
+				ychain_log.append(["qf_chain", i, int(mv.get("yn", 2))])
+			if i >= Tuning.YCHAIN_NEXT_FRAME and mv.get("fired", false) and _ychain_next(int(mv.get("yn", 2)), float(mv.get("chain_since", mv["t0"]))):
+				return
+		"vfire":
+			if on_ground:
+				vel.x = 0.0
+			if i >= Tuning.VFIRE_FRAME and not mv.get("fired", false):
+				mv["fired"] = true
+				if game:
+					game.spawn_bolt_up(self, art_to_world(Vector2(Tuning.VFIRE_SPAWN[0], Tuning.VFIRE_SPAWN[1])), shown, true)
+				Sfx.play("cast", 1.15)
+				ychain_log.append(["vfire", i])
+			if i >= Tuning.HEAL_POSE_END:
+				_end_pose()
+		"pulse":
+			if on_ground:
+				vel.x = 0.0
+			if i >= 5 and not mv.get("fired", false):
+				mv["fired"] = true
+				if game:
+					game.pulse_wave(self)
+				ychain_log.append(["pulse", i])
+			if i >= Tuning.HEAL_POSE_END:
+				_end_pose()
+		"vbeam":
+			if on_ground:
+				vel.x = 0.0
+			if i >= 5 and not mv.get("fired", false):
+				mv["fired"] = true
+				mv["beam_t"] = now
+				anim.section(5, 8)                     # the raised-wand pose holds while the beam runs
+				if game:
+					game.vertical_beam(self, art_to_world(Vector2(Tuning.VFIRE_SPAWN[0], Tuning.VFIRE_SPAWN[1])))
+				ychain_log.append(["vbeam", i])
+			if mv.get("fired", false) and now - float(mv["beam_t"]) >= Tuning.VBEAM_S * 1000.0:
+				_end_pose()
 		"atk2":
 			_chain_window_2x(i)
 		"atk2_1", "atk2_2":
@@ -1660,6 +1822,8 @@ func _on_finished(k: String) -> void:
 	if key in ["atk1", "atk2", "atk2_1", "atk2_2", "bdodge"] and on_ground and not flying:
 		var grace: float = Tuning.BEAM_GRACE_MS if key in ["atk2_1", "atk2_2"] else (Tuning.DODGE_GRACE_MS if key == "bdodge" else Tuning.COMBO_GRACE_MS)
 		ca = {"from": key, "until": now + grace, "x3_t": float(mv.get("x3_t", 0.0))}
+	elif key in ["quick_fire", "qf_chain"] and on_ground and not flying:     # v0.9.1 Y chain grace
+		ca = {"from": "ychain", "until": now + Tuning.YCHAIN_GRACE_MS, "yn": int(mv.get("yn", 1)), "since": float(mv.get("chain_since", mv["t0"]))}
 	if on_ground and a.has("end_dx") and not flying:
 		position.x += -facing * float(a["end_dx"]) * shown
 		_go_neutral(int(a.get("end_idle", 0)))
