@@ -112,6 +112,9 @@ const DEFLECT_SPEED := 1.6        # a parried projectile flies back this much fa
 const DEFLECT_DMG := 3            # ... and deals this much (fixed) to the first enemy it meets
 const PARRY_KNOCK_VX := 920.0     # v0.9.1: a melee parry also shoves the attacker this fast (away from Mera)
 const SWING_PARRY_MS := 150.0     # v0.9.1: X (atk1 / jatk1) reflects a projectile if the hitbox meets it within this of going live
+# ---------------------------------------------------------------- v0.9.2 crouch bubble: free, small, 75% damage reduction, same parry as L2
+const CROUCH_BUBBLE_R := 32.0    # art px. The full barrier is ~46, fitted around the standing pose. This wraps the crouch.
+const CROUCH_BUBBLE_KEEP := 0.25  # fraction of a hit that gets through while it is held (75% reduced). A fresh crouch parries instead.
 # ---------------------------------------------------------------- v0.9.1 rising slash (datk2): windup 4x, rise 2x speed and 2x distance
 const RSLASH_WINDUP_SPEED := 4.0  # frames before the rise play at 4x (every frame is kept)
 const RSLASH_RISE_FROM := 7       # the upward burst is these frames ...

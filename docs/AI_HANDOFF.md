@@ -1,15 +1,13 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.1 Windows exe published as `v0.9.1-playable`. Linux and Android not attached._
+_Last updated: 2026-10-31, v0.9.2 crouch bubble. 411 tests. Windows exe is `v0.9.2-playable`._
 
 
-## v0.9.1 status (2026-10-31)
-PR #5 merged the combat queue onto `main` (406 tests). The Windows exe is on the GitHub release `v0.9.1-playable`:
-https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.1-playable/Mera_Playable_v0.9.1_Windows.exe
-Linux and Android are not in that release. Android version code is 12. The release keystore is not in this checkout. Screenshots of the Y chain are still outstanding.
+## v0.9.2 status (2026-10-31)
+Holding crouch raises a small free bubble (`Tuning.CROUCH_BUBBLE_R` 32 art px, `CROUCH_BUBBLE_KEEP` 0.25). A crouch started within `PARRY_MS` parries like L2 (`parry_ready` also checks `crouch_t`). After that, `take_hit` adds a quarter of the damage to `chip` and drops a size each time `chip` reaches 1. She stays crouched. No stamina. Linux and Android are still not attached. Android version code is 13.
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change. Do not leave work only on the machine.
-Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one. The v0.9.0 builds shipped without `mark_slash.gd` in the export list; that script is in all three presets now.
+Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -63,7 +61,7 @@ Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain
 | **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
 
 ## Left (see `docs/WORKFLOW.md`)
-- v0.9.1 gameplay (faster rising slash, real pause, swing parry, melee knockback, shot clashes) is on `main` and in the Windows release `v0.9.1-playable`. Linux and Android builds are still outstanding. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
+- v0.9.2 crouch bubble (free, 75% damage reduction, parries like L2 in the first 150 ms) is the current change. v0.9.1 gameplay is on `main` and in the Windows release `v0.9.1-playable`. Linux and Android builds are still outstanding. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
 - **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
 - **Every release must also attach `SHA256SUMS.txt`** (`sha256sum` over all binaries); the in-game updater refuses a release without it. Before exporting:
   - bump `application/config/version` in `project.godot`;

@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.2 (2026-10-31): crouch bubble
+Holding Down raises a small free bubble. Within `PARRY_MS` of the crouch it parries like L2. After that it keeps 25% of each hit (`chip`) and does not knock her down. Windows exe is `v0.9.2-playable`. Linux and Android are still outstanding. Android `version/code` is 13. Tests: 411 pass.
+
 ## v0.9.1 (2026-10-31): queued list implemented, Windows exe published
 PR #4 merged the Y-chain branch onto `main`. PR #5 merged the combat queue. The Windows exe is the GitHub release `v0.9.1-playable` (full release, not a pre-release), with `SHA256SUMS.txt`.
 - t108u rising slash: windup 4× (`RSLASH_WINDUP_SPEED`), rise 2× speed and distance (`RSLASH_VY` -760, frames 7–11 still at 1×).

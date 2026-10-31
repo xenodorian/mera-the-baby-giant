@@ -11,7 +11,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 |---|---|
 | D-pad Left / Right | walk, 50 px/s |
 | D-pad Up | jump, instantly (it never waits for another button). In the air: double jump. In Fury: take off and fly |
-| D-pad Down | crouch. Down + A = slide |
+| D-pad Down | crouch. Down + A = slide. **Holding crouch** (v0.9.2) raises a **small free bubble**: 75% less damage, and a crouch started within 150 ms of a hit parries like L2 (no damage, stagger, knockback, counter window, projectiles fly back) |
 | **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts). **At 100 % rage (not in Fury): SUPER EARTHQUAKE** (v0.8): impact frame, then a 2 s quake, 7 s stun, flat 2 damage to every enemy, every ground breakable on screen destroyed; spends the whole meter + 20 stamina (see GAME_RULES) |
 | **A** (hold) + direction | run, 200 px/s |
 | **B** | back dodge (free): same distance as v0.2 in half the time (800 px/s backwards, animation at 2x). Invulnerable for its first 70 %, as are the dashes |
