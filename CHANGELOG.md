@@ -2,6 +2,59 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.8-playable (2026-10-31)
+Stage S4 of `docs/WORKFLOW.md`. Pre-release with **Windows, Linux and Android (ARM) builds**. From now on every version ships a Windows `.exe` **and** an Android APK.
+
+### Impact pass
+- **Hit-stop** on every landed hit (45 ms normal, 80 ms heavy, 100 ms kill, 120 ms parry, capped at 120 ms; `HitStop` autoload). It restores `Engine.time_scale` per physics tick, and Mera's input clock keeps real time, so combo windows are unchanged.
+- **Sparks + flash** on every hit (props too); **SFX variance**: random take + ±8 % pitch on impacts.
+- **Shatter/debris sim** (`scripts/game/debris.gd`, pure GDScript, one draw call, works on Compatibility): props and dead enemies break into textured shards that fly, spin, bounce and fade.
+- **Gore** (CC0 Reactorcore gibs + blood); undead burst into bones, ghosts and flame enemies into glowing mist.
+
+### Breakables, barrels, chandeliers (levels 2-4; level 1 untouched)
+- Candles (1 hit), urns (1), crates (2), chests (3) with **smart drops** weighted by what Mera needs (size, stamina, rage).
+- **Explosive barrels:** 8 fixed damage + launch in 300 px, pierce the Fire Knight's block, **chain** to other barrels, drop chandeliers.
+- **Chandeliers** (Moonlit Town, Infernal Caverns): hit, blast or **earthquake** them down; they crush enemies below (6 damage + 2.5 s stun).
+
+### Super earthquake (t87u)
+- **Down+Y crouching with a full rage meter (outside Fury):** an anime **impact frame** (0.16 s freeze, black/white inverted silhouette, `shaders/impact_frame.gdshader`), then a **2 s** quake with a 70 px shake: grounded enemies are stunned **7 s** from its start, **every enemy takes a flat 2** (the dragon's size pool too, the Fire Knight's guard doesn't stop it), and **every ground breakable on screen** is destroyed (barrels chain, chandeliers fall).
+- Costs 20 stamina (unchanged) plus the whole meter. In Fury, or below 100 %, Down+Y is the normal quake.
+
+### Juggles
+- Launchers (`atk3`, `atk2_1`, `datk2`, explosions) throw ground enemies up; air hits keep them up with **escalating gravity** (max 8); one **ground bounce**; **wall bounce** (+1 damage).
+- **Corpse launch:** defeated enemies fly away from the killing blow, spin, and shatter where they land.
+
+### Parry (L2, no new button)
+- L2 pressed within **150 ms** before a hit: no damage, the attacker staggers 1.2 s, **0.9 s counter window (×2 damage)**; projectiles are **deflected** back.
+
+### Secrets
+- 3 of the 4 ally cards on each of levels 2-4 are hidden: behind a **cracked wall** (4 hits), behind a **door opened by a lever**, or on a **ledge** reached from a **crumbling plank** (breaks under Mera, grows back after 6 s). One-way platforms: Mera stands on them and falls off their edges.
+
+### Infernal Dragon rework (t85u)
+- **Size is health:** starts at **19x**, one size per 8 damage, down to 1x; dies when hit at 1x. Smooth size tween, feet on the ground, hit boxes scale. Damage never scales.
+- **Phases at 12x / 9x / 6x / 3x, once each** (a big hit queues every crossed one): takes off (faked flight: no wing frames in the pack), spits **5 lobbed explosive fire bolts** onto Mera (red tell + ground ring each), then **always lands**. If any bolt hurts Mera, he **grows +3 sizes** (once per phase; used thresholds stay used).
+- Boss bar shows his size ("12x") with a notch per size.
+
+### PC keyboard controls (t86u)
+- **Arrows** = d-pad, **Z** = A (Space too), **X** = B, **A** = X, **S** = Y, **Q** = L1, **W** = R1, **1** = L2, **2** = R2 (keypad 1/2 too); Enter/F1 = Start, Tab/G = Back, F2 debug, F11/Esc unchanged. The old WASD/Shift/J/K/L/U/I/O/P keys are gone.
+- Same actions as the pad, so chords (A+S, X+S, Z+S, 1+2, Down+S), L2 tap vs hold and the parry window behave identically (replayed with real key events in the tests). Menus: arrows + Z (confirm) / X (back); Z also restarts after Game Over.
+- The controls overlay shows a keyboard column next to every pad button (`previews/playable/v0.8/shot_controls_keyboard.png`). A test checks that no key is shared by two actions and none uses Esc/F11.
+
+### Balance and fixes
+- **Fire Knight:** normal hits **1** size (was 2), special **2** (was 3).
+- **Allies scale with Mera** (1.1 × her height, smoothly) instead of a fixed 4x.
+- **Dancing Girl:** natural skin tone (same 3-colour skin-ramp swap as ansimuz's Brawler Girl recolor, on copies; her yellow/olive dress is untouched). `previews/playable/v0.8/dancer_skin_before_after.png`.
+- Crate art recoloured to wood brown.
+- **Android L2 bug** (user report on v0.4 with a mobile pad: L2 raised the shield *and* fired another action with on-screen text): Android sends a digital L2/R2 as joypad buttons 15/16 and some pads' SDL mappings also put L2 onto Back/Start (gallery / controls overlay). L2/R2 now also listen to 15/16, nothing else shares a trigger axis or those buttons, and joypad Start/Select are ignored when they arrive together with trigger activity. See `docs/CONTROLS.md` "Gamepads on Android".
+- HUD: no error when the boss is freed.
+
+### Builds
+- New **Android** export preset: ARM only (arm64-v8a + armeabi-v7a, no x86), Compatibility renderer, landscape (sensor), immersive, gamepad-ready (`isGame`), package `com.merakintsugi.mera`, versionCode 8. Release-signed with a keystore kept on the build box (never in the repo).
+- A **v0.7 APK** was also built (from the v0.7 tag, unchanged gameplay) and attached to the v0.7 release.
+
+### Tests
+- **323 pass, 0 fail** (`--fixed-fps 60`): S4 adds input-map collision checks (no two actions share a joypad button/axis or a key; phantom Start/Back with L2 is dropped), keyboard replays (chords, 1 tap/hold, 1+2, Down+S, Z restart), hit-stop timing and restore, SFX jitter, corpse launch + shatter, juggles (launch, air hits, escalating gravity, ground and wall bounce), parry (timing, counter ×2, late L2, projectile), breakables, smart drops, barrel chains, chandelier crush, secret wall / door / ledge / crumbling plank, ally scaling, and the dragon (19x start, phases once each at 12/9/6/3, queued phases, +3 on a bolt hit, no re-arm, always lands, dies at 1x), and the super earthquake (impact frame before the quake, 2 s / 7 s, flat 2 to all incl. the dragon, ground props destroyed, whole meter + 20 stamina, normal quake below 100 % and in Fury).
+
 ## v0.7-playable (2026-10-31)
 Stage S3 of `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.
 

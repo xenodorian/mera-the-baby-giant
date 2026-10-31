@@ -62,6 +62,7 @@ var exit_gate: Node2D
 var test_mode_no_exit := false
 # v0.6 roster (levels 2-4; scripts/game/roster.gd, monster.gd)
 const MONSTER := preload("res://scripts/game/monster.gd")
+const DRAGON := preload("res://scripts/game/dragon.gd")
 var mobs: Array = []
 var boss: Node2D = null
 var boss_spawned := false
@@ -78,6 +79,12 @@ var allies_on: Array = []
 var summons := 0
 var picker: CanvasLayer
 var card_nodes: Array = []          # --enemy=ID: one of that enemy ahead of Mera (screenshots)
+# v0.8 (S4) impact pass, breakables, secrets, debris (scripts/game/props.gd, prop.gd, debris.gd, hit_stop.gd)
+const PROP := preload("res://scripts/game/prop.gd")
+var debris: Debris
+var props: Array = []
+var secrets_found := 0
+var drops_made: Array = []           # [tier, kind] of every smart drop (tests)
 
 
 func _ready() -> void:
@@ -114,7 +121,15 @@ func _ready() -> void:
 	picker = load("res://scripts/game/ally_picker.gd").new()
 	picker.game = self
 	add_child(picker)
+	HitStop.clear()
+	debris = Debris.new()
+	debris.game = self
+	debris.ground_y = GROUND_Y
+	debris.lo_x = Levels.EDGE - 60.0
+	debris.hi_x = map_w - Levels.EDGE + 60.0
+	world.add_child(debris)
 	_place_cards()
+	_place_props()
 	_parse_args()
 	mera.set_size(mera.size, true)
 	explored_max = mera.position.x
@@ -207,8 +222,11 @@ func _parse_args() -> void:
 
 # ---------------------------------------------------------------- frame
 func _physics_process(delta: float) -> void:
+	_menu_guard_tick()
+	_impact_tick()
 	frame_n += 1
 	_run_demo()
+	mera.ground_y = surface_under(mera.global_position, mera.ground_y)
 	if _trace and (mera.anim.key != _trace_k or (frame_n >= int(OS.get_environment("MERA_TRACE")) and frame_n < int(OS.get_environment("MERA_TRACE")) + 80)):
 		_trace_k = mera.anim.key
 		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])
@@ -311,10 +329,146 @@ func enemies() -> Array:
 	return out
 
 
+## v0.8: everything Mera's attacks can hit: live enemies + hittable props near the screen (breakables, levers ...)
+func targets() -> Array:
+	var out := enemies()
+	for p in props:
+		if is_instance_valid(p) and p.alive() and absf(p.global_position.x - cam_x) < 1500.0:
+			out.append(p)
+	return out
+
+
+# ---------------------------------------------------------------- v0.8 props, secrets, smart drops
+func _place_props() -> void:
+	var cards_by_i := {}
+	var lv_cards: Array = Allies.CARDS.get(Levels.current, [])
+	for c in card_nodes:
+		for i in lv_cards.size():
+			if absf(float(lv_cards[i][0]) - c.global_position.x) < 1.0:
+				cards_by_i[i] = c
+	var doors := {}
+	for it in Props.layout(Levels.current, map_w):
+		var pr: Node2D = PROP.new()
+		pr.setup(self, String(it[0]), float(it[1]), it[2])
+		world.add_child(pr)
+		props.append(pr)
+		var ex: Dictionary = it[2]
+		if ex.has("card") and cards_by_i.has(int(ex["card"])):
+			var cd: Node2D = cards_by_i[int(ex["card"])]
+			pr.card = cd
+			if pr.kind == "ledge":
+				cd.base_y = pr.top_y - 40.0            # on the ledge: reached by the crumbling step (or flight, or a big Mera)
+			else:
+				cd.hidden_by = pr                      # behind the cracked wall / the door
+		if pr.kind == "door":
+			doors[float(it[1])] = pr
+	for pr in props:
+		if pr.kind == "lever":
+			pr.door = doors.get(float(pr.extra["door_x"]), null)
+
+
+## a secret wall broke / a door opened: its card can be taken
+func reveal_secret(pr: Node2D) -> void:
+	secrets_found += 1
+	if pr.card != null and is_instance_valid(pr.card):
+		pr.card.hidden_by = null
+	Sfx.play("sphere", 0.6)
+	hud.flash("pickup:secret found!")
+
+
+## v0.8 one-way platforms (crumbling steps, card ledges): the surface Mera stands on or will land on at `p`
+func surface_under(p: Vector2, cur: float) -> float:
+	var best := GROUND_Y
+	for pr in props:
+		if not is_instance_valid(pr) or not pr.has_method("solid") or not pr.solid():
+			continue
+		var s3: Vector3 = pr.surface()
+		if p.x >= s3.x and p.x <= s3.y and p.y <= s3.z + 2.0 and s3.z < best:
+			best = s3.z
+	return best
+
+
+## v0.8 drop table that favours what Mera is low on (size -> green potion, stamina -> blue potion, rage -> sphere)
+func need_weights() -> Dictionary:
+	var m := mera
+	var size_need := clampf(float(Mera.SIZE_HEAL_MAX - m.size) / 5.0, 0.0, 1.0) * (1.0 if m.potions < 2 else 0.35)
+	var st_need := clampf(1.0 - m.stamina / maxf(m.stamina_max, 1.0), 0.0, 1.0)
+	var rage_need := 0.0 if m.fury else clampf(1.0 - m.rage / 100.0, 0.0, 1.0) * 0.7
+	return {"potion": 0.12 + size_need, "stamina": 0.12 + st_need, "sphere": 0.12 + rage_need}
+
+
+func _pick(w: Dictionary) -> String:
+	var tot := 0.0
+	for kk in w:
+		tot += float(w[kk])
+	var r := drop_rng.randf() * tot
+	for kk in w:
+		r -= float(w[kk])
+		if r <= 0.0:
+			return kk
+	return w.keys()[0]
+
+
+func smart_drop(p: Vector2, tier: String) -> Array:
+	var out: Array = []
+	if drop_rng.randf() > float(Props.DROP_P.get(tier, 1.0)):
+		return out
+	var w := need_weights()
+	if tier == "small":
+		w["potion"] = float(w["potion"]) * 0.25        # candles rarely drop a whole potion
+	var first := _pick(w)
+	out.append(first)
+	if tier == "big":
+		w.erase(first)
+		out.append(_pick(w))
+		if drop_rng.randf() < 0.15:
+			out.append("stamina_max")
+	var off := -50.0 * (out.size() - 1) / 2.0
+	for kd in out:
+		var pk: Pickup = Pickup.new()
+		var v := -1.0
+		if kd == "sphere":
+			v = 4.0 if tier == "small" else 8.0
+		elif kd == "stamina":
+			v = 12.0 if tier == "small" else Tuning.STAMINA_POTION
+		pk.setup(self, kd, Vector2(p.x + off, GROUND_Y) if kd != "sphere" else p + Vector2(off, 0), v)
+		world.add_child.call_deferred(pk)
+		drops_made.append([tier, kd])
+		off += 50.0
+	return out
+
+
+## an explosive barrel went off at c: fixed damage + launch in a radius (kind "explosion" pierces the Fire Knight's
+## block), other props caught in it react (barrels chain, chandeliers drop, breakables break). Mera is not hurt.
+func barrel_blast(c: Vector2, src: Node2D) -> void:
+	shake(22.0, 0.45)
+	HitStop.stop(Tuning.HITSTOP_HEAVY_MS)
+	Sfx.play("boom_big", 0.9)
+	var b := Blast.new()
+	b.setup("explosion", Vector2(c.x, GROUND_Y), 4.0)
+	world.add_child(b)
+	debris.spark(c, 5.0)
+	for e in enemies():
+		var ec: Vector2 = e.hurt_rect().get_center()
+		if ec.distance_to(c) <= Props.BARREL_R + e.hurt_rect().size.x * 0.4:
+			e.take_damage(Props.BARREL_DMG, c.x, "explosion")
+	_blast_props(c, Props.BARREL_R, src)
+
+
+func _blast_props(c: Vector2, r: float, src: Node2D) -> void:
+	for pr in props:
+		if pr == src or not is_instance_valid(pr) or not pr.alive():
+			continue
+		var pc: Vector2 = pr.hurt_rect().get_center()
+		var reach := r * (1.8 if pr.kind == "chandelier" else 1.0)
+		if absf(pc.x - c.x) <= reach and (pr.kind == "chandelier" or pc.distance_to(c) <= reach):
+			pr.blast_hit(Props.BARREL_CHAIN_S)
+
+
 # ---------------------------------------------------------------- v0.6 roster
 ## one roster enemy at x (opts: variant, seed)
 func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
-	var e: Node2D = MONSTER.new()
+	var e: Node2D = (DRAGON if eid == "dragon" else MONSTER).new()     # v0.8: the dragon has its own boss script
 	e.setup(self, eid, clampf(x, Levels.EDGE, map_w - Levels.EDGE), opts)
 	e.facing = -1 if x > mera.global_position.x else 1
 	world.add_child(e)
@@ -622,9 +776,10 @@ func collect(p: Pickup) -> void:
 		mera.potions += 1
 		Sfx.play("potion")
 	elif p.kind == "stamina":
-		mera.add_stamina(Tuning.STAMINA_POTION)
+		var amt := p.value if p.value > 0.0 else Tuning.STAMINA_POTION
+		mera.add_stamina(amt)
 		Sfx.play("potion", 1.3)
-		hud.flash("pickup:+30 stamina")
+		hud.flash("pickup:+%d stamina" % int(amt))
 	elif p.kind == "stamina_max":
 		var before := mera.stamina_max
 		mera.add_stamina_max(Tuning.STAMINA_MAX_POTION)
@@ -667,9 +822,10 @@ func explode(p: Vector2, s: float, dmg: bool) -> void:
 	Sfx.play("boom")
 	if dmg:
 		var r := Rect2(p.x - 50.0 * s, p.y - 90.0 * s, 100.0 * s, 90.0 * s)
-		for e in enemies():
+		for e in targets():
 			if r.intersects(e.hurt_rect()):
 				mera.deal(e, 3, p.x, "explosion")
+		_blast_props(p + Vector2(0, -40.0 * s), 60.0 * s, null)
 
 
 func call_lightning(m: Mera) -> void:
@@ -690,7 +846,7 @@ func call_lightning(m: Mera) -> void:
 	Sfx.play("thunder")
 	var top := cam.position.y - 540.0 - Strike.MARGIN
 	var r := Rect2(x - 40.0 * s, top, 80.0 * s, GROUND_Y + 10.0 - top)
-	for e in enemies():
+	for e in targets():
 		if r.intersects(e.hurt_rect()):
 			m.deal(e, 3, x, "lightning")
 
@@ -699,6 +855,21 @@ func hit_spark(p: Vector2, s: float) -> void:
 	var b := Blast.new()
 	b.setup("spark", p, s)
 	world.add_child(b)
+	if debris:
+		debris.spark(p, s)
+
+
+## v0.8 parry: a white-gold flash ring + sparks where the blow was turned aside
+func parry_fx(p: Vector2, s: float) -> void:
+	shake(7.0, 0.12)
+	if debris:
+		debris.spark(p, s * 2.0)
+		debris.spark(p, s * 1.2)
+	var b := Blast.new()
+	b.setup("spark", p, s * 1.8)
+	b.modulate = Color(1.6, 1.5, 1.0)
+	world.add_child(b)
+	hud.flash("parry")
 
 
 # ---------------------------------------------------------------- v0.5 earthquake
@@ -708,8 +879,77 @@ func earthquake() -> void:
 	quake_t = Tuning.QUAKE_S
 	quake_age = 0.0
 	quaked = {}
+	for pr in props:                        # v0.8: the quake shakes every chandelier on screen loose
+		if is_instance_valid(pr) and pr.kind == "chandelier" and pr.alive() and absf(pr.global_position.x - cam_x) < 1100.0:
+			pr.blast_hit(0.0)
 	Sfx.play("boom_big", 0.5, 4.0)
 	Sfx.play("thunder", 0.4, 2.0)
+
+
+# ---------------------------------------------------------------- v0.8 SUPER EARTHQUAKE
+var impact_t := 0.0             # impact frame time left (real time, counted per physics tick)
+var super_on := false           # the running quake is the super one
+var super_count := 0
+var impact_layer: CanvasLayer
+var impact_rect: ColorRect
+
+
+## Down+Y crouching with a full meter (outside Fury): impact frame, then a 2 s super quake
+func super_earthquake() -> void:
+	super_count += 1
+	impact_t = Tuning.IMPACT_FRAME_S
+	HitStop.impact(Tuning.IMPACT_FRAME_S * 1000.0)
+	_impact_show(true, 1.0)
+	Sfx.play("thunder", 0.5, 6.0)
+	Sfx.play("boom_big", 0.4, 6.0)
+
+
+func _impact_show(on: bool, inv: float) -> void:
+	if impact_layer == null:
+		impact_layer = CanvasLayer.new()
+		impact_layer.layer = 60
+		impact_rect = ColorRect.new()
+		impact_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		impact_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var mat := ShaderMaterial.new()
+		mat.shader = load("res://shaders/impact_frame.gdshader")
+		impact_rect.material = mat
+		impact_layer.add_child(impact_rect)
+		add_child(impact_layer)
+	impact_layer.visible = on
+	(impact_rect.material as ShaderMaterial).set_shader_parameter("invert", inv)
+
+
+func _impact_tick() -> void:
+	if impact_t <= 0.0:
+		return
+	impact_t -= 1.0 / float(Engine.physics_ticks_per_second)
+	if impact_t <= Tuning.IMPACT_FRAME_S * 0.4:
+		_impact_show(true, 0.0)              # second beat: plain black/white
+	if impact_t <= 0.0:
+		impact_t = 0.0
+		_impact_show(false, 0.0)
+		_super_quake_go()
+
+
+func _super_quake_go() -> void:
+	quake_t = Tuning.SUPER_QUAKE_S
+	quake_age = 0.0
+	quaked = {}
+	super_on = true
+	shake(Tuning.SUPER_QUAKE_SHAKE, 0.3)
+	Sfx.play("boom_big", 0.45, 8.0)
+	Sfx.play("thunder", 0.35, 6.0)
+	for e in enemies():                     # flat damage to every enemy, the dragon's size pool included
+		if is_instance_valid(e) and e.alive():
+			e.take_damage(Tuning.SUPER_QUAKE_DMG, mera.global_position.x, "quake")
+	for pr in props:                        # every ground breakable near the screen is destroyed (barrels chain)
+		if not is_instance_valid(pr) or not pr.alive() or absf(pr.global_position.x - cam_x) > Tuning.SUPER_QUAKE_REACH:
+			continue
+		if pr.kind == "chandelier":
+			pr.blast_hit(0.0)
+		elif pr.kind != "lever":
+			pr.take_damage(999, pr.global_position.x + randf_range(-40.0, 40.0), "explosion")
 
 
 func _quake_tick(delta: float) -> void:
@@ -717,9 +957,12 @@ func _quake_tick(delta: float) -> void:
 		return
 	quake_t -= delta
 	quake_age += delta
-	shake(Tuning.QUAKE_SHAKE, 0.05)
-	if int(quake_age * 60.0) % 6 == 0:
-		for i in 2:                      # dust bursting out of the ground across the screen (visual only)
+	shake(Tuning.SUPER_QUAKE_SHAKE if super_on else Tuning.QUAKE_SHAKE, 0.05)
+	var stun_total := Tuning.SUPER_QUAKE_STUN_S if super_on else Tuning.QUAKE_STUN_S
+	if quake_t <= 0.0:
+		super_on = false
+	if int(quake_age * 60.0) % (3 if super_on else 6) == 0:
+		for i in (4 if super_on else 2):    # dust bursting out of the ground across the screen (visual only)
 			var b := Blast.new()
 			b.setup("explosion", Vector2(cam_x + randf_range(-960.0, 960.0), GROUND_Y + 6.0), randf_range(1.5, 2.6))
 			b.modulate = Color(0.75, 0.62, 0.5, 0.8)
@@ -729,7 +972,7 @@ func _quake_tick(delta: float) -> void:
 			continue
 		if e.on_ground and e.has_method("stun"):
 			quaked[e] = true
-			e.stun(Tuning.QUAKE_STUN_S - quake_age)
+			e.stun(stun_total - quake_age)
 
 
 # ---------------------------------------------------------------- game over / input
@@ -738,13 +981,21 @@ func _on_died() -> void:
 	over_t = 0.0
 
 
+var restart_requests := 0       # tests
+
+
 func restart() -> void:
+	restart_requests += 1
+	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
+	if get_tree().current_scene == null:      # headless tests add the game under root by hand: nothing to reload
+		return
 	get_tree().reload_current_scene()
 
 
 func to_menu() -> void:
+	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
 	get_tree().change_scene_to_file("res://scenes/menu.tscn")
@@ -755,12 +1006,52 @@ func next_level() -> void:
 	restart()
 
 
+var _menu_pending := {}   # joypad Start/Select waiting out the trigger-collision guard (Controls.GUARD_FRAMES)
+
+
+func _menu_guard_tick() -> void:
+	if _menu_pending.is_empty():
+		return
+	var f: int = _menu_pending["f"]
+	if Engine.get_physics_frames() - f < Controls.GUARD_FRAMES:
+		return
+	var a: String = _menu_pending["a"]
+	_menu_pending = {}
+	if Controls.trigger_near(f):
+		menu_guard_drops += 1
+		return
+	_menu_action(a)
+
+
+var menu_guard_drops := 0
+
+
+func _menu_action(a: String) -> void:
+	if a == "start":
+		if over and over_t > 1.0:
+			restart()
+		else:
+			hud.overlay = not hud.overlay
+	elif a == "select" and not over:
+		mera.gallery_toggle()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton and (event.is_action_pressed("start") or event.is_action_pressed("select")) \
+			and not cleared and not (over and over_t > 1.0 and event.is_action_pressed("start")):
+		if not Controls.trigger_near(Engine.get_physics_frames()):
+			_menu_pending = {"a": "start" if event.is_action_pressed("start") else "select", "f": Engine.get_physics_frames()}
+		else:
+			menu_guard_drops += 1
+		return
 	if (over or cleared) and over_t > 1.0 and event.is_action_pressed("btn_b") and not event.is_echo():
 		to_menu()
 		return
 	if cleared and over_t > 1.0 and (event.is_action_pressed("btn_a") or event.is_action_pressed("start")) and not event.is_echo():
 		next_level()
+		return
+	if over and not cleared and over_t > 1.0 and event.is_action_pressed("btn_a") and not event.is_echo():
+		restart()                                   # v0.8: A (Z key) restarts too, like Start
 		return
 	if event.is_action_pressed("start") and not event.is_echo():
 		if over and over_t > 1.0:

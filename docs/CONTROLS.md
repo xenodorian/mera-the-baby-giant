@@ -12,7 +12,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | D-pad Left / Right | walk, 50 px/s |
 | D-pad Up | jump, instantly (it never waits for another button). In the air: double jump. In Fury: take off and fly |
 | D-pad Down | crouch. Down + A = slide |
-| **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts) |
+| **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts). **At 100 % rage (not in Fury): SUPER EARTHQUAKE** (v0.8): impact frame, then a 2 s quake, 7 s stun, flat 2 damage to every enemy, every ground breakable on screen destroyed; spends the whole meter + 20 stamina (see GAME_RULES) |
 | **A** (hold) + direction | run, 200 px/s |
 | **B** | back dodge (free): same distance as v0.2 in half the time (800 px/s backwards, animation at 2x). Invulnerable for its first 70 %, as are the dashes |
 | **B + Y** together (within 67 ms, either order, or one held when the other is pressed) | **rising slash** (free), in place: no dodge, no bolt |
@@ -33,6 +33,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | **L1** | heal: drink one carried green potion, +1 size (max 6x). No potion = "fail" cue, nothing happens |
 | **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
+| **L2 just before a hit** (v0.8: pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered 1.2 s, and for 0.9 s Mera's hits do ×2 (gold glow). A projectile parried in the window flies back and hits the first enemy for 3. Same button, no new input: a later press is the normal barrier/lightning |
 | **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
 | **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
@@ -42,19 +43,27 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | Start | controls overlay. Restart after Game Over |
 | Back (Share) | animation gallery (every baked animation). Left/Right = previous/next, A = replay |
 
-## Keyboard
-| Key | Pad equivalent |
-|---|---|
-| Arrows / WASD | d-pad |
-| Shift or Space | A |
-| L | B |
-| J | X |
-| K | Y |
-| U / I / O / P | L1 / R1 / L2 / R2 (so Fury = O + P) |
-| Enter or F1 | Start |
-| Tab or G | Back (gallery) |
-| F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x |
-| F11 / Esc | fullscreen / leave fullscreen, then quit |
+## Keyboard (v0.8 PC layout, user request t86u)
+Every key is just another binding of the same action, so combos, chords (67 ms window), L2 tap vs hold and the parry window behave exactly as on a pad. No key is shared between two actions (test "input map: no key is shared").
+
+| Key | Pad equivalent | Examples |
+|---|---|---|
+| Arrows | d-pad (move, Up = jump, Down = crouch) | Down + S = earthquake (super at 100 % rage) |
+| **Z** (or Space) | A | Z (hold) + arrow = run, Z+S = ground dash |
+| **X** | B | X = back dodge, X+S = rising slash |
+| **A** | X | A A A = 1x 2x 2x-2, A+S = rear explosion |
+| **S** | Y | S = quick fire |
+| **Q** | L1 | heal (potion) |
+| **W** | R1 | summon an ally |
+| **1** (or keypad 1) | L2 | tap = lightning, hold = barrier, just before a hit = parry |
+| **2** (or keypad 2) | R2 | **1 + 2** = Fury |
+| Enter or F1 | Start | controls overlay; restart after Game Over |
+| Tab or G | Back (gallery) | |
+| F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
+| F11 / Esc | fullscreen / leave fullscreen, then quit | |
+
+**Menus** (level select, ally picker, Level Clear / Game Over): arrows choose, **Z** = confirm (A), **X** = back/cancel (B); Enter also confirms. The controls overlay (Start / Enter / F1) lists the keyboard key next to every pad button.
+Until v0.7 the keys were WASD/Shift/L/J/K/U/I/O/P; those are gone (A, S, W and Q now mean pad buttons).
 
 ## v0.5 button remap: the decision
 - The user asked for lightning on L2, Fury on R2+L2, and R1 freed for allies. The barrier also lived on L2, so **L2 now does both, split by press length**:
@@ -93,3 +102,8 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 - Up + X is not a separate move. Up jumps and X then does the jump attack. Up + Y is not a ground move either: Up jumps at once, and Y in the air is the aerial dash.
 - v0.4 dodge chain (final steering): the rising slash is the **B + Y chord**, Y again gives the slam. **B, then Y** is the fast quick fire. **B, then X** is the dodge attack. The split between the two B + Y forms is the 67 ms chord window: within it you get the rising slash, after it the dodge plays and Y gives the fast quick fire.
 - Ladder, ledge and wall-jump animations only appear in the gallery, because the test level has no ladders or walls.
+
+
+## Gamepads on Android (v0.8 fix)
+- Godot's Android backend reports a **digital** L2/R2 (`KEYCODE_BUTTON_L2/R2`) as joypad **button 15/16** and the analog trigger as a **raw axis by device order**; the SDL mapping database then remaps known pads. Some cheap pads come out with L2 also mapped onto **Back** or **Start**, so one press fired the shield *and* opened the gallery or the controls overlay (the on-screen text the user saw on v0.4).
+- From v0.8: L2/R2 = trigger axes 4/5 **or** buttons 15/16, and nothing else may use those (a test checks that no two actions share a joypad button or axis direction). Joypad **Start/Select** are acted on ~100 ms (6 physics frames) later and **dropped if a trigger moved at the same moment** (`Controls.trigger_near`, `game.gd _menu_guard_tick`). Keyboard Enter/Tab are unaffected; Start on the Game Over screen restarts at once.

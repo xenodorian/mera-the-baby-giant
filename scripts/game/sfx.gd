@@ -23,7 +23,28 @@ const SOUNDS := {
 	"sphere": ["sci-fi-sounds/forceField_003.ogg", -8.0, 1.4],
 	"fury": ["sci-fi-sounds/thrusterFire_000.ogg", -4.0, 0.7],
 	"dash": ["rpg-audio/knifeSlice.ogg", -12.0, 0.6],
+	# v0.8 (S4) impact pass: more Kenney CC0 impact sounds
+	"parry": ["impact-sounds/impactBell_heavy_000.ogg", -6.0, 1.4],
+	"clang": ["impact-sounds/impactPlate_heavy_000.ogg", -5.0, 1.0],
+	"wood": ["impact-sounds/impactWood_heavy_000.ogg", -4.0, 1.0],
+	"stone": ["impact-sounds/impactMining_000.ogg", -3.0, 0.9],
+	"glass": ["impact-sounds/impactGlass_heavy_000.ogg", -6.0, 1.0],
+	"metal": ["impact-sounds/impactMetal_heavy_000.ogg", -6.0, 0.9],
+	"gore": ["impact-sounds/impactSoft_medium_000.ogg", -2.0, 0.8],
+	"plank": ["impact-sounds/impactPlank_medium_000.ogg", -4.0, 1.0],
 }
+## v0.8: alternative takes picked at random (round-robin-free variety) for the busiest impact sounds
+const VARIANTS := {
+	"hit": ["impact-sounds/impactPunch_medium_001.ogg", "impact-sounds/impactPunch_medium_002.ogg"],
+	"hit_heavy": ["impact-sounds/impactPunch_heavy_001.ogg", "impact-sounds/impactPunch_heavy_002.ogg"],
+	"wood": ["impact-sounds/impactWood_heavy_001.ogg", "impact-sounds/impactWood_heavy_002.ogg"],
+	"stone": ["impact-sounds/impactMining_001.ogg"],
+	"glass": ["impact-sounds/impactGlass_heavy_001.ogg"],
+	"clang": ["impact-sounds/impactPlate_heavy_001.ogg"],
+	"gore": ["impact-sounds/impactSoft_medium_001.ogg"],
+}
+## sounds whose pitch is jittered by +-Tuning.SFX_JITTER on every play
+const JITTER := ["hit", "hit_heavy", "block", "swipe", "claw", "boom", "wood", "stone", "glass", "metal", "gore", "plank", "clang", "hurt"]
 var _streams := {}
 var _pool: Array[AudioStreamPlayer] = []
 var fury := false
@@ -43,7 +64,9 @@ func _ready() -> void:
 	dist.post_gain = -4.0
 	AudioServer.add_bus_effect(idx, dist)
 	for n in SOUNDS:
-		_streams[n] = load(K + String(SOUNDS[n][0]))
+		_streams[n] = [load(K + String(SOUNDS[n][0]))]
+		for v in VARIANTS.get(n, []):
+			_streams[n].append(load(K + String(v)))
 	for i in 16:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
@@ -61,11 +84,13 @@ func play(name: String, pitch: float = 1.0, vol_db: float = 0.0) -> void:
 	if p == null:
 		p = _pool[0]
 	var s: Array = SOUNDS[name]
-	p.stream = _streams[name]
+	var takes: Array = _streams[name]
+	p.stream = takes[randi() % takes.size()]
 	p.volume_db = float(s[1]) + vol_db
-	p.pitch_scale = float(s[2]) * pitch * (0.72 if fury else 1.0)
+	var jit := randf_range(1.0 - Tuning.SFX_JITTER, 1.0 + Tuning.SFX_JITTER) if name in JITTER else 1.0
+	p.pitch_scale = float(s[2]) * pitch * jit * (0.72 if fury else 1.0)
 	p.bus = "Fury" if fury else "Master"
 	p.play()
-	history.append([name, p.bus, p.pitch_scale])
+	history.append([name, p.bus, p.pitch_scale, jit])
 	if history.size() > 64:
 		history.pop_front()

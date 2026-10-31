@@ -36,7 +36,7 @@ const STAMINA_MAX_POTION := 5.0   # blue-and-white potion: +5 max (and +5 now)
 
 # ---------------------------------------------------------------- knights
 const FIRE := {
-	"scale": 6.0, "hp": 20, "speed": 192.0, "dmg": 2, "sp_dmg": 3, "block": true, "special": true,
+	"scale": 6.0, "hp": 20, "speed": 192.0, "dmg": 1, "sp_dmg": 2, "block": true, "special": true,
 	"anim_speed": 1.0, "rage": 10.0, "tell": 0.4, "sp_tell": 0.7,
 }
 const BLUE := {
@@ -63,5 +63,62 @@ const BLUE_MAX_P := 0.10          # ... and, rolled independently, a +5 max-stam
 const QUAKE_S := 1.0            # the ground shakes this long
 const QUAKE_STUN_S := 5.0       # enemies touching the ground are stunned until this long after the quake started
 const QUAKE_SHAKE := 34.0       # px, re-randomised every frame (very fast, violent)
+# v0.8 SUPER EARTHQUAKE: Down+Y while crouching with a FULL rage meter, outside Fury (docs/GAME_RULES.md)
+const IMPACT_FRAME_S := 0.16     # anime impact frame: the game freezes, the screen turns to a black/white silhouette
+const SUPER_QUAKE_S := 2.0       # then the ground shakes this long ...
+const SUPER_QUAKE_STUN_S := 7.0  # ... enemies touching the ground are stunned until this long after it started ...
+const SUPER_QUAKE_SHAKE := 70.0  # ... twice the normal shake ...
+const SUPER_QUAKE_DMG := 2       # ... every enemy takes this, flat (never x Mera's size) ...
+const SUPER_QUAKE_REACH := 1920.0  # ... and every ground breakable within this of the camera centre is destroyed
 # ---------------------------------------------------------------- v0.5 L2 / R2 remap
 const L2_TAP_FRAMES := 5        # L2 released before the bubble forms (heal frame 5, 300 ms) = a tap = lightning
+
+# ---------------------------------------------------------------- v0.8 (S4) impact pass (scripts/game/hit_stop.gd)
+const HITSTOP_LIGHT_MS := 45.0    # a normal hit freezes the game this long (real time) ...
+const HITSTOP_HEAVY_MS := 80.0    # ... a heavy hit (2+ base damage, explosions, lightning) ...
+const HITSTOP_KILL_MS := 100.0    # ... a killing blow ...
+const HITSTOP_PARRY_MS := 120.0   # ... a parry
+const HITSTOP_MAX_MS := 120.0     # never longer than this, however hits overlap
+const SFX_JITTER := 0.08          # impact sounds play at a random pitch within +-8 % (and pick a random variant)
+# ---------------------------------------------------------------- v0.8 parry (L2 pressed just before a hit lands)
+const PARRY_MS := 150.0           # L2 pressed at most this long before the hit = parry (no damage)
+const PARRY_COUNTER_S := 0.9      # ... then Mera's hits do PARRY_COUNTER_MULT damage for this long ...
+const PARRY_COUNTER_MULT := 2
+const PARRY_STUN_S := 1.2         # ... and the attacker is staggered this long
+const PARRY_IFRAMES_S := 0.25
+const DEFLECT_SPEED := 1.6        # a parried projectile flies back this much faster ...
+const DEFLECT_DMG := 3            # ... and deals this much (fixed) to the first enemy it meets
+# ---------------------------------------------------------------- v0.8 juggles (monster.gd)
+const LAUNCH_VY := 1150.0         # launchers (rising slash, slam, 3x, explosions) throw ground enemies up ...
+const LAUNCH_VX := 240.0
+const JUGGLE_HIT_VY := 520.0      # ... a hit in the air pops them up again, but less each time:
+const JUGGLE_GRAVITY_STEP := 0.3  # gravity x(1 + 0.3 per juggle hit) so a juggle can't go on forever
+const JUGGLE_MAX := 8             # after this many air hits they just fall
+const GROUND_BOUNCE := 0.42       # landing faster than BOUNCE_MIN_VY bounces once at this fraction
+const BOUNCE_MIN_VY := 650.0
+const WALL_BOUNCE := 0.6          # flung into a map wall: bounce back at this fraction (1 damage)
+const CORPSE_VY := 950.0          # a defeated enemy is flung (corpse launch), then shatters on landing
+const CORPSE_VX := 620.0
+const CORPSE_MAX_S := 1.4
+# ---------------------------------------------------------------- v0.8 debris / gore
+const SHARDS_MAX := 420           # live debris pieces at most (oldest are recycled)
+const GORE := true                # gibs + blood on enemy deaths (props only shatter)
+
+# ---------------------------------------------------------------- v0.8 dragon boss (docs/GAME_RULES.md "Infernal Dragon")
+const DRAGON_START_SIZE := 19      # drawn at k = its size; its size IS its health, like Mera's
+const DRAGON_HP_PER_SIZE := 8      # damage that costs one size (a 2x Mera combo ~ 1 size)
+const DRAGON_PHASES := [12, 9, 6, 3]   # each fires once, when its size first drops to or past it
+const DRAGON_GROW := 3             # sizes regained when a phase bolt hits Mera (once per phase)
+const DRAGON_SIZE_RATE := 3.0      # size tween speed (x the gap, per second; at least 1 size/s)
+const DRAGON_FLY_H := 380.0        # take-off height (px above the ground line)
+const DRAGON_TAKEOFF_S := 0.9
+const DRAGON_LAND_S := 0.8
+const DRAGON_BOLTS := 5            # explosive fire bolts per phase ...
+const DRAGON_BOLT_TELL_S := 0.5    # ... each with a red (ranged) tell ...
+const DRAGON_BOLT_GAP_S := 0.45    # ... then this pause before the next tell
+const DRAGON_BOLT_FLIGHT_S := 1.15 # lob time from the mouth to the ground
+const DRAGON_BOLT_G := 1900.0      # bolt gravity (ballistic arc)
+const DRAGON_BOLT_SPREAD := 220.0  # aim spread around Mera (the first bolt is aimed straight at her)
+const DRAGON_BOLT_DMG := 2         # never scales with the dragon's size (enemies never scale damage)
+const DRAGON_BOLT_R := 170.0       # explosion radius
+

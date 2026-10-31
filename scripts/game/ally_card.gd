@@ -8,6 +8,8 @@ var ally_id := ""
 var t := 0.0
 var portrait: Sprite2D
 var taken := false
+var base_y := -1.0             # v0.8: a card on a ledge floats above the ledge instead of the ground
+var hidden_by: Node2D = null   # v0.8: a secret wall / door in front of it; it can't be seen or taken until revealed
 
 
 func setup(g: Node, aid: String, p: Vector2) -> void:
@@ -42,12 +44,18 @@ func rect() -> Rect2:
 
 func _process(delta: float) -> void:
 	t += delta
-	position.y = float(game.GROUND_Y) - 40.0 + sin(t * 3.0) * 8.0 if game else position.y
+	var by := base_y if base_y >= 0.0 else (float(game.GROUND_Y) - 40.0 if game else position.y)
+	position.y = by + sin(t * 3.0) * 8.0
+	visible = not hidden()
 	queue_redraw()
 
 
+func hidden() -> bool:
+	return hidden_by != null and is_instance_valid(hidden_by)
+
+
 func _physics_process(_delta: float) -> void:
-	if taken or game == null:
+	if taken or game == null or hidden():
 		return
 	if game.mera.state != "dead" and rect().intersects(game.mera.hurt_rect()):
 		taken = true

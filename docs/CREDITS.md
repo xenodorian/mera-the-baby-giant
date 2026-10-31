@@ -9,6 +9,11 @@
 | Ground Explosion and Explosions Pack VFX (Mera's spell impacts) | **ansimuz**: from the Legacy Collection; Explosions Pack is also at https://opengameart.org/content/animated-explosions | CC0 | None. `docs/licenses/ansimuz-legacy-collection-CC0.pdf`, `assets/vfx/ansimuz/SOURCES.md` |
 | Gothicvania Cemetery | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-gothicvania-cemetery-CC0.pdf` |
 | Streets of Fight (Brawler Girl, Enemy Punk, stage); Brawler Girl skin recolored by this project | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-streets-of-fight-CC0.pdf` |
+| Pixel Art Castle Tileset (parts 2/3: stone wall tiles, chandelier, chain, door, plank, flame) — v0.8 props | **rubberduck** — OpenGameArt | CC0 | None. Originals in `assets/_source/s4_free/`, cut by `tools/build_props.py` |
+| Candles, oil lamp and eye with varied stands — v0.8 candles | **vk** — OpenGameArt | CC0 | None |
+| Kings and Pigs (the box: crate, hit frame, 4 pieces; recoloured to wood brown) — v0.8 crate | **Pixel Frog** — https://pixelfrog-assets.itch.io/kings-and-pigs | CC0 | None |
+| Red Oil Barrel and Exploding Red Oil Barrel — v0.8 explosive barrel | **Jimmy D. Journey** — itch.io | CC0 | None |
+| Gore Blood Gibs Meat Chunks — v0.8 gibs and blood | **Reactorcore** — OpenGameArt | CC0 | None |
 | **Platformer Character Pack v1 (full, purchased $15 on 2026-10-30) — MAIN CHARACTER** | **Merakintsugi** — https://merakintsugi.itch.io/platformer-character-pack · merakintsugi77@gmail.com · x.com/merakintsugi77 | Custom (item page; no license file in the zip). Verbatim: "Available for both commercial and non-commercial projects. Do not resell or redistribute as game assets. They must be used only as part of a project. Credit/ Attribution is optional. Feel free to modify the assets as needed. Play around with it however you like. Use of these assets for AI training or NFT conversion is strictly prohibited." | Attribution optional (we credit anyway). **No resale/redistribution as assets; no AI training; no NFTs.** Keep this repo private. |
 | Kira – Animated Pixel Art Swordswoman — **REJECTED, not used in the game** | **Sprite Kitchen** — https://spritekitchen.itch.io/kira-animated-pixel-art-swordswoman-pack | Custom (item page) | Personal + commercial game use; edits OK; credit appreciated, not required; **no resale/redistribution/sharing/uploading of the original files as a standalone pack, even modified**; don't claim the art as your own. Page discloses **AI-assisted graphics**. |
 
@@ -41,3 +46,6 @@ Do **not** make this repo public with `assets/` inside — move raw assets to a 
 
 ## Tools
 - Godot Engine 4.7.2 — MIT license (https://godotengine.org/license).
+
+**v0.8:** the urn, chest, lever and the cracks on the secret wall are drawn in this project (`tools/build_props.py`). The debris/shatter simulation (`scripts/game/debris.gd`) is written in this project (pure GDScript, no add-on). The **Dancing Girl** has a natural-skin recolour made in this project on copies (`tools/recolor_dancer_skin.py`: the exact 3-colour skin-ramp swap ansimuz used for the Brawler Girl skin-recolor version; the originals are untouched). The dragon's lobbed bolts reuse the ansimuz hell beast fireball (CC0), tinted.
+

@@ -50,6 +50,7 @@ var _pending := {}
 var invuln := 0.0
 var potions := 1
 var rage := 0.0
+var super_quakes := 0         # v0.8 (tests)
 var rage_spending := false     # R1 drained the meter; it empties visibly first
 var fury := false
 var fury_left := 0.0
@@ -76,6 +77,12 @@ var flame_front: CPUParticles2D    # ... and an additive layer over her (both tr
 var aura_quality := 2              # caps the particle counts: see AURA_AMOUNTS
 const AURA_AMOUNTS := [[0, 0, 20], [90, 0, 30], [160, 70, 60]]   # [back flames, front flames, embers] per quality
 var barrier: Sprite2D
+# v0.8 (S4) parry: L2 pressed at most Tuning.PARRY_MS before a hit lands -> no damage, the attacker staggers,
+# projectiles fly back, and Mera's hits do double damage for a moment (the counter window)
+var last_l2_t := -1e9          # Mera.now of the latest L2 press
+var counter_until := -1e9      # Mera.now until which her hits count as counters
+var parries := 0               # tests / stats
+var deflects := 0
 var _neutral := ""
 var _hover_t := 0.0
 var _bob := 0.0
@@ -169,6 +176,8 @@ func _poll_input() -> void:
 		if (p and not held[a]) or _pending.get(a, false):
 			presses.append({"a": a, "t": now, "used": false})
 			held_since[a] = now
+			if a == "l2":
+				last_l2_t = now
 		var was: bool = held[a]
 		held[a] = p or (_pending.get(a, false) and held[a])
 		if p:
@@ -421,7 +430,9 @@ func art_to_world(p: Vector2) -> Vector2:
 
 # ---------------------------------------------------------------- main loop
 func _physics_process(delta: float) -> void:
-	now += delta * 1000.0
+	# v0.8: Mera's input clock runs on real time through a hit-stop (the world freezes, her timing windows don't),
+	# so a press made during the freeze is judged exactly as it would be without it
+	now += HitStop.input_dt(delta) * 1000.0
 	_poll_input()
 	_step_size(delta)
 	if invuln > 0.0:
@@ -431,6 +442,7 @@ func _physics_process(delta: float) -> void:
 			anim.modulate.a = 1.0
 	_fury_tick(delta)
 	_stamina_tick(delta)
+	_counter_tint()
 	aura_mat.set_shader_parameter("time_s", now / 1000.0)
 	match state:
 		"ground":
@@ -477,6 +489,10 @@ func _land_check() -> void:
 			air_dashes = 1
 			_on_landed()
 	elif not flying and state != "move":
+		if on_ground and state == "ground":      # v0.8: walked off a platform (or it crumbled): fall
+			state = "air"
+			_neutral = ""
+			_play("jump", 16)
 		on_ground = false
 
 
@@ -1259,7 +1275,12 @@ func _start_move(k: String) -> void:
 		"earthquake":
 			vel = Vector2.ZERO
 			if game:
-				game.earthquake()
+				if can_lightning():          # v0.8 full meter, outside Fury: SUPER EARTHQUAKE (spends the whole meter)
+					spend_rage()
+					super_quakes += 1
+					game.super_earthquake()
+				else:
+					game.earthquake()
 		"quick_fire", "rear_blast":
 			Sfx.play("charge", 1.6 if k == "quick_fire" else 1.2)
 		"atk1", "atk2", "atk2_1", "atk2_2", "jatk1", "jatk2", "datk1":
@@ -1392,6 +1413,15 @@ func _move_tick(delta: float) -> void:
 			else:
 				vel.x = move_toward(vel.x, 0.0, 1800.0 * shown * delta)
 		"barrier":
+			# v0.8: right after a parry, X / Y (or a direction) cut the pose short so the counter comes out at once
+			if mv.has("parry_t") and not barrier_on and on_ground:
+				var cx := _find("btn_x", float(mv["parry_t"]))
+				var cy := _find("btn_y", float(mv["parry_t"]))
+				if not cx.is_empty() or not cy.is_empty():
+					_root_from_body()
+					_go_neutral()
+					_ground_tick(delta)
+					return
 			# v0.5: R2 with L2 (chord or L2 held) -> Fury
 			var r2b := _find("r2", float(mv["t0"]) - CHORD_MS)
 			if not r2b.is_empty() and not fury:
@@ -1634,25 +1664,93 @@ func _do_hits() -> void:
 		if int(mv["beam_n"]) % BEAM_TICK == 1:
 			mv["hits"] = {}
 	var r := hit_rect()
-	for e in game.enemies():
+	for e in game.targets():
 		if mv["hits"].has(e.get_instance_id()):
 			continue
 		if e.alive() and r.intersects(e.hurt_rect()):
 			mv["hits"][e.get_instance_id()] = true
-			deal(e, dmg, global_position.x, "beam" if is_beam else "melee")
+			deal(e, dmg, global_position.x, "beam" if is_beam else LAUNCH_KINDS.get(String(mv.get("key", "")), "melee"))
 
 
-## kind: melee | bolt | beam | explosion | lightning (a blocking Fire Knight only takes explosions and Fury attacks)
+## kind: melee | bolt | beam | explosion | lightning (a blocking Fire Knight only takes explosions and Fury attacks),
+## v0.8 also launch (rising slash, 3x: throws ground enemies up) and slam (spikes airborne ones into a bounce)
 func deal(e: Node, base: int, from_x: float, kind: String = "melee") -> void:
 	var amount := base * size          # damage scales with Mera's size
+	var countered := counter_active() and kind != "beam"
+	if countered:
+		amount *= Tuning.PARRY_COUNTER_MULT
+	if e.get("is_prop"):               # v0.8 breakables: no rage, a light thud of hit-stop
+		if e.take_damage(amount, from_x, kind):
+			HitStop.stop(Tuning.HITSTOP_LIGHT_MS * 0.6)
+			if game:
+				game.hit_spark(e.hurt_rect().get_center(), shown * 0.7)
+		return
 	if not e.take_damage(amount, from_x, kind):
 		if game:
 			game.hit_spark(e.hurt_rect().get_center(), shown * 0.6)
+		HitStop.stop(Tuning.HITSTOP_LIGHT_MS * 0.5)
+		Sfx.play("clang", 1.1, -6.0)
 		return
 	add_rage(1.0)                      # small rage for every hit landed; spheres are the main source
-	Sfx.play("hit" if amount < 6 else "hit_heavy", randf_range(0.9, 1.1))
+	Sfx.play("hit" if amount < 6 else "hit_heavy", randf_range(0.95, 1.05))
 	if game:
 		game.hit_spark(e.hurt_rect().get_center(), shown)
+	# v0.8 impact: hit-stop by weight (beam ticks only stop on a kill so the beam doesn't stutter)
+	var ms := Tuning.HITSTOP_LIGHT_MS
+	if not e.alive():
+		ms = Tuning.HITSTOP_KILL_MS
+	elif kind == "beam":
+		ms = 0.0
+	elif base >= 2 or countered or kind in ["explosion", "lightning", "launch", "slam"]:
+		ms = Tuning.HITSTOP_HEAVY_MS
+	HitStop.stop(ms)
+
+
+## v0.8 moves that launch / spike enemies (monster.gd juggles)
+const LAUNCH_KINDS := {"datk2": "launch", "atk3": "launch", "datk3": "slam", "atk2_1": "launch"}
+
+
+func counter_active() -> bool:
+	return now < counter_until
+
+
+func _counter_tint() -> void:
+	var a := anim.modulate.a
+	if counter_active():
+		var q := 0.5 + 0.5 * sin(now / 40.0)
+		anim.modulate = Color(1.0 + 0.5 * q, 1.0 + 0.35 * q, 0.75, a)
+	else:
+		anim.modulate = Color(1, 1, 1, a)
+
+
+## v0.8 parry: L2 pressed at most PARRY_MS ago (the barrier pose was just raised, the bubble isn't up yet)
+func parry_ready() -> bool:
+	return state not in ["dead", "gallery", "hurt"] and not barrier_on and now - last_l2_t <= Tuning.PARRY_MS
+
+
+func _parry(src: Node, from_x: float) -> void:
+	parries += 1
+	invuln = maxf(invuln, Tuning.PARRY_IFRAMES_S)
+	counter_until = now + Tuning.PARRY_COUNTER_S * 1000.0
+	if state == "move" and String(mv.get("key", "")) == "barrier":
+		mv["parry_t"] = now
+	Sfx.play("parry")
+	Sfx.play("clang", 1.2, -2.0)
+	HitStop.stop(Tuning.HITSTOP_PARRY_MS)
+	_face(1 if from_x > global_position.x else -1)
+	if src != null and is_instance_valid(src) and src.has_method("parried"):
+		src.parried(Tuning.PARRY_STUN_S)
+	if game:
+		game.parry_fx(Vector2(global_position.x + facing * 30.0 * shown, global_position.y - 40.0 * shown), shown)
+
+
+## an enemy projectile touched her: true when it is parried (enemy_shot.gd then flies back)
+func try_parry_shot(shot: Node) -> bool:
+	if not parry_ready():
+		return false
+	deflects += 1
+	_parry(null, shot.global_position.x)
+	return true
 
 
 ## dodge i-frames: the back dodge and the dashes are invulnerable for their first 70 %
@@ -1660,8 +1758,11 @@ func dodging() -> bool:
 	return state == "move" and String(mv.get("key", "")) in DODGE_KEYS and anim.idx < int(anim.frames.size() * 0.7)
 
 
-func take_hit(dmg: int, from_x: float) -> void:
+func take_hit(dmg: int, from_x: float, src: Node = null) -> void:
 	if state == "dead" or state == "gallery" or invuln > 0.0:
+		return
+	if parry_ready():                  # v0.8 parry (before dodge / barrier: the timing is what counts)
+		_parry(src, from_x)
 		return
 	if dodging():
 		return

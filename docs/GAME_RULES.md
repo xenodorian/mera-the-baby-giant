@@ -2,7 +2,7 @@
 
 ## Size is health
 - Mera starts at **2x**. Her size is her HP (HUD: six size pips).
-- Each hit costs as many sizes as its damage: Fire Knight 2 (special 3), Blue Knight 1.
+- Each hit costs as many sizes as its damage: Fire Knight 1 (special 2; was 2/3 before v0.8), Blue Knight 1.
   The size change animates one step at a time.
 - A hit that would take her below 1x (any hit while she is at 1x) kills her. **Game Over**: Start / Enter restarts.
 - After a hit she gets **1.2 s of invulnerability** (she blinks).
@@ -29,6 +29,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | Rear explosion (slash 1, explosion AOE 3) | 1 + 3 |
 | L2-tap lightning (AOE) | 3 |
 | Earthquake (Down+Y) | 0 (5 s stun) |
+| **Super earthquake** (Down+Y at 100 % rage, v0.8) | flat 2 to every enemy (7 s stun) |
 
 ## Potions
 - Green potions lie on the ground. Walk over one to carry it (HUD: POTIONS count). She starts with 1.
@@ -81,9 +82,9 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 ## Fire Knight
 - Always **6x** (264 px tall). **Enemies never scale**, in size or in damage, whatever Mera's size.
 - **20 HP**, shown on a health bar over his head.
-- Damage to Mera (no multiplier): **2 sizes** per normal hit, **3** for the special. Touching him does no damage. A 2x Mera dies to one hit, so dodge, block or drink.
+- Damage to Mera (no multiplier): **1 size** per normal hit, **2** for the special (v0.8 balance; was 2 and 3). Touching him does no damage. A 2x Mera dies to his special or to two normal hits, so dodge, block or drink.
 - **He uses every chierit animation:**
-  - attacks: `05_1_atk` (1 swing), `06_2_atk` (3-hit string), `07_3_atk` (4-hit string), and `08_sp_atk`, the special, every 3rd attack string. The special has a longer 0.7 s white-gold tell, a charge sound and 3 damage;
+  - attacks: `05_1_atk` (1 swing), `06_2_atk` (3-hit string), `07_3_atk` (4-hit string), and `08_sp_atk`, the special, every 3rd attack string. The special has a longer 0.7 s white-gold tell, a charge sound and 2 damage;
   - `air_atk`: the jump attack;
   - `03_jump` (take-off) / `jump_up` / `jump_down` (fall + landing);
   - `04_roll`: the chase dash;
@@ -153,6 +154,17 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - Every enemy **touching the ground** at any moment of the quake is **stunned until 5 s after the quake started**. Enemies in the air when it starts are caught if they land before it ends.
 - A stunned enemy wobbles in a dazed yellow tint. It can't act, block or flinch out of it, and takes damage normally.
 
+## Super earthquake (v0.8)
+- The same input (**Down + Y while crouching**, keyboard **Down + S**) with the **rage meter at 100 %** and **not in Fury**.
+- **Cost:** the usual **20 stamina** plus **the whole rage meter** (it drains to 0 like a lightning spend). Without 20 stamina nothing happens, as for the normal quake.
+- **Impact frame:** the game freezes for **0.16 s** (`IMPACT_FRAME_S`) while the screen turns into a hard black/white silhouette: inverted first (white screen, black shapes), plain black/white for the last 40 %. It is a `HitStop.impact()` freeze (not capped at 120 ms) plus `shaders/impact_frame.gdshader` on a full-screen layer. It is skipped if hit-stop is off, but the overlay still shows.
+- **Then a 2 s quake** (`SUPER_QUAKE_S`) with a **70 px** shake (twice the normal) and twice the dust:
+  - every enemy touching the ground during it is **stunned until 7 s after the quake started** (`SUPER_QUAKE_STUN_S`; flyers are not, as with the normal quake);
+  - **every enemy** on the map takes **a flat 2 damage** (`SUPER_QUAKE_DMG`, never multiplied by Mera's size). It pierces the Fire Knight's guard. For the Infernal Dragon it is 2 toward its size pool;
+  - **every destructible ground object within 1920 px of the screen centre** is destroyed: candles, urns, crates, chests, cracked walls, and barrels, which explode and chain. Chandeliers on screen fall. Levers, planks and doors aren't destructible and stay.
+- **Fury:** during Fury the meter is the Fury timer, so it is never "full rage" and Down+Y is the **normal** quake; Fury keeps going. While the meter is still draining after a spend, it's the normal quake too.
+- Below 100 % rage nothing changes: the normal 1 s quake, rage kept.
+
 
 ## Telegraphs (v0.6): one standard for every enemy
 Every enemy attack, the knights' included, starts with a **tell**:
@@ -194,7 +206,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 | | Fire Skull | 6 | 1 | burning flight and swoop (rush). **Doused by any hit:** the no-fire skull drifts slowly for 3 s, then re-ignites |
 | | Hell Beast | 14 | 1 / 2 | idle; breath spits fireballs (ranged, 1; the fireball sprite); burn = a pillar of fire when close (heavy, 2) |
 | | Demon | 22 | 2 | hovering idle; claw attack (heavy) up close, blue fire breath (ranged) at mid range |
-| | **Infernal Dragon (boss)** | 160 | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). Appears in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
+| | **Infernal Dragon (boss)** | 19 sizes × 8 (v0.8, see below) | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). Appears in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
 
 - Every enemy dies in the ansimuz enemy-death fire puff.
 
@@ -225,4 +237,58 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 | **Water Priestess** (chierit) | blue | Surfs in. **Heals Mera back up to 6x** when she is smaller (heal animation), at most once every **30 s**. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
 | **Brawler Girl** (ansimuz, skin recolour) | orange | Jumps in. Jab → punch → kick combo; jump → jump kick → dive kick to close in or hit flyers; jumps out of rushes; hurt (also her knock-out) |
-| **Dancing Girl** (ansimuz) | pink | Skips in and dances (hips, snap, balancing, slide). **Every non-boss enemy on screen drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. **Bosses ignore her** |
+| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Skips in and dances (hips, snap, balancing, slide). **Every non-boss enemy on screen drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. **Bosses ignore her** |
+
+## Impact (v0.8)
+- **Hit-stop:** a landed hit freezes the whole game for a moment (real time): **45 ms** normal, **80 ms** heavy (2+ base damage, launchers, explosions, lightning, counter hits), **100 ms** a kill, **120 ms** a parry; never more than 120 ms (overlaps extend, never stack). Beam ticks only stop on a kill. `scripts/game/hit_stop.gd` (autoload `HitStop`) drops `Engine.time_scale` and restores it per physics tick; Mera's input clock keeps real time through it, so combo windows don't change.
+- **Flash + sparks** on every hit (props too), **SFX variance**: impact sounds pick a random take and a random pitch within ±8 %.
+- Damage to Mera's targets is unchanged.
+
+## Breakables, barrels, chandeliers (v0.8)
+Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
+
+| Prop | Hits | Drops |
+|---|---|---|
+| Candle (2 looks) | 1 | small: 70 % chance of one item (rarely a size potion; small stamina +12, small sphere +4 %) |
+| Urn | 1 | medium: 90 %, one item |
+| Crate | 2 | medium |
+| Chest | 3 | big: always two different items, 15 % a +5 max-stamina potion |
+| Explosive barrel | 1 | none: explodes |
+| Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
+
+- **Smart drops:** the item is weighted by what Mera needs: small size / few potions → green size potion, low stamina → blue stamina potion, low rage → red sphere.
+- **Explosive barrel:** **8 damage** (fixed, never × size) and a launch to every enemy within **300 px**; it pierces the Fire Knight's block (kind "explosion"); other barrels in the blast go off 0.14 s later (chains); chandeliers in range (1.8 × radius) drop; breakables in range break. Mera is not hurt.
+- **Chandelier:** hit it, blast it, or **earthquake** (Down+Y shakes loose every chandelier on screen). It falls and crushes enemies under it: **6 damage + 2.5 s stun**.
+- Destroyed props **shatter** into textured shards (`scripts/game/debris.gd`, pure GDScript, one draw call); crates also throw their 4 plank pieces.
+
+## Juggles and corpses (v0.8)
+- **Launchers:** `atk3` (3x), `atk2_1` (2x-1) and `datk2` throw ground enemies up; `datk3` is a slam (small hop on the ground, spikes an airborne enemy down); explosions (barrels, the rear blast) launch hardest. Heavier enemies fly less (mass from body height). Flyers and bosses are never launched (`Mera.LAUNCH_KINDS`, `monster.gd _juggle_hit`).
+- **Air hits** pop them up again, less each time; gravity grows **×(1 + 0.3 per air hit)**; after 8 air hits they just fall.
+- **Ground bounce:** landing fast bounces once (42 %), one more chance to juggle. **Wall bounce:** flung into a map wall they bounce back (60 %) and take **1 damage**.
+- **Corpse launch:** a defeated enemy is flung away from the killing blow (harder for explosions and launchers), spinning, and **bursts into shards + gibs and blood** where it lands (at most 1.4 s). Gore is CC0 (Reactorcore); flame and ghost enemies burst into glowing mist instead of blood.
+
+## Parry (v0.8)
+- **Press L2 at most 150 ms before a hit lands** = parry: no damage, 0.25 s i-frames, the attacker is **staggered 1.2 s** (bosses are not), and Mera gets a **0.9 s counter window: her hits do ×2** (she glows gold). A 120 ms hit-stop and a clang sell it.
+- **Projectiles** (the hell beast's fireball) parried in the window fly back 1.6× faster and hit the first enemy for 3.
+- A later L2 is just the barrier as before (blocks while held, costs stamina).
+
+## Secrets (v0.8)
+Each of levels 2-4 hides **3 of its 4 ally cards**:
+- **Cracked wall:** the card is behind it; **4 hits** (or one explosion) break it.
+- **Lever + door:** hit the lever (620 px before the door) and the door slides up.
+- **Ledge:** the card floats on a ledge **300 px** up, reached from a **crumbling plank** 150 px up (double jump at 1x). The plank shakes 0.45 s after Mera stands on it, breaks 0.3 s later, and grows back after 6 s. A big Mera or flight also reaches the ledge.
+- A found secret shows "secret found!".
+
+## Allies scale with Mera (v0.8)
+- Allies are drawn at **1.1 × Mera's current height** (never bigger than their full 4x art, never below 35 % of it) and follow her size changes smoothly.
+
+
+## Infernal Dragon (v0.8 rework)
+`scripts/game/dragon.gd` (extends `monster.gd`), bolts `scripts/game/dragon_bolt.gd`, numbers `tuning.gd` `DRAGON_*`.
+- **Size is health, like Mera's.** He starts at **19x** (drawn at k = 19) and loses **one size per 8 damage** (`DRAGON_HP_PER_SIZE`; a 2x Mera combo takes about one size), down to **1x**. A hit can never take him below 1x; **any hit at 1x kills him**. The size change is tweened; his feet stay on the ground line and his hit boxes scale with him.
+- **His damage never scales with his size** (tail 3, breath 2, bolts 2).
+- **Phases at 12x, 9x, 6x, 3x**, each **exactly once**, when his size first drops to or past it. **Choice for big hits:** a hit that skips several thresholds **queues every owed phase**, and they run back to back, each once (not just the highest).
+- **A phase:** he takes off (0.9 s up to 380 px; the ansimuz pack has **no wing frames**, so flight is faked with a lift tween + a bob and the idle frames played fast, like flapping), then spits **5 explosive fire bolts** from his mouth. Each bolt has a **red (ranged) tell**: he pulses red with the "!" for 0.5 s, then the bolt **lobs on a ballistic arc** and falls onto Mera from above (the first aimed at her, the rest within ±220 px); a red ring on the ground shows where it lands. It explodes on touching Mera or the ground (**170 px** blast, **2 damage**, fixed). Then he **lands, always** (0.8 s), and goes back to the ground fight.
+- **If any bolt hurts Mera during a phase, he grows +3 sizes** (once per phase, not per bolt; capped at 19x). Growing back never re-arms a threshold he has already used.
+- The barrier blocks bolts; a parry (L2 in the window) pops one harmlessly. The earthquake can't stun him while he flies. The Dancing Girl doesn't distract him.
+- **Boss bar:** "INFERNAL DRAGON 12x" plus a bar with one notch per size.

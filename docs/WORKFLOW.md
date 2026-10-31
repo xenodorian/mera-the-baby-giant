@@ -1,7 +1,7 @@
 # Workflow: the v0.5+ staged plan
 
 This is the working plan for the big request of 2026-10-31: level select, 4 large maps, input remap, earthquake, allies, enemy roster, and research-driven mechanics.
-Every stage ends with a tested build, a Windows exe published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
+Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 ## Stages
 | Stage | Content | Release |
@@ -10,7 +10,7 @@ Every stage ends with a tested build, a Windows exe published as a GitHub **pre-
 | **S1** | Title/level-select menu with 4 levels; 4 large native maps (no looping strip, no blurred seams); input remap (lightning L2, Fury R2+L2, R1 freed for allies, barrier relocated); Down+Y earthquake (1 s quake, 5 s stun of grounded enemies, violent map-wide shake) | **v0.5-playable** ✅ |
 | **S2** | Enemy roster, each using all its animations: minotaur (chierit), ogre, werewolf, wolf, hell hound, hell beast, demon, flying eye demon, death, nightmare, enemy ghost, fire skull, mutant toad, hell gato, skeleton, plus the boss dragon (all ansimuz). Distributed across levels 2-4. Enemies never scale in size or damage | **v0.6-playable** ✅ (+ telegraph standard, Y-in-bubble lightning) |
 | **S3** | Colour-coded ally cards on levels 2-4 (Water Priestess, Leaf Ranger, Brawler Girl skin-recolor, Dancing Girl); R1 summon, with a picker when you hold several card types; priestess heal to 6x on a cooldown; ranger/brawler fight alongside; dancing girl distracts all non-boss enemies on screen | **v0.7-playable** ✅ |
-| **S4** | From `docs/RESEARCH.md` (top-8 list): **(1)** impact pass: hit-stop, hit flash, sparks, SFX variance; **(3)** breakables (candles, urns, crates, chests) with drop tables; **(4)** explosive barrels (they pierce the Fire Knight's block) and falling chandeliers; **(5)** juggle rules: gravity scaling, wall/ground bounce, corpse toss; **(7)** a consistent telegraph standard (`AttackData`) across all enemies, folded into S2; **(8)** secret breakable walls hiding ally cards. #2 (input buffer/cancels) is done in v0.4. **(6)** parry = perfectly timed L2 barrier raise → counter window and bolt deflect (approved by the user); plus gore/gibs (CC0) and a shatter/debris sim for objects and enemies | **v0.8-playable** |
+| **S4** | From `docs/RESEARCH.md` (top-8 list): **(1)** impact pass: hit-stop, hit flash, sparks, SFX variance; **(3)** breakables (candles, urns, crates, chests) with drop tables; **(4)** explosive barrels (they pierce the Fire Knight's block) and falling chandeliers; **(5)** juggle rules: gravity scaling, wall/ground bounce, corpse toss; **(7)** a consistent telegraph standard (`AttackData`) across all enemies, folded into S2; **(8)** secret breakable walls hiding ally cards. #2 (input buffer/cancels) is done in v0.4. **(6)** parry = perfectly timed L2 barrier raise → counter window and bolt deflect (approved by the user); plus gore/gibs (CC0) and a shatter/debris sim for objects and enemies; Android APK builds; dragon boss rework (size = health, flight phases) | **v0.8-playable** ✅ |
 
 Level 1 (cemetery, Fire Knight + Blue Knights, no ally cards) stays as it is, apart from being rebuilt as a large native map.
 
@@ -26,11 +26,12 @@ Level 1 (cemetery, Fire Knight + Blue Knights, no ally cards) stays as it is, ap
 8. Export:
    - `$G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe`
    - `$G --headless --path . --export-release "Linux" build/linux/Mera_Playable.x86_64`
+   - **Android (every version from v0.8):** `source /home/box/.android-keys/release.env && $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk` (ARM only; bump `version/code` and `version/name` in the Android preset first). Check it with `aapt2 dump badging` (native-code must be only `arm64-v8a` `armeabi-v7a`).
 
    Then smoke-test the Linux build under xvfb.
 9. Commit, `git push -u origin <branch>`, `git lfs push origin <branch>`, `gh pr create --base main`, and `gh pr merge N --merge` (merge commit, never squash, never force-push).
 10. Check again that the release does not exist, then:
-    `gh release create vX.Y-playable --target main --prerelease --notes-file ... Mera_Playable_vX.Y_Windows.exe Mera_Playable_vX.Y_Linux.x86_64`
+    `gh release create vX.Y-playable --target main --prerelease --notes-file ... Mera_Playable_vX.Y_Windows.exe Mera_Playable_vX.Y_Linux.x86_64 Mera_Playable_vX.Y_Android.apk`
 11. Report: what shipped, release and exe links, screenshots, decisions, known issues.
 
 ## S4 constraints (from the research)

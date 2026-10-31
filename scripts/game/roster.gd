@@ -50,7 +50,7 @@ const DEFS := {
 		"attacks": [{"anim": "fire", "kind": "rush", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 480.0, "cd": 1.4, "mode": "contact", "vx": 800.0, "dur": 0.8}]},
 	"mutant_toad": {"k": 5.0, "hp": 8, "speed": 0.0, "ai": "hopper", "idle": "idle", "move": "idle", "hop": "jump", "rage": 5.0,
 		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 160.0, "cd": 1.2, "mode": "frames"}]},
-	"dragon": {"k": 9.0, "hp": 160, "speed": 70.0, "ai": "walker", "idle": "idle", "move": "idle", "rage": 40.0, "boss": true,
+	"dragon": {"k": 19.0, "hp": 152, "speed": 70.0, "ai": "walker", "idle": "idle", "move": "idle", "rage": 40.0, "boss": true,
 		"attacks": [{"anim": "tail", "kind": "heavy", "dmg": 3, "tell": 0.65, "near": -999.0, "far": 160.0, "cd": 1.6, "mode": "frames"},
 			{"anim": "breath", "kind": "ranged", "dmg": 2, "tell": 0.7, "near": 160.0, "far": 650.0, "cd": 1.8, "mode": "frames"}]},
 	"hell_gato": {"k": 4.0, "hp": 6, "speed": 300.0, "ai": "charger", "idle": "run", "move": "run", "rage": 4.0,
