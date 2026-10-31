@@ -80,7 +80,11 @@ E = {
     "dragon": (-1, False, {"idle": ("ansimuz/grotto-escape-2-boss-dragon/sprites/idle", 8, True),
                            "breath": ("ansimuz/grotto-escape-2-boss-dragon/sprites/breath", 8, False),
                            "tail": ("ansimuz/grotto-escape-2-boss-dragon/sprites/tail", 10, False),
-                           "spit": ("ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit", 12, False)}),
+                           "spit": ("ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit", 12, False),
+                           # v0.8.1 flight loop picked by the user: breath 1, 5, 4, 5 (plume-free copies), looped
+                           "fly": (["ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/" + f for f in
+                                    ("_0000_Layer-1.png", "_0004_Layer-5.png", "_0003_Layer-4.png", "_0004_Layer-5.png")],
+                                   11, True)}),
     "hell_gato": (-1, False, {"run": ("ansimuz/cemetery-hell-gato/Sprites", 10, True)}),
     "skeleton": (-1, False, {"rise": ("ansimuz/cemetery-skeleton/skeleton-rise", 8, False),
                              "walk": ("ansimuz/cemetery-skeleton/Sprites/Walk", 8, True),
@@ -124,6 +128,8 @@ def bbox(path):
 def anim_entry(eid, name, src, fps, loop, flyer, pivot=None):
     if isinstance(src, tuple):
         files = cut_sheet(src[1], src[2], eid, name)
+    elif isinstance(src, list):                 # an explicit frame list (paths under assets/characters/), repeats allowed
+        files = [os.path.join(CH, f) for f in src]
     else:
         files = frames_in(src)
     size, b0 = bbox(files[0])

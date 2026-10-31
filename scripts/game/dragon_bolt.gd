@@ -16,12 +16,12 @@ var done := false
 var hurt_mera := false
 
 
-func setup(g: Node, dr: Node2D, p: Vector2, tgt: Vector2) -> void:
+func setup(g: Node, dr: Node2D, p: Vector2, tgt: Vector2, flight_s: float = -1.0) -> void:
 	game = g
 	dragon = dr
 	position = p
 	target = tgt
-	var T := Tuning.DRAGON_BOLT_FLIGHT_S
+	var T := Tuning.DRAGON_BOLT_FLIGHT_S if flight_s <= 0.0 else flight_s     # ballistic solve: lands on tgt after T
 	var G := Tuning.DRAGON_BOLT_G
 	vel = Vector2((tgt.x - p.x) / T, (tgt.y - p.y - 0.5 * G * T * T) / T)
 
