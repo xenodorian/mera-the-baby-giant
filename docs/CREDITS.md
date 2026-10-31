@@ -20,7 +20,8 @@
 ## Made in this project
 Procedural pixel art drawn by `tools/export_game_anims.py` and `tools/tess_spells.py` in the hero/explosion palette: the tessellating beam and lightning segments, the spherical barrier, the green potion flask, the red rage sphere and the quick-fire bolt. Also the looping cemetery strips (`tools/make_loop_bg.py`, built from ansimuz Gothicvania Cemetery copies with blurred seams).
 The playable level also uses ansimuz **Grotto Escape 2 FX** `electro-shock.png`, recoloured to the warm palette by a shader (CC0, Legacy Collection), for the lightning impact.
-The Fury flame aura (`shaders/fury_flame*.gdshader`) and the dash afterimages are made in this project too.
+The Fury flame aura (v0.4: CPU particles with a procedural flame-tongue texture, `Mera._make_flame`), the dash afterimages and the blue/blue-and-white stamina potions are made in this project too.
+The **Blue Knight** is chierit's Fire Knight (CC-BY 4.0) recoloured at runtime by `shaders/knight_blue.gdshader`; the original sheets are not modified. Credit: chierit.
 
 ## Suggested credits text
 > Main character art: Merakintsugi (merakintsugi.itch.io).

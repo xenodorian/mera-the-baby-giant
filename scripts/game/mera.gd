@@ -21,11 +21,10 @@ const JUMP_V := 520.0
 const SIZE_MIN := 1
 const SIZE_HEAL_MAX := 6
 const SIZE_DEBUG_MAX := 19
-const CHORD_MS := 50.0        # simultaneous-press window (X+Y, A+Y, Up+...)
-const HOLD_MS := 180.0        # "XX hold X": third X held this long -> 2x-1
-const BUFFER_MS := 450.0      # how long a press stays buffered for a chain
+const CHORD_MS := Tuning.CHORD_MS      # v0.4: input windows live in scripts/game/tuning.gd (docs/CONTROLS.md)
+const HOLD_MS := Tuning.HOLD_MS
+const BUFFER_MS := Tuning.BUFFER_MS
 const IFRAMES := 1.2
-const BEAM_Y_MS := 300.0     # X X X Y: the Y may come up to this long after the third X
 const R1_COST := 100.0      # the lightning strike needs a full meter and spends all of it
 const DODGE_KEYS := ["bdodge", "gdash", "adash"]
 const FURY_TIME := 12.0
@@ -58,6 +57,9 @@ var flying := false
 var air_jumps := 1
 var air_dashes := 1
 var barrier_on := false
+var stamina := Tuning.STAMINA_START
+var stamina_max := Tuning.STAMINA_START
+var combo_after := {}          # a combo hit that just recovered to neutral: {from, until, x3_t} (COMBO_GRACE_MS)
 var debug := false
 var gallery_idx := 0
 var move_log: Array = []      # keys of every move/animation started (tests)
@@ -69,10 +71,10 @@ var hurtbox: Area2D
 var hitbox: Area2D
 var aura_mat: ShaderMaterial
 var aura_fx: CPUParticles2D
-var flame_back: Sprite2D           # Kaioken-style Fury flame (shaders/fury_flame.gdshader): behind her ...
-var flame_front: Sprite2D          # ... and thin additive tongues over her; children of anim so they scale/flip/tilt
-var aura_quality := 2              # 2 = both flame layers + 90 embers, 1 = back flame + 45 embers, 0 = outline + 20 embers
-const FLAME_SIZE := Vector2(84, 124)
+var flame_back: CPUParticles2D     # v0.4 Fury aura: world-space flame tongues behind her ...
+var flame_front: CPUParticles2D    # ... and an additive layer over her (both trail behind when she moves)
+var aura_quality := 2              # caps the particle counts: see AURA_AMOUNTS
+const AURA_AMOUNTS := [[0, 0, 20], [90, 0, 30], [160, 70, 60]]   # [back flames, front flames, embers] per quality
 var barrier: Sprite2D
 var _neutral := ""
 var _hover_t := 0.0
@@ -103,31 +105,15 @@ func _ready() -> void:
 	barrier.material = AnimLib.fx_mat
 	barrier.visible = false
 	add_child(barrier)
-	var blank := Image.create(int(FLAME_SIZE.x), int(FLAME_SIZE.y), false, Image.FORMAT_L8)
-	blank.fill(Color.WHITE)
-	var btex := ImageTexture.create_from_image(blank)
-	var fsh: Shader = load("res://shaders/fury_flame.gdshader")
-	for k in 2:
-		var sp := Sprite2D.new()
-		sp.texture = btex
-		sp.centered = false
-		var mat := ShaderMaterial.new()
-		mat.shader = fsh
-		mat.set_shader_parameter("front", float(k))
-		mat.set_shader_parameter("size", FLAME_SIZE)
-		mat.set_shader_parameter("seed", 3.0 + k)
-		if k == 1:
-			mat.shader = load("res://shaders/fury_flame_front.gdshader")
-			mat.set_shader_parameter("front", 1.0)
-		sp.material = mat
-		sp.visible = false
-		anim.add_child(sp)
-		if k == 0:
-			anim.move_child(sp, 0)       # behind the light/body/fx layers
-			flame_back = sp
-		else:
-			flame_front = sp
+	# v0.4 Fury aura = world-space particles: flame tongues rise around her while she stands still and stream back
+	# into a trail when she moves or flies (local_coords off). Back layer behind her body, additive front layer over it.
+	flame_back = _make_flame(false)
+	add_child(flame_back)
+	move_child(flame_back, 0)
+	flame_front = _make_flame(true)
+	add_child(flame_front)
 	aura_fx = CPUParticles2D.new()
+	aura_fx.local_coords = false
 	aura_fx.emitting = false
 	aura_fx.amount = 90
 	aura_fx.lifetime = 0.55
@@ -183,18 +169,29 @@ func _poll_input() -> void:
 		if (p and not held[a]) or _pending.get(a, false):
 			presses.append({"a": a, "t": now, "used": false})
 			held_since[a] = now
+		var was: bool = held[a]
 		held[a] = p or (_pending.get(a, false) and held[a])
 		if p:
 			held[a] = true
+		if was and not held[a]:
+			for k in range(presses.size() - 1, -1, -1):      # remember how long each press was held
+				if presses[k]["a"] == a:
+					if not presses[k].has("rel"):
+						presses[k]["rel"] = now
+					break
 	_pending.clear()
 	var keep: Array = []
 	for e in presses:
-		if not e["used"] and now - float(e["t"]) <= BUFFER_MS:
+		if not e["used"] and now - float(e["t"]) <= Tuning.KEEP_MS:
 			keep.append(e)
 	presses = keep
 
 
+## first unused press of `a` made at or after `since` (default: within BUFFER_MS, for neutral actions). Chains pass
+## their move's start time instead, so a press made any time during the move is kept until the chain point.
 func _find(a: String, since: float = -1e9) -> Dictionary:
+	if since <= -1e8:
+		since = now - BUFFER_MS
 	for e in presses:
 		if e["a"] == a and not e["used"] and float(e["t"]) >= since:
 			return e
@@ -433,6 +430,7 @@ func _physics_process(delta: float) -> void:
 		if invuln <= 0.0:
 			anim.modulate.a = 1.0
 	_fury_tick(delta)
+	_stamina_tick(delta)
 	aura_mat.set_shader_parameter("time_s", now / 1000.0)
 	match state:
 		"ground":
@@ -565,31 +563,39 @@ func _try_ground_actions() -> bool:
 	var y := _find("btn_y")
 	var b := _find("btn_b")
 	var up := _find("up")
+	if not combo_after.is_empty():
+		if now > float(combo_after["until"]):
+			combo_after = {}
+		elif _combo_continue(x, y):
+			return true
+	# v0.4: X and Y commit on the frame they are pressed (no waiting to see whether a chord follows). A chord partner
+	# that lands within CHORD_MS converts the just-started move in its first frames (see _chord_convert).
 	if not y.is_empty():
 		var xx := _find("btn_x", float(y["t"]) - CHORD_MS)
 		var aa := _find("btn_a", float(y["t"]) - CHORD_MS)
 		if not xx.is_empty():                                        # X+Y -> rear explosion
 			_use(xx); _use(y)
-			_start_move("rear_blast")
-			return true
+			return _stamina_move("rear_blast")
 		if not aa.is_empty() or held["btn_a"]:                       # A+Y (or Y while A held) -> ground dash
 			_use(aa); _use(y)
-			_start_move("gdash")
+			return _stamina_move("gdash")
+		var bb := _find("btn_b", float(y["t"]) - CHORD_MS)
+		if held["btn_b"] or not bb.is_empty():                       # B+Y -> rising slash (no stamina, no dodge)
+			_use(bb); _use(y)
+			_start_move("datk2")
 			return true
-		if now - float(y["t"]) >= CHORD_MS:                          # Y alone -> quick fire
-			_use(y)
-			_start_move("quick_fire")
-			return true
-		return false
-	if not x.is_empty():
-		if now - float(x["t"]) >= CHORD_MS:                          # X alone -> 1x (combo starter)
-			_use(x)
-			_start_move("atk1")
-			return true
-		return false
+		_use(y)                                                      # Y -> quick fire, now
+		return _stamina_move("quick_fire")
+	if not x.is_empty():                                             # X -> 1x (combo starter), now
+		_use(x)
+		_start_move("atk1")
+		return true
 	if not b.is_empty():
 		_use(b)
-		_start_move("bdodge")
+		if held["btn_y"]:                                            # Y already held when B lands -> rising slash
+			_start_move("datk2")
+			return true
+		_start_move("bdodge")                                        # B commits now; a Y within CHORD_MS converts it
 		return true
 	var a := _find("btn_a")
 	if not a.is_empty() and pressed("down"):
@@ -605,6 +611,157 @@ func _try_ground_actions() -> bool:
 	if state == "ground" and debug:
 		pass
 	return false
+
+
+## stamina-gated move: not enough stamina -> fail cue + HUD flash, nothing starts (the press is spent)
+func _stamina_move(k: String) -> bool:
+	if not spend_stamina(k):
+		return true
+	_start_move(k)
+	return true
+
+
+func stamina_cost(k: String) -> float:
+	return float(Tuning.STAMINA_COST.get(k, 0.0))
+
+
+func spend_stamina(k: String) -> bool:
+	var c := stamina_cost(k)
+	if stamina + 0.001 < c:
+		Sfx.play("fail", 1.3, -4.0)
+		if game:
+			game.flash_hud("stamina")
+		return false
+	stamina = maxf(stamina - c, 0.0)
+	return true
+
+
+## +STAMINA_REGEN per second; the held bubble drains BUBBLE_DRAIN per second instead and drops when it runs out
+func _stamina_tick(delta: float) -> void:
+	if barrier_on:
+		stamina = maxf(stamina - Tuning.BUBBLE_DRAIN * delta, 0.0)
+		if stamina <= 0.0 and state == "move" and String(mv.get("key", "")) == "barrier":
+			barrier_on = false
+			barrier.visible = false
+			mv["released"] = true
+			anim.section(-1, -1)
+			anim.seek(9)
+			Sfx.play("fail", 1.3, -4.0)
+			if game:
+				game.flash_hud("stamina")
+	else:
+		stamina = minf(stamina + Tuning.STAMINA_REGEN * delta, stamina_max)
+
+
+func add_stamina(v: float) -> void:
+	stamina = clampf(stamina + v, 0.0, stamina_max)
+
+
+func add_stamina_max(v: float) -> void:
+	stamina_max = minf(stamina_max + v, Tuning.STAMINA_MAX_CAP)
+	add_stamina(v)
+
+
+## a combo hit just recovered to idle: within COMBO_GRACE_MS the next press still continues the string
+## (1x -> X -> 2x; 2x -> X -> 2x-2/2x-1, Y -> 3x; 2x-1/2x-2 -> Y -> beam). Root motion committed at the end of the
+## hit is undone so the next hit's frames line up exactly as in a direct chain.
+func _combo_continue(x: Dictionary, y: Dictionary) -> bool:
+	var from: String = combo_after["from"]
+	var nxt := ""
+	var use_x := false
+	var use_y := false
+	match from:
+		"bdodge":                    # right after the dodge: Y -> fast quick fire, X -> dodge attack
+			if not y.is_empty():
+				_use(y)
+				combo_after = {}
+				if spend_stamina("quick_fire"):
+					_start_move("quick_fire")
+					_make_fast()
+				return true
+			if not x.is_empty():
+				_use(x)
+				combo_after = {}
+				_start_move("datk1")
+				return true
+		"atk1":
+			if not x.is_empty():
+				nxt = "atk2"; use_x = true
+		"atk2":
+			if not y.is_empty():
+				nxt = "atk3"; use_y = true
+			elif not x.is_empty():
+				nxt = "atk2_1" if ((float(x["rel"]) if x.has("rel") else now) - float(x["t"])) >= HOLD_MS else "atk2_2"; use_x = true
+		"atk2_1", "atk2_2":
+			if not y.is_empty() and float(y["t"]) >= float(combo_after.get("x3_t", 0.0)):
+				nxt = "beam_ender"; use_y = true
+	if nxt == "":
+		return false
+	if nxt == "beam_ender" and not spend_stamina("beam_ender"):
+		_use(y)
+		combo_after = {}
+		return true
+	combo_after = {}
+	if use_x: _use(x)
+	if use_y: _use(y)
+	var a: Dictionary = AnimLib.anims[from]
+	position.x -= -facing * float(a.get("end_dx", 0.0)) * shown
+	_start_move(nxt)
+	if nxt == "atk2":
+		mv["from_t"] = float(x["t"])
+	if nxt in ["atk2_1", "atk2_2"]:
+		mv["x3_t"] = float(x["t"])
+		mv["may_upgrade"] = nxt == "atk2_2" and held["btn_x"]
+	if nxt == "atk3":
+		_swallow_y(float(y["t"]))
+	return true
+
+
+## X X Y Y / X X Y X: once 3x is chosen, later Y presses are swallowed (never the beam)
+func _swallow_y(t: float) -> void:
+	for e in presses:
+		if e["a"] == "btn_y" and float(e["t"]) >= t:
+			e["used"] = true
+
+
+## B, Y: the quick fire plays at 2x and its bolt flies at 2x (Tuning.FAST_FIRE_*)
+func _make_fast() -> void:
+	mv["fast"] = true
+	anim.speed = Tuning.FAST_FIRE_ANIM
+
+
+## chord partner landing just after the move it would modify already started (sloppy X+Y / Y+A): convert the move
+## within its first CHORD_MS. Returns true if it converted.
+func _chord_convert(k: String) -> bool:
+	if now - float(mv["t0"]) > CHORD_MS:
+		return false
+	var since := float(mv["t0"]) - CHORD_MS
+	var into := ""
+	var e := {}
+	if k == "atk1":
+		e = _find("btn_y", since)
+		if not e.is_empty():
+			into = "rear_blast"
+	elif k == "quick_fire" and not mv.get("fast", false):
+		e = _find("btn_x", since)
+		if not e.is_empty():
+			into = "rear_blast"
+		elif not _find("btn_b", since).is_empty():        # Y then B within CHORD_MS -> rising slash
+			e = _find("btn_b", since)
+			into = "datk2"
+		else:
+			e = _find("btn_a", since)
+			if not e.is_empty():
+				into = "gdash"
+	if into == "":
+		return false
+	_use(e)
+	if k == "quick_fire":
+		add_stamina(stamina_cost("quick_fire"))          # refund: the chord replaces it
+	if into != "datk2" and not spend_stamina(into):
+		return false
+	_start_move(into)
+	return true
 
 
 func _special_buttons() -> bool:
@@ -642,8 +799,7 @@ func _special_buttons() -> bool:
 			game.flash_hud("rage")
 	if not l2.is_empty():
 		_use(l2)
-		_start_move("barrier")
-		return true
+		return _stamina_move("barrier")
 	return false
 
 
@@ -665,15 +821,22 @@ func _air_tick(delta: float) -> void:
 	var x := _find("btn_x")
 	var y := _find("btn_y")
 	var up := _find("up")
+	if not combo_after.is_empty() and combo_after.get("from", "") == "datk2" and now <= float(combo_after["until"]):
+		if not y.is_empty():             # Y right after the rising slash -> slam (not the aerial dash)
+			_use(y)
+			combo_after = {}
+			_start_move("datk3")
+			return
 	if not x.is_empty():
 		_use(x)
 		_start_move("jatk1")
 		return
 	if not y.is_empty() and air_dashes > 0:                          # Y in the air -> aerial dash
 		_use(y)
-		air_dashes -= 1
-		_start_move("adash")
-		return
+		if spend_stamina("adash"):
+			air_dashes -= 1
+			_start_move("adash")
+			return
 	if not up.is_empty():
 		_use(up)
 		if fury:
@@ -785,8 +948,9 @@ func _fly_tick(delta: float) -> void:
 		return
 	if not y.is_empty():
 		_use(y)
-		_start_move("quick_fire")
-		return
+		if spend_stamina("quick_fire"):
+			_start_move("quick_fire")
+			return
 	var b := _find("btn_b")
 	if not b.is_empty():
 		_use(b)
@@ -908,26 +1072,93 @@ func _tilt_tick(delta: float) -> void:
 ## quality cap for the Fury aura (low-end devices): see aura_quality
 func set_aura_quality(q: int) -> void:
 	aura_quality = clampi(q, 0, 2)
-	aura_fx.amount = [20, 45, 90][aura_quality]
+	var n: Array = AURA_AMOUNTS[aura_quality]
+	flame_back.amount = maxi(int(n[0]), 1)
+	flame_front.amount = maxi(int(n[1]), 1)
+	aura_fx.amount = int(n[2])
 	if fury:
 		aura_fx.emitting = true
-		flame_back.visible = aura_quality >= 1
-		flame_front.visible = aura_quality >= 2
+		flame_back.emitting = int(n[0]) > 0
+		flame_front.emitting = int(n[1]) > 0
+	flame_back.visible = int(n[0]) > 0
+	flame_front.visible = int(n[1]) > 0
 
 
-## keep the flame centred on the current frame's body (native px, anim space), feet slightly inside its base
+static var _flame_img: ImageTexture
+
+
+## a 12x20 pixel flame tongue: pointed top, round base, solid core, softer rim (tinted by the colour ramp)
+static func _flame_tex() -> ImageTexture:
+	if _flame_img == null:
+		var img := Image.create(12, 20, false, Image.FORMAT_RGBA8)
+		for y in 20:
+			var ny := float(y) / 19.0                            # 0 top .. 1 base
+			var w := 5.8 * pow(sin(PI * clampf(ny * 0.62 + 0.38, 0.0, 1.0)), 0.8) * (0.25 + 0.75 * pow(ny, 0.55))
+			for x in 12:
+				var dx := absf(float(x) - 5.5)
+				if dx <= w:
+					img.set_pixel(x, y, Color(1, 1, 1, 1.0 if dx <= w * 0.55 else 0.6))
+		_flame_img = ImageTexture.create_from_image(img)
+	return _flame_img
+
+
+func _make_flame(front: bool) -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.local_coords = false
+	p.emitting = false
+	p.amount = 70 if front else 160
+	p.lifetime = 0.38 if front else 0.6
+	p.texture = _flame_tex()
+	p.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	p.direction = Vector2(0, -1)
+	p.spread = 8.0
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.7))
+	curve.add_point(Vector2(0.25, 1.0))
+	curve.add_point(Vector2(1.0, 0.2))
+	p.scale_amount_curve = curve
+	var grad := Gradient.new()
+	if front:
+		grad.set_color(0, Color(1.0, 0.6, 0.3, 0.32))       # faint: licks over her outline without hiding her
+		grad.set_color(1, Color(0.8, 0.05, 0.05, 0.0))
+		grad.add_point(0.4, Color(1.0, 0.3, 0.1, 0.22))
+		var am := CanvasItemMaterial.new()
+		am.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		p.material = am
+	else:
+		grad.set_color(0, Color(1.0, 0.45, 0.15, 0.95))
+		grad.set_color(1, Color(0.25, 0.0, 0.03, 0.0))
+		grad.add_point(0.3, Color(0.95, 0.16, 0.08, 0.9))
+		grad.add_point(0.7, Color(0.5, 0.02, 0.05, 0.6))
+	p.color_ramp = grad
+	return p
+
+
+## every frame in Fury: emit from her current body (world space), sized by her size; when she moves the tongues are
+## launched backwards along her motion and, being world-space, stay behind as a trail
 func _place_flame() -> void:
-	if not flame_back.visible and not flame_front.visible:
+	if not fury:
 		return
-	var b = _cur().get("body")
-	var cx := 0.0
-	var bot := 0.0
-	if b != null:
-		cx = (float(b[0]) + float(b[2])) / 2.0
-		bot = float(b[3])
-	var p := Vector2(roundf(cx - FLAME_SIZE.x / 2.0), roundf(bot + 6.0 - FLAME_SIZE.y))
-	flame_back.position = p
-	flame_front.position = p
+	var br := body_rect()
+	if br.size == Vector2.ZERO:
+		br = Rect2(global_position + Vector2(-12, -48) * shown, Vector2(24, 48) * shown)
+	var c := br.get_center() - global_position
+	var half := br.size / 2.0
+	var spd := vel.length()
+	var back := Vector2(0, -1)
+	if spd > 40.0 * shown:
+		back = (Vector2(0, -0.6) - vel.normalized()).normalized()
+	for p in [flame_back, flame_front]:
+		p.position = c + Vector2(0, half.y * 0.25)
+		p.emission_rect_extents = Vector2(half.x * (1.05 if p == flame_back else 0.6), half.y * 0.7)
+		p.direction = back
+		p.initial_velocity_min = 70.0 * shown + 0.25 * spd
+		p.initial_velocity_max = 150.0 * shown + 0.45 * spd
+		p.gravity = Vector2(0, -380.0 * shown)
+		p.scale_amount_min = (1.2 if p == flame_back else 0.7) * shown
+		p.scale_amount_max = (2.4 if p == flame_back else 1.1) * shown
+	aura_fx.position = c
 
 
 func _fury_tick(delta: float) -> void:
@@ -946,8 +1177,8 @@ func _fury_tick(delta: float) -> void:
 		Sfx.fury = false
 		aura_mat.set_shader_parameter("aura", 0.0)
 		aura_fx.emitting = false
-		flame_back.visible = false
-		flame_front.visible = false
+		flame_back.emitting = false
+		flame_front.emitting = false
 		if flying:
 			flying = false
 			anim.position.y = 0.0
@@ -958,6 +1189,7 @@ func _fury_tick(delta: float) -> void:
 
 # ---------------------------------------------------------------- committed moves
 func _start_move(k: String) -> void:
+	combo_after = {}               # any new move ends the post-recovery grace of the previous combo hit
 	var a := k
 	var extra := {}
 	match k:
@@ -1015,38 +1247,72 @@ func _move_tick(delta: float) -> void:
 				_go_neutral()
 				_ground_tick(delta)
 		"atk1":
-			_chain_window(i, 2, 10, 12, "atk1")
+			if _chord_convert(k):
+				return
+			_chain_window(i)
+		"quick_fire":
+			if _chord_convert(k):
+				return
+			if on_ground:
+				vel.x = 0.0
 		"atk2":
 			_chain_window_2x(i)
 		"atk2_1", "atk2_2":
-			# X X X Y: a Y that follows the third X within BEAM_Y_MS still becomes the beam combo, even after the
-			# third X already resolved into 2x-1 / 2x-2 (human timing). Only a Y pressed AFTER that third X counts,
-			# so X X Y (3x) and X X Y Y never reach here.
-			if mv.has("x3_t") and i <= 5:
+			# X X X Y: a Y pressed after the third X, any time during this third hit (or BEAM_GRACE_MS after it, see
+			# _combo_continue), becomes the beam combo. X X Y (3x) and X X Y Y never reach here.
+			if mv.has("x3_t"):
 				var yb := _find("btn_y", float(mv["x3_t"]))
-				if not yb.is_empty() and float(yb["t"]) - float(mv["x3_t"]) <= BEAM_Y_MS:
+				if not yb.is_empty():
 					_use(yb)
-					_chain("beam_ender")
+					if spend_stamina("beam_ender"):
+						_chain("beam_ender")
+						return
+			# X X, hold X: a hold that completes in 2x-2's first frames still becomes 2x-1 (no freeze to wait for it)
+			if k == "atk2_2" and mv.get("may_upgrade", false) and i <= Tuning.UPGRADE_FRAMES:
+				if not held["btn_x"]:
+					mv["may_upgrade"] = false
+				elif now - float(mv["x3_t"]) >= HOLD_MS:
+					var t3 := float(mv["x3_t"])
+					_chain("atk2_1")
+					mv["x3_t"] = t3
 		"bdodge":
 			vel.x = -facing * DODGE * shown if i >= 2 and i <= 16 else 0.0
 			_trail()
-			if i >= 12 and not _find("btn_x", float(mv["t0"])).is_empty():
-				_use(_find("btn_x", float(mv["t0"])))
+			# v0.4: B then Y -> FAST quick fire (2x animation, 2x bolt speed) from FAST_FIRE_FRAME; B then X -> dodge
+			# attack from f12. Both buffered from the start of the dodge (and DODGE_GRACE_MS after it, _combo_continue).
+			if not mv.has("x0"):
+				mv["x0"] = position.x
+			var yb := _find("btn_y", float(mv["t0"]))
+			var xb := _find("btn_x", float(mv["t0"]))
+			if not yb.is_empty() and float(yb["t"]) - float(mv["t0"]) <= CHORD_MS:
+				# B+Y chord (Y within CHORD_MS of B): the dodge's first frames convert into the rising slash, in place
+				_use(yb)
+				position.x = float(mv["x0"])
+				vel = Vector2.ZERO
+				_start_move("datk2")
+				return
+			if not yb.is_empty() and i >= Tuning.FAST_FIRE_FRAME:
+				_use(yb)
+				vel.x = 0.0
+				if spend_stamina("quick_fire"):
+					_start_move("quick_fire")
+					_make_fast()
+				return
+			elif not xb.is_empty() and i >= 12:
+				_use(xb)
 				vel.x = 0.0
 				_chain("datk1")
 		"datk1":
 			vel.x = facing * DASH * shown if i >= 1 and i <= 8 else 0.0
-			if i >= 15 and not _find("btn_x", float(mv["t0"]) - 100.0).is_empty():
-				_use(_find("btn_x", float(mv["t0"]) - 100.0))
-				vel.x = 0.0
-				_chain("datk2")
+			# v0.4: the dodge attack no longer chains (mashing X can't reach the rising slash or the slam)
 		"datk2":
 			vel.x = 0.0
 			if i >= 7 and i <= 11:
 				vel.y = -380.0 * shown
 				on_ground = false
-			if i >= 13 and not _find("btn_x", float(mv["t0"]) - 100.0).is_empty():
-				_use(_find("btn_x", float(mv["t0"]) - 100.0))
+			var ys := _find("btn_y", float(mv["t0"]))           # Y any time in the rising slash -> slam
+			if i >= 13 and not ys.is_empty():
+				_use(ys)
 				_chain("datk3")
 		"datk3":
 			if i < 18:
@@ -1117,59 +1383,64 @@ func _move_tick(delta: float) -> void:
 					vel.x = 0.0
 
 
-## chain point = frame `point`; presses from frame `open` on are buffered; until `grace` a late press still chains
-func _chain_window(i: int, open: int, point: int, grace: int, _from: String) -> void:
-	if i < point:
+## 1x atk -> 2x atk: an X pressed any time during 1x atk (buffered from its first frame) chains at CHAIN_1X;
+## an X pressed later, up to the end of the animation, chains immediately.
+func _chain_window(i: int) -> void:
+	if i < Tuning.CHAIN_1X:
 		return
-	var x := _find("btn_x", float(mv["t0"]) - 200.0)
-	if not x.is_empty() and i <= grace:
+	var x := _find("btn_x", float(mv["t0"]))
+	if not x.is_empty():
 		_use(x)
 		_chain("atk2")
+		mv["from_t"] = float(x["t"])     # fast mashing: presses after this X (even ones made during 1x) count for 2x
 
 
-## 2x atk branch: Y -> 3x (XXY); X then Y -> beam ender (XXXY); X held -> 2x-1; X tapped -> 2x-2.
-## Presses are buffered through 2x atk; the decision is made at f9 (late presses until f12 still count). While a
-## third X is undecided she holds the current pose (at most HOLD_MS) to learn whether it is held, tapped or followed by Y.
+## 2x atk branch, resolved at CHAIN_2X (or the moment the press arrives after it), never by freezing her:
+##   Y (no third X before it) -> 3x atk;  third X then Y -> beam ender (X X X Y);
+##   third X still held for HOLD_MS -> 2x-1, otherwise 2x-2 (which upgrades to 2x-1 if the hold completes in its
+##   first UPGRADE_FRAMES frames). Presses made any time during 2x atk count.
 func _chain_window_2x(i: int) -> void:
-	if i < 9:
+	if i < Tuning.CHAIN_2X:
 		return
-	var since := float(mv["t0"]) - 200.0
-	var px: Dictionary = mv.get("pending_x", {})
-	var x: Dictionary = px if not px.is_empty() else _find("btn_x", since)
+	var since := float(mv.get("from_t", mv["t0"]))
+	var x := _find("btn_x", since)
 	var y := _find("btn_y", since)
 	if not y.is_empty():
-		# beam only for X X X Y: a third X pressed before the Y. A Y first means X X Y -> 3x, and any later X or Y
-		# (X X Y Y, X X Y X) is swallowed, never the beam.
 		var beam := not x.is_empty() and float(x["t"]) <= float(y["t"])
 		_use(y)
 		_use(x)
-		for e in presses:
-			if e["a"] == "btn_y" and float(e["t"]) >= float(y["t"]):
-				e["used"] = true
-		mv.erase("pending_x")
-		anim.paused = false
-		_chain("beam_ender" if beam else "atk3")
+		if beam:
+			if spend_stamina("beam_ender"):
+				_swallow_y(float(y["t"]))
+				_chain("beam_ender")
+				return
+			_chain("atk2_2")                       # no stamina: the third X still lands as 2x-2
+			mv["x3_t"] = 1e12
+			return
+		_swallow_y(float(y["t"]))
+		_chain("atk3")
 		return
 	if x.is_empty():
 		return
-	if px.is_empty():
-		if i > 12:
-			return
-		mv["pending_x"] = x
-		mv["pend_t"] = now
-		_use(x)
-	anim.paused = true
-	var held_for := now - float(x["t"])
-	if held["btn_x"] and held_for >= HOLD_MS:
-		mv.erase("pending_x")
-		anim.paused = false
+	_use(x)
+	var t3 := float(x["t"])
+	var holding: bool = held["btn_x"] and _latest("btn_x") == t3
+	var held_ms: float = (float(x["rel"]) if x.has("rel") else now) - t3   # a hold that already finished counts too
+	if held_ms >= HOLD_MS:
 		_chain("atk2_1")
-		mv["x3_t"] = float(x["t"])
-	elif not held["btn_x"] and now - float(mv["pend_t"]) >= 60.0:
-		mv.erase("pending_x")
-		anim.paused = false
+	else:
 		_chain("atk2_2")
-		mv["x3_t"] = float(x["t"])
+		mv["may_upgrade"] = holding
+	mv["x3_t"] = t3
+
+
+## time of the most recent press of `a` (used or not)
+func _latest(a: String) -> float:
+	var t := -1.0
+	for e in presses:
+		if e["a"] == a:
+			t = maxf(t, float(e["t"]))
+	return t
 
 
 func _on_frame(i: int) -> void:
@@ -1185,7 +1456,8 @@ func _on_frame(i: int) -> void:
 		var sp: Array = a.get("spawn", [0, 0])
 		match anim.key:
 			"quick_fire", "quick_fire_v3":
-				game.spawn_bolt(self, art_to_world(Vector2(sp[0], sp[1])), facing, shown, state != "gallery")
+				game.spawn_bolt(self, art_to_world(Vector2(sp[0], sp[1])), facing, shown, state != "gallery",
+					Tuning.FAST_FIRE_BOLT if mv.get("fast", false) else 1.0)
 				Sfx.play("cast", 1.0)
 			"rear_blast", "rear_blast_v3":
 				game.spawn_fireball(self, art_to_world(Vector2(sp[0], sp[1])), -facing, shown, a["shot"], state != "gallery")
@@ -1233,12 +1505,10 @@ func _on_finished(k: String) -> void:
 		return
 	var key: String = mv.get("key", "")
 	match key:
-		"atk2":
-			if mv.has("pending_x"):
-				return
 		"datk2":
 			_root_from_body()
 			mv = {}
+			combo_after = {"from": "datk2", "until": now + Tuning.SLAM_GRACE_MS}    # Y while falling -> slam
 			state = "air"
 			on_ground = false
 			_play("jump", 16)
@@ -1256,12 +1526,17 @@ func _on_finished(k: String) -> void:
 				return
 	# end of a ground move: commit the baked root motion so idle continues exactly where the last frame was
 	var a: Dictionary = AnimLib.anims[anim.key]
+	var ca := {}
+	if key in ["atk1", "atk2", "atk2_1", "atk2_2", "bdodge"] and on_ground and not flying:
+		var grace: float = Tuning.BEAM_GRACE_MS if key in ["atk2_1", "atk2_2"] else (Tuning.DODGE_GRACE_MS if key == "bdodge" else Tuning.COMBO_GRACE_MS)
+		ca = {"from": key, "until": now + grace, "x3_t": float(mv.get("x3_t", 0.0))}
 	if on_ground and a.has("end_dx") and not flying:
 		position.x += -facing * float(a["end_dx"]) * shown
 		_go_neutral(int(a.get("end_idle", 0)))
 	else:
 		_root_from_body()
 		_go_neutral()
+	combo_after = ca
 
 
 ## move the root under the body when an animation is cut short (keeps the silhouette from jumping)
@@ -1298,12 +1573,16 @@ func _do_hits() -> void:
 			continue
 		if e.alive() and r.intersects(e.hurt_rect()):
 			mv["hits"][e.get_instance_id()] = true
-			deal(e, dmg, global_position.x)
+			deal(e, dmg, global_position.x, "beam" if is_beam else "melee")
 
 
-func deal(e: Node, base: int, from_x: float) -> void:
+## kind: melee | bolt | beam | explosion | lightning (a blocking Fire Knight only takes explosions and Fury attacks)
+func deal(e: Node, base: int, from_x: float, kind: String = "melee") -> void:
 	var amount := base * size          # damage scales with Mera's size
-	e.take_damage(amount, from_x)
+	if not e.take_damage(amount, from_x, kind):
+		if game:
+			game.hit_spark(e.hurt_rect().get_center(), shown * 0.6)
+		return
 	add_rage(1.0)                      # small rage for every hit landed; spheres are the main source
 	Sfx.play("hit" if amount < 6 else "hit_heavy", randf_range(0.9, 1.1))
 	if game:
@@ -1344,6 +1623,7 @@ func take_hit(dmg: int, from_x: float) -> void:
 
 
 func _interrupt() -> void:
+	combo_after = {}
 	if state == "move" or state == "fly":
 		_root_from_body()
 	mv = {}

@@ -11,15 +11,16 @@ var _flash_t := 0.0
 const CONTROLS := [
 	["D-pad / left stick", "walk left / right, Up = jump, Down = crouch"],
 	["A (hold) + direction", "run      (Down + A = slide)"],
-	["B", "back dodge     B then X = dodge attack (X, X again: rising slash, slam)"],
+	["B", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire (2x anim + bolt, 5 stamina)"],
+	["B+Y together", "rising slash, no dodge (free)    Y again during it = slam (free)"],
 	["X", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
-	["X X Y", "1x 2x 3x (with slash)     X X X Y = combo into beam (Y within 0.3 s of the 3rd X)"],
-	["Y", "quick fire (bolt)     X+Y together = rear explosion"],
-	["A+Y together / Y while running", "ground dash (aerial dash animation)"],
-	["In the air", "X = jump attack (X again: 2nd hit), Y = aerial dash, Up = double jump"],
+	["X X Y", "1x 2x 3x (with slash)     X X X Y = combo into beam (Y during the 3rd hit), 20 stamina"],
+	["Y", "quick fire (bolt) 5 stamina     X+Y together = rear explosion 12 stamina"],
+	["A+Y together / Y while running", "ground dash (aerial dash animation), 6 stamina"],
+	["In the air", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 stamina, Up = double jump"],
 	["L1", "heal: drink a green potion, +1 size (max 6x)"],
 	["R1 (rage 100 %)", "heal pose + lightning strike from the sky (AOE), uses the whole meter"],
-	["L2 (hold)", "heal pose + spherical barrier, blocks hits while held (R1 works inside)"],
+	["L2 (hold)", "spherical barrier, blocks hits while held (3 stamina + 4/s; R1 works inside)"],
 	["R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air / R2 again)"],
 	["Fury flight", "8-way move, Down on the ground lands, R2 lands"],
 	["Start / Enter / F1", "this overlay (and restart after Game Over)"],
@@ -62,7 +63,7 @@ func _draw_ui() -> void:
 		return
 	var m: Mera = game.mera
 	# size = HP
-	ui.draw_rect(Rect2(20, 16, 560, 150), Color(0.04, 0.03, 0.07, 0.55))
+	ui.draw_rect(Rect2(20, 16, 560, 196), Color(0.04, 0.03, 0.07, 0.55))
 	_txt(Vector2(36, 52), "SIZE  %dx" % m.size, 34)
 	for i in 6:
 		var on := i < m.size
@@ -90,6 +91,20 @@ func _draw_ui() -> void:
 	_txt(Vector2(36, 146), "POTIONS  %d" % m.potions, 26, pc)
 	if _flash == "max" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "max size for potions is 6x", 22, Color(1, 0.6, 0.4))
+	# stamina (v0.4): bar length grows with the max (60 -> 120)
+	var sw := 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0
+	var sc := Color(0.25, 0.6, 1.0)
+	if _flash == "stamina" and _flash_t > 0.0:
+		sc = Color(1, 0.3, 0.3)
+	_txt(Vector2(36, 194), "STAM", 26, Color(0.6, 0.8, 1.0))
+	ui.draw_rect(Rect2(140, 172, sw, 22), Color(0.04, 0.08, 0.18))
+	ui.draw_rect(Rect2(140, 172, sw * m.stamina / maxf(m.stamina_max, 1.0), 22), sc)
+	ui.draw_rect(Rect2(140, 172, sw, 22), Color(0.05, 0.03, 0.06), false, 3.0)
+	_txt(Vector2(150 + sw, 194), "%d/%d" % [int(m.stamina), int(m.stamina_max)], 22, Color(0.75, 0.88, 1.0))
+	if _flash == "stamina" and _flash_t > 0.0:
+		_txt(Vector2(140, 236), "not enough stamina", 22, Color(1, 0.5, 0.4))
+	if _flash.begins_with("pickup:") and _flash_t > 0.0:
+		_txt(Vector2(140, 236), _flash.substr(7), 24, Color(0.6, 0.85, 1.0))
 	# state line
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
@@ -108,4 +123,4 @@ func _draw_ui() -> void:
 	if game.over and game.over_t > 0.9:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_txt(Vector2(700, 520), "GAME OVER", 110, Color(0.95, 0.2, 0.2))
-		_txt(Vector2(720, 600), "Mera was hit at 1x.   Start / Enter: restart", 30)
+		_txt(Vector2(720, 600), "Mera shrank past 1x.   Start / Enter: restart", 30)

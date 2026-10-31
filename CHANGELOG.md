@@ -2,6 +2,65 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.4-playable (2026-10-31)
+Pre-release with Windows and Linux builds. All tunables are in `scripts/game/tuning.gd`.
+
+### Combos: responsive input
+Root causes of the "clunky" feel in v0.3.x, and the fixes:
+- **A lone X or Y waited 50 ms** for a possible chord partner before acting. Now every button commits on the frame it is read, and a chord partner that lands within 67 ms converts the move that already started, in its first frames (X+Y → rear explosion, A+Y → ground dash, B+Y → rising slash).
+- **1x → 2x chained only on 1x frames 10-12**, and a later X restarted 1x, which reset the combo. Now any X from frame 9 to the end of 1x chains, and so does one pressed earlier during 1x, which stays buffered for the whole move.
+- **2x froze for up to 180 ms (+60 ms)** to measure whether the 3rd X was held. Now 2x-2 starts at once and upgrades to 2x-1 within 4 frames if the hold reaches 170 ms.
+- **The 450 ms buffer expired early mash presses** before the chain point. Presses are now kept for the whole move, and fast mashing (a 3rd X pressed while 1x is still playing) counts.
+- **The X X X Y beam only accepted Y within 300 ms** and in the first frames of the 3rd hit. Now the Y can come any time during the 3rd hit or up to 250 ms after it.
+- **No grace after recovery.** A combo hit that just returned to idle now accepts its follow-up for 220 ms.
+- Input polling itself was not late; the delay was the rules above.
+- The windows are documented in `docs/CONTROLS.md`.
+
+### Dodge chain
+- **B+Y chord** (within 67 ms, either order) = rising slash, in place. **Y again** = slam. Both free.
+- **B, then Y** = fast quick fire (2x animation, bolt at 2x speed, 5 stamina).
+- **B, then X** = dodge attack (no longer chains into the rising slash or slam).
+- **Up** always jumps instantly. Y in the air is the aerial dash.
+
+### Stamina
+- A new STAMINA bar: 60 max, +1 per second.
+- Costs: quick fire 5, ground/aerial dash 6, rear explosion 12, beam combo 20, bubble 3 + 4/s. Not enough stamina gives a fail cue and a bar flash.
+- Blue potion +30 stamina. Blue-and-white potion +5 max stamina (cap 120).
+
+### Fire Knight overhaul
+- **20 HP**. Hits do **2** sizes, the special **3**.
+- He uses **all 14 chierit animations**:
+  - the 1/3/4-hit strings, plus the special every 3rd string with a white-gold tell;
+  - the jump attack, take-off, rise and fall;
+  - the roll, the block, the hit and the death.
+- **Chase dash:** a roll at 3x speed when Mera is more than 760 px away, for at most 0.6 s, then a 3 s cooldown.
+- **Block:**
+  - he is invulnerable except to explosions and Fury attacks;
+  - he holds it for at most 1.4 s, then is forced to drop it, with a 2.5 s cooldown.
+- **Bolt AI:** he jumps quick-fire bolts first seen more than 400 px away and blocks closer ones.
+- **Air chase:** jump attacks when Mera jumps or flies near him.
+
+### Blue Knight (new)
+- A runtime blue palette swap of the Fire Knight (chierit, CC-BY 4.0).
+- 3x scale, 5 HP, 3x faster, 1 damage, no block and no special. He circles round and attacks from behind.
+- One spawns when the Fire Knight first loses HP, and one more when the Fire Knight first drops below 10 HP.
+- Drops: 35 % stamina potion and 10 % max-stamina potion (independent rolls), plus a +4 % rage sphere.
+
+### Fury aura
+- **Particles:** CPU particle flame tongues in world space, back layer + faint additive front layer + embers.
+- They rise like a ground fire when she stands still and trail behind her when she moves. They scale with her size, with the same quality caps.
+
+### Tests
+- **Human-timing input replays:** seeded trials with presses 80-250 ms apart, holds 45-110 ms and sloppy chords 0-50 ms. They cover X X X (also mashed), X X hold-X, X X Y, X X X Y (also a late Y), X X Y Y, X+Y, A+Y, Y, B+Y, B+Y Y, B then Y, B then X, B X X X, Up, and Up then Y.
+- Plus knight, Blue Knight, stamina, drop and aura tests.
+
+### Known issues
+- With the requested numbers, a Fire Knight hit (2) kills a 2x Mera outright, and the special (3) kills a 3x Mera. Drink potions early.
+- The built-in `--demo` capture script is still the v0.3 one, so in v0.4 Mera dies in it.
+- The knight's guard isn't up on the first frame of `09_defend`, so a bolt fired point-blank can still hit him.
+- `shaders/fury_flame*.gdshader` are no longer used (the aura is particles now). They're kept for reference.
+- The full headless test suite takes about 12 minutes because of the seeded human-timing replays.
+
 ## v0.3.1-playable (2026-10-31)
 Pre-release with Windows and Linux builds. v0.3-playable stays as it was.
 

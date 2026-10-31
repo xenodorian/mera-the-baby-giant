@@ -17,6 +17,11 @@ var trail: Array = []
 var spr: Sprite2D
 var tex_discs: Texture2D
 var done := false
+var speed_mult := 1.0          # v0.4: B, Y fast quick fire = 2.0
+
+
+func speed() -> float:
+	return 400.0 * size * speed_mult
 
 
 func setup(g: Node, k: String, p: Vector2, d: int, s: float, sh: Dictionary, dmg_on: bool) -> void:
@@ -47,13 +52,13 @@ func _physics_process(delta: float) -> void:
 		return
 	t += delta
 	if kind == "bolt":
-		position.x += dir * 400.0 * size * delta
+		position.x += dir * speed() * delta
 		spr.frame = int(t * 1000.0 / 40.0) % spr.hframes
 		var r := Rect2(position - Vector2(5, 3) * size, Vector2(10, 6) * size)
 		if damaging:
 			for e in game.enemies():
 				if e.alive() and r.intersects(e.hurt_rect()):
-					game.mera.deal(e, 1, position.x - dir * 50.0)
+					game.mera.deal(e, 1, position.x - dir * 50.0, "bolt")
 					game.hit_spark(position, size)
 					queue_free()
 					return
