@@ -1986,13 +1986,13 @@ func _dragon_tests() -> void:
 	for i in xs.size():
 		var uniq := true
 		for j in i:
-			if absf(xs[i] - xs[j]) < 150.0:
+			if absf(xs[i] - xs[j]) < 200.0:
 				uniq = false
 		if uniq:
 			distinct += 1
 	var spread_d: float = (dists.max() - dists.min()) if not dists.is_empty() else 0.0
 	_check("dragon flight: flies around between lobs - %d lobs from %d distinct spots, varied distances (%.0f..%.0f px; at 12x his mouth is 400 px ahead, so the range is narrow), both sides of Mera" % [xs.size(), distinct, dists.min() if dists else 0.0, dists.max() if dists else 0.0],
-		xs.size() == 5 and distinct >= 3 and spread_d >= 60.0 and sides.size() == 2, "xs=%s d=%s" % [xs, dists])
+		xs.size() == 5 and distinct >= 4 and spread_d >= 60.0 and sides.size() == 2, "xs=%s d=%s" % [xs, dists])
 	_check("dragon flight: stays on screen and inside the walls the whole phase", fly_off == 0, "off-screen frames=%d" % fly_off)
 	var at_mouth := launches.size() == 5
 	var horiz := launches.size() == 5
