@@ -18,6 +18,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageSequence
 import beam_cast_sequences as cs
 import mera_wand_beam as mb
+from ase_render import frame
 
 ROOT = cs.ROOT; OUT = cs.OUT; S = 4
 VFX = f'{ROOT}/assets/vfx/ansimuz'
@@ -56,6 +57,13 @@ CFG = {
      hold=[('d1', 14), ('d1', 15)], recoil=[2, 1], rec=[('d1', i) for i in range(16, 19)], pose=('d1', 14),
      speed=16, cross=True, level=True, canvas_w=420, drop=False, big=False, ex=None, anchor='centre', c0=0.15, n_motes=40, ring=3,
      n_embers=0, ember_r=(3, 12), linger=360),
+ # user [pt51u] "Show me with the slash effect": pick2 v3 + the pack's own 3x atk effect layers (fx01 crescent slash,
+ # fx02 spin trails, fx03 claw-swing swirl), original pixels/colours, on the fire hold and recovery frames
+ 'pick2_v4_projectile_slash': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('2x', 0, 40), ('3x', 0, 40), ('3x', 2, 40)],
+     offs={'2x': cs.OFF_2X_FROM_IDLE, '3x': cs.OFF_3X_FROM_2X0}, hidden={('3x', 0)},
+     hold=[('3x', 4)] * 4, recoil=[3, 2, 1, 0], rec=[('3x', i) for i in range(5, 34)], pose=('3x', 4), dir=+1, ang=11.0,
+     speed=10, dist=130, drop=True, big=True, ex=ground_explosion, anchor='ground', c0=0.45, n_motes=46, ring=3,
+     n_embers=34, ember_r=(8, 34), linger=1000, fx={'3x': {'3x atk_fx01', '3x atk_fx02', '3x atk_fx03'}}),
  'pick3_v2_projectile': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('d1', i, 40) for i in range(14)], offs={},
      hold=[('d1', 14), ('d1', 15)], recoil=[2, 1], rec=[('d1', i) for i in range(16, 19)], pose=('d1', 14),
      speed=12, dist=90, drop=False, big=False, ex=small_pop, anchor='centre', c0=0.15, n_motes=40, ring=3,
@@ -133,6 +141,9 @@ def build(name, C):
     xs, ys = [], []
     for s in seg:
         b = cs.img(s[2], s[3]).getbbox(); o = woff(s[2], s[4]); xs += [b[0] + o[0], b[2] + o[0] + 4]; ys += [b[1] + o[1], b[3] + o[1]]
+        fxl = C.get('fx', {}).get(s[2])
+        if fxl and s[4] in ('fire', 'recover') and fx_img(s[2], s[3], fxl).getbbox():
+            b = fx_img(s[2], s[3], fxl).getbbox(); xs += [b[0] + o[0] - 4, b[2] + o[0] + 4]; ys += [b[1] + o[1] - 2, b[3] + o[1] + 2]
     if EX: xs += [ex_pos[0], ex_pos[0] + EX[0].width]; ys += [ex_pos[1] + min(e.getbbox()[1] for e in EX if e.getbbox()), ex_pos[1] + max(e.getbbox()[3] for e in EX if e.getbbox())]
     X0, Y0 = int(min(xs)) - 6, int(min(ys)) - 4; W = int(max(xs)) - X0 + 6; H = int(max(ys)) - Y0 + 8
     if C.get('cross'): X0 = X0C; W = C['canvas_w']; H += (H % 2)
@@ -213,6 +224,10 @@ def build(name, C):
                 if len(xx): arr[yy, xx[0] if DIR < 0 else xx[-1], :3] = col
             spr = Image.fromarray(arr)
         im.alpha_composite(spr, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
+        fxl = C.get('fx', {}).get(a)
+        if fxl and ph in ('fire', 'recover'):   # pack effect layers, same canvas offset (and recoil) as the body
+            fxi = fx_img(a, f, fxl)
+            if fxi.getbbox(): im.alpha_composite(fxi, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
         if exi is not None: im.alpha_composite(EX[exi], (ex_pos[0] - X0, ex_pos[1] - Y0))
         out = np.array(im)[..., :3]
         for th, col in BANDS: out[E >= th] = col
@@ -262,6 +277,12 @@ def build(name, C):
                 idle_end=dict(frame=best[2], dx=IDLE_OFF[0], iou=round(float(best[0]), 3)))
     json.dump(meta, open(f'{OUT}/{name}.json', 'w'), indent=1); print(name, meta)
     return frames, log, meta
+
+_fxc = {}
+def fx_img(a, f, layers):
+    k = (a, f, tuple(sorted(layers)))
+    if k not in _fxc: _fxc[k] = frame(cs.D[a], f, only=set(layers))
+    return _fxc[k]
 
 def save_exact_gif(path, frames, durs, scale, allc):
     """exact-palette GIF: index every pixel by lookup (PIL's quantize(palette=) approximates colours); verified on read-back"""
