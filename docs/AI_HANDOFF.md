@@ -45,6 +45,7 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 | v0.2-playable | First playable cemetery level |
 | v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
 | v0.3.1 | Camera hard lock |
+| **v0.9.0-playable** | First public-repo release. In-game updater (`scripts/app/updater.gd`, `docs/UPDATER.md`: GitHub releases API, size + SHA-256 from `SHA256SUMS.txt`, Windows/Linux swap-and-relaunch helper, Android system installer via the template's FileProvider), Credits screen + version on the title menu, marked slash (other agent's PR #2) (359 tests + `tools/updater_e2e.sh`) |
 | **v0.8.2-playable** | Dragon bolts: fireball art mirrored so the blunt head leads (art faces left), horizontal launch from the measured mouth, gravity-only arc solve, lob spots keep Mera in front of the mouth (336 tests) |
 | **v0.8.1-playable** | Dragon flight: user-picked 4-frame `fly` wing loop (breath 1,5,4,5 without fire, 11 fps), flies to 5 lob spots per phase (short/mid/long, both sides, on screen), arcs solved per distance; volley `spit` frames without the breath plume (331 tests) |
 | **v0.8-playable** (S4) | Hit-stop/sparks/SFX variance, shatter + gore, breakables with smart drops, barrels + chandeliers, juggles + corpse launch, parry (timed L2), secrets (wall, lever door, ledge + crumbling plank), allies scale with Mera, dragon rework (19x size = health, 12/9/6/3 flight phases with lobbed bolts, +3 on a hit), Fire Knight 1/2 damage, dancer skin recolour, Android L2 fix, **Android APK builds**, PC keyboard layout, super earthquake (Down+Y at 100 % rage: impact frame, 2 s quake, 7 s stun, flat 2 to all, ground props destroyed) (323 tests) |
@@ -56,6 +57,11 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 ## Left (see `docs/WORKFLOW.md`)
 - S0-S4 of the 2026-10-31 plan are done. Nothing from that plan is open. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
 - **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
+- **Every release must also attach `SHA256SUMS.txt`** (`sha256sum` over all binaries); the in-game updater refuses a release without it. Before exporting:
+  - bump `application/config/version` in `project.godot`;
+  - bump the Android `version/code` (must increase, or Android refuses the update) and `version/name` in `export_presets.cfg`;
+  - sign the APK with the same release keystore.
+- Updater: `docs/UPDATER.md`. Test with `tools/updater_e2e.sh` (real Linux export against a fake API) and `MERA_UPDATE_API=<json url> <game> -- --update-selftest`.
 
 ## Repo split (2026-10-31): public code, private assets
 - The game repo is public. `assets/` is the **private submodule** `xenodorian/mera-assets` (LFS). Clone with `--recurse-submodules`, then run `git submodule foreach git lfs pull`.
@@ -65,6 +71,8 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 - `git-filter-repo` is installed on the box at `/workspace/tools/bin/git-filter-repo`.
 
 ## Pitfalls (learned the hard way)
+- **Don't name a method `_set`** on a Node: it overrides `Object._set()` (the property setter hook) and breaks every property assignment. The updater uses `_state()`.
+- **The Android template already opens files through its FileProvider:** `OS.shell_open("/abs/path.apk")` → `content://` + ACTION_VIEW. There is no need for a Gradle plugin to install an APK (needs `REQUEST_INSTALL_PACKAGES`).
 - **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **all three** presets (Windows, Linux, Android), or the exported game silently misses it.
   - Never `grep` the file with broad patterns: the list is one enormous line.
   - Add entries with `sed`/python right after `"res://scripts/game/cam_rig.gd", `.

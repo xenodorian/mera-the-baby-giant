@@ -4,7 +4,7 @@
 | Asset | Author | License | Requirement |
 |---|---|---|---|
 | Elementals: Fire Knight, Water Priestess, Leaf Ranger (free) | **chierit** — https://chierit.itch.io | CC-BY 4.0 | **Credit "chierit"** in the game credits or link the itch page. Edits + commercial use OK. Author asks: don't resell. |
-| Minotaur (free) | **chierit** | verify on item page (assume same: credit "chierit") | Credit "chierit". |
+| Minotaur (free) | **chierit** | **CC-BY 4.0** (verified on the item page, https://chierit.itch.io) | Credit "chierit". |
 | Legacy Collection (Gothicvania characters, environments, VFX) | **Luis Zuno (ansimuz)** — https://ansimuz.itch.io | CC0 | None (courtesy credit welcome). `docs/licenses/ansimuz-legacy-collection-CC0.pdf` |
 | Ground Explosion and Explosions Pack VFX (Mera's spell impacts) | **ansimuz**: from the Legacy Collection; Explosions Pack is also at https://opengameart.org/content/animated-explosions | CC0 | None. `docs/licenses/ansimuz-legacy-collection-CC0.pdf`, `assets/vfx/ansimuz/SOURCES.md` |
 | Gothicvania Cemetery | **ansimuz** | CC0 | None. `docs/licenses/ansimuz-gothicvania-cemetery-CC0.pdf` |
@@ -49,3 +49,7 @@ Do **not** make this repo public with `assets/` inside — move raw assets to a 
 
 **v0.8:** the urn, chest, lever and the cracks on the secret wall are drawn in this project (`tools/build_props.py`). The debris/shatter simulation (`scripts/game/debris.gd`) is written in this project (pure GDScript, no add-on). The **Dancing Girl** has a natural-skin recolour made in this project on copies (`tools/recolor_dancer_skin.py`: the exact 3-colour skin-ramp swap ansimuz used for the Brawler Girl skin-recolor version; the originals are untouched). The dragon's lobbed bolts reuse the ansimuz hell beast fireball (CC0), tinted. **v0.8.1:** the dragon's volley `spit` frames are copies of the ansimuz breath frames with the fire plume removed (`tools/build_dragon_spit.py`, `.../grotto-escape-2-boss-dragon/spit-nofire/`; the originals are untouched).
 
+
+
+## In-game credits (v0.9)
+The title menu has a CREDITS screen (`scripts/app/credits.gd`) listing every author above with license and link, plus Godot Engine (MIT, https://godotengine.org/license). Keep both lists in sync.

@@ -44,6 +44,29 @@ func _ready() -> void:
 	_http.max_redirects = 8
 	add_child(_http)
 	_http.request_completed.connect(_on_done)
+	if "--update-selftest" in OS.get_cmdline_user_args():
+		_selftest.call_deferred()
+
+
+## headless end-to-end check (docs/UPDATER.md): check -> download -> verify -> apply, printing each state.
+## Use with MERA_UPDATE_API pointing at a test releases list.
+func _selftest() -> void:
+	auto_checked = true
+	check()
+	while state == "checking":
+		await changed
+	print("UPDATE-SELFTEST check: ", state, " ", message)
+	if state != "available":
+		get_tree().quit(2)
+		return
+	download()
+	while state == "downloading":
+		await changed
+	print("UPDATE-SELFTEST download: ", state, " ", message)
+	if state != "ready":
+		get_tree().quit(3)
+		return
+	print("UPDATE-SELFTEST apply: ", apply(), " ", message)
 
 
 func _process(_delta: float) -> void:

@@ -30,7 +30,7 @@ func _ready() -> void:
 		if a.begins_with("--menu-shot="):
 			_shot.call_deferred(a.get_slice("=", 1))
 			return
-	if not args.is_empty() and not ("--menu" in args):   # capture / test args (--demo, --level=N, ...): into the game
+	if not args.is_empty() and not ("--menu" in args) and not ("--update-selftest" in args):   # capture / test args (--demo, --level=N, ...): into the game
 		get_tree().change_scene_to_file.call_deferred("res://scenes/game.tscn")
 		return
 	var upd := _upd()
