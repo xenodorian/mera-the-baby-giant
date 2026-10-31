@@ -2232,7 +2232,7 @@ func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
-	_check("updater: this build's version comes from application/config/version (0.9.0)", U.current_version() == "0.9.0", U.current_version())
+	_check("updater: this build's version comes from application/config/version (0.9.1)", U.current_version() == "0.9.1", U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
 	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:
@@ -2774,6 +2774,7 @@ func _v091_tests() -> void:
 	if ep.count("\"res://scripts/menu.gd\"") != 3:
 		missing.append("res://scripts/menu.gd")
 	_check("export: every runtime script (scripts/game, scripts/app, menu) is in all 3 presets (v0.9.0 shipped without mark_slash.gd)", missing.is_empty(), "%s" % [missing])
+	await _queued_tests()
 
 
 func AnimLib_fire(k: String) -> int:
@@ -2782,3 +2783,131 @@ func AnimLib_fire(k: String) -> int:
 
 func r_up_empty(_g: Node) -> bool:
 	return true
+
+
+# ================================================================ v0.9.1 queued (t108u, t103u)
+func _queued_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var g: Node = await _new_game()
+	var m: Node = g.mera
+	m.position = Vector2(4000, g.GROUND_Y)
+	m.forced = {"btn_b": true, "btn_y": true}
+	var left := -1
+	var y0: float = m.global_position.y
+	var peak: float = y0
+	var rise_slow := false
+	for i in 50:
+		await physics_frame
+		if i == 0:
+			m.forced = {}
+		if String(m.mv.get("key", "")) == "datk2":
+			peak = minf(peak, m.global_position.y)
+			if m.anim.idx >= int(T.RSLASH_RISE_FROM):
+				if left < 0:
+					left = i
+				if m.anim.idx <= int(T.RSLASH_RISE_TO) and m.anim.speed == 1.0:
+					rise_slow = true
+	var rise: float = y0 - peak
+	_check("rising slash: windup plays at 4x (the rise starts within 14 frames)", left >= 0 and left <= 14, "frame=%d" % left)
+	_check("rising slash: the rise itself is 1x speed and about twice as far", rise_slow and rise > 200.0, "slow=%s rise=%.1f" % [rise_slow, rise])
+	g.queue_free()
+	await physics_frame
+
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 4500.0
+	m.forced["right"] = true
+	await physics_frame
+	await physics_frame
+	var moved: float = m.global_position.x
+	var ev := InputEventKey.new()
+	ev.physical_keycode = KEY_ENTER
+	ev.pressed = true
+	Input.parse_input_event(ev)
+	await physics_frame
+	ev.pressed = false
+	Input.parse_input_event(ev)
+	var frozen: float = m.global_position.x
+	for i in 10:
+		await physics_frame
+	var still: bool = absf(m.global_position.x - frozen) < 0.5 and moved > 4500.0
+	_check("Start pauses the game (overlay up, Mera frozen) and does not just show controls", g.paused_play and g.hud.overlay and g.get_tree().paused and still, "paused=%s overlay=%s x=%.1f->%.1f" % [g.paused_play, g.hud.overlay, moved, m.global_position.x])
+	ev.pressed = true
+	Input.parse_input_event(ev)
+	await physics_frame
+	ev.pressed = false
+	Input.parse_input_event(ev)
+	await physics_frame
+	_check("Start again resumes", not g.paused_play and not g.get_tree().paused and not g.hud.overlay, "paused=%s" % g.paused_play)
+	g.queue_free()
+	await physics_frame
+
+	g = await _new_game()
+	m = g.mera
+	m.position = Vector2(5000, g.GROUND_Y)
+	m.set_size(2, true)
+	m._start_move("atk1")
+	var hf := -1
+	for i in m.anim.frames.size():
+		if m.anim.frames[i]["hit"] != null:
+			hf = i
+			break
+	m.anim.seek(hf)
+	m._update_boxes()
+	m.mv["swing_t"] = m.now
+	var sword: Rect2 = m.hit_rect()
+	var ES = load("res://scripts/game/enemy_shot.gd")
+	var shot: Node2D = ES.new()
+	shot.setup(g, "hell_beast", "fireball", sword.get_center(), Vector2(-200, 0), 1, 3.0)
+	g.world.add_child(shot)
+	var wolf: Node2D = g.spawn_enemy("werewolf", m.global_position.x - 500.0)
+	wolf.cooldown = 99.0
+	g.resolve_projectiles()
+	var aimed: bool = shot.deflected and shot.vel.x < 0.0
+	_check("swing parry: atk1 reflects a shot within %d ms of the hitbox, toward the nearest enemy" % int(T.SWING_PARRY_MS), aimed and m.swing_parries == 1 and sword.size != Vector2.ZERO, "def=%s vx=%.0f n=%d hf=%d" % [shot.deflected, shot.vel.x, m.swing_parries, hf])
+	shot.queue_free()
+	var late: Node2D = ES.new()
+	late.setup(g, "hell_beast", "fireball", sword.get_center(), Vector2(-200, 0), 1, 3.0)
+	g.world.add_child(late)
+	m.mv["swing_t"] = m.now - T.SWING_PARRY_MS - 40.0
+	var n0: int = m.swing_parries
+	g.resolve_projectiles()
+	_check("swing parry: a shot that meets the hitbox after the window is not reflected", not late.deflected and m.swing_parries == n0, "def=%s" % late.deflected)
+	var bolt: Node2D = Shot.new()
+	bolt.setup(g, "bolt", late.global_position, 1, 2.0, {}, true)
+	g.world.add_child(bolt)
+	g.resolve_projectiles()
+	_check("a player bolt and an enemy shot both explode", bolt.done and late.is_queued_for_deletion(), "bolt=%s shot=%s" % [bolt.done, late.is_queued_for_deletion()])
+	# beam eats a foe shot
+	m.invuln = 5.0
+	wolf.position.x = m.position.x - 2500.0
+	m.stamina = 80.0
+	m._start_move("beam_ender")
+	var bo_i := -1
+	for i in m.anim.frames.size():
+		if m.anim.frames[i].has("bo"):
+			bo_i = i
+			break
+	if bo_i >= 0:
+		m.anim.seek(bo_i)
+		m._update_beam()
+	var br: Rect2 = m.beam_world_rect()
+	var beam_shot: Node2D = ES.new()
+	if br.size != Vector2.ZERO:
+		beam_shot.setup(g, "hell_beast", "fireball", br.get_center(), Vector2(-100, 0), 1, 3.0)
+		g.world.add_child(beam_shot)
+		g.resolve_projectiles()
+	_check("the beam destroys an enemy projectile", m.beam_len > 0.0 and beam_shot.is_queued_for_deletion(), "len=%.0f key=%s f=%d queued=%s" % [m.beam_len, m.anim.key, bo_i, beam_shot.is_queued_for_deletion()])
+	# melee parry shove
+	m._go_neutral()
+	m.state = "ground"
+	m.invuln = 0.0
+	m.last_l2_t = m.now
+	var xw: float = wolf.global_position.x
+	m.take_hit(1, wolf.global_position.x, wolf)
+	for i in 4:
+		await physics_frame
+		m.invuln = 1.0
+	_check("melee parry also knocks the attacker back hard", m.parries >= 1 and m.size == 2 and wolf.global_position.x < xw - 30.0, "dx=%.0f vx=%.0f size=%d" % [wolf.global_position.x - xw, wolf.vx, m.size])
+	g.queue_free()
+	await physics_frame

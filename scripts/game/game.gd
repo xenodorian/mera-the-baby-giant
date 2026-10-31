@@ -1125,6 +1125,18 @@ func _menu_guard_tick() -> void:
 
 
 var menu_guard_drops := 0
+var paused_play := false          # v0.9.1: Start freezes gameplay (the controls overlay stays up)
+
+
+func toggle_pause() -> void:
+	if picker != null and picker.open:
+		return
+	if over or cleared:
+		return
+	paused_play = not paused_play
+	if hud:
+		hud.overlay = paused_play
+	get_tree().paused = paused_play
 
 
 func _menu_action(a: String) -> void:
@@ -1132,7 +1144,7 @@ func _menu_action(a: String) -> void:
 		if over and over_t > 1.0:
 			restart()
 		else:
-			hud.overlay = not hud.overlay
+			toggle_pause()
 	elif a == "select" and not over:
 		mera.gallery_toggle()
 
@@ -1158,7 +1170,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if over and over_t > 1.0:
 			restart()
 		else:
-			hud.overlay = not hud.overlay
+			toggle_pause()
 	elif event.is_action_pressed("select") and not event.is_echo() and not over:
 		mera.gallery_toggle()
 	elif event.is_action_pressed("debug") and not event.is_echo():
@@ -1196,4 +1208,73 @@ func _draw_debug() -> void:
 
 
 func _exit_tree() -> void:
+	if paused_play and is_inside_tree():
+		paused_play = false
+		get_tree().paused = false
 	SegStrip.drain.call_deferred()
+
+
+## v0.9.1 projectile rules: a timed basic attack reflects foe shots; a player shot and a foe shot both explode;
+## beams (the combo beam and the vertical beam) destroy foe shots. Called after Mera's hitboxes update.
+func resolve_projectiles() -> void:
+	if world == null or mera == null:
+		return
+	var foes: Array = []
+	var friends: Array = []
+	for n in world.get_children():
+		if not is_instance_valid(n):
+			continue
+		if n is Shot and not n.done:
+			friends.append(n)
+		elif _live_foe_shot(n):
+			foes.append(n)
+	var beams: Array[Rect2] = []
+	var br: Rect2 = mera.beam_world_rect()
+	if br.size != Vector2.ZERO:
+		beams.append(br)
+	if last_vbeam != null and is_instance_valid(last_vbeam):
+		var cr: Rect2 = last_vbeam.column()
+		if cr.size.y > 8.0:
+			beams.append(cr)
+	var swinging := mera.swing_parry_open()
+	var sword := mera.hit_rect() if swinging else Rect2()
+	for f in foes:
+		if not is_instance_valid(f) or not _live_foe_shot(f):
+			continue
+		var fr: Rect2 = f.rect()
+		if swinging and sword.size != Vector2.ZERO and sword.intersects(fr):
+			f.deflect()
+			mera.swing_parries += 1
+			parry_fx(fr.get_center(), mera.shown)
+			continue
+		var beamed := false
+		for b in beams:
+			if b.intersects(fr):
+				_pop_foe(f)
+				beamed = true
+				break
+		if beamed:
+			continue
+		for p in friends:
+			if not is_instance_valid(p) or p.done:
+				continue
+			if p.hit_rect().intersects(fr):
+				p.burst()
+				_pop_foe(f)
+				break
+
+
+func _live_foe_shot(n: Node) -> bool:
+	if not is_instance_valid(n) or not n.has_method("rect") or not n.has_method("deflect"):
+		return false
+	if n.get("deflected") == true or n.get("done") == true:
+		return false
+	var path := ""
+	if n.get_script() != null:
+		path = str(n.get_script().resource_path)
+	return path.ends_with("enemy_shot.gd") or path.ends_with("dragon_bolt.gd")
+
+
+func _pop_foe(n: Node) -> void:
+	if is_instance_valid(n) and n.has_method("pop_clash"):
+		n.pop_clash()

@@ -110,6 +110,13 @@ const PARRY_STUN_S := 1.2         # ... and the attacker is staggered this long
 const PARRY_IFRAMES_S := 0.25
 const DEFLECT_SPEED := 1.6        # a parried projectile flies back this much faster ...
 const DEFLECT_DMG := 3            # ... and deals this much (fixed) to the first enemy it meets
+const PARRY_KNOCK_VX := 920.0     # v0.9.1: a melee parry also shoves the attacker this fast (away from Mera)
+const SWING_PARRY_MS := 150.0     # v0.9.1: X (atk1 / jatk1) reflects a projectile if the hitbox meets it within this of going live
+# ---------------------------------------------------------------- v0.9.1 rising slash (datk2): windup 4x, rise 2x speed and 2x distance
+const RSLASH_WINDUP_SPEED := 4.0  # frames before the rise play at 4x (every frame is kept)
+const RSLASH_RISE_FROM := 7       # the upward burst is these frames ...
+const RSLASH_RISE_TO := 11
+const RSLASH_VY := -760.0         # was -380: 2x, and the frame window stays 1x, so she rises twice as far
 # ---------------------------------------------------------------- v0.8 juggles (monster.gd)
 const LAUNCH_VY := 1150.0         # launchers (rising slash, slam, 3x, explosions) throw ground enemies up ...
 const LAUNCH_VX := 240.0

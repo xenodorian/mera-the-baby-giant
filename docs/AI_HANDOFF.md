@@ -1,48 +1,12 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal launch)._
+_Last updated: 2026-10-31, v0.9.1 in progress (rising slash, real pause, swing parry). Not released._
 
 
-## PAUSED 2026-10-31 14:25 CDT (owner t107u: low usage). Branch `wip/v0.9.1-ychain`, NOT merged, NOT released
-**Shipped already:** v0.9.0-playable (PR #3 merged). It has the in-game updater and the Credits screen. It is the full **Latest** release, so `v0.1-scale-test` is no longer Latest.
-- Updater: done and tested.
-  - 360 unit/E2E tests, plus `tools/updater_e2e.sh` against the real Linux export (bad checksum refused, swap+relaunch, offline).
-  - Live check against the public API: "up to date".
-  - **Untested on real Windows / Android devices.** The APK has REQUEST_INSTALL_PACKAGES and the same signer (versionCode 11).
-- Credits: done.
-- **Known v0.9.0 bug:** the export lists lacked `scripts/game/mark_slash.gd` (from PR #2), so the **marked slash is broken in the v0.9.0 builds**: `game.gd` load() fails ("rp_child null"). Fixed on this branch: added to all 3 presets, plus a test that every runtime script is exported. Ship v0.9.1 soon; v0.9.0 players get it through the updater.
-
-**Done on this branch (commit 3fea497, 397 tests pass, 0 fail). Not yet in CONTROLS/GAME_RULES/CHANGELOG:**
-- t99u-1: levels 2-4 each send 2 monsters from BEHIND, off-screen, walking in.
-  - `Roster.BEHIND_WAVES = {1:[1,3],2:[1,3],3:[1,3]}`: the first walker of waves 1 and 3. Risers and turrets are skipped.
-  - Code: `game._spawn_next(.., behind)`.
-- t99u-2: the L2 bubble works in the air (`_special_air`). She keeps gravity and her vx momentum, stops on landing, and still blocks.
-- t99u-3: Y chain (`mera._ychain_next`, `qf_chain` move, Tuning `YCHAIN_*`).
-  - Y again fires a follow-up that replays quick fire from f12 and fires on f14 (= canon GIF frame 16; the first fires on f10 = GIF 12).
-  - Window: presses since the Y that started the current shot, plus 220 ms grace after recovery.
-  - YYYY = `beam_ender`, 20 stamina, exactly like XXXY.
-  - YYY, L2 = pulse wave (`pulse_wave.gd`): knockback only, 3 stamina.
-  - YYY, X = heal pose + vertical beam (`vbeam.gd`): 3 x size to airborne/flying enemies in the column, 12 stamina.
-- t101u: Up+Y vertical quick fire, as a 67 ms chord in either order.
-  - Y then Up: `_chord_convert`.
-  - Up then Y: `_air_tick` undoes the fresh jump.
-  - It plays the heal pose and fires the same bolt straight up (`Shot.up`).
-  - Up, then Y more than 67 ms later = jump + aerial dash as before. Keyboard Up+S is tested.
-- Still to do for these: screenshots/GIF of the Y chain, doc updates (CONTROLS, GAME_RULES, CHANGELOG), and a visual check of the f14 spawn point (-32,-41), the heal-pose tip (-15,-74) and the vbeam look.
-
-**QUEUED, not started:**
-- (t108u) Rising slash: make the windup 4x faster, and the vertical rise 2x faster and 2x the distance.
-- (t108u) Start/Enter must actually PAUSE the game (freeze gameplay), not just bring up the controls.
-- t103u (1) projectile parry. A timed basic attack (X, `atk1`/`jatk1`) whose hitbox meets an enemy projectile within about 150 ms of the hitbox going live reflects it at its shooter (or the nearest enemy), friendly and damaging. This includes dragon bolts, which need a `deflect()` like `enemy_shot.gd`.
-- t103u (2) an L2 bubble parry of a melee attack also knocks the attacker back hard (plus the existing parry effects).
-- Player/enemy projectile collisions: both explode, and beams destroy enemy projectiles.
-- Then:
-  - tests and docs for all of it;
-  - bump `application/config/version` to 0.9.1 and Android `version/code` to 12;
-  - export the 3 builds plus SHA256SUMS.txt;
-  - release v0.9.1-playable as Latest (not pre-release, so v0.1 never becomes Latest again).
-- Repo rulesets 26282516 (branches) and 26282517 (tags) block creating branches and tags. Disabling one briefly needs the owner's approval; re-enable it right after.
+## v0.9.1 status (2026-10-31)
+PR #4 merged the Y-chain work onto `main`. The old queue (t108u, t103u) is implemented in the working tree and covered by `_queued_tests`. Not released: no Windows/Linux/Android build and no `SHA256SUMS.txt` yet. Android version code is 12. The release keystore is not in this checkout. Screenshots of the Y chain are still outstanding.
+Repo rulesets block creating branches and tags. Push to the existing `wip/v0.9.1-ychain` branch. The v0.9.0 builds shipped without `mark_slash.gd` in the export list; that script is in all three presets now.
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -96,7 +60,7 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 | **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
 
 ## Left (see `docs/WORKFLOW.md`)
-- S0-S4 of the 2026-10-31 plan are done. Nothing from that plan is open. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
+- S0-S4 of the 2026-10-31 plan are done. v0.9.1 gameplay (faster rising slash, real pause, swing parry, melee knockback, shot clashes) is implemented and not released. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
 - **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
 - **Every release must also attach `SHA256SUMS.txt`** (`sha256sum` over all binaries); the in-game updater refuses a release without it. Before exporting:
   - bump `application/config/version` in `project.godot`;

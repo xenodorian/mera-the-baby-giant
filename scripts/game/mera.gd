@@ -14,7 +14,7 @@ const RUN := 200.0
 const DASH := 400.0         # slide, dodge attack lunge
 const DASH_FAST := 1600.0   # v0.3 ground/aerial dash: 2x the distance in half the time (4x the old 400 px/s)
 const DODGE := 800.0        # v0.3 back dodge: same distance as before in half the time
-const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0}   # animation playback rate (keeps every key frame)
+const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0, "datk2": Tuning.RSLASH_WINDUP_SPEED}   # datk2: windup only; the rise drops back to 1x
 const FLY := 320.0
 const GRAVITY := 1500.0
 const JUMP_V := 520.0
@@ -88,6 +88,7 @@ var last_l2_t := -1e9          # Mera.now of the latest L2 press
 var counter_until := -1e9      # Mera.now until which her hits count as counters
 var parries := 0               # tests / stats
 var deflects := 0
+var swing_parries := 0         # v0.9.1: projectiles reflected by a timed basic attack (tests)
 var _neutral := ""
 var _hover_t := 0.0
 var _bob := 0.0
@@ -377,6 +378,42 @@ func _update_beam() -> void:
 	beam_end_x = art_to_world(Vector2(x, bo.y)).x
 
 
+## world rect of the live beam (v0.9.1: it destroys enemy projectiles). Empty when no beam is out.
+func beam_world_rect() -> Rect2:
+	if beam_len <= 0.0 or anim == null or anim.frames.is_empty():
+		return Rect2()
+	var f: Dictionary = _cur()
+	if not f.has("bo"):
+		return Rect2()
+	var origin := art_to_world(Vector2(float(f["bo"][0]), float(f["bo"][1])))
+	var half_h := 28.0 * shown
+	var x0 := minf(origin.x, beam_end_x)
+	return Rect2(x0, origin.y - half_h, absf(beam_end_x - origin.x), half_h * 2.0)
+
+
+## v0.9.1: atk1 / jatk1, within SWING_PARRY_MS of the hitbox going live
+func swing_parry_open() -> bool:
+	if state != "move":
+		return false
+	var k := String(mv.get("key", ""))
+	if k not in ["atk1", "jatk1"]:
+		return false
+	if not mv.has("swing_t"):
+		return false
+	return now - float(mv["swing_t"]) <= Tuning.SWING_PARRY_MS
+
+
+func _track_swing() -> void:
+	var k := String(mv.get("key", ""))
+	if k not in ["atk1", "jatk1"]:
+		return
+	var f: Dictionary = _cur()
+	if f.get("hit") == null:
+		return
+	if not mv.has("swing_t"):
+		mv["swing_t"] = now
+
+
 func _rot_rect(r: Rect2) -> Rect2:
 	var c := TILT_PIVOT * shown
 	var out := Rect2()
@@ -483,6 +520,9 @@ func _physics_process(delta: float) -> void:
 	_update_boxes()
 	if state == "move":
 		_do_hits()
+		_track_swing()
+	if game != null:
+		game.resolve_projectiles()
 	if barrier.visible:
 		barrier.frame = int(now / float(AnimLib.spells["barrier"]["ms"])) % barrier.hframes
 
@@ -1569,8 +1609,11 @@ func _move_tick(delta: float) -> void:
 			# v0.4: the dodge attack no longer chains (mashing X can't reach the rising slash or the slam)
 		"datk2":
 			vel.x = 0.0
-			if i >= 7 and i <= 11:
-				vel.y = -380.0 * shown
+			# v0.9.1 (t108u): windup plays at 4x. Drop to 1x on the last windup frame so the rise
+			# (frames RISE_FROM..RISE_TO) is not consumed at 4x. 2x vy over that 1x window is 2x distance.
+			anim.speed = Tuning.RSLASH_WINDUP_SPEED if i < Tuning.RSLASH_RISE_FROM - 1 else 1.0
+			if i >= Tuning.RSLASH_RISE_FROM and i <= Tuning.RSLASH_RISE_TO:
+				vel.y = Tuning.RSLASH_VY * shown
 				on_ground = false
 			var ys := _find("btn_y", float(mv["t0"]))           # Y any time in the rising slash -> slam
 			if i >= 13 and not ys.is_empty():
@@ -1938,6 +1981,10 @@ func _parry(src: Node, from_x: float) -> void:
 	_face(1 if from_x > global_position.x else -1)
 	if src != null and is_instance_valid(src) and src.has_method("parried"):
 		src.parried(Tuning.PARRY_STUN_S)
+		# v0.9.1 (t103u): a melee parry also knocks the attacker back hard (bosses stay put)
+		if src.get("boss") != true and "vx" in src:
+			var away := 1.0 if src.global_position.x >= global_position.x else -1.0
+			src.vx = away * Tuning.PARRY_KNOCK_VX
 	if game:
 		game.parry_fx(Vector2(global_position.x + facing * 30.0 * shown, global_position.y - 40.0 * shown), shown)
 

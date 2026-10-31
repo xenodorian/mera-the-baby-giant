@@ -18,6 +18,7 @@ var flight := 1.0               # solved flight time (s)
 var launch_vel := Vector2.ZERO  # tests
 var launch_pos := Vector2.ZERO
 var land_x := NAN               # tests: where it hit the ground / Mera
+var deflected := false
 ## the fireball art (ansimuz hell beast) faces LEFT: blunt round head at -x, flame trail at +x
 const NATIVE_HEAD := -1
 
@@ -79,6 +80,9 @@ func rect() -> Rect2:
 func _physics_process(delta: float) -> void:
 	if done:
 		return
+	if deflected:
+		_deflected_tick(delta)
+		return
 	t += delta
 	vel.y += Tuning.DRAGON_BOLT_G * delta
 	position += vel * delta
@@ -119,6 +123,59 @@ func _pop() -> void:
 	done = true
 	if game:
 		game.hit_spark(global_position, 3.0)
+	queue_free()
+
+
+## v0.9.1: a timed basic attack sends the bolt back at the dragon (or the nearest enemy). Friendly and damaging.
+func deflect() -> void:
+	deflected = true
+	t = 0.0
+	if warn:
+		warn.visible = false
+	var sp := maxf(vel.length(), 520.0) * Tuning.DEFLECT_SPEED
+	var aim: Node = dragon if is_instance_valid(dragon) and dragon.has_method("alive") and dragon.alive() else null
+	if aim == null and game != null:
+		var best_d := 1.0e20
+		for e in game.enemies():
+			if not e.alive():
+				continue
+			var d := global_position.distance_squared_to(e.hurt_rect().get_center())
+			if d < best_d:
+				best_d = d
+				aim = e
+	if aim != null:
+		vel = (aim.hurt_rect().get_center() - global_position).normalized() * sp
+	else:
+		vel = (-vel.normalized() if vel.length() > 1.0 else Vector2(-1, 0)) * sp
+	if spr:
+		spr.modulate = Color(1.7, 1.35, 0.7)
+	_orient()
+
+
+func _deflected_tick(delta: float) -> void:
+	t += delta
+	position += vel * delta
+	_orient()
+	if game != null:
+		for e in game.enemies():
+			if e.alive() and rect().intersects(e.hurt_rect()):
+				e.take_damage(Tuning.DEFLECT_DMG, global_position.x - signf(vel.x) * 40.0, "bolt")
+				if game:
+					game.hit_spark(global_position, 3.0)
+				HitStop.stop(Tuning.HITSTOP_HEAVY_MS)
+				pop_clash()
+				return
+	if t > 2.5 or (game != null and position.y >= float(game.GROUND_Y)):
+		pop_clash()
+
+
+## v0.9.1: met a player shot or a beam. Explodes in the air and does not hurt Mera.
+func pop_clash() -> void:
+	if done:
+		return
+	done = true
+	if game:
+		game.explode(global_position, 1.6, false)
 	queue_free()
 
 

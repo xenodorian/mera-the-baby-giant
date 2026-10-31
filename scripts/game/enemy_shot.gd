@@ -68,14 +68,38 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 
-## v0.8: sent back toward whoever shot it (or straight back), faster, and with a fresh lifetime
+## v0.8: sent back toward whoever shot it (or the nearest enemy), faster, and with a fresh lifetime
 func deflect() -> void:
 	deflected = true
 	t = 0.0
-	var sp := vel.length() * Tuning.DEFLECT_SPEED
-	if is_instance_valid(shooter) and shooter.alive():
-		vel = (shooter.hurt_rect().get_center() - global_position).normalized() * sp
+	var sp := maxf(vel.length(), 280.0) * Tuning.DEFLECT_SPEED
+	var aim: Node = shooter if is_instance_valid(shooter) and shooter.has_method("alive") and shooter.alive() else _nearest_enemy()
+	if aim != null:
+		vel = (aim.hurt_rect().get_center() - global_position).normalized() * sp
 	else:
-		vel = -vel.normalized() * sp
-	spr.scale.x = -spr.scale.x
-	spr.modulate = Color(1.6, 1.4, 0.8)
+		vel = (-vel.normalized() if vel.length() > 1.0 else Vector2(-1, 0)) * sp
+	if spr:
+		spr.scale.x = -spr.scale.x
+		spr.modulate = Color(1.6, 1.4, 0.8)
+
+
+func _nearest_enemy() -> Node:
+	var best: Node = null
+	var best_d := 1.0e20
+	if game == null:
+		return null
+	for e in game.enemies():
+		if not e.alive():
+			continue
+		var d := global_position.distance_squared_to(e.hurt_rect().get_center())
+		if d < best_d:
+			best_d = d
+			best = e
+	return best
+
+
+## v0.9.1: met a player shot or a beam. Explodes; does not hurt Mera.
+func pop_clash() -> void:
+	if game:
+		game.explode(global_position, 1.1, false)
+	queue_free()

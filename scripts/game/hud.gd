@@ -13,7 +13,7 @@ const CONTROLS := [
 	["D-pad / left stick", "arrows", "walk left / right, Up = jump, Down = crouch"],
 	["A (hold) + direction", "Z (hold) + arrow", "run      (Down + A = slide)"],
 	["B", "X", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire"],
-	["B+Y together", "X+S", "rising slash, no dodge (free)    Y again during it = slam (free)"],
+	["B+Y together", "X+S", "rising slash (fast windup), no dodge (free)    Y again during it = slam (free)"],
 	["X", "A", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
 	["X X Y", "A A S", "1x 2x 3x (with slash)     X X X Y = combo into beam, 20 stamina"],
 	["Y", "S", "quick fire (bolt) 5 stamina     X+Y together = rear explosion 12 stamina"],
@@ -23,13 +23,14 @@ const CONTROLS := [
 	["L1", "Q", "heal: drink a green potion, +1 size (max 6x)"],
 	["L2 tap (rage 100 %)", "1 tap", "lightning strike from the sky (AOE), uses the whole meter"],
 	["L2 hold", "1 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
-	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered, shots fly back, x2 counter"],
+	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
+	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
 	["Y in the bubble (rage 100 %)", "S in the bubble", "lightning strike while staying shielded"],
 	["L2 + R2 (rage 100 %)", "1 + 2", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
 	["L1+R1+L2+R2 (Fury, or meter full)", "Q+W+1+2", "freeze; slash marked enemies (number, swipe, or right stick) for 3"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
-	["Start", "Enter / F1", "this overlay (and restart after Game Over)"],
+	["Start", "Enter / F1", "pause (game freezes) and this overlay; again to resume. Restarts after Game Over"],
 	["Back (Share)", "Tab / G", "animation gallery (Left/Right: previous/next, A: replay)"],
 	["-", "F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
 	["Menus", "arrows, Z ok, X back", "level select, ally picker, level clear / Game Over (Esc quits, F11 fullscreen)"],
@@ -38,6 +39,7 @@ const CONTROLS := [
 
 func _ready() -> void:
 	layer = 20
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	font = ThemeDB.fallback_font
 	ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -57,6 +59,15 @@ func queue_redraw_all() -> void:
 func _process(delta: float) -> void:
 	_flash_t = maxf(_flash_t - delta, 0.0)
 	ui.queue_redraw()
+
+
+## v0.9.1: while the game is paused the rest of the tree is frozen, so Start comes through here
+func _unhandled_input(event: InputEvent) -> void:
+	if game == null or not game.paused_play or event.is_echo():
+		return
+	if event.is_action_pressed("start"):
+		game.toggle_pause()
+		get_viewport().set_input_as_handled()
 
 
 func _txt(p: Vector2, t: String, sz: int = 28, c: Color = Color(0.95, 0.92, 0.88)) -> void:
