@@ -2042,14 +2042,20 @@ func _parry(src: Node, from_x: float) -> void:
 	Sfx.play("clang", 1.2, -2.0)
 	HitStop.stop(Tuning.HITSTOP_PARRY_MS)
 	_face(1 if from_x > global_position.x else -1)
+	var small := crouch_bubble_on() and (barrier_on or now - last_l2_t > Tuning.PARRY_MS)
 	if src != null and is_instance_valid(src) and src.has_method("parried"):
-		src.parried(Tuning.PARRY_STUN_S)
-		# v0.9.1 (t103u): a melee parry also knocks the attacker back hard (bosses stay put)
-		if src.get("boss") != true and "vx" in src:
-			var away := 1.0 if src.global_position.x >= global_position.x else -1.0
-			src.vx = away * Tuning.PARRY_KNOCK_VX
+		src.parried(Tuning.CROUCH_PARRY_STUN_S if small else Tuning.PARRY_STUN_S)
+	_shove_attacker(src, Tuning.CROUCH_PARRY_KNOCK_PX if small else Tuning.PARRY_KNOCK_PX)
 	if game:
 		game.parry_fx(Vector2(global_position.x + facing * 30.0 * shown, global_position.y - 40.0 * shown), shown)
+
+
+## slide the attacker `px` away. No stun. Bosses stay put.
+func _shove_attacker(src: Node, px: float) -> void:
+	if src == null or not is_instance_valid(src) or src.get("boss") == true or not src.has_method("shove"):
+		return
+	var away := 1.0 if src.global_position.x >= global_position.x else -1.0
+	src.shove(away * px)
 
 
 ## an enemy projectile touched her: true when it is parried (enemy_shot.gd then flies back)
@@ -2078,6 +2084,7 @@ func take_hit(dmg: int, from_x: float, src: Node = null) -> void:
 		Sfx.play("block")
 		if game:
 			game.shake(4.0, 0.1)
+		_shove_attacker(src, Tuning.BARRIER_KNOCK_PX)
 		return
 	if crouch_bubble_on():             # v0.9.2: the small bubble leaks a quarter of the hit and does not knock her down
 		_crouch_chip(dmg, from_x)

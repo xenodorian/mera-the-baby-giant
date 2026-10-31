@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.3 (2026-10-31): parry knockback distances
+Timed full-bubble parry: `PARRY_KNOCK_PX` 400 and `PARRY_STUN_S` 2. Timed crouch parry: `CROUCH_PARRY_KNOCK_PX` 200 and `CROUCH_PARRY_STUN_S` 1. Held full bubble, no parry window: `BARRIER_KNOCK_PX` 200, no stun. The slide is `shove()` / `knock_left` at `PARRY_KNOCK_SPEED`, not a velocity that lasts the whole stun. Bosses are not shoved. Windows exe is `v0.9.3-playable`.
+
 ## v0.9.2 (2026-10-31): crouch bubble
 Holding Down raises a small free bubble. Within `PARRY_MS` of the crouch it parries like L2. After that it keeps 25% of each hit (`chip`) and does not knock her down. Windows exe is `v0.9.2-playable`. Linux and Android are still outstanding. Android `version/code` is 13. Tests: 411 pass.
 
@@ -12,7 +15,7 @@ PR #4 merged the Y-chain branch onto `main`. PR #5 merged the combat queue. The 
 - t108u rising slash: windup 4× (`RSLASH_WINDUP_SPEED`), rise 2× speed and distance (`RSLASH_VY` -760, frames 7–11 still at 1×).
 - t108u Start/Enter/F1 pauses the tree (`game.paused_play`); the HUD stays `PROCESS_MODE_ALWAYS` so Start resumes. Game Over still restarts.
 - t103u swing parry: `atk1` / `jatk1`, `Tuning.SWING_PARRY_MS` 150. `enemy_shot.deflect` and `dragon_bolt.deflect` aim at the shooter or the nearest enemy.
-- t103u melee parry also sets `vx` to `PARRY_KNOCK_VX` away from Mera (not bosses).
+- t103u melee parry slides the attacker `PARRY_KNOCK_PX` (400) via `shove()`, and stuns for `PARRY_STUN_S` (2 s). Bosses stay put.
 - Player shot vs foe shot: both `explode` with damage off. Combo beam (`beam_world_rect`) and vertical beam destroy foe shots.
 - Still not done: screenshots, Linux binary, Android APK. Android `version/code` is already 12. The release keystore is not in this checkout, so do not publish an APK signed with a different key.
 - Y-chain (t99u / t101u) is on `main` via PR #4, including the `mark_slash.gd` export fix. Docs for those moves are in CONTROLS / GAME_RULES / CHANGELOG as of v0.9.1. Screenshots of the Y chain are still outstanding.

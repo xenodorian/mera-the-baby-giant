@@ -2232,7 +2232,7 @@ func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
-	_check("updater: this build's version comes from application/config/version (0.9.2)", U.current_version() == "0.9.2", U.current_version())
+	_check("updater: this build's version comes from application/config/version (0.9.3)", U.current_version() == "0.9.3", U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
 	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:
@@ -2908,7 +2908,7 @@ func _queued_tests() -> void:
 	for i in 4:
 		await physics_frame
 		m.invuln = 1.0
-	_check("melee parry also knocks the attacker back hard", m.parries >= 1 and m.size == 2 and wolf.global_position.x < xw - 30.0, "dx=%.0f vx=%.0f size=%d" % [wolf.global_position.x - xw, wolf.vx, m.size])
+	_check("melee parry knocks the attacker 400 px and stuns for 2 s", m.parries >= 1 and m.size == 2 and wolf.state == "stun" and wolf.stun_t > 1.7 and absf(absf(wolf.global_position.x - xw) + absf(wolf.knock_left) - T.PARRY_KNOCK_PX) < 8.0, "dx=%.0f left=%.0f stun=%.2f" % [wolf.global_position.x - xw, wolf.knock_left, wolf.stun_t])
 	g.queue_free()
 	await physics_frame
 
@@ -2934,7 +2934,7 @@ func _queued_tests() -> void:
 	m.crouch_t = m.now - 40.0
 	var sz: int = m.size
 	m.take_hit(2, cwolf.global_position.x, cwolf)
-	_check("crouch parry: Down within %d ms negates the hit, staggers and opens a counter" % int(T.PARRY_MS), m.size == sz and m.parries >= 1 and cwolf.state == "stun" and m.counter_active() and m.state == "ground", "size=%d parries=%d wolf=%s state=%s" % [m.size, m.parries, cwolf.state, m.state])
+	_check("crouch parry: Down within %d ms negates the hit, staggers 1 s, shoves 200 px" % int(T.PARRY_MS), m.size == sz and m.parries >= 1 and cwolf.state == "stun" and cwolf.stun_t > 0.9 and cwolf.stun_t < 1.15 and absf(absf(cwolf.knock_left) - T.CROUCH_PARRY_KNOCK_PX) < 1.0 and m.counter_active() and m.state == "ground", "size=%d parries=%d wolf=%s stun=%.2f knock=%.0f" % [m.size, m.parries, cwolf.state, cwolf.stun_t, cwolf.knock_left])
 	var hp0: int = cwolf.hp
 	m.deal(cwolf, 1, m.global_position.x, "melee")
 	_check("crouch parry: the counter hit deals x%s" % str(T.PARRY_COUNTER_MULT), hp0 - cwolf.hp == m.size * int(T.PARRY_COUNTER_MULT), "dealt=%d size=%d" % [hp0 - cwolf.hp, m.size])
@@ -2957,5 +2957,16 @@ func _queued_tests() -> void:
 	var held_shot: bool = not m.try_parry_shot(cshot)
 	_check("crouch parry: a projectile in the window is deflected, a later one is not", deflected and held_shot and m.deflects >= 1, "def=%s late=%s n=%d" % [deflected, held_shot, m.deflects])
 	cshot.queue_free()
+	m.forced = {}
+	m.barrier_on = true
+	m.last_l2_t = -1e9
+	m.crouch_t = -1e9
+	m._neutral = "idle"
+	m.invuln = 0.0
+	var before: int = m.size
+	var held: Node2D = g.spawn_enemy("werewolf", m.global_position.x + 220.0)
+	held.cooldown = 99.0
+	m.take_hit(1, held.global_position.x, held)
+	_check("held full bubble: 200 px knockback and no stun", m.barrier_on and m.size == before and held.state != "stun" and absf(absf(held.knock_left) - T.BARRIER_KNOCK_PX) < 1.0, "size=%d state=%s knock=%.0f" % [m.size, held.state, held.knock_left])
 	g.queue_free()
 	await physics_frame
