@@ -27,10 +27,31 @@ This is a variation of Combo A. Hits 1 and 2 and the opening of hit 3 are identi
 
 - **Cost:** the hold adds 23 × 40 = 0.92 s over Combo A's ending, so it should cost meter or have a cooldown.
 - The beam can hit anything behind her (a back-attack ender). The hitbox is a horizontal strip about 150 px long starting at the wand tip during fire and sustain.
-- **Variant:** pick1 v4 (`pick1_v4_projectile_cast.gif`) swaps the beam for a single rear fireball that explodes (ground explosion). That version doesn't delay her: f24 plays 4 × 40 ms and recovers normally. Use it if the beam's hold feels too long for a combo ender.
+- **Variant:** a single fireball that explodes (Ground Explosion) instead of the beam. It doesn't delay her: the fire pose plays 4 × 40 ms, then she recovers normally. The user's choice for the rear projectile is **pick2 v3** (`pick2_v3_projectile_cast.gif`, fired on 3x atk f4). pick1 v4 (`pick1_v4_projectile_cast.gif`, fired on f24) is the same idea on this ender, and `pick1_v4_projectile_sfx.mp4` adds sound (melee swipe on f26).
 - **Root motion:** the combo moves her about 15 px left over the whole string, measured idle to idle.
+
+## Quick-fire ranged attack (dodge atk 1x bolt, pick3 v3)
+A fast, cheap ranged poke: no explosion, the bolt simply crosses the screen.
+
+- **Input (proposal):** S (cast), or back + A to reuse the dodge-attack motion. She steps back (f2-7), swings forward (f8-13) and fires on f14.
+- **Preview:** `previews/beam/cast_sequences/pick3_v3_bolt_cast.gif`. It's 420 native px wide (1680 px at 4x), 2.08 s, with the timeline in `pick3_v3_bolt_timeline.json`.
+
+| Step | Frames | ms | Effect |
+|---|---|---|---|
+| idle | idle f0, f1 | 60 each | – |
+| wind-up | dodge atk 1x f0-13 | 40 each | charge orb on the wand tip ramps up (explosion palette); rune ring closes over f11-13 |
+| fire | f14, f15 once each (no hold) | 40 each | bolt leaves the tip (94,22), with muzzle flash; recoil kick 2 → 1 px (away from the shot) |
+| recovery | f16-18 → idle | 40 each, then idle at 60 | she's back in idle at 880 ms while the bolt is still flying |
+
+- **Projectile:**
+  - It flies perfectly level to the LEFT (y never changes) at a constant 16 px per 40 ms (400 px/s, native).
+  - It leaves the 420 px screen about 0.9 s after firing.
+  - No explosion and no pop.
+  - It's a small elongated head (about 10×5 px) with a short 8-step trail and a subtle size/brightness flicker. Faint sparks fall off behind it.
+- **Gameplay:** make it a hitscan-free projectile at about 400 px/s with a 6×4 px hitbox. Despawn it off-screen or on the first hit.
 
 ## Dodge-attack spell (pick3)
 dodge atk 1x f14 fires LEFT (forwards) from tip (94,22).
 - v1 (`pick3_dodge_atk_1x_f14_cast.gif`): the beam version.
 - v2 (`pick3_v2_projectile_cast.gif`): a small quick bolt that pops in the air.
+- v3 (`pick3_v3_bolt_cast.gif`): the quick-fire ranged attack above.

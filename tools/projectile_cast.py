@@ -51,6 +51,11 @@ CFG = {
      hold=[('3x', 4)] * 4, recoil=[3, 2, 1, 0], rec=[('3x', i) for i in range(5, 34)], pose=('3x', 4), dir=+1, ang=11.0,
      speed=10, dist=130, drop=True, big=True, ex=ground_explosion, anchor='ground', c0=0.45, n_motes=46, ring=3,
      n_embers=34, ember_r=(8, 34), linger=1000),
+ # user: pick3 as the quick-fire ranged attack - a level bolt at constant speed across the whole screen, no explosion
+ 'pick3_v3_bolt': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('d1', i, 40) for i in range(14)], offs={},
+     hold=[('d1', 14), ('d1', 15)], recoil=[2, 1], rec=[('d1', i) for i in range(16, 19)], pose=('d1', 14),
+     speed=16, cross=True, level=True, canvas_w=420, drop=False, big=False, ex=None, anchor='centre', c0=0.15, n_motes=40, ring=3,
+     n_embers=0, ember_r=(3, 12), linger=360),
  'pick3_v2_projectile': dict(pre=[('idle', 0, 60), ('idle', 1, 60)], lead=[('d1', i, 40) for i in range(14)], offs={},
      hold=[('d1', 14), ('d1', 15)], recoil=[2, 1], rec=[('d1', i) for i in range(16, 19)], pose=('d1', 14),
      speed=12, dist=90, drop=False, big=False, ex=small_pop, anchor='centre', c0=0.15, n_motes=40, ring=3,
@@ -60,7 +65,7 @@ TICK = 40
 
 def build(name, C):
     rng = random.Random(7)
-    OFFS = {**cs.OFF, **C['offs']}; EX, EX_MS = C['ex']()
+    OFFS = {**cs.OFF, **C['offs']}; EX, EX_MS = C['ex']() if C['ex'] else ([], [])
     seg = []; t = 0
     for a, f, d in C['pre']: seg.append((t, d, a, f, 'idle', None)); t += d
     for li, (a, f, d) in enumerate(C['lead']): seg.append((t, d, a, f, 'lead', li)); t += d
@@ -73,7 +78,13 @@ def build(name, C):
         iou, dx = cs.best_dx(cs.mask(cs.img(la, lf)), cs.mask(cs.img('idle', ii)), cs.GROUND - cs.bottom(cs.img('idle', ii)) - OFFS[la][1], range(-200, 200))
         if iou > best[0]: best = (iou, dx, ii)
     IDLE_OFF = (OFFS[la][0] + best[1], 0)
-    SPEED = C['speed'] / TICK; DIST = C['dist']; T_HIT = T_FIRE + DIST / SPEED; T_EXP_END = T_HIT + sum(EX_MS)
+    SPEED = C['speed'] / TICK; DIST = C.get('dist')
+    if C.get('cross'):   # fixed wide canvas, Mera near the right edge; the bolt flies until it is fully off the left edge
+        mx = max([cs.img(a, f).getbbox()[2] + OFFS[a][0] for a, f in [(x[0], x[1]) for x in C['pre'] + C['lead']] + C['hold'] + C['rec']] +
+                 [cs.img('idle', i).getbbox()[2] + IDLE_OFF[0] for i in range(10)])
+        X0C = mx + 10 - C['canvas_w']; tpx = cs.TIPS[C['pose'][0]][C['pose'][1]][0] + OFFS[C['pose'][0]][0]
+        DIST = tpx - (X0C - 16)
+    T_HIT = T_FIRE + DIST / SPEED; T_EXP_END = T_HIT + sum(EX_MS)
     t_end = int(max(T_EXP_END + C['linger'], T_IDLE + 20 * 60)); k = 0
     while t < t_end: seg.append((t, 60, 'idle', (best[2] + k) % 10, 'idle_end', None)); t += 60; k += 1
     T_END = t
@@ -92,6 +103,7 @@ def build(name, C):
     TIP = tip_world(*C['pose']); GY = cs.GROUND; R0 = C['recoil'][0]
     def proj_pos(tm):
         s = (tm - T_FIRE) * SPEED; u = s / DIST; x0, y0 = TIP[0] - DIR * (R0 - 2), TIP[1]
+        if C.get('level'): return x0 + DIR * s, y0           # perfectly level, constant speed
         if C['drop']:   # leaves along the wand angle, curves down to land just above the ground at DIST
             k = (GY - 3 - y0 - DIST * TANA) / (DIST * DIST); y = y0 + s * TANA + k * s * s
         else: y = y0 + 0.08 * s
@@ -102,8 +114,8 @@ def build(name, C):
     sparks = []; tt = T_FIRE
     while tt < T_HIT:
         x, y = proj_pos(tt)
-        for _ in range(2 if C['big'] else 1):
-            sparks.append((tt, rng.uniform(500, 1200) * (1 if C['big'] else 0.7), x + rng.uniform(1, 5), y + rng.uniform(-2, 2), rng.uniform(-0.002, 0.004), rng.uniform(-0.006, -0.001), rng.uniform(0.6, 0.98)))
+        for _ in range(0 if C.get('cross') and int(tt) % 40 else (2 if C['big'] else 1)):
+            sparks.append((tt, rng.uniform(500, 1200) * (0.45 if C.get('cross') else 1 if C['big'] else 0.7), x + rng.uniform(1, 5), y + rng.uniform(-2, 2), rng.uniform(-0.002, 0.004), rng.uniform(-0.006, -0.001), rng.uniform(0.6, 0.98)))
         tt += 20
     for _ in range(10 if C['big'] else 5):
         sparks.append((T_FIRE, rng.uniform(200, 450), TIP[0] - DIR, TIP[1] + rng.uniform(-1, 1), -DIR * rng.uniform(0.005, 0.03), rng.uniform(-0.02, 0.02), 0.95))
@@ -116,13 +128,14 @@ def build(name, C):
                        rng.uniform(-0.004, 0.004), rng.uniform(-0.008, -0.002), 'ember' if rng.random() < 0.55 else 'smoke'))
     def life_k(t0, life, tm):
         u = (tm - t0) / life; return None if u < 0 or u >= 1 else u
-    ex_pos = (int(X_HIT - EX[0].width // 2), int(GY - 100)) if C['anchor'] == 'ground' else (int(round(X_HIT)) - 16, int(round(Y_HIT)) - 16)
+    ex_pos = None if not EX else (int(X_HIT - EX[0].width // 2), int(GY - 100)) if C['anchor'] == 'ground' else (int(round(X_HIT)) - 16, int(round(Y_HIT)) - 16)
     # canvas
     xs, ys = [], []
     for s in seg:
         b = cs.img(s[2], s[3]).getbbox(); o = woff(s[2], s[4]); xs += [b[0] + o[0], b[2] + o[0] + 4]; ys += [b[1] + o[1], b[3] + o[1]]
-    xs += [ex_pos[0], ex_pos[0] + EX[0].width]; ys += [ex_pos[1] + min(e.getbbox()[1] for e in EX if e.getbbox()), ex_pos[1] + max(e.getbbox()[3] for e in EX if e.getbbox())]
+    if EX: xs += [ex_pos[0], ex_pos[0] + EX[0].width]; ys += [ex_pos[1] + min(e.getbbox()[1] for e in EX if e.getbbox()), ex_pos[1] + max(e.getbbox()[3] for e in EX if e.getbbox())]
     X0, Y0 = int(min(xs)) - 6, int(min(ys)) - 4; W = int(max(xs)) - X0 + 6; H = int(max(ys)) - Y0 + 8
+    if C.get('cross'): X0 = X0C; W = C['canvas_w']; H += (H % 2)
     YY, XX = np.mgrid[0:H, 0:W].astype(float); BAY = np.tile(mb.BAYER, (H // 4 + 1, W // 4 + 1))[:H, :W]
     def disc(E, cx, cy, rad, peak):
         d = np.hypot(XX - cx, YY - cy); np.maximum(E, np.clip(1 - d / rad, 0, 1) * peak, out=E)
@@ -151,7 +164,15 @@ def build(name, C):
         if T_FIRE <= tm < T_FIRE + TICK:   # muzzle flash
             disc(E, TIP[0] + rc[0] - X0, TIP[1] - Y0, 4.5 if C['big'] else 3.0, 1.05)
             L += 0.8 * np.exp(-np.hypot(XX - (TIP[0] - X0), YY - (TIP[1] - Y0)) / 20); glow = 0.8
-        if T_FIRE <= tm < T_HIT:           # the shot: head + trail along its real path
+        if C.get('cross') and T_FIRE <= tm < T_HIT:   # quick-fire bolt: elongated level head, short trail, subtle flicker
+            px, py = proj_pos(tm); px -= X0; py -= Y0; fk = math.sin(tm * 0.13) * math.sin(tm * 0.047 + 1)
+            for j in range(1, 9):
+                qx = px - DIR * j * 2.4; rx, ry = max(1.0, 3.6 - j * 0.3), max(0.7, 1.8 - j * 0.14)
+                d = np.hypot((XX - qx) / rx, (YY - py) / ry); np.maximum(E, np.clip(1 - d, 0, 1) * (0.95 - j * 0.11), out=E)
+            rx, ry = 5.2 + 0.6 * fk, 2.3 + 0.25 * fk
+            d = np.hypot((XX - px) / rx, (YY - py) / ry); np.maximum(E, np.clip(1 - d, 0, 1) * (1.12 + 0.06 * fk), out=E)
+            L += 0.3 * np.exp(-np.hypot(XX - px, YY - py) / 11)
+        elif T_FIRE <= tm < T_HIT:           # the shot: head + trail along its real path
             px, py = proj_pos(tm); px -= X0; py -= Y0
             n, r0h, r0t, dr = (16, 3.6, 3.4, 0.17) if C['big'] else (9, 2.3, 2.0, 0.13)
             for j in range(n):
@@ -225,6 +246,10 @@ def build(name, C):
     picks = [('start', 0), ('lead early', lead_t[0]), ('lead mid', lead_t[len(lead_t) // 2]), ('lead last (peak)', lead_t[-1]), ('fire', T_FIRE),
              ('flight', T_FIRE + 0.45 * (T_HIT - T_FIRE)), ('impact', T_HIT), ('explosion mid', T_HIT + sum(EX_MS) * 0.4),
              ('lingering', T_EXP_END + 100), ('fading', T_EXP_END + C['linger'] * 0.6)]
+    if C.get('cross'):
+        fl = lambda u: T_FIRE + u * (T_HIT - T_FIRE)
+        picks = picks[:5] + [('flight 15% (recovering)', fl(0.15)), ('flight 35% (idle)', fl(0.35)), ('flight 60%', fl(0.6)),
+                             ('flight 90%', fl(0.9)), ('off-screen', T_HIT + 120)]
     cols = 2; sh = Image.new('RGB', (cols * W * 2, ((len(picks) + 1) // 2) * (H * 2 + 16))); dr = ImageDraw.Draw(sh)
     for j, (lab, tm) in enumerate(picks):
         i = at(tm); x, y = (j % cols) * W * 2, (j // cols) * (H * 2 + 16); Lg = log[i]
