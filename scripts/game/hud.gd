@@ -90,7 +90,7 @@ func _draw_ui() -> void:
 	if _flash == "fury_chord" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
 	if _flash == "ally" and _flash_t > 0.0:
-		_txt(Vector2(260, 146), "R1: no ally card collected yet", 22, Color(0.6, 0.85, 1.0))
+		_txt(Vector2(260, 146), "R1: no ally card to use (or that ally / two allies are already out)", 22, Color(0.6, 0.85, 1.0))
 	# potions
 	var pc := Color(0.45, 0.95, 0.45)
 	if _flash == "potions" and _flash_t > 0.0:
@@ -101,6 +101,19 @@ func _draw_ui() -> void:
 	# stamina (v0.4): bar length grows with the max (60 -> 120)
 	var sw := 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0
 	var sc := Color(0.25, 0.6, 1.0)
+	# v0.7 ally cards held
+	var cx := 36.0
+	for aid in Allies.IDS:
+		var n := int(game.cards.get(aid, 0))
+		if n <= 0:
+			continue
+		var cc: Color = Allies.COLORS[aid]
+		ui.draw_rect(Rect2(cx, 250, 26, 36), Color(0.06, 0.05, 0.09))
+		ui.draw_rect(Rect2(cx, 250, 26, 36), cc, false, 4.0)
+		_txt(Vector2(cx + 32, 280), "%d" % n, 24, cc)
+		cx += 76.0
+	if cx > 36.0:
+		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
 	if _flash == "stamina" and _flash_t > 0.0:
 		sc = Color(1, 0.3, 0.3)
 	_txt(Vector2(36, 194), "STAM", 26, Color(0.6, 0.8, 1.0))

@@ -10,6 +10,7 @@ extends Node2D
 ##   --shots=PREFIX   with --demo: save PREFIX_<frame>.png at the frames listed by --at=f1,f2,...
 ##   --quit=N         quit after N frames
 ##   --level=N        play level N (1-4) directly
+##   --enemy=ID  --cards=a,b  --summon=ID   (v0.6/v0.7 captures: spawn an enemy, hold cards, summon an ally)
 
 const GROUND_Y := 1060.0
 const ART := 5
@@ -68,7 +69,15 @@ var boss_dead := false
 var wave_i := 0
 var wave_type_i := 0
 var trickle_t := 8.0
-var spawn_arg := ""          # --enemy=ID: one of that enemy ahead of Mera (screenshots)
+var spawn_arg := ""
+# v0.7 allies (scripts/game/allies.gd, ally.gd, ally_card.gd, ally_picker.gd)
+const ALLY := preload("res://scripts/game/ally.gd")
+const CARD := preload("res://scripts/game/ally_card.gd")
+var cards := {}               # ally id -> cards held
+var allies_on: Array = []
+var summons := 0
+var picker: CanvasLayer
+var card_nodes: Array = []          # --enemy=ID: one of that enemy ahead of Mera (screenshots)
 
 
 func _ready() -> void:
@@ -102,6 +111,10 @@ func _ready() -> void:
 	hud = load("res://scripts/game/hud.gd").new()
 	hud.game = self
 	add_child(hud)
+	picker = load("res://scripts/game/ally_picker.gd").new()
+	picker.game = self
+	add_child(picker)
+	_place_cards()
 	_parse_args()
 	mera.set_size(mera.size, true)
 	explored_max = mera.position.x
@@ -180,6 +193,12 @@ func _parse_args() -> void:
 			wait_frames = int(v)
 		elif a.begins_with("--quit="):
 			quit_at = int(v)
+		elif a.begins_with("--summon="):         # --summon=dancer: that ally comes at once (capture / smoke tests)
+			cards[v] = int(cards.get(v, 0)) + 1
+			summon_type.call_deferred(v)
+		elif a.begins_with("--cards="):          # --cards=priestess,ranger (capture / testing)
+			for c in v.split(","):
+				cards[c] = int(cards.get(c, 0)) + 1
 		elif a.begins_with("--enemy="):
 			spawn_arg = v
 		elif a == "--demo":
@@ -377,6 +396,80 @@ func on_enemy_defeated(e: Node2D) -> void:
 		Sfx.play("boom_big", 0.5)
 	else:
 		Sfx.play("boom", 1.8, -10.0)
+
+
+# ---------------------------------------------------------------- v0.7 allies
+func _place_cards() -> void:
+	for pair in Allies.CARDS.get(Levels.current, []):
+		var c: Node2D = CARD.new()
+		c.setup(self, String(pair[1]), Vector2(float(pair[0]), GROUND_Y - 40.0))
+		world.add_child(c)
+		card_nodes.append(c)
+
+
+func collect_card(c: Node2D) -> void:
+	cards[c.ally_id] = int(cards.get(c.ally_id, 0)) + 1
+	card_nodes.erase(c)
+	Sfx.play("sphere", 0.8)
+	hud.flash("pickup:%s card  (R1: summon)" % Allies.NAMES[c.ally_id])
+
+
+func allies() -> Array:
+	var out: Array = []
+	for a in allies_on:
+		if is_instance_valid(a) and a.alive():
+			out.append(a)
+	return out
+
+
+## the dancing girl while she dances (monster.gd: non-boss enemies on screen come to watch)
+func dancer() -> Node2D:
+	for a in allies():
+		if a.dancing():
+			return a
+	return null
+
+
+## card types that can be summoned now (held, and that ally isn't already on the field)
+func summonable() -> Array:
+	var out: Array = []
+	var here := {}
+	for a in allies():
+		if a.state != "leave":
+			here[a.id] = true
+	for aid in Allies.IDS:
+		if int(cards.get(aid, 0)) > 0 and not here.has(aid):
+			out.append(aid)
+	return out
+
+
+## R1 (mera.gd): one type -> summon it; several -> the picker; none -> false (fail cue)
+func summon_ally() -> bool:
+	var ch := summonable()
+	var active := 0
+	for a in allies():
+		if a.state != "leave":
+			active += 1
+	if ch.is_empty() or active >= Allies.MAX_ACTIVE:
+		return false
+	if ch.size() == 1:
+		summon_type(ch[0])
+	else:
+		picker.show_choices(ch)
+	return true
+
+
+func summon_type(aid: String) -> Node2D:
+	if int(cards.get(aid, 0)) <= 0:
+		return null
+	cards[aid] = int(cards[aid]) - 1
+	var a: Node2D = ALLY.new()
+	a.setup(self, aid)
+	world.add_child(a)
+	allies_on.append(a)
+	summons += 1
+	Sfx.play("heal", 0.8)
+	return a
 
 
 func exit_locked() -> bool:

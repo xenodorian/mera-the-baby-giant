@@ -3,10 +3,10 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.6-playable** (16-enemy roster with a dragon boss, telegraph standard, lightning in the bubble)
-- Download: GitHub → Releases → `v0.6-playable` (Windows `.exe`, Linux `.x86_64`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.7-playable** (allies: cards, R1 summon + picker, Water Priestess heal, Leaf Ranger, Brawler Girl, Dancing Girl)
+- Download: GitHub → Releases → `v0.7-playable` (Windows `.exe`, Linux `.x86_64`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
-  - `main` = the current playable game (v0.6).
+  - `main` = the current playable game (v0.7).
   - `playable-level` = the playable-level development branch.
   - `beam-attack` = the canon beam/projectile cast work (already in `playable-level`/`main`).
   - `mera-scale-test` = v0.1.
@@ -14,7 +14,7 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
   - D-pad / left stick: move. Up: jump (in Fury: fly). Down: crouch.
   - A [✕] hold: run. **X [□]: attack**. **Y [△]: special**.
   - B [○]: back dodge (B then X: dodge attack, B then Y: fast quick fire). **B+Y: rising slash** (Y again: slam). A+Y: ground dash. In the air, X: jump attack, Y: aerial dash.
-  - L1: potion. **L2 tap: lightning** (100 % rage), **L2 hold: barrier**. **Y in the bubble: lightning.** **L2+R2: Fury.** R1: allies (v0.7). **Down+Y crouching: earthquake.**
+  - L1: potion. **L2 tap: lightning** (100 % rage), **L2 hold: barrier**. **Y in the bubble: lightning.** **L2+R2: Fury.** R1: summon an ally (cards). **Down+Y crouching: earthquake.**
   - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **stamina** (60, +1/s).
   - Keyboard: arrows/WASD, Shift=A, L=B, J=X, K=Y, U/I/O/P = L1/R1/L2/R2.
 

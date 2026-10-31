@@ -205,3 +205,24 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 - **Trickle:** an empty screen for 8 s brings one more.
 - Enemies left 1.6 screens behind are removed.
 - Level 1 keeps the Fire Knight and Blue Knights.
+
+
+## Allies (v0.7)
+- **Cards:** levels 2-4 each have one colour-coded ally card per ally (4 per level, at fixed spots). Touch a card to collect it; the HUD shows the cards held.
+- **Summoning:** **R1** summons. One card type held → that ally comes at once. Several types → a **picker** opens and the game pauses:
+  - Left/Right to choose;
+  - R1 or A to summon;
+  - B to cancel.
+- **Rules:**
+  - A summon uses one card.
+  - At most 2 allies at once, one of each type.
+  - Allies stay 25 s (the dancer 12 s), then leave.
+  - Enemy attacks hurt allies too, and allies can be beaten.
+- **Level 1** has no cards.
+
+| Ally | Colour | What she does (every animation is used) |
+|---|---|---|
+| **Water Priestess** (chierit) | blue | Surfs in. **Heals Mera back up to 6x** when she is smaller (heal animation), at most once every **30 s**. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
+| **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
+| **Brawler Girl** (ansimuz, skin recolour) | orange | Jumps in. Jab → punch → kick combo; jump → jump kick → dive kick to close in or hit flyers; jumps out of rushes; hurt (also her knock-out) |
+| **Dancing Girl** (ansimuz) | pink | Skips in and dances (hips, snap, balancing, slide). **Every non-boss enemy on screen drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. **Bosses ignore her** |

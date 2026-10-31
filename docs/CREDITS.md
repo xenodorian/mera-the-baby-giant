@@ -27,6 +27,8 @@ The v0.5 level maps (`assets/levels/`, built by `tools/build_levels.py`) are com
 
 The v0.6 enemies come from copies of: ansimuz (CC0) Ogre, Werewolf, Wolf running cycle, Hell Hound, Hell Beast, Demon, Flying Eye Demon, Death, Nightmare, Enemy Ghost, Fire Skull, Mutant Toad, Grotto Escape 2 boss dragon, Gothicvania Cemetery hell-gato, skeleton and enemy-death; and chierit's Minotaur. `tools/build_roster.py` only reads them; wolf frames are cut from its sprite sheets into `assets/enemies/wolf/`.
 
+The v0.7 allies are copies of chierit's **Water Priestess** and **Leaf Ranger** (CC-BY 4.0: credit "chierit"), ansimuz's **Brawler Girl** (Streets of Fight, the skin-recolor version) and **Dancing Girl** (CC0). The cards and the picker are drawn in this project.
+
 ## Suggested credits text
 > Main character art: Merakintsugi (merakintsugi.itch.io).
 > Alternate-form character art: "Elementals" series by chierit (chierit.itch.io), CC-BY 4.0.

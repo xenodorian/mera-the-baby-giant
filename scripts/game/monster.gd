@@ -379,6 +379,9 @@ func _physics_process(delta: float) -> void:
 			_play(_cur_idle())
 	var m: Node2D = game.mera
 	_physics(delta)
+	if (state == "tell" or state == "atk") and not boss and game.has_method("dancer") and game.dancer() != null and absf(global_position.x - game.cam_x) <= 1100.0:
+		swoop_v = Vector2.ZERO           # the dancing girl starts: wind-ups and attacks are dropped to go watch her
+		_to_idle(0.0)
 	match state:
 		"spawn":
 			return
@@ -411,9 +414,47 @@ func _physics_process(delta: float) -> void:
 	_ai(m, delta)
 
 
-## S3 (dancing girl) hook: return true while distracted
-func _distracted(_delta: float) -> bool:
-	return false
+## v0.7 dancing girl: every non-boss enemy on screen rushes to her side and jumps up and down, cheering
+var distracted_t := 0.0
+var cheer_hops := 0
+
+
+func _distracted(delta: float) -> bool:
+	if boss or game == null or not game.has_method("dancer"):
+		return false
+	var dn: Node2D = game.dancer()
+	if dn == null or absf(global_position.x - game.cam_x) > 1100.0 or absf(dn.global_position.x - global_position.x) > 1600.0:
+		if distracted_t > 0.0:
+			distracted_t = 0.0
+			_to_idle(0.3)
+		return false
+	distracted_t += delta
+	marker.visible = false
+	var slot := (float(posmod(get_instance_id(), 7)) - 3.0) * 70.0
+	slot += 140.0 * signf(slot if slot != 0.0 else 1.0)
+	var tx: float = dn.global_position.x + slot
+	var d := tx - global_position.x
+	var face := 1 if dn.global_position.x > global_position.x else -1
+	if absf(d) > 24.0:
+		_face(1 if d > 0.0 else -1)
+		vx = signf(d) * maxf(speed, 260.0) * 1.6
+		if sprite.animation != _cur_move():
+			_play(_cur_move())
+		if state != "move":
+			_set_state("move")
+		return true
+	vx = 0.0
+	_face(face)
+	if state != "cheer":
+		_set_state("cheer")
+		_play(_cur_idle())
+	if flyer:
+		position.y = rest_y + 60.0 - absf(sin(distracted_t * 7.0)) * 90.0
+	elif on_ground:
+		vy = -720.0                       # hop, hop, hop
+		on_ground = false
+		cheer_hops += 1
+	return true
 
 
 func _physics(delta: float) -> void:
@@ -553,6 +594,7 @@ func _active_tick(m: Node2D, delta: float) -> void:
 			hits_done[0] = true
 			hits_landed += 1
 			m.take_hit(int(atk["dmg"]), global_position.x)
+		_hit_allies(hurt_rect(), 0)
 		var done := false
 		if atk.has("jump") and not flyer:
 			done = on_ground and t_state > 0.1
@@ -574,6 +616,19 @@ func _active_tick(m: Node2D, delta: float) -> void:
 			hits_done[w] = true
 			hits_landed += 1
 			m.take_hit(int(atk["dmg"]), global_position.x)
+	if w >= 0:
+		_hit_allies(attack_rect(), w)
+
+
+## v0.7: attacks hurt Mera's allies as well (each ally once per window)
+func _hit_allies(r: Rect2, w: int) -> void:
+	if game == null or not game.has_method("allies"):
+		return
+	for a in game.allies():
+		var key := "a%d:%d" % [w, a.get_instance_id()]
+		if not hits_done.has(key) and r.intersects(a.hurt_rect()):
+			hits_done[key] = true
+			a.take_hit(int(atk["dmg"]), global_position.x)
 
 
 func _fire(m: Node2D) -> void:

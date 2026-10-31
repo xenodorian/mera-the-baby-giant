@@ -2,6 +2,28 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.7-playable (2026-10-31)
+Stage S3 of `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.
+
+### Allies, cards and the R1 picker
+- **Cards:** levels 2-4 each have 4 colour-coded ally cards: blue Water Priestess, green Leaf Ranger, orange Brawler Girl (ansimuz skin-recolor version), pink Dancing Girl. Level 1 is unchanged.
+- **R1 summons:** one card type is summoned at once; with several types a **picker** opens (the game pauses).
+- **Limits:** at most 2 allies at once, one of each type. They stay 25 s (the dancer 12 s).
+- **Water Priestess:** heals Mera **up to 6x** at most every **30 s**, plus water attacks 1-3, the special, air attacks, guard, tumble and surf.
+- **Leaf Ranger:** arrows (with hit sprites), kicks, leaf beam, air attack, guard pose + block, roll, slide.
+- **Brawler Girl:** jab/punch/kick combo, jump kick and dive kick.
+- **Dancing Girl:** dances. Every non-boss enemy on screen rushes to her side and jumps up and down without attacking. Bosses ignore her.
+- Every ally uses every animation in her pack (tested). Enemy attacks hurt allies, and allies can be beaten.
+- New files: `scripts/game/allies.gd` (numbers, card spots), `ally.gd`, `ally_card.gd`, `ally_picker.gd`, `ally_arrow.gd`. Ally art goes into the same `assets/enemies/roster.json` manifest.
+
+### Tests
+- 261 pass. The ally checks:
+  - cards per level, collecting, R1 single summon, the picker;
+  - the heal and its cooldown;
+  - each ally uses all her animations, hits enemies and can be beaten;
+  - the dance gathers non-boss enemies but not the boss;
+  - allies leave when their time is up.
+
 ## v0.6-playable (2026-10-31)
 Stage S2 of `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.
 
