@@ -9,6 +9,7 @@ In the repo. No Windows build yet; the latest exe is still [v0.9.5-playable](htt
 - **Dancing Girl** walks out in front of Mera, stops, and dances for **5 seconds**. Then she waits out the rest of the 20.
 - **Water Priestess** heals Mera to 6x when she arrives, and once more just before she leaves.
 - **L1 inside either bubble drinks a potion and the bubble stays up.** Every other button still drops the bubble and does that move.
+- **Summon picker:** the blank white box is gone. Portraits are cropped to the character instead of the whole sprite sheet.
 - **L2 alone is the full bubble.** It is not a lightning tap.
 - **L2+R2 drops lightning** (needs 100 rage, spends the bar). R2 while the bubble is up drops the strike and the bubble stays.
 - **R2 alone starts Fury**, and Fury spends **100 rage** only. A raised meter keeps the rest. The red bar during Fury is the 12 s timer.

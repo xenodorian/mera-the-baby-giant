@@ -12,6 +12,7 @@ L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble st
 The standing drink (`_start_move("heal")`) plays at 4× via `FAST_ANIMS`. The size still lands on heal frame 7, about 0.1 s after the press. Lightning, the barrier and the other heal-pose moves are not sped up.
 Any projectile damages breakables through `game.prop_at`: player bolts and fireballs, ranger arrows, enemy shots, dragon bolts (the blast is an explosion).
 L2 alone starts the barrier (`no_tap`, a short press is not lightning). L2+R2 calls `_try_lightning`. R2 alone, after `CHORD_MS`, calls `_try_fury`. `start_fury` subtracts `FURY_COST` (100) and does not clear the rest; `_fury_tick` no longer overwrites `rage`. The HUD bar during Fury is `fury_left / FURY_TIME`.
+The ally picker draws only `Image.get_used_rect()` of the portrait. The full 288×128 sheets were being drawn scaled up, which showed up as a blank box. The card border is four filled rects, not an unfilled `draw_rect`.
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
 Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 
