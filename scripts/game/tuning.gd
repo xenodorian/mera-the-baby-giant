@@ -4,6 +4,9 @@ extends RefCounted
 
 # ---------------------------------------------------------------- input / combo windows (ms, Mera's physics clock)
 const CHORD_MS := 67.0            # X+Y, A+Y, B+Y: one chord when both land within this (4 frames: a 50 ms gap can read as 67 ms at 60 Hz)
+const MARK_CHORD_MS := 150.0      # Q+W+1+2 (L1+R1+L2+R2): all four presses, all held, land within this
+const MARK_S := 8.0               # the marked-slash freeze lasts at most this long
+const MARK_DMG := 3               # flat damage per marked slash (not multiplied by size)
 const BUFFER_MS := 450.0          # a press made in neutral stays usable this long
 const KEEP_MS := 1500.0           # presses made during a move are kept this long for its chain (never expire mid-move)
 const COMBO_GRACE_MS := 220.0     # after a combo hit recovers to idle, the next press still continues the combo

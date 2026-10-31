@@ -55,8 +55,9 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **S** | Y | S = quick fire |
 | **Q** | L1 | heal (potion) |
 | **W** | R1 | summon an ally |
-| **1** (or keypad 1) | L2 | tap = lightning, hold = barrier, just before a hit = parry |
-| **2** (or keypad 2) | R2 | **1 + 2** = Fury |
+| **1** (top row only) | L2 | tap = lightning, hold = barrier, just before a hit = parry |
+| **2** (top row only) | R2 | **1 + 2** = Fury. Numpad 1 and 2 are not these |
+| **Q+W+1+2** together (within 150 ms, all held) while Fury is on, or the rage meter is full | L1+R1+L2+R2 | **marked slash**: freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s |
 | Enter or F1 | Start | controls overlay; restart after Game Over |
 | Tab or G | Back (gallery) | |
 | F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
@@ -64,6 +65,7 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 
 **Menus** (level select, ally picker, Level Clear / Game Over): arrows choose, **Z** = confirm (A), **X** = back/cancel (B); Enter also confirms. The controls overlay (Start / Enter / F1) lists the keyboard key next to every pad button.
 Until v0.7 the keys were WASD/Shift/L/J/K/U/I/O/P; those are gone (A, S, W and Q now mean pad buttons).
+Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, corners for the diagonals, 5 = R3. They never press L2 or R2. A finger swipe is that same stick; a tap with no swipe is R3. The game remembers whether the last real input was the keyboard, a pad (numpad included) or the touchscreen.
 
 ## v0.5 button remap: the decision
 - The user asked for lightning on L2, Fury on R2+L2, and R1 freed for allies. The barrier also lived on L2, so **L2 now does both, split by press length**:
