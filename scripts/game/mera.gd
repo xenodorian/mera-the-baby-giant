@@ -28,6 +28,7 @@ const IFRAMES := 1.2
 const R1_COST := 100.0      # the lightning strike needs a full meter and spends all of it
 const DODGE_KEYS := ["bdodge", "gdash", "adash"]
 const FURY_TIME := 12.0
+const FURY_COST := 100.0     # a bigger rage meter still pays only this much
 const TRACK := ["btn_x", "btn_y", "btn_a", "btn_b", "up", "down", "l1", "r1", "l2", "r2"]
 # base damage per move (x size); beam ticks every BEAM_TICK frames while it is lit
 const DMG := {"atk1": 1, "atk2": 1, "atk2_1": 2, "atk2_2": 2, "atk3": 2, "beam_ender": 1, "datk1": 1, "datk2": 1,
@@ -1052,8 +1053,8 @@ func _special_buttons() -> bool:
 	var r1 := _find("r1")
 	var l2 := _find("l2")
 	var r2 := _find("r2")
-	# v0.5: Fury = L2 + R2 together (within CHORD_MS, either order, or R2 while L2 is held). R2 alone in Fury takes
-	# off / lands. L2 alone: tap = lightning (full meter), hold = barrier (see the "barrier" move).
+	# L2 alone raises the bubble. L2+R2 (either order, or R2 while the bubble is held) drops lightning.
+	# R2 alone, after the chord window, starts Fury. In Fury, R2 takes off or lands.
 	if not r2.is_empty():
 		if fury:
 			_use(r2)
@@ -1064,11 +1065,10 @@ func _special_buttons() -> bool:
 			var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
 			if not l2c.is_empty() or held["l2"]:
 				_use(r2); _use(l2c)
-				return _try_fury()
-			if now - float(r2["t"]) > CHORD_MS:          # no L2 partner came: R2 alone does nothing outside Fury
+				return _try_lightning()
+			if now - float(r2["t"]) > CHORD_MS:
 				_use(r2)
-				if game:
-					game.flash_hud("fury_chord")
+				return _try_fury()
 	if not l1.is_empty():
 		_use(l1)
 		if potions > 0 and size < SIZE_HEAL_MAX:
@@ -1088,14 +1088,11 @@ func _special_buttons() -> bool:
 	if not l2.is_empty():
 		_use(l2)
 		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
-		if not r2c.is_empty() and not fury:              # R2 first, then L2 -> Fury
+		if not fury and (not r2c.is_empty() or held["r2"]):
 			_use(r2c)
-			return _try_fury()
-		if fury:                                         # during Fury the meter is the timer: no lightning
-			_start_move("barrier")
-			mv["no_tap"] = true
-			return true
-		_start_move("barrier")                           # commits now: released before the bubble forms = tap
+			return _try_lightning()
+		_start_move("barrier")
+		mv["no_tap"] = true
 		return true
 	return false
 
@@ -1104,6 +1101,17 @@ func _try_fury() -> bool:
 	if rage >= 100.0 and not rage_spending and not fury:
 		start_fury()
 		return false
+	Sfx.play("fail", 1.4, -6.0)
+	if game:
+		game.flash_hud("rage")
+	return false
+
+
+func _try_lightning() -> bool:
+	if can_lightning():
+		spend_rage()
+		_start_move("lightning")
+		return true
 	Sfx.play("fail", 1.4, -6.0)
 	if game:
 		game.flash_hud("rage")
@@ -1200,21 +1208,22 @@ func _special_air() -> bool:
 		var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
 		if not l2c.is_empty() or held["l2"]:
 			_use(r2); _use(l2c)
-			_try_fury()
-		elif now - float(r2["t"]) > CHORD_MS:
+			_try_lightning()
+			return true
+		if now - float(r2["t"]) > CHORD_MS:
 			_use(r2)
+			_try_fury()
+			return true
 	elif not l2.is_empty():
 		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
 		if not fury and (not r2c.is_empty() or held["r2"]):
 			_use(l2); _use(r2c)
-			_try_fury()
+			_try_lightning()
+			return true
 		elif not flying:
-			# v0.9.1: L2 in the air raises the barrier too (tap = lightning, hold = bubble, R2 within CHORD_MS = Fury,
-			# as on the ground). She keeps falling and keeps her momentum while bubbled.
 			_use(l2)
 			_start_move("barrier")
-			if fury:
-				mv["no_tap"] = true
+			mv["no_tap"] = true
 			return true
 	return false
 
@@ -1336,7 +1345,7 @@ func add_rage(v: float) -> void:
 func start_fury() -> void:
 	fury = true
 	fury_left = FURY_TIME
-	rage = 100.0
+	rage = maxf(rage - FURY_COST, 0.0)
 	AnimLib.set_fury(true)
 	Sfx.fury = true
 	Sfx.play("fury")
@@ -1508,10 +1517,8 @@ func _fury_tick(delta: float) -> void:
 	if not fury:
 		return
 	fury_left -= delta
-	rage = 100.0 * maxf(fury_left, 0.0) / FURY_TIME
 	if fury_left <= 0.0:
 		fury = false
-		rage = 0.0
 		AnimLib.set_fury(false)
 		Sfx.fury = false
 		aura_mat.set_shader_parameter("aura", 0.0)
@@ -1760,25 +1767,25 @@ func _move_tick(delta: float) -> void:
 					_go_neutral()
 					_ground_tick(delta)
 					return
-			# v0.5: R2 with L2 (chord or L2 held) -> Fury
+			# R2 with L2, or R2 while the bubble is up: lightning. The bubble stays if it is already up.
 			var r2b := _find("r2", float(mv["t0"]) - CHORD_MS)
 			if not r2b.is_empty() and not fury:
 				_use(r2b)
-				if barrier_on:
-					barrier_on = false
-					barrier.visible = false
-				_try_fury()
-				_go_neutral()
+				if can_lightning():
+					spend_rage()
+					if barrier_on:
+						if game:
+							game.call_lightning(self)
+					else:
+						mv["key"] = "lightning"
+				else:
+					Sfx.play("fail", 1.4, -6.0)
+					if game:
+						game.flash_hud("rage")
 				return
-			# L2 released before the bubble forms = a tap: lightning with a full meter (same heal pose, strike at f7)
+			# letting go before the bubble forms just drops the pose. It is never a lightning tap.
 			if not barrier_on and not mv.get("released", false) and i < Tuning.L2_TAP_FRAMES and not pressed("l2"):
 				mv["released"] = true
-				if can_lightning() and not mv.get("no_tap", false):
-					spend_rage()
-					mv["key"] = "lightning"
-					return
-				if game:
-					game.flash_hud("rage")
 			if not barrier_on and not mv.get("released", false) and i >= 5 and i < 9:
 				if pressed("l2") and spend_stamina("barrier"):
 					barrier_on = true

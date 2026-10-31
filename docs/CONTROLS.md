@@ -31,13 +31,13 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | In the air: **X** | jump attack. X again: second hit |
 | In the air: **Y** (e.g. Up, then Y) | aerial dash (once per jump), 6 stamina, 1600 px/s, same timing as the ground dash. In Fury flight Y is a quick fire (5 stamina) |
 | **L1** | heal: drink one carried green potion, +1 size (max 6x). The drink plays at **4×** speed (the size lands in about 0.1 s, and she can move again in about 0.25 s). No potion = "fail" cue, nothing happens. **Inside either bubble, L1 drinks at once and the bubble stays up** |
-| **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
+| **L2** | full bubble while held: 3 mana to raise, 4 / s. A press just before a hit still parries. Letting go before the bubble forms does nothing else (it is not lightning) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
 | **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (bosses stay), and for 0.9 s Mera's hits do ×2. Holding the full bubble after that window **stops all damage** and slides the attacker **200 px** with no stun. Any other button except L1 drops the bubble and does that move. **L1 drinks a potion and the bubble stays** |
 | **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
-| **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
+| **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 rage or more, outside Fury | **lightning**: spends the meter (the whole bar). Heal pose, then a strike from above the screen. R2 while the bubble is already up drops the strike and the bubble stays. Below 100 rage: fail cue, bubble stays |
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
-| **R2** alone | in Fury: take off / land. Outside Fury: nothing (HUD hint "Fury is L2 + R2") |
+| **R2** alone | at **100 rage or more**, outside Fury: **Fury** for 12 s. It spends **100 rage** and leaves the rest. In Fury: take off / land |
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
 | Fury flight | Up in the air takes off. 8-way movement; Mera tilts head-first toward where she flies and eases upright when hovering. Raised-arms pose while moving, tucked hover while idle. Down at ground level, or R2, lands |
 | Start | **pause** (v0.9.1): gameplay freezes and the controls overlay opens. Start again resumes. Restart after Game Over |
@@ -55,8 +55,8 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **S** | Y | S = quick fire |
 | **Q** | L1 | heal (potion) |
 | **W** | R1 | summon an ally |
-| **1** (top row only) | L2 | tap = lightning, hold = barrier, just before a hit = parry |
-| **2** (top row only) | R2 | **1 + 2** = Fury. Numpad 1 and 2 are not these |
+| **1** (top row only) | L2 | hold = full bubble, just before a hit = parry |
+| **2** (top row only) | R2 | alone = Fury (costs 100 rage). **1 + 2** = lightning. Numpad 1 and 2 are not these |
 | **Q+W+1+2** together (within 150 ms, all held) while Fury is on, or the rage meter is full | L1+R1+L2+R2 | **marked slash**: freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s |
 | Enter or F1 | Start | pause and the controls overlay; Start again resumes. Restarts after Game Over |
 | Tab or G | Back (gallery) | |

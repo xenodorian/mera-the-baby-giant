@@ -9,7 +9,7 @@
 - The L2 barrier blocks every hit while it is held.
   - The bubble is sized by `tools/fit_barrier.py`, from every opaque pixel of the held pose (heal f5-8: body, raised hand and energy ball), plus a 3 px margin. Result: centre (-3, -38) art px, radius 44.5 art px, scaled by size and mirrored by facing.
   - While it is up, Mera's hurtbox is the bubble's bounding square, so the blocking area matches what you see.
-  - v0.5: the lightning can no longer be cast from inside the bubble (L2 is busy holding it). R2 inside the bubble starts Fury.
+  - R2 while the bubble is up drops lightning (100 rage, spends the bar) and the bubble stays. L2 alone never taps into lightning.
 - Movement speed and hit/hurt boxes scale with size. At 1x: walk 50, run 200, ground/aerial dash 1600, and back dodge 800 px/s.
   - The dashes and the dodge play their animations at 2x speed, so every key frame is kept, and leave a pooled afterimage trail (up to 8 ghosts).
 
@@ -42,10 +42,10 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - Free size changes (1x–19x) exist only in debug mode (F2).
 
 ## Rage and Fury
-- **Lightning (L2 tap, v0.5) costs the whole meter.** It works only at 100 % rage and outside Fury. The meter then drains visibly to 0 (about 0.45 s) and refills normally afterwards.
-  - Below 100 %: a fail cue plus a HUD hint, and nothing happens.
-  - During Fury the meter is the Fury timer, which L2+R2 already spent, so the lightning is unavailable until Fury ends and the meter refills.
-  - With a full meter, choose: L2+R2 = Fury, or tap L2 = one lightning strike.
+- **Lightning (L2+R2, outside Fury) spends the whole rage meter.** It needs at least 100 rage. The meter then drains visibly to 0 (about 0.45 s) and refills normally afterwards.
+  - Below 100: a fail cue plus a HUD hint, and nothing happens.
+  - During Fury the meter is not spent by lightning; lightning is unavailable until Fury ends.
+- **Fury (R2 alone) costs 100 rage, never the rest of the meter.** A meter raised past 100 (up to 200) keeps everything above that 100. The red bar during Fury is the 12 s timer, not the leftover rage. When Fury ends, the leftover is still there.
 - **Fury aura (v0.4: particles):**
   - Two CPU particle layers of pixel flame tongues (`CPUParticles2D`, world space, so emitted flames stay where they were born):
     - a back layer of 160 flames, dark red → red → orange;
@@ -59,7 +59,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - A defeated enemy drops a **red sphere**. It flies to Mera and adds rage based on the enemy's difficulty.
   The Fire Knight's sphere gives **+10 %**.
 - Each hit Mera lands also adds **+1 %**. Spheres are the main source; the small per-hit bonus keeps "dealing damage builds Fury".
-- At 100 %, L2+R2 starts **Fury** for 12 s and the meter drains to 0 over that time.
+- At **100 rage or more**, R2 alone starts **Fury** for 12 s and spends **100 rage**.
   - Red aura; all spell fx, beams, explosions and lightning turn deep red.
   - Sfx are pitched down (×0.72) through a low-pass + overdrive bus.
   - Flight: Up in the air takes off; R2 or Down at ground level lands.
