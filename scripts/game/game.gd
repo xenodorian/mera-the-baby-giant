@@ -223,6 +223,7 @@ func _parse_args() -> void:
 # ---------------------------------------------------------------- frame
 func _physics_process(delta: float) -> void:
 	_menu_guard_tick()
+	_impact_tick()
 	frame_n += 1
 	_run_demo()
 	mera.ground_y = surface_under(mera.global_position, mera.ground_y)
@@ -885,14 +886,83 @@ func earthquake() -> void:
 	Sfx.play("thunder", 0.4, 2.0)
 
 
+# ---------------------------------------------------------------- v0.8 SUPER EARTHQUAKE
+var impact_t := 0.0             # impact frame time left (real time, counted per physics tick)
+var super_on := false           # the running quake is the super one
+var super_count := 0
+var impact_layer: CanvasLayer
+var impact_rect: ColorRect
+
+
+## Down+Y crouching with a full meter (outside Fury): impact frame, then a 2 s super quake
+func super_earthquake() -> void:
+	super_count += 1
+	impact_t = Tuning.IMPACT_FRAME_S
+	HitStop.impact(Tuning.IMPACT_FRAME_S * 1000.0)
+	_impact_show(true, 1.0)
+	Sfx.play("thunder", 0.5, 6.0)
+	Sfx.play("boom_big", 0.4, 6.0)
+
+
+func _impact_show(on: bool, inv: float) -> void:
+	if impact_layer == null:
+		impact_layer = CanvasLayer.new()
+		impact_layer.layer = 60
+		impact_rect = ColorRect.new()
+		impact_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		impact_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var mat := ShaderMaterial.new()
+		mat.shader = load("res://shaders/impact_frame.gdshader")
+		impact_rect.material = mat
+		impact_layer.add_child(impact_rect)
+		add_child(impact_layer)
+	impact_layer.visible = on
+	(impact_rect.material as ShaderMaterial).set_shader_parameter("invert", inv)
+
+
+func _impact_tick() -> void:
+	if impact_t <= 0.0:
+		return
+	impact_t -= 1.0 / float(Engine.physics_ticks_per_second)
+	if impact_t <= Tuning.IMPACT_FRAME_S * 0.4:
+		_impact_show(true, 0.0)              # second beat: plain black/white
+	if impact_t <= 0.0:
+		impact_t = 0.0
+		_impact_show(false, 0.0)
+		_super_quake_go()
+
+
+func _super_quake_go() -> void:
+	quake_t = Tuning.SUPER_QUAKE_S
+	quake_age = 0.0
+	quaked = {}
+	super_on = true
+	shake(Tuning.SUPER_QUAKE_SHAKE, 0.3)
+	Sfx.play("boom_big", 0.45, 8.0)
+	Sfx.play("thunder", 0.35, 6.0)
+	for e in enemies():                     # flat damage to every enemy, the dragon's size pool included
+		if is_instance_valid(e) and e.alive():
+			e.take_damage(Tuning.SUPER_QUAKE_DMG, mera.global_position.x, "quake")
+	for pr in props:                        # every ground breakable near the screen is destroyed (barrels chain)
+		if not is_instance_valid(pr) or not pr.alive() or absf(pr.global_position.x - cam_x) > Tuning.SUPER_QUAKE_REACH:
+			continue
+		if pr.kind == "chandelier":
+			pr.blast_hit(0.0)
+		elif pr.kind != "lever":
+			pr.take_damage(999, pr.global_position.x + randf_range(-40.0, 40.0), "explosion")
+
+
 func _quake_tick(delta: float) -> void:
 	if quake_t <= 0.0:
 		return
 	quake_t -= delta
 	quake_age += delta
-	shake(Tuning.QUAKE_SHAKE, 0.05)
-	if int(quake_age * 60.0) % 6 == 0:
-		for i in 2:                      # dust bursting out of the ground across the screen (visual only)
+	shake(Tuning.SUPER_QUAKE_SHAKE if super_on else Tuning.QUAKE_SHAKE, 0.05)
+	var stun_total := Tuning.SUPER_QUAKE_STUN_S if super_on else Tuning.QUAKE_STUN_S
+	if quake_t <= 0.0:
+		super_on = false
+	if int(quake_age * 60.0) % (3 if super_on else 6) == 0:
+		for i in (4 if super_on else 2):    # dust bursting out of the ground across the screen (visual only)
 			var b := Blast.new()
 			b.setup("explosion", Vector2(cam_x + randf_range(-960.0, 960.0), GROUND_Y + 6.0), randf_range(1.5, 2.6))
 			b.modulate = Color(0.75, 0.62, 0.5, 0.8)
@@ -902,7 +972,7 @@ func _quake_tick(delta: float) -> void:
 			continue
 		if e.on_ground and e.has_method("stun"):
 			quaked[e] = true
-			e.stun(Tuning.QUAKE_STUN_S - quake_age)
+			e.stun(stun_total - quake_age)
 
 
 # ---------------------------------------------------------------- game over / input

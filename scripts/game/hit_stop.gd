@@ -45,6 +45,16 @@ func stop(ms: float) -> void:
 	Engine.time_scale = base * freeze_scale
 
 
+## a long, deliberate freeze (the super earthquake's impact frame): not capped by HITSTOP_MAX_MS
+func impact(ms: float) -> void:
+	if not enabled or ms <= 0.0:
+		return
+	count += 1
+	last_ms = ms
+	_left = maxf(_left, ms / 1000.0)
+	Engine.time_scale = base * freeze_scale
+
+
 func active() -> bool:
 	return _left > 0.0
 

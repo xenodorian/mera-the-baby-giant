@@ -198,6 +198,38 @@ func _run() -> void:
 		await _shot("shot_dancer_skin.png")
 		g.queue_free()
 		await _wait(3)
+	if _go("superquake"):
+		g = await _new(2)
+		m = g.mera
+		var cr: Node2D = _prop(g, "crate", 6000.0)
+		m.position.x = cr.global_position.x - 500.0
+		m.set_size(3, true)
+		g.snap_camera()
+		var e1: Node2D = g.spawn_enemy("skeleton", m.position.x + 420.0)
+		var e2: Node2D = g.spawn_enemy("hell_gato", m.position.x - 380.0)
+		await _phys(g, 40)
+		e1.cooldown = 99.0
+		e2.cooldown = 99.0
+		m.rage = 100.0
+		m.forced["down"] = true
+		await _phys(g, 8)
+		m.forced["btn_y"] = true
+		for i in 30:
+			await physics_frame
+			m.invuln = 1.0
+			if g.impact_t > 0.0 and g.impact_t < 0.15:
+				break
+		m.forced["btn_y"] = false
+		await _shot("shot_super_quake_impact_frame.png")
+		for i in 40:
+			await physics_frame
+			m.invuln = 1.0
+			if g.super_on and g.quake_age > 0.25:
+				break
+		m.forced["down"] = false
+		await _shot("shot_super_quake.png")
+		g.queue_free()
+		await _wait(3)
 	if _go("overlay"):
 		g = await _new(0)
 		g.hud.overlay = true

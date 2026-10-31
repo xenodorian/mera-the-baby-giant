@@ -12,7 +12,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | D-pad Left / Right | walk, 50 px/s |
 | D-pad Up | jump, instantly (it never waits for another button). In the air: double jump. In Fury: take off and fly |
 | D-pad Down | crouch. Down + A = slide |
-| **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts) |
+| **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts). **At 100 % rage (not in Fury): SUPER EARTHQUAKE** (v0.8): impact frame, then a 2 s quake, 7 s stun, flat 2 damage to every enemy, every ground breakable on screen destroyed; spends the whole meter + 20 stamina (see GAME_RULES) |
 | **A** (hold) + direction | run, 200 px/s |
 | **B** | back dodge (free): same distance as v0.2 in half the time (800 px/s backwards, animation at 2x). Invulnerable for its first 70 %, as are the dashes |
 | **B + Y** together (within 67 ms, either order, or one held when the other is pressed) | **rising slash** (free), in place: no dodge, no bolt |
@@ -48,7 +48,7 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 
 | Key | Pad equivalent | Examples |
 |---|---|---|
-| Arrows | d-pad (move, Up = jump, Down = crouch) | Down + S = earthquake |
+| Arrows | d-pad (move, Up = jump, Down = crouch) | Down + S = earthquake (super at 100 % rage) |
 | **Z** (or Space) | A | Z (hold) + arrow = run, Z+S = ground dash |
 | **X** | B | X = back dodge, X+S = rising slash |
 | **A** | X | A A A = 1x 2x 2x-2, A+S = rear explosion |

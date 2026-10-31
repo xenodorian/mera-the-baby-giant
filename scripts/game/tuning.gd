@@ -63,6 +63,13 @@ const BLUE_MAX_P := 0.10          # ... and, rolled independently, a +5 max-stam
 const QUAKE_S := 1.0            # the ground shakes this long
 const QUAKE_STUN_S := 5.0       # enemies touching the ground are stunned until this long after the quake started
 const QUAKE_SHAKE := 34.0       # px, re-randomised every frame (very fast, violent)
+# v0.8 SUPER EARTHQUAKE: Down+Y while crouching with a FULL rage meter, outside Fury (docs/GAME_RULES.md)
+const IMPACT_FRAME_S := 0.16     # anime impact frame: the game freezes, the screen turns to a black/white silhouette
+const SUPER_QUAKE_S := 2.0       # then the ground shakes this long ...
+const SUPER_QUAKE_STUN_S := 7.0  # ... enemies touching the ground are stunned until this long after it started ...
+const SUPER_QUAKE_SHAKE := 70.0  # ... twice the normal shake ...
+const SUPER_QUAKE_DMG := 2       # ... every enemy takes this, flat (never x Mera's size) ...
+const SUPER_QUAKE_REACH := 1920.0  # ... and every ground breakable within this of the camera centre is destroyed
 # ---------------------------------------------------------------- v0.5 L2 / R2 remap
 const L2_TAP_FRAMES := 5        # L2 released before the bubble forms (heal frame 5, 300 ms) = a tap = lightning
 

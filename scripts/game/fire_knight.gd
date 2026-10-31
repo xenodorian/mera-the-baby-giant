@@ -242,7 +242,7 @@ func take_damage(amount: int, from_x: float, kind: String = "melee") -> bool:
 	if hp <= 0:
 		return false
 	var fury: bool = game != null and game.mera.fury
-	if blocking() and kind != "explosion" and not fury:
+	if blocking() and kind != "explosion" and kind != "quake" and not fury:     # v0.8: the super quake goes through the guard
 		blocked += 1
 		flash = 0.06
 		Sfx.play("block", 0.8)

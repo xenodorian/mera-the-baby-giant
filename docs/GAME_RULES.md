@@ -29,6 +29,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | Rear explosion (slash 1, explosion AOE 3) | 1 + 3 |
 | L2-tap lightning (AOE) | 3 |
 | Earthquake (Down+Y) | 0 (5 s stun) |
+| **Super earthquake** (Down+Y at 100 % rage, v0.8) | flat 2 to every enemy (7 s stun) |
 
 ## Potions
 - Green potions lie on the ground. Walk over one to carry it (HUD: POTIONS count). She starts with 1.
@@ -152,6 +153,17 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - Mera stomps (`roll_land` pose). The ground shakes for **1 s**: a 34 px camera shake re-randomised every frame (very fast, violent, the whole map) and dust bursting out of the ground across the screen.
 - Every enemy **touching the ground** at any moment of the quake is **stunned until 5 s after the quake started**. Enemies in the air when it starts are caught if they land before it ends.
 - A stunned enemy wobbles in a dazed yellow tint. It can't act, block or flinch out of it, and takes damage normally.
+
+## Super earthquake (v0.8)
+- The same input (**Down + Y while crouching**, keyboard **Down + S**) with the **rage meter at 100 %** and **not in Fury**.
+- **Cost:** the usual **20 stamina** plus **the whole rage meter** (it drains to 0 like a lightning spend). Without 20 stamina nothing happens, as for the normal quake.
+- **Impact frame:** the game freezes for **0.16 s** (`IMPACT_FRAME_S`) while the screen turns into a hard black/white silhouette: inverted first (white screen, black shapes), plain black/white for the last 40 %. It is a `HitStop.impact()` freeze (not capped at 120 ms) plus `shaders/impact_frame.gdshader` on a full-screen layer. It is skipped if hit-stop is off, but the overlay still shows.
+- **Then a 2 s quake** (`SUPER_QUAKE_S`) with a **70 px** shake (twice the normal) and twice the dust:
+  - every enemy touching the ground during it is **stunned until 7 s after the quake started** (`SUPER_QUAKE_STUN_S`; flyers are not, as with the normal quake);
+  - **every enemy** on the map takes **a flat 2 damage** (`SUPER_QUAKE_DMG`, never multiplied by Mera's size). It pierces the Fire Knight's guard. For the Infernal Dragon it is 2 toward its size pool;
+  - **every destructible ground object within 1920 px of the screen centre** is destroyed: candles, urns, crates, chests, cracked walls, and barrels, which explode and chain. Chandeliers on screen fall. Levers, planks and doors aren't destructible and stay.
+- **Fury:** during Fury the meter is the Fury timer, so it is never "full rage" and Down+Y is the **normal** quake; Fury keeps going. While the meter is still draining after a spend, it's the normal quake too.
+- Below 100 % rage nothing changes: the normal 1 s quake, rage kept.
 
 
 ## Telegraphs (v0.6): one standard for every enemy

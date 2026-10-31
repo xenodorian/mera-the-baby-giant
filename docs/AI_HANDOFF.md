@@ -44,7 +44,7 @@ _Last updated: S4 (2026-10-31), v0.8-playable._
 | v0.2-playable | First playable cemetery level |
 | v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
 | v0.3.1 | Camera hard lock |
-| **v0.8-playable** (S4) | Hit-stop/sparks/SFX variance, shatter + gore, breakables with smart drops, barrels + chandeliers, juggles + corpse launch, parry (timed L2), secrets (wall, lever door, ledge + crumbling plank), allies scale with Mera, dragon rework (19x size = health, 12/9/6/3 flight phases with lobbed bolts, +3 on a hit), Fire Knight 1/2 damage, dancer skin recolour, Android L2 fix, **Android APK builds** (305 tests) |
+| **v0.8-playable** (S4) | Hit-stop/sparks/SFX variance, shatter + gore, breakables with smart drops, barrels + chandeliers, juggles + corpse launch, parry (timed L2), secrets (wall, lever door, ledge + crumbling plank), allies scale with Mera, dragon rework (19x size = health, 12/9/6/3 flight phases with lobbed bolts, +3 on a hit), Fire Knight 1/2 damage, dancer skin recolour, Android L2 fix, **Android APK builds**, PC keyboard layout, super earthquake (Down+Y at 100 % rage: impact frame, 2 s quake, 7 s stun, flat 2 to all, ground props destroyed) (323 tests) |
 | **v0.7-playable** (S3) | Ally cards on levels 2-4, R1 summon + picker, Water Priestess (heal to 6x, 30 s cooldown), Leaf Ranger, Brawler Girl, Dancing Girl (non-boss enemies gather and hop), all ally animations used |
 | **v0.6-playable** (S2) | 16-enemy roster on levels 2-4 with all animations, Infernal Dragon boss + locked exit, telegraph standard (knights too), Y-in-bubble lightning, demo on current controls |
 | **v0.5-playable** (S1) | Level select + 4 large native maps (Cemetery, Misty Woods, Moonlit Town, Infernal Caverns; 19,200 px each, walls + exit gate), remap (L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = allies), Down+Y earthquake (1 s shake, 5 s ground stun) |
@@ -97,6 +97,8 @@ _Last updated: S4 (2026-10-31), v0.8-playable._
   - avoid Cyangmou, Elthen, Seliel/Mana Seed and RGS_Dev packs;
   - no paid packs (decided); the parry is approved as a timed L2 barrier raise;
   - restore `Engine.time_scale` after hit-stop with an `ignore_time_scale` timer.
+
+- **Super earthquake (v0.8):** `mera._start_move("earthquake")` checks `can_lightning()` (full meter, not Fury, not draining). If true it calls `spend_rage()` + `game.super_earthquake()`, else `game.earthquake()`. The impact frame is counted per physics tick in `game._impact_tick()` (called at the top of `_physics_process`), *not* with timers, because `HitStop.impact()` sets `Engine.time_scale` near 0. When it ends, `_super_quake_go()` deals the damage, breaks the props and starts `quake_t` with `super_on`. `_quake_tick` reads `super_on` for the shake and stun totals. New damage kind `"quake"`: fire_knight lets it through the guard.
 
 ## Tips
 - Read `docs/CONTROLS.md` (Timing windows) before touching `mera.gd` input code. Run the human-timing replay tests after any input change.

@@ -16,6 +16,10 @@ Stage S4 of `docs/WORKFLOW.md`. Pre-release with **Windows, Linux and Android (A
 - **Explosive barrels:** 8 fixed damage + launch in 300 px, pierce the Fire Knight's block, **chain** to other barrels, drop chandeliers.
 - **Chandeliers** (Moonlit Town, Infernal Caverns): hit, blast or **earthquake** them down; they crush enemies below (6 damage + 2.5 s stun).
 
+### Super earthquake (t87u)
+- **Down+Y crouching with a full rage meter (outside Fury):** an anime **impact frame** (0.16 s freeze, black/white inverted silhouette, `shaders/impact_frame.gdshader`), then a **2 s** quake with a 70 px shake: grounded enemies are stunned **7 s** from its start, **every enemy takes a flat 2** (the dragon's size pool too, the Fire Knight's guard doesn't stop it), and **every ground breakable on screen** is destroyed (barrels chain, chandeliers fall).
+- Costs 20 stamina (unchanged) plus the whole meter. In Fury, or below 100 %, Down+Y is the normal quake.
+
 ### Juggles
 - Launchers (`atk3`, `atk2_1`, `datk2`, explosions) throw ground enemies up; air hits keep them up with **escalating gravity** (max 8); one **ground bounce**; **wall bounce** (+1 damage).
 - **Corpse launch:** defeated enemies fly away from the killing blow, spin, and shatter where they land.
@@ -49,7 +53,7 @@ Stage S4 of `docs/WORKFLOW.md`. Pre-release with **Windows, Linux and Android (A
 - A **v0.7 APK** was also built (from the v0.7 tag, unchanged gameplay) and attached to the v0.7 release.
 
 ### Tests
-- **All pass** (`--fixed-fps 60`, see the release notes for the count): S4 adds input-map collision checks (no two actions share a joypad button/axis or a key; phantom Start/Back with L2 is dropped), keyboard replays (chords, 1 tap/hold, 1+2, Down+S, Z restart), hit-stop timing and restore, SFX jitter, corpse launch + shatter, juggles (launch, air hits, escalating gravity, ground and wall bounce), parry (timing, counter ×2, late L2, projectile), breakables, smart drops, barrel chains, chandelier crush, secret wall / door / ledge / crumbling plank, ally scaling, and the dragon (19x start, phases once each at 12/9/6/3, queued phases, +3 on a bolt hit, no re-arm, always lands, dies at 1x).
+- **323 pass, 0 fail** (`--fixed-fps 60`): S4 adds input-map collision checks (no two actions share a joypad button/axis or a key; phantom Start/Back with L2 is dropped), keyboard replays (chords, 1 tap/hold, 1+2, Down+S, Z restart), hit-stop timing and restore, SFX jitter, corpse launch + shatter, juggles (launch, air hits, escalating gravity, ground and wall bounce), parry (timing, counter ×2, late L2, projectile), breakables, smart drops, barrel chains, chandelier crush, secret wall / door / ledge / crumbling plank, ally scaling, and the dragon (19x start, phases once each at 12/9/6/3, queued phases, +3 on a bolt hit, no re-arm, always lands, dies at 1x), and the super earthquake (impact frame before the quake, 2 s / 7 s, flat 2 to all incl. the dragon, ground props destroyed, whole meter + 20 stamina, normal quake below 100 % and in Fury).
 
 ## v0.7-playable (2026-10-31)
 Stage S3 of `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.

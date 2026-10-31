@@ -50,6 +50,7 @@ var _pending := {}
 var invuln := 0.0
 var potions := 1
 var rage := 0.0
+var super_quakes := 0         # v0.8 (tests)
 var rage_spending := false     # R1 drained the meter; it empties visibly first
 var fury := false
 var fury_left := 0.0
@@ -1274,7 +1275,12 @@ func _start_move(k: String) -> void:
 		"earthquake":
 			vel = Vector2.ZERO
 			if game:
-				game.earthquake()
+				if can_lightning():          # v0.8 full meter, outside Fury: SUPER EARTHQUAKE (spends the whole meter)
+					spend_rage()
+					super_quakes += 1
+					game.super_earthquake()
+				else:
+					game.earthquake()
 		"quick_fire", "rear_blast":
 			Sfx.play("charge", 1.6 if k == "quick_fire" else 1.2)
 		"atk1", "atk2", "atk2_1", "atk2_2", "jatk1", "jatk2", "datk1":

@@ -1872,6 +1872,7 @@ func _s4_tests() -> void:
 	HS.enabled = false
 	HS.clear()
 	await _dragon_tests()
+	await _super_quake_tests()
 	LVS.current = 0
 
 
@@ -1968,5 +1969,85 @@ func _dragon_tests() -> void:
 	dr.take_damage(T.DRAGON_HP_PER_SIZE * 3, m.global_position.x, "melee")
 	await _s4_frames(g, 5)
 	_check("dragon: growing back past 12x does not re-arm the 12x phase", dr.size == 12 and dr.phase == "" and dr.phase_queue.is_empty() and dr.phase_log == [12], "size=%d phase=%s log=%s" % [dr.size, dr.phase, dr.phase_log])
+	g.queue_free()
+	await physics_frame
+
+
+
+## v0.8 SUPER EARTHQUAKE: Down+Y crouching with a full meter (outside Fury)
+func _super_quake_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var g: Node = await _s4_new(2)
+	var m: Node = g.mera
+	m.position.x = 6000.0
+	m.set_size(4, true)
+	g.snap_camera()
+	await _s4_frames(g, 5)
+	var w: Node2D = g.spawn_enemy("werewolf", 6500.0)
+	var dr: Node2D = g.spawn_enemy("dragon", 7400.0)
+	await _s4_frames(g, 20)
+	w.hp = 99
+	w.cooldown = 99.0
+	dr.cooldown = 99.0
+	var dhp: int = dr.hp
+	var ground_props: Array = []
+	var lever_ok := true
+	for pr in g.props:
+		if is_instance_valid(pr) and pr.alive() and pr.kind != "chandelier" and pr.kind != "lever" and absf(pr.global_position.x - g.cam_x) <= T.SUPER_QUAKE_REACH:
+			ground_props.append(pr)
+	var far_prop: Node2D = null
+	for pr in g.props:
+		if is_instance_valid(pr) and pr.alive() and pr.kind in ["candle", "candle_b", "urn", "crate", "chest"] and absf(pr.global_position.x - g.cam_x) > T.SUPER_QUAKE_REACH + 400.0:
+			far_prop = pr
+			break
+	m.rage = 100.0
+	m.stamina = 60.0
+	await _drive(g, [[2, "down", true], [10, "btn_y", true], [13, "btn_y", false], [20, "down", false]], 12)
+	var impact_vis: bool = g.impact_t > 0.0 and g.impact_layer != null and g.impact_layer.visible
+	var quake_not_yet: bool = g.quake_t <= 0.0
+	for i in 12:
+		await physics_frame
+		m.invuln = 1.0
+	_check("super quake: Down+Y at 100 %% rage -> impact frame (%.2f s black/white freeze) first, then the quake" % T.IMPACT_FRAME_S, m.super_quakes == 1 and impact_vis and quake_not_yet and g.super_on and not g.impact_layer.visible and g.quake_t > 1.5, "impact=%s quake=%f super=%s" % [impact_vis, g.quake_t, g.super_on])
+	_check("super quake: costs the normal 20 stamina and spends the whole meter", absf(m.stamina - 40.0) < 0.5 and (m.rage_spending or m.rage == 0.0), "st=%f rage=%f" % [m.stamina, m.rage])
+	_check("super quake: flat %d damage to every enemy (never x size), the dragon's size pool too" % T.SUPER_QUAKE_DMG, w.hp == 99 - T.SUPER_QUAKE_DMG and dr.hp == dhp - T.SUPER_QUAKE_DMG, "w=%d dragon %d->%d" % [w.hp, dhp, dr.hp])
+	var broke := 0
+	for pr in ground_props:
+		if not is_instance_valid(pr) or not pr.alive():
+			broke += 1
+	_check("super quake: every ground breakable on/near screen is destroyed (%d); far ones stay" % ground_props.size(), ground_props.size() >= 2 and broke == ground_props.size() and (far_prop == null or far_prop.alive()), "broke %d/%d" % [broke, ground_props.size()])
+	var peak := 0.0
+	var shaken_long := false
+	for i in 150:
+		await physics_frame
+		m.invuln = 1.0
+		peak = maxf(peak, g.shake_amt)
+		if i == 100 and g.quake_t > 0.0:
+			shaken_long = true
+	_check("super quake: shakes for 2 s, twice as hard as the normal one", shaken_long and peak >= T.SUPER_QUAKE_SHAKE - 0.1 and T.SUPER_QUAKE_SHAKE > T.QUAKE_SHAKE, "peak=%f" % peak)
+	for i in 180:
+		await physics_frame
+		m.invuln = 1.0
+	_check("super quake: grounded enemies stay stunned 7 s from the start (still at ~5.5 s)", w.state == "stun" and w.stun_t > 0.8, "state=%s stun=%f" % [w.state, w.stun_t])
+	for i in 120:
+		await physics_frame
+		m.invuln = 1.0
+	_check("...and recover after 7 s", w.state != "stun", "state=%s" % w.state)
+	g.queue_free()
+	await physics_frame
+	# below 100 %: the normal quake; in Fury: the normal quake (the meter is the Fury timer)
+	g = await _s4_new(1)
+	m = g.mera
+	m.rage = 99.0
+	await _drive(g, [[2, "down", true], [10, "btn_y", true], [13, "btn_y", false], [20, "down", false]], 30)
+	_check("super quake: at 99 % rage it's the normal earthquake (no impact frame, rage kept)", m.super_quakes == 0 and not g.super_on and g.quake_t > 0.0 and g.quake_t <= T.QUAKE_S and m.rage == 99.0, "rage=%f" % m.rage)
+	await _s4_frames(g, 90)
+	m.rage = 100.0
+	m.stamina = 60.0
+	await _drive(g, [[2, "l2", true], [2, "r2", true], [5, "l2", false], [5, "r2", false]], 30)
+	var fury0: bool = m.fury
+	m.stamina = 60.0
+	await _drive(g, [[2, "down", true], [10, "btn_y", true], [13, "btn_y", false], [20, "down", false]], 30)
+	_check("super quake: not in Fury (the meter is the Fury timer) -> normal earthquake, Fury goes on", fury0 and m.fury and m.super_quakes == 0 and not g.super_on and g.quake_t > 0.0, "fury=%s sq=%d" % [m.fury, m.super_quakes])
 	g.queue_free()
 	await physics_frame
