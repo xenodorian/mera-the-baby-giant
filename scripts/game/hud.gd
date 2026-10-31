@@ -80,31 +80,34 @@ func _draw_ui() -> void:
 	if game == null:
 		return
 	var m: Mera = game.mera
+	var hx := 0.0
+	if OS.get_name() == "Android":
+		hx = maxf(0.0, ui.size.x * 0.23 - 20.0)
 	# size = HP
-	ui.draw_rect(Rect2(20, 16, 560, 196), Color(0.04, 0.03, 0.07, 0.55))
-	_txt(Vector2(36, 52), "SIZE  %dx" % m.size, 34)
+	ui.draw_rect(Rect2(20 + hx, 16, 560, 196), Color(0.04, 0.03, 0.07, 0.55))
+	_txt(Vector2(36 + hx, 52), "SIZE  %dx" % m.size, 34)
 	for i in 6:
 		var on := i < m.size
-		var r := Rect2(210 + i * 56, 26, 46, 30)
+		var r := Rect2(210 + hx + i * 56, 26, 46, 30)
 		ui.draw_rect(r, Color(0.98, 0.66, 0.33) if on else Color(0.2, 0.16, 0.22))
 		ui.draw_rect(r, Color(0.05, 0.03, 0.06), false, 3.0)
 	if m.size > 6:
-		_txt(Vector2(552, 52), "+%d" % (m.size - 6), 22)
+		_txt(Vector2(552 + hx, 52), "+%d" % (m.size - 6), 22)
 	# rage / fury
-	_txt(Vector2(36, 100), "FURY" if m.fury else "RAGE", 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
+	_txt(Vector2(36 + hx, 100), "FURY" if m.fury else "RAGE", 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
 	var w := 330.0
-	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.15, 0.03, 0.06))
+	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.15, 0.03, 0.06))
 	var fc := Color(0.86, 0.08, 0.12) if m.fury else (Color(1.0, 0.25, 0.2) if m.rage >= 100.0 else Color(0.7, 0.12, 0.14))
 	var rage_frac := (m.fury_left / Mera.FURY_TIME) if m.fury else (m.rage / maxf(m.rage_max, 1.0))
-	ui.draw_rect(Rect2(140, 78, w * clampf(rage_frac, 0.0, 1.0), 26), fc)
-	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
-	_txt(Vector2(482, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
+	ui.draw_rect(Rect2(140 + hx, 78, w * clampf(rage_frac, 0.0, 1.0), 26), fc)
+	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
+	_txt(Vector2(482 + hx, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
 	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140, 136), "R2 FURY   ·   L2+R2 LIGHTNING   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
+		_txt(Vector2(140 + hx, 136), "R2 FURY   ·   L2+R2 LIGHTNING   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
-		_txt(Vector2(200, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
+		_txt(Vector2(200 + hx, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
 	if _flash == "fury_chord" and _flash_t > 0.0:
-		_txt(Vector2(260, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
+		_txt(Vector2(260 + hx, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
 	if _flash == "parry" and _flash_t > 0.0:            # v0.8
 		_txt(Vector2(840, 300), "PARRY!", 64, Color(1.0, 0.92, 0.55, minf(_flash_t * 2.0, 1.0)))
 	if m.counter_active():
@@ -115,16 +118,16 @@ func _draw_ui() -> void:
 	var pc := Color(0.45, 0.95, 0.45)
 	if _flash == "potions" and _flash_t > 0.0:
 		pc = Color(1, 0.3, 0.3)
-	_txt(Vector2(36, 146), "POTIONS  %d" % m.potions, 26, pc)
+	_txt(Vector2(36 + hx, 146), "POTIONS  %d" % m.potions, 26, pc)
 	if game.run_mode:
-		_txt(Vector2(280, 146), "STAGE %d    LIVES %d    FOES %d" % [game.stage_n, game.lives, maxi(game.quota - game.defeated, 0)], 26, Color(1.0, 0.86, 0.55))
+		_txt(Vector2(280 + hx, 146), "STAGE %d    LIVES %d    FOES %d" % [game.stage_n, game.lives, maxi(game.quota - game.defeated, 0)], 26, Color(1.0, 0.86, 0.55))
 	if _flash == "max" and _flash_t > 0.0:
-		_txt(Vector2(260, 146), "max size for potions is 6x", 22, Color(1, 0.6, 0.4))
+		_txt(Vector2(260 + hx, 146), "max size for potions is 6x", 22, Color(1, 0.6, 0.4))
 	# stamina (v0.4): bar length grows with the max (60 -> 120)
 	var sw := minf(500.0, 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0)
 	var sc := Color(0.25, 0.6, 1.0)
 	# v0.7 ally cards held
-	var cx := 36.0
+	var cx := 36.0 + hx
 	for aid in Allies.IDS:
 		var n := int(game.cards.get(aid, 0))
 		if n <= 0:
@@ -134,19 +137,19 @@ func _draw_ui() -> void:
 		ui.draw_rect(Rect2(cx, 250, 26, 36), cc, false, 4.0)
 		_txt(Vector2(cx + 32, 280), "%d" % n, 24, cc)
 		cx += 76.0
-	if cx > 36.0:
+	if cx > 36.0 + hx:
 		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
 	if _flash == "stamina" and _flash_t > 0.0:
 		sc = Color(1, 0.3, 0.3)
-	_txt(Vector2(36, 194), "MANA", 26, Color(0.6, 0.8, 1.0))
-	ui.draw_rect(Rect2(140, 172, sw, 22), Color(0.04, 0.08, 0.18))
-	ui.draw_rect(Rect2(140, 172, sw * m.stamina / maxf(m.stamina_max, 1.0), 22), sc)
-	ui.draw_rect(Rect2(140, 172, sw, 22), Color(0.05, 0.03, 0.06), false, 3.0)
-	_txt(Vector2(150 + sw, 194), "%d/%d" % [int(m.stamina), int(m.stamina_max)], 22, Color(0.75, 0.88, 1.0))
+	_txt(Vector2(36 + hx, 194), "MANA", 26, Color(0.6, 0.8, 1.0))
+	ui.draw_rect(Rect2(140 + hx, 172, sw, 22), Color(0.04, 0.08, 0.18))
+	ui.draw_rect(Rect2(140 + hx, 172, sw * m.stamina / maxf(m.stamina_max, 1.0), 22), sc)
+	ui.draw_rect(Rect2(140 + hx, 172, sw, 22), Color(0.05, 0.03, 0.06), false, 3.0)
+	_txt(Vector2(150 + sw + hx, 194), "%d/%d" % [int(m.stamina), int(m.stamina_max)], 22, Color(0.75, 0.88, 1.0))
 	if _flash == "stamina" and _flash_t > 0.0:
-		_txt(Vector2(140, 236), "not enough mana", 22, Color(1, 0.5, 0.4))
+		_txt(Vector2(140 + hx, 236), "not enough mana", 22, Color(1, 0.5, 0.4))
 	if _flash.begins_with("pickup:") and _flash_t > 0.0:
-		_txt(Vector2(140, 236), _flash.substr(7), 24, Color(0.6, 0.85, 1.0))
+		_txt(Vector2(140 + hx, 236), _flash.substr(7), 24, Color(0.6, 0.85, 1.0))
 	# state line
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))

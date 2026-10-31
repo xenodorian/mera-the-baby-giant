@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.2-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.2-playable/Mera_Playable_v0.10.2_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.2-playable/Mera_Playable_v0.10.2_Android.apk
+- **Touch pad matches the mockup.** Same sizes and positions as the preview image, in grayscale. The screen stretches to the phone edges so the pad sits where that picture sits.
+- **Run maps.** The floor is a solid band and it starts off the left edge of the camera, so the opening view is not a hole. Each run picks a tileset and a layout from a saved seed, so it is not the same first map every time. Same signing key as v0.10.0. Android `versionCode` 23.
+
 ## v0.10.1-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.1-playable/Mera_Playable_v0.10.1_Windows.exe
