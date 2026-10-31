@@ -33,6 +33,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | **L1** | heal: drink one carried green potion, +1 size (max 6x). No potion = "fail" cue, nothing happens |
 | **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
+| **L2 just before a hit** (v0.8: pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered 1.2 s, and for 0.9 s Mera's hits do ×2 (gold glow). A projectile parried in the window flies back and hits the first enemy for 3. Same button, no new input: a later press is the normal barrier/lightning |
 | **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
 | **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
@@ -93,3 +94,8 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 - Up + X is not a separate move. Up jumps and X then does the jump attack. Up + Y is not a ground move either: Up jumps at once, and Y in the air is the aerial dash.
 - v0.4 dodge chain (final steering): the rising slash is the **B + Y chord**, Y again gives the slam. **B, then Y** is the fast quick fire. **B, then X** is the dodge attack. The split between the two B + Y forms is the 67 ms chord window: within it you get the rising slash, after it the dodge plays and Y gives the fast quick fire.
 - Ladder, ledge and wall-jump animations only appear in the gallery, because the test level has no ladders or walls.
+
+
+## Gamepads on Android (v0.8 fix)
+- Godot's Android backend reports a **digital** L2/R2 (`KEYCODE_BUTTON_L2/R2`) as joypad **button 15/16** and the analog trigger as a **raw axis by device order**; the SDL mapping database then remaps known pads. Some cheap pads come out with L2 also mapped onto **Back** or **Start**, so one press fired the shield *and* opened the gallery or the controls overlay (the on-screen text the user saw on v0.4).
+- From v0.8: L2/R2 = trigger axes 4/5 **or** buttons 15/16, and nothing else may use those (a test checks that no two actions share a joypad button or axis direction). Joypad **Start/Select** are acted on ~100 ms (6 physics frames) later and **dropped if a trigger moved at the same moment** (`Controls.trigger_near`, `game.gd _menu_guard_tick`). Keyboard Enter/Tab are unaffected; Start on the Game Over screen restarts at once.

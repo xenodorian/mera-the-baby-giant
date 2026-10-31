@@ -4,6 +4,16 @@ extends Node
 ## L1/R1 = shoulders, L2/R2 = triggers (axes), Start = Options, Back = Share/Touchpad (SDL mapping).
 
 const DEAD := 0.45
+## v0.8 Android fix (docs/AI_HANDOFF.md "Android L2 bug"). Godot's Android backend reports a digital L2/R2
+## (KeyEvent.KEYCODE_BUTTON_L2/R2) as joypad button 15/16 and sends the analog trigger as a raw axis, and the
+## SDL mapping database can remap a cheap pad's triggers onto Back/Start. So: L2/R2 also listen to 15/16, no other
+## action may use a trigger axis or 15/16 (tests/run_tests.gd "input map"), and joypad Start/Select are deferred a
+## few frames and dropped if a trigger moved at the same moment (game.gd _menu_guard_tick).
+const ANDROID_L2 := 15   # JOY_BUTTON_MISC1 on desktop SDL
+const ANDROID_R2 := 16   # JOY_BUTTON_PADDLE1 on desktop SDL
+const TRIGGER_AXES := [JOY_AXIS_TRIGGER_LEFT, JOY_AXIS_TRIGGER_RIGHT]
+const GUARD_FRAMES := 6  # ~100 ms at 60 fps: a Start/Select this close to trigger activity is a collision
+var last_trigger_frame := -100000
 # action: [keys], [joy buttons], [joy axis, sign]
 const MAP := {
 	"left": [[KEY_LEFT, KEY_A], [JOY_BUTTON_DPAD_LEFT], [JOY_AXIS_LEFT_X, -1.0]],
@@ -16,8 +26,8 @@ const MAP := {
 	"btn_y": [[KEY_K], [JOY_BUTTON_Y], []],
 	"l1": [[KEY_U], [JOY_BUTTON_LEFT_SHOULDER], []],
 	"r1": [[KEY_I], [JOY_BUTTON_RIGHT_SHOULDER], []],
-	"l2": [[KEY_O], [], [JOY_AXIS_TRIGGER_LEFT, 1.0]],
-	"r2": [[KEY_P], [], [JOY_AXIS_TRIGGER_RIGHT, 1.0]],
+	"l2": [[KEY_O], [ANDROID_L2], [JOY_AXIS_TRIGGER_LEFT, 1.0]],
+	"r2": [[KEY_P], [ANDROID_R2], [JOY_AXIS_TRIGGER_RIGHT, 1.0]],
 	"start": [[KEY_ENTER, KEY_F1], [JOY_BUTTON_START], []],
 	"select": [[KEY_TAB, KEY_G], [JOY_BUTTON_BACK], []],
 	"debug": [[KEY_F2], [], []],
@@ -46,3 +56,34 @@ func _ready() -> void:
 			ax.axis_value = m[2][1]
 			ax.device = -1
 			InputMap.action_add_event(action, ax)
+
+
+## Remember when a trigger last moved, so a Start/Select press arriving with it can be dropped.
+func _input(event: InputEvent) -> void:
+	if is_trigger_event(event):
+		last_trigger_frame = Engine.get_physics_frames()
+
+
+static func is_trigger_event(event: InputEvent) -> bool:
+	if event is InputEventJoypadMotion:
+		return event.axis in TRIGGER_AXES and absf(event.axis_value) > 0.2
+	if event is InputEventJoypadButton:
+		return event.pressed and event.button_index in [ANDROID_L2, ANDROID_R2]
+	return false
+
+
+func trigger_near(frame: int) -> bool:
+	return absi(last_trigger_frame - frame) <= GUARD_FRAMES or Input.is_action_pressed("l2") or Input.is_action_pressed("r2")
+
+
+## every joypad binding as "btn:N" / "axis:N:+/-" -> [actions] (used by the collision test)
+static func joy_bindings() -> Dictionary:
+	var out := {}
+	for action in MAP:
+		var m: Array = MAP[action]
+		for b in m[1]:
+			out["btn:%d" % b] = out.get("btn:%d" % b, []) + [action]
+		if m[2].size() == 2:
+			var key := "axis:%d:%s" % [m[2][0], "+" if m[2][1] > 0.0 else "-"]
+			out[key] = out.get(key, []) + [action]
+	return out

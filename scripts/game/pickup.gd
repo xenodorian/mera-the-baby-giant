@@ -10,14 +10,16 @@ var spr := Sprite2D.new()
 const SCALE := 4.0
 
 
-func setup(g: Node, k: String, p: Vector2, v: float = 10.0) -> void:
+## v: rage for spheres, stamina for blue potions (v0.8 breakables drop smaller ones); < 0 = the standard amount
+func setup(g: Node, k: String, p: Vector2, v: float = -1.0) -> void:
 	game = g
 	kind = k
-	value = v
+	value = v if v >= 0.0 or k != "sphere" else 10.0
 	position = p
 	spr.texture = AnimLib.spell_tex(k)
 	spr.hframes = int(AnimLib.spell_cell(k)[2])
-	spr.scale = Vector2(SCALE, SCALE)
+	var small := (k == "sphere" and value < 5.0) or (k == "stamina" and value > 0.0 and value < Tuning.STAMINA_POTION)
+	spr.scale = Vector2(SCALE, SCALE) * (0.7 if small else 1.0)
 	spr.offset = Vector2(0, -float(AnimLib.spell_cell(k)[1]) / 2.0)
 	add_child(spr)
 

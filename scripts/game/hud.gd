@@ -22,6 +22,7 @@ const CONTROLS := [
 	["L1", "heal: drink a green potion, +1 size (max 6x)"],
 	["L2 tap (rage 100 %)", "lightning strike from the sky (AOE), uses the whole meter"],
 	["L2 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
+	["L2 just before a hit", "PARRY (within 0.15 s): no damage, attacker staggered, shots fly back, x2 counter"],
 	["Y in the bubble (rage 100 %)", "lightning strike while staying shielded"],
 	["L2 + R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
 	["R1", "summon an ally (needs an ally card; several cards: picker)"],
@@ -89,6 +90,10 @@ func _draw_ui() -> void:
 		_txt(Vector2(260, 146), "lightning (tap L2) and Fury (L2+R2) need a full meter", 22, Color(1, 0.5, 0.4))
 	if _flash == "fury_chord" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
+	if _flash == "parry" and _flash_t > 0.0:            # v0.8
+		_txt(Vector2(840, 300), "PARRY!", 64, Color(1.0, 0.92, 0.55, minf(_flash_t * 2.0, 1.0)))
+	if m.counter_active():
+		_txt(Vector2(800, 360), "COUNTER  x%d" % Tuning.PARRY_COUNTER_MULT, 36, Color(1.0, 0.8, 0.4))
 	if _flash == "ally" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "R1: no ally card to use (or that ally / two allies are already out)", 22, Color(0.6, 0.85, 1.0))
 	# potions

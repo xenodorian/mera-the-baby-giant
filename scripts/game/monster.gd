@@ -53,6 +53,17 @@ var variant := ""
 var history: Array = []
 var played := {}                        # every animation that has been shown (tests: "uses all its animations")
 var hits_landed := 0
+# v0.8 (S4) juggles and corpse launch (docs/GAME_RULES.md "Juggles")
+var juggle_n := 0                      # air hits in the current juggle (gravity grows with it)
+var bounced := false                   # one ground bounce per launch
+var wall_bounces := 0
+var launches := 0                      # tests
+var max_air := 0.0                     # tests: highest point of the last launch (px above rest)
+var last_from_x := 0.0
+var last_kind := "melee"
+var corpse_t := 0.0
+var spin := 0.0
+var gore_kind := "flesh"
 var rng := RandomNumberGenerator.new()
 var sprite: AnimatedSprite2D
 var marker: Node2D
@@ -93,6 +104,11 @@ func setup(g: Node, enemy_id: String, x: float, opts: Dictionary = {}) -> void:
 		rest_y = gy
 	position = Vector2(x, rest_y)
 	on_ground = not flyer
+	gore_kind = String(GORE_KIND.get(id, "flesh"))
+
+
+## what a creature bursts into (debris.gd gore): undead rattle into bones, spirits and fire puff away
+const GORE_KIND := {"skeleton": "bone", "ghost": "ghost", "fire_skull": "fire", "death": "bone", "nightmare": "fire"}
 
 
 func _ready() -> void:
@@ -267,6 +283,8 @@ func take_damage(amount: int, from_x: float, _kind: String = "melee") -> bool:
 		return false
 	hp = maxi(hp - amount, 0)
 	flash = 0.12
+	last_from_x = from_x
+	last_kind = _kind
 	bar.queue_redraw()
 	if hp == 0:
 		_die()
@@ -286,6 +304,8 @@ func take_damage(amount: int, from_x: float, _kind: String = "melee") -> bool:
 		doused_t = float(d["douse"]["t"])                     # the fire skull's flame goes out for a while
 		if state != "atk":
 			_play(String(d["douse"]["idle"]))
+	if _juggle_hit(from_x, _kind):                            # v0.8 launch / juggle / slam
+		return true
 	if boss or state == "stun" or state == "spawn":
 		return true
 	if state == "tell" or (state == "atk" and String(atk["mode"]) == "contact" and not flyer):
@@ -295,11 +315,165 @@ func take_damage(amount: int, from_x: float, _kind: String = "melee") -> bool:
 	return true
 
 
+## v0.8 launch / juggle: launchers (rising slash, 3x, 2x-1, explosions) throw a ground enemy up; any hit while it
+## is airborne pops it up again (less each time, gravity grows); the slam spikes it into a ground bounce.
+## Bosses and flyers are never launched; heavy enemies fly less (mass from their size).
+func _juggle_hit(from_x: float, kind: String) -> bool:
+	if boss or flyer:
+		return false
+	var away := -1.0 if from_x > global_position.x else 1.0
+	var mass := _mass()
+	if state == "juggle":
+		marker.visible = false
+		if kind == "slam":
+			vy = maxf(vy, 1400.0 / mass)
+			bounced = false
+		elif juggle_n < Tuning.JUGGLE_MAX:
+			juggle_n += 1
+			vy = -Tuning.JUGGLE_HIT_VY * (1.0 - float(juggle_n) / float(Tuning.JUGGLE_MAX + 2)) / sqrt(mass)
+			vx = away * 120.0
+		return true
+	var up := 0.0
+	match kind:
+		"launch":
+			up = Tuning.LAUNCH_VY
+		"explosion":
+			up = Tuning.LAUNCH_VY * 0.8
+		"slam":
+			up = Tuning.LAUNCH_VY * 0.45
+	if up <= 0.0 or state == "spawn":
+		return false
+	_launch(away * (Tuning.LAUNCH_VX * (2.6 if kind == "explosion" else 1.0)) / mass, -up / mass)
+	return true
+
+
+func _mass() -> float:
+	var b: Array = art["body"]
+	return clampf((float(b[3]) - float(b[1])) * k / 260.0, 1.0, 2.2)
+
+
+func _launch(lvx: float, lvy: float) -> void:
+	launches += 1
+	juggle_n = 0
+	bounced = false
+	max_air = 0.0
+	atk = {}
+	swoop_v = Vector2.ZERO
+	marker.visible = false
+	stun_t = 0.0
+	vx = lvx
+	vy = lvy
+	on_ground = false
+	_set_state("juggle")
+	sprite.pause()
+	sprite.position.x = 0.0
+
+
+func _juggle_tick(delta: float) -> void:
+	vy += GRAVITY * (1.0 + Tuning.JUGGLE_GRAVITY_STEP * juggle_n) * delta
+	position += Vector2(vx, vy) * delta
+	max_air = maxf(max_air, rest_y - position.y)
+	sprite.rotation = clampf(vx * -0.0006, -0.5, 0.5) * signf(float(facing))
+	_wall_bounce()
+	if position.y >= rest_y:
+		position.y = rest_y
+		if vy > Tuning.BOUNCE_MIN_VY and not bounced:
+			bounced = true                                  # ground bounce: one more chance to juggle
+			vy = -vy * Tuning.GROUND_BOUNCE
+			vx *= 0.6
+			if game:
+				game.shake(4.0, 0.1)
+				game.hit_spark(Vector2(global_position.x, rest_y - 10.0), 2.0)
+			Sfx.play("hit_heavy", 0.6, -8.0)
+			return
+		vy = 0.0
+		vx = 0.0
+		on_ground = true
+		sprite.rotation = 0.0
+		sprite.play()
+		_to_idle(0.7)
+
+
+## flung into a map wall: bounce back off it (1 damage)
+func _wall_bounce() -> void:
+	if game == null:
+		return
+	var lo := Levels.EDGE
+	var hi: float = game.map_w - Levels.EDGE
+	if (position.x <= lo and vx < -150.0) or (position.x >= hi and vx > 150.0):
+		position.x = clampf(position.x, lo, hi)
+		vx = -vx * Tuning.WALL_BOUNCE
+		wall_bounces += 1
+		Sfx.play("hit_heavy", 0.7, -6.0)
+		if game:
+			game.shake(6.0, 0.12)
+		if hp > 0:
+			hp = maxi(hp - 1, 0)
+			flash = 0.1
+			if hp == 0:
+				_die()
+
+
+## v0.8 parry: staggered (any enemy; flyers drift back)
+func parried(t: float) -> void:
+	if hp <= 0 or boss:
+		return
+	atk = {}
+	swoop_v = Vector2.ZERO
+	marker.visible = false
+	vx = 0.0
+	stun_t = maxf(stun_t, t)
+	if state != "stun" and state != "juggle":
+		_set_state("stun")
+		sprite.pause()
+	history.append("parried")
+
+
 func _die() -> void:
 	_set_state("dead")
 	marker.visible = false
-	vx = 0.0
 	sprite.pause()
+	# v0.8 corpse launch: flung away from the killing blow, spinning, then it shatters (+ gore) where it lands
+	var away := -1.0 if last_from_x > global_position.x else 1.0
+	var pw := 1.6 if last_kind in ["explosion", "crush"] else (1.25 if last_kind in ["launch", "slam", "lightning"] else 1.0)
+	var mass := _mass() * (2.5 if boss else 1.0)
+	vx = away * Tuning.CORPSE_VX * pw / mass
+	vy = -Tuning.CORPSE_VY * pw / mass
+	on_ground = false
+	spin = away * randf_range(5.0, 9.0) / mass
+	corpse_t = 0.0
+	if game and game.has_method("on_enemy_defeated"):
+		game.on_enemy_defeated(self)
+	defeated.emit(self)
+
+
+## the corpse flies, spins, bounces off walls, and bursts on landing (or after CORPSE_MAX_S)
+func _corpse_tick(delta: float) -> void:
+	corpse_t += delta
+	vy += GRAVITY * delta
+	position += Vector2(vx, vy) * delta
+	sprite.rotation += spin * delta
+	_wall_bounce()
+	var floor_y := (float(game.GROUND_Y) if game else rest_y) - 20.0
+	if (position.y >= floor_y and vy > 0.0) or corpse_t >= Tuning.CORPSE_MAX_S:
+		position.y = minf(position.y, floor_y)
+		_burst()
+
+
+func _burst() -> void:
+	_set_state("gone")
+	if game and game.get("debris"):
+		var c := hurt_rect().get_center()
+		var big := boss or k >= 5.0
+		game.debris.shatter_node(sprite, c + Vector2(-vx * 0.05, 40.0), 520.0 if not boss else 800.0,
+			{"cols": 10 if boss else (7 if big else 5), "rows": 10 if boss else (7 if big else 5), "life": 2.2})
+		game.debris.gore(c, k, Vector2(last_from_x, c.y), gore_kind, 16 if boss else (10 if big else 7))
+		Sfx.play("gore", 1.0 if not boss else 0.6)
+	_death_puff()
+	queue_free()
+
+
+func _death_puff() -> void:
 	var fx := AnimatedSprite2D.new()
 	var e: Dictionary = ROSTER.data()["_fx"]["enemy_death"]
 	var sf := SpriteFrames.new()
@@ -314,12 +488,6 @@ func _die() -> void:
 	if get_parent():
 		get_parent().add_child(fx)
 	fx.play("default")
-	if game and game.has_method("on_enemy_defeated"):
-		game.on_enemy_defeated(self)
-	defeated.emit(self)
-	var t := create_tween()
-	t.tween_property(self, "modulate:a", 0.0, 0.35)
-	t.tween_callback(queue_free)
 
 
 ## v0.5 earthquake: only enemies standing on the ground
@@ -369,7 +537,13 @@ func _physics_process(delta: float) -> void:
 	t_state += delta
 	flash -= delta
 	_tint()
+	if state == "dead" and game != null:
+		_corpse_tick(delta)
+		return
 	if hp <= 0 or game == null:
+		return
+	if state == "juggle":
+		_juggle_tick(delta)
 		return
 	cooldown -= delta
 	hop_cd -= delta
@@ -593,7 +767,7 @@ func _active_tick(m: Node2D, delta: float) -> void:
 		if not hits_done.has(0) and m.state != "dead" and hurt_rect().intersects(m.hurt_rect()):
 			hits_done[0] = true
 			hits_landed += 1
-			m.take_hit(int(atk["dmg"]), global_position.x)
+			m.take_hit(int(atk["dmg"]), global_position.x, self)
 		_hit_allies(hurt_rect(), 0)
 		var done := false
 		if atk.has("jump") and not flyer:
@@ -615,7 +789,7 @@ func _active_tick(m: Node2D, delta: float) -> void:
 		if attack_rect().intersects(m.hurt_rect()):
 			hits_done[w] = true
 			hits_landed += 1
-			m.take_hit(int(atk["dmg"]), global_position.x)
+			m.take_hit(int(atk["dmg"]), global_position.x, self)
 	if w >= 0:
 		_hit_allies(attack_rect(), w)
 

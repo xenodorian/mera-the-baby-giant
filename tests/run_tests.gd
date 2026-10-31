@@ -184,7 +184,73 @@ func _human_combo(name: String, steps: Array, want: Array, forbid: Array, trials
 	_check("human timing x%d: %s" % [trials, name], bad.is_empty(), "%s" % [bad.slice(0, 2)])
 
 
+## v0.8 Android L2 bug: no two actions share a joypad button/axis direction, triggers only drive L2/R2, and a
+## joypad Start/Select that arrives with trigger activity (a pad whose L2 is mis-mapped onto Back/Start) is dropped.
+func _input_map_tests() -> void:
+	var C = root.get_node("Controls")
+	var binds: Dictionary = C.joy_bindings()
+	var shared: Array = []
+	for k in binds:
+		if binds[k].size() > 1:
+			shared.append("%s=%s" % [k, binds[k]])
+	_check("input map: no two actions share a joypad button or axis direction", shared.is_empty(), "%s" % [shared])
+	var ok_trig: bool = binds.get("axis:%d:+" % JOY_AXIS_TRIGGER_LEFT, []) == ["l2"] and binds.get("axis:%d:+" % JOY_AXIS_TRIGGER_RIGHT, []) == ["r2"] \
+		and binds.get("btn:15", []) == ["l2"] and binds.get("btn:16", []) == ["r2"] \
+		and not binds.has("axis:%d:-" % JOY_AXIS_TRIGGER_LEFT) and not binds.has("axis:%d:-" % JOY_AXIS_TRIGGER_RIGHT)
+	_check("input map: trigger axes and Android trigger buttons (15/16) drive only L2/R2", ok_trig, "%s" % [binds])
+	var leak: Array = []
+	for a in InputMap.get_actions():
+		if String(a) in ["l2", "r2"]:
+			continue
+		for e in InputMap.action_get_events(a):
+			if (e is InputEventJoypadMotion and e.axis in C.TRIGGER_AXES) or (e is InputEventJoypadButton and e.button_index in [15, 16]):
+				leak.append(String(a))
+	_check("input map: no other action (ui_* included) listens to a trigger", leak.is_empty(), "%s" % [leak])
+	var g: Node = await _new_game()
+	for i in 10:
+		await physics_frame
+	var ov0: bool = g.hud.overlay
+	var tr := InputEventJoypadMotion.new(); tr.axis = JOY_AXIS_TRIGGER_LEFT; tr.axis_value = 1.0
+	var st := InputEventJoypadButton.new(); st.button_index = JOY_BUTTON_START; st.pressed = true
+	Input.parse_input_event(st)            # mis-mapped pad: Start arrives first, the trigger a frame later
+	await physics_frame
+	Input.parse_input_event(tr)
+	for i in 3:
+		await physics_frame
+	var held_ok: bool = g.mera.pressed("l2")
+	for i in 10:
+		await physics_frame
+	_check("Android L2 + phantom Start together: shield input kept, overlay NOT toggled", g.hud.overlay == ov0 and held_ok and g.menu_guard_drops >= 1, "overlay=%s l2=%s drops=%d" % [g.hud.overlay, held_ok, g.menu_guard_drops])
+	tr.axis_value = 0.0; Input.parse_input_event(tr)
+	st.pressed = false; Input.parse_input_event(st)
+	for i in 20:
+		await physics_frame
+	var gal0: bool = g.mera.state == "gallery"
+	var b15 := InputEventJoypadButton.new(); b15.button_index = 15; b15.pressed = true
+	var bk := InputEventJoypadButton.new(); bk.button_index = JOY_BUTTON_BACK; bk.pressed = true
+	Input.parse_input_event(b15); Input.parse_input_event(bk)
+	for i in 4:
+		await physics_frame
+	var l2b: bool = Input.is_action_pressed("l2")
+	for i in 10:
+		await physics_frame
+	_check("Android digital L2 (button 15) + phantom Back: L2 held, gallery NOT opened", l2b and (g.mera.state == "gallery") == gal0, "l2=%s state=%s" % [l2b, g.mera.state])
+	b15.pressed = false; Input.parse_input_event(b15); bk.pressed = false; Input.parse_input_event(bk)
+	for i in 20:
+		await physics_frame
+	st.pressed = true; Input.parse_input_event(st)
+	await physics_frame
+	st.pressed = false; Input.parse_input_event(st)
+	for i in 12:
+		await physics_frame
+	_check("plain joypad Start (no trigger) still toggles the controls overlay", g.hud.overlay != ov0, "overlay=%s" % g.hud.overlay)
+	g.queue_free()
+	await physics_frame
+
+
 func _run() -> void:
+	root.get_node("HitStop").enabled = false      # v0.8: legacy frame-counted cases run without hit-stop (S4 tests turn it on)
+	await _input_map_tests()
 	var s: Array
 	# ---- X chains
 	s = []; _tap(s, 5, "btn_x"); _tap(s, 18, "btn_x"); _tap(s, 31, "btn_x")
@@ -565,13 +631,13 @@ func _run() -> void:
 				hit_at = fr
 				break
 		await _drive(g, [], 20)
-		if sz <= 2:
-			_check("6x knight hit (2 sizes) at %dx Mera -> death" % sz, sc_ok and m.state == "dead", "scale=%s state=%s at=%d" % [kn.sprite.scale, m.state, hit_at])
+		if sz <= 1:
+			_check("6x knight hit (1 size, v0.8) at %dx Mera -> death" % sz, sc_ok and m.state == "dead", "scale=%s state=%s at=%d" % [kn.sprite.scale, m.state, hit_at])
 		else:
-			_check("6x knight hit at %dx Mera -> exactly 2 sizes lost (%dx)" % [sz, sz - 2], sc_ok and m.size == sz - 2 and hit_at > int(float(kn.cfg["tell"]) * 60.0), "size=%d at=%d scale=%s" % [m.size, hit_at, kn.sprite.scale])
+			_check("6x knight hit at %dx Mera -> exactly 1 size lost (%dx, v0.8)" % [sz, sz - 1], sc_ok and m.size == sz - 1 and m.state != "dead" and hit_at > int(float(kn.cfg["tell"]) * 60.0), "size=%d at=%d scale=%s" % [m.size, hit_at, kn.sprite.scale])
 		m.set_size(6, true)
 		await _drive(g, [], 3)
-		_check("knight stays 6x when Mera is %dx -> 6x, 2 per hit, 3 for the special" % sz, absf(kn.sprite.scale.x) == 6.0 and kn.damage_for("atk1") == 2 and kn.damage_for("sp") == 3, "scale=%s" % kn.sprite.scale)
+		_check("knight stays 6x when Mera is %dx -> 6x, 1 per hit, 2 for the special (v0.8)" % sz, absf(kn.sprite.scale.x) == 6.0 and kn.damage_for("atk1") == 1 and kn.damage_for("sp") == 2, "scale=%s" % kn.sprite.scale)
 		g.queue_free()
 		await process_frame
 	g = await _new_game()
@@ -776,7 +842,7 @@ func _run() -> void:
 	var fk: Node = g.knight
 	fk.position.x = m.global_position.x + 1500.0
 	g.knight_calm_until = 1 << 30
-	_check("Fire Knight: 20 HP, 6x, 2 damage, special 3, blocks, has a special", fk.hp == 20 and fk.k == 6.0 and fk.damage_for("atk2") == 2 and fk.damage_for("sp") == 3 and fk.cfg["block"] and fk.cfg["special"], "")
+	_check("Fire Knight: 20 HP, 6x, 1 damage, special 2 (v0.8), blocks, has a special", fk.hp == 20 and fk.k == 6.0 and fk.damage_for("atk2") == 1 and fk.damage_for("air") == 1 and fk.damage_for("sp") == 2 and fk.cfg["block"] and fk.cfg["special"], "")
 	fk.take_damage(1, m.global_position.x)
 	_check("first HP loss -> one Blue Knight", g.blues_spawned == 1, "%d" % g.blues_spawned)
 	fk.take_damage(5, m.global_position.x)
@@ -1229,6 +1295,10 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	var c0: Node2D = g.card_nodes[0]
+	for cn in g.card_nodes:                # v0.8: some cards are hidden (secrets); take the first one in the open
+		if not cn.hidden() and cn.base_y < 0.0:
+			c0 = cn
+			break
 	var cid: String = c0.ally_id
 	m.position.x = c0.global_position.x
 	await _drive(g, [], 4)
@@ -1355,5 +1425,361 @@ func _run() -> void:
 	_check("menu: Right selects level 2", menu.sel == 1, "")
 	menu.queue_free()
 	await process_frame
+	await _s4_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
+
+
+
+# ================================================================ v0.8 (S4) impact pass, breakables, juggles, secrets, parry
+var LVS = load("res://scripts/game/levels.gd")
+
+func _s4_prop(g: Node, kind: String, near: float = 0.0) -> Node2D:
+	var best: Node2D = null
+	for p in g.props:
+		if is_instance_valid(p) and p.kind == kind and (best == null or absf(p.global_position.x - near) < absf(best.global_position.x - near)):
+			best = p
+	return best
+
+
+func _s4_frames(g: Node, n: int) -> void:
+	for i in n:
+		await physics_frame
+		if is_instance_valid(g) and g.mera.state != "dead":
+			g.mera.invuln = maxf(g.mera.invuln, 0.5)
+
+
+func _s4_new(level: int) -> Node:
+	LVS.current = level
+	var g: Node = await _new_game()
+	for i in 3:
+		await physics_frame
+	return g
+
+
+func _s4_tests() -> void:
+	var HS = root.get_node("HitStop")
+	var P = load("res://scripts/game/props.gd")
+	var T = load("res://scripts/game/tuning.gd")
+	# ---- props per level
+	var lay_ok: bool = P.layout(0, 20000.0).is_empty()
+	var lay_info := ""
+	for lv in [1, 2, 3]:
+		var kinds := {}
+		for it in P.layout(lv, 24000.0):
+			kinds[String(it[0])] = true
+		var need := ["crate", "chest", "barrel"]
+		for k in need:
+			if not kinds.has(k):
+				lay_ok = false
+		if not (kinds.has("candle") or kinds.has("candle_b")) or not kinds.has("urn"):
+			lay_ok = false
+		lay_info += "L%d=%s " % [lv, kinds.keys()]
+	_check("props: level 1 untouched; levels 2-4 have candles, urns, crates, chests, barrels", lay_ok, lay_info)
+
+	# ---- hit-stop
+	var g: Node = await _s4_new(1)
+	var m: Node = g.mera
+	HS.enabled = true
+	m.position.x = 6000.0
+	m.set_size(3, true)
+	var w: Node2D = g.spawn_enemy("werewolf", 6200.0)
+	await _s4_frames(g, 20)
+	w.cooldown = 99.0
+	var c0: int = HS.count
+	var now0: float = m.now
+	m.deal(w, 1, m.global_position.x, "melee")
+	var froze: bool = Engine.time_scale < 0.5 and HS.count == c0 + 1 and absf(HS.last_ms - T.HITSTOP_LIGHT_MS) < 0.01
+	await _s4_frames(g, 30)
+	_check("hit-stop: a light hit freezes time (%d ms) then restores time_scale to 1" % int(T.HITSTOP_LIGHT_MS), froze and Engine.time_scale == 1.0 and not HS.active(), "scale=%f count=%d" % [Engine.time_scale, HS.count])
+	_check("hit-stop: Mera's input clock keeps real time through the freeze", absf((m.now - now0) - 30.0 * 1000.0 / 60.0) < 60.0, "dt=%f" % (m.now - now0))
+	m.deal(w, 2, m.global_position.x, "melee")
+	var heavy: float = HS.last_ms
+	await _s4_frames(g, 30)
+	w.hp = 1
+	m.deal(w, 1, m.global_position.x, "melee")
+	var kill: float = HS.last_ms
+	_check("hit-stop: heavier for heavy hits and kills, capped", heavy == T.HITSTOP_HEAVY_MS and kill == T.HITSTOP_KILL_MS and kill <= T.HITSTOP_MAX_MS and heavy > T.HITSTOP_LIGHT_MS, "heavy=%f kill=%f" % [heavy, kill])
+	HS.stop(10000.0)
+	_check("hit-stop: never longer than HITSTOP_MAX_MS", HS.last_ms == T.HITSTOP_MAX_MS, "%f" % HS.last_ms)
+	HS.clear()
+	var jit := {}
+	for i in 12:
+		root.get_node("Sfx").play("hit")
+	for h in root.get_node("Sfx").history.slice(-12):
+		jit[snappedf(float(h[3]), 0.0001)] = true
+	_check("sfx: impact sounds get a random pitch jitter (no two hits sound the same)", jit.size() >= 6, "%d distinct" % jit.size())
+
+	# ---- corpse launch + shatter + gore
+	await _s4_frames(g, 40)
+	var o: Node2D = g.spawn_enemy("ogre", m.global_position.x + 260.0)
+	await _s4_frames(g, 10)
+	o.cooldown = 99.0
+	o.hp = 1
+	var ox: float = o.global_position.x
+	m.deal(o, 1, m.global_position.x, "melee")
+	var flew := false
+	var top := 1e9
+	var pieces := 0
+	for i in 150:
+		await physics_frame
+		m.invuln = 1.0
+		if is_instance_valid(o):
+			top = minf(top, o.global_position.y)
+			if o.global_position.x > ox + 40.0:
+				flew = true
+		pieces = maxi(pieces, g.debris.pieces.size())
+		if not is_instance_valid(o) and pieces > 0:
+			break
+	_check("corpse launch: a killed ogre flies away from Mera, spins, then shatters into debris + gore", flew and not is_instance_valid(o) and pieces >= 20, "flew=%s pieces=%d" % [flew, pieces])
+	HS.clear()
+	g.queue_free()
+	await physics_frame
+
+	# ---- juggles
+	g = await _s4_new(1)
+	m = g.mera
+	HS.enabled = false
+	m.position.x = 6000.0
+	m.set_size(3, true)
+	w = g.spawn_enemy("werewolf", 6150.0)
+	await _s4_frames(g, 20)
+	w.cooldown = 99.0
+	w.hp = 99
+	m.deal(w, 1, m.global_position.x, "launch")
+	var launched: bool = w.state == "juggle" and w.launches == 1
+	await _s4_frames(g, 12)
+	var air1: float = w.max_air
+	m.deal(w, 1, m.global_position.x, "melee")
+	m.deal(w, 1, m.global_position.x, "melee")
+	var jn: int = w.juggle_n
+	var bounced := false
+	for i in 240:
+		await physics_frame
+		m.invuln = 1.0
+		if w.bounced:
+			bounced = true
+		if w.state != "juggle":
+			break
+	_check("juggle: launch sends the enemy up (%d px) and air hits keep it up (juggle_n=%d)" % [int(air1), jn], launched and air1 > 120.0 and jn == 2, "state=%s launches=%d" % [w.state, w.launches])
+	_check("juggle: one ground bounce, then it lands and recovers", bounced and w.state != "juggle" and w.alive(), "state=%s" % w.state)
+	# escalating gravity: the same air hit gives less height each time
+	w.hp = 99
+	m.deal(w, 1, m.global_position.x, "launch")
+	await _s4_frames(g, 30)
+	var rises: Array = []
+	for i in 4:
+		var y0: float = w.global_position.y
+		m.deal(w, 1, m.global_position.x, "melee")
+		var hi := y0
+		for f in 25:
+			await physics_frame
+			m.invuln = 1.0
+			hi = minf(hi, w.global_position.y)
+		rises.append(y0 - hi)
+	_check("juggle: escalating gravity, each air hit lifts it less", rises[0] > rises[1] and rises[1] > rises[2], "%s" % [rises])
+	await _s4_frames(g, 120)
+	# wall bounce
+	w.position.x = LVS.EDGE + 160.0
+	w.hp = 99
+	m.position.x = w.position.x + 200.0
+	m.deal(w, 1, m.global_position.x, "explosion")
+	for i in 120:
+		await physics_frame
+		m.invuln = 1.0
+		if w.wall_bounces > 0:
+			break
+	_check("juggle: flung into the map wall -> bounces back off it (+1 damage)", w.wall_bounces >= 1 and w.hp == 99 - 3 - 1, "wb=%d hp=%d" % [w.wall_bounces, w.hp])
+	g.queue_free()
+	await physics_frame
+
+	# ---- parry
+	g = await _s4_new(1)
+	m = g.mera
+	m.position.x = 6000.0
+	m.set_size(3, true)
+	w = g.spawn_enemy("werewolf", 6150.0)
+	await _s4_frames(g, 30)
+	w.cooldown = 99.0
+	m.invuln = 0.0
+	m.last_l2_t = m.now - 40.0
+	m.take_hit(2, w.global_position.x, w)
+	var parried: bool = m.size == 3 and m.parries == 1 and w.state == "stun" and m.counter_active()
+	var hp0: int = w.hp
+	m.deal(w, 1, m.global_position.x, "melee")
+	_check("parry: L2 within %d ms of the hit negates it, staggers the attacker and opens a counter" % int(T.PARRY_MS), parried, "size=%d parries=%d state=%s" % [m.size, m.parries, w.state])
+	_check("parry: the counter hit deals x%s damage" % str(T.PARRY_COUNTER_MULT), hp0 - w.hp == 3 * int(T.PARRY_COUNTER_MULT), "dealt=%d" % (hp0 - w.hp))
+	await _s4_frames(g, 120)
+	m.invuln = 0.0
+	m.last_l2_t = m.now - T.PARRY_MS - 80.0
+	var sz0: int = m.size
+	m.take_hit(1, w.global_position.x, w)
+	_check("parry: a late L2 does not parry (the hit lands)", m.size == sz0 - 1 and m.parries == 1, "size=%d" % m.size)
+	await _s4_frames(g, 120)
+	m.invuln = 0.0
+	var shot := Node2D.new()
+	g.world.add_child(shot)
+	shot.global_position = m.global_position + Vector2(60, -40)
+	var no_parry: bool = not m.try_parry_shot(shot)
+	m.last_l2_t = m.now
+	_check("parry: a projectile in the window is deflected (try_parry_shot)", no_parry and m.try_parry_shot(shot) and m.deflects == 1, "deflects=%d" % m.deflects)
+	shot.queue_free()
+	g.queue_free()
+	await physics_frame
+
+	# ---- breakables, drops, barrels, chandeliers (Moonlit Town)
+	g = await _s4_new(2)
+	m = g.mera
+	var cd: Node2D = _s4_prop(g, "candle", 4000.0)
+	if cd == null:
+		cd = _s4_prop(g, "candle_b", 4000.0)
+	var cr: Node2D = _s4_prop(g, "crate", 4000.0)
+	m.position.x = cd.global_position.x - 150.0
+	await _s4_frames(g, 5)
+	m.deal(cd, 1, m.global_position.x, "melee")
+	var crhp: int = cr.hp
+	m.deal(cr, 1, cr.global_position.x - 100.0, "melee")
+	var cr_mid: bool = cr.alive()
+	for i in crhp:
+		m.deal(cr, 1, cr.global_position.x - 100.0, "melee")
+	_check("breakables: a candle breaks in one hit, a crate takes %d" % crhp, not cd.alive() and cr_mid == (crhp > 1) and not cr.alive(), "candle=%s crate=%s" % [cd.state, cr.state])
+	m.size = 6
+	m.potions = 3
+	m.stamina = 0.0
+	m.rage = 100.0
+	var tally := {"potion": 0, "stamina": 0, "sphere": 0}
+	g.drop_rng.seed = 99
+	for i in 200:
+		for kd in g.smart_drop(Vector2(m.global_position.x, 600.0), "medium"):
+			if tally.has(kd):
+				tally[kd] += 1
+	_check("smart drops: low stamina, full size and rage -> mostly blue stamina potions", tally["stamina"] > 2 * tally["potion"] and tally["stamina"] > 2 * tally["sphere"], "%s" % [tally])
+	m.size = 1
+	m.potions = 0
+	m.stamina = m.stamina_max
+	tally = {"potion": 0, "stamina": 0, "sphere": 0}
+	for i in 200:
+		for kd in g.smart_drop(Vector2(m.global_position.x, 600.0), "medium"):
+			if tally.has(kd):
+				tally[kd] += 1
+	_check("smart drops: tiny Mera with no potions -> mostly green size potions", tally["potion"] > tally["stamina"] and tally["potion"] > tally["sphere"], "%s" % [tally])
+	await _s4_frames(g, 30)
+	for pk in g.world.get_children():
+		if pk.get_script() != null and String(pk.get_script().resource_path).ends_with("pickup.gd"):
+			pk.queue_free()
+	m.size = 3
+	# barrel chain + enemy launch
+	var b1: Node2D = _s4_prop(g, "barrel", 6000.0)
+	var PROP = load("res://scripts/game/prop.gd")
+	var b2: Node2D = PROP.new()
+	b2.setup(g, "barrel", b1.global_position.x + 200.0)
+	g.world.add_child(b2)
+	g.props.append(b2)
+	m.position.x = b1.global_position.x - 700.0
+	var hh: Node2D = g.spawn_enemy("werewolf", b1.global_position.x + 90.0)
+	await _s4_frames(g, 10)
+	hh.cooldown = 99.0
+	hh.hp = 99
+	m.deal(b1, 1, m.global_position.x, "bolt")
+	await _s4_frames(g, 40)
+	_check("barrel: explodes, %d fixed damage + launch to enemies in the blast, and chains to a barrel nearby" % P.BARREL_DMG, (not is_instance_valid(b1) or not b1.alive()) and (not is_instance_valid(b2) or b2.state != "idle") and hh.hp <= 99 - P.BARREL_DMG and hh.launches >= 1, "b2=%s hp=%d launches=%d" % [b2.state if is_instance_valid(b2) else "freed", hh.hp, hh.launches])
+	await _s4_frames(g, 60)
+	# chandelier crush via the earthquake
+	var ch: Node2D = null
+	for pr in g.props:
+		if is_instance_valid(pr) and pr.kind == "chandelier" and pr.alive() and (ch == null or absf(pr.global_position.x - 12000.0) < absf(ch.global_position.x - 12000.0)):
+			ch = pr
+	m.position.x = ch.global_position.x - 500.0
+	g.snap_camera()
+	var under: Node2D = g.spawn_enemy("werewolf", ch.global_position.x)
+	await _s4_frames(g, 10)
+	under.cooldown = 99.0
+	under.hp = 99
+	under.position.x = ch.global_position.x
+	var cx: float = ch.global_position.x
+	var crushed := 0
+	var fell := false
+	g.earthquake()
+	for i in 90:
+		await physics_frame
+		m.invuln = 1.0
+		if is_instance_valid(under) and under.alive():
+			under.position.x = cx
+		if not is_instance_valid(ch):
+			break
+		fell = fell or ch.state != "idle"
+		crushed = ch.crushed
+	_check("chandelier: the earthquake shakes it loose and it crushes the enemy below (%d dmg + stun)" % P.CHANDELIER_DMG, fell and is_instance_valid(under) and under.hp <= 99 - P.CHANDELIER_DMG and under.stun_t > 0.5, "fell=%s hp=%d" % [fell, under.hp if is_instance_valid(under) else -1])
+	g.queue_free()
+	await physics_frame
+
+	# ---- secrets: wall, ledge + crumbling plank, lever + door (Misty Woods)
+	g = await _s4_new(1)
+	m = g.mera
+	var wall: Node2D = _s4_prop(g, "wall")
+	var wcard: Node2D = wall.card
+	var hidden_ok: bool = wcard != null and wcard.hidden_by == wall and not wcard.visible
+	m.position.x = wall.global_position.x - 200.0
+	await _s4_frames(g, 3)
+	var hits := 0
+	while is_instance_valid(wall) and wall.alive() and hits < 20:
+		m.deal(wall, 1, m.global_position.x, "melee")
+		hits += 1
+	await _s4_frames(g, 5)
+	_check("secret wall: hides its card until broken (%d hits), then the card can be taken" % hits, hidden_ok and (not is_instance_valid(wall) or not wall.alive()) and wcard.hidden_by == null and g.secrets_found == 1 and hits > 1, "hidden=%s hits=%d" % [hidden_ok, hits])
+	var lever: Node2D = _s4_prop(g, "lever")
+	var door: Node2D = lever.door
+	var dcard: Node2D = door.card
+	m.position.x = lever.global_position.x - 120.0
+	await _s4_frames(g, 3)
+	m.deal(lever, 1, m.global_position.x, "melee")
+	await _s4_frames(g, 100)
+	_check("secret door: pulling its lever opens it and frees the card", door.state == "open" and dcard.hidden_by == null and g.secrets_found == 2, "door=%s" % door.state)
+	var plank: Node2D = _s4_prop(g, "plank")
+	var ledge: Node2D = _s4_prop(g, "ledge")
+	var lcard: Node2D = ledge.card
+	m.position = Vector2(plank.global_position.x, plank.top_y - 200.0)
+	m.state = "air"
+	m.on_ground = false
+	var stood := false
+	var crumbled := false
+	for i in 120:
+		await physics_frame
+		m.invuln = 1.0
+		if m.on_ground and absf(m.global_position.y - plank.top_y) < 2.0:
+			stood = true
+		if plank.state == "gone":
+			crumbled = true
+			break
+	await _s4_frames(g, 40)
+	_check("crumbling plank: Mera lands on it, it shakes and breaks under her, she drops to the ground", stood and crumbled and not plank.solid() and absf(m.global_position.y - g.GROUND_Y) < 2.0, "stood=%s crumbled=%s y=%f" % [stood, crumbled, m.global_position.y])
+	_check("ledge: the card floats on top of the ledge", absf(lcard.base_y - (ledge.top_y - 40.0)) < 0.1 and ledge.top_y < g.GROUND_Y - 250.0, "base=%f top=%f" % [lcard.base_y, ledge.top_y])
+	m.position = Vector2(ledge.global_position.x, ledge.top_y - 100.0)
+	m.state = "air"
+	m.on_ground = false
+	await _s4_frames(g, 40)
+	var on_ledge: bool = m.on_ground and absf(m.global_position.y - ledge.top_y) < 2.0
+	var lx0: float = m.global_position.x
+	m.forced["right"] = true
+	await _s4_frames(g, 150)
+	m.forced["right"] = false
+	await _s4_frames(g, 60)
+	_check("ledge: Mera stands on it and falls off its edge back to the ground", on_ledge and absf(m.global_position.y - g.GROUND_Y) < 2.0, "on=%s y=%f x %f->%f surf=%s st=%s" % [on_ledge, m.global_position.y, lx0, m.global_position.x, ledge.surface(), m.state])
+	for i in int(P.CRUMBLE_BACK_S * 60.0) + 60:
+		await physics_frame
+	_check("crumbling plank grows back after %ds" % int(P.CRUMBLE_BACK_S), plank.state == "idle" and plank.solid(), "state=%s" % plank.state)
+	# ---- ally scaling (fixed to Mera's size)
+	g.cards["brawler"] = 2
+	m.set_size(2, true)
+	var a1: Node2D = g.summon_type("brawler")
+	await _s4_frames(g, 60)
+	var k_small: float = a1.k
+	m.set_size(6, true)
+	await _s4_frames(g, 90)
+	var k_big: float = a1.k
+	_check("allies: scale with Mera (fit to her height): k at 2x %.2f < k at 6x %.2f" % [k_small, k_big], k_small < k_big - 0.3 and absf(k_big - a1.fit_k()) < 0.05, "")
+	g.queue_free()
+	await physics_frame
+	HS.enabled = false
+	HS.clear()
+	LVS.current = 0

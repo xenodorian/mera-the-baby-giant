@@ -281,6 +281,16 @@ func take_damage(amount: int, from_x: float, kind: String = "melee") -> bool:
 	return true
 
 
+## v0.8 parry: Mera parried his swing -> staggered (dazed like the quake stun, but also in the air)
+func parried(t: float) -> void:
+	if hp <= 0:
+		return
+	history.append("parried")
+	if not on_ground:
+		return
+	stun(t)
+
+
 ## v0.5 earthquake: stunned for t seconds (only when on the ground). He can't act, block or flinch out of it.
 func stun(t: float) -> void:
 	if hp <= 0 or not on_ground or t <= 0.0:
@@ -312,9 +322,13 @@ func _on_anim_done() -> void:
 		"defend":
 			_anim("idle")
 		"death":
-			var t := create_tween()
-			t.tween_property(self, "modulate:a", 0.0, 0.6)
-			t.tween_callback(queue_free)
+			# v0.8: after his (canon) death animation the body shatters into debris (+ gore)
+			if game and game.get("debris"):
+				var c := hurt_rect().get_center()
+				game.debris.shatter_node(sprite, c + Vector2(0, 60), 600.0, {"cols": 8 if variant == "fire" else 5, "rows": 8 if variant == "fire" else 5, "life": 2.2})
+				game.debris.gore(c, k, c + Vector2(0, 40), "flesh", 10 if variant == "fire" else 6)
+				Sfx.play("gore", 0.8)
+			queue_free()
 
 
 func _physics_process(delta: float) -> void:
@@ -338,7 +352,7 @@ func _physics_process(delta: float) -> void:
 		(hb.shape as RectangleShape2D).size = r.size
 		if not hits_done.has(w) and m.state != "dead" and r.intersects(m.hurt_rect()):
 			hits_done[w] = true
-			m.take_hit(damage_for(atk), global_position.x)     # fixed sizes per hit, never multiplied
+			m.take_hit(damage_for(atk), global_position.x, self)     # fixed sizes per hit, never multiplied
 	match state:
 		"stun":
 			stun_t -= delta

@@ -89,7 +89,7 @@ E = {
 WP = "chierit/water-priestess/png/"
 LR = "chierit/leaf-ranger/animations/PNG/"
 BG = "ansimuz/brawler-girl/skin-recolor/sprites/"
-DG = "ansimuz/dancing-girl/sprites/"
+DG = "ansimuz/dancing-girl/skin-recolor/sprites/"   # v0.8 natural skin: tools/recolor_dancer_skin.py
 # v0.7 allies (same manifest format; scripts/game/allies.gd + ally.gd)
 ALLIES = {
     "priestess": (1, False, {"idle": (WP + "01_idle", 10, True), "walk": (WP + "02_walk", 12, True), "surf": (WP + "03_surf", 12, True),

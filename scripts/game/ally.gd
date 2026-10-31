@@ -56,6 +56,7 @@ func setup(g: Node, ally_id: String) -> void:
 	id = ally_id
 	art = ROSTER.art(id)
 	k = float(AL.K[id])
+	k = fit_k()
 	hp_max = int(AL.HP[id])
 	hp = hp_max
 	stay = float(AL.STAY_S[id])
@@ -124,6 +125,27 @@ func _go(s: String, a: String = "") -> void:
 	history.append(s if a == "" else s + ":" + a)
 	if a != "":
 		_play(a)
+
+
+## v0.8: allies are drawn relative to Mera's size so a 1x Mera isn't dwarfed: about 1.1x her height, never bigger
+## than their v0.7 size (AL.K) and never below 35 % of it. Eases over ~0.5 s when she grows or shrinks.
+func fit_k() -> float:
+	var full := float(AL.K[id])
+	if game == null or game.get("mera") == null:
+		return full
+	var ib: Array = AnimLib.frames("idle")[0]["body"]
+	var mh: float = (float(ib[3]) - float(ib[1])) * float(game.mera.shown)
+	var b: Array = art["body"]
+	var bh := float(b[3]) - float(b[1])
+	return clampf(mh * 1.1 / maxf(bh, 1.0), full * 0.35, full)
+
+
+func _fit_size(delta: float) -> void:
+	var want := fit_k()
+	if absf(want - k) > 0.001:
+		k = move_toward(k, want, maxf(absf(want - k), 0.5) * 4.0 * delta)
+		_face(0)
+		tag.position = Vector2(0, float(art["body"][1]) * k - 22.0)
 
 
 func _face(d: int) -> void:
@@ -311,6 +333,7 @@ func _physics_process(delta: float) -> void:
 	sprite.modulate = Color(3, 3, 3) if flash > 0.0 else Color(1, 1, 1)
 	if game == null:
 		return
+	_fit_size(delta)
 	_gravity(delta)
 	position.x += vx * delta
 	match state:
