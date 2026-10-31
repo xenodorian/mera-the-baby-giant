@@ -310,6 +310,26 @@ def potion_frames(n=6):
         gx, gy = 4 + (i % 3 == 0), 9 + (i % 2); a[gy, gx] = (*GREEN[4], 255); a[gy + 1, gx] = (*GREEN[3], 255)
         out.append(Image.fromarray(a))
     return out
+BLUE = [(14, 26, 64), (30, 70, 150), (60, 130, 230), (140, 200, 255), (225, 245, 255)]
+WHITE = [(70, 80, 110), (170, 185, 215), (235, 240, 250), (255, 255, 255), (255, 255, 255)]
+def stamina_potion_frames(n=6, max_up=False):
+    """v0.4 stamina potions (14x18), same flask as the green potion: blue = +30 stamina; blue liquid in a white-banded
+    flask with a white star glint = +5 max stamina"""
+    out = []
+    for i in range(n):
+        a = np.zeros((18, 14, 4), np.uint8); YY, XX = np.mgrid[0:18, 0:14].astype(float)
+        d = np.hypot(XX - 6.5, (YY - 11.5) * 1.05)
+        a[d < 6.2] = (*(WHITE[1] if max_up else BLUE[0]), 255); a[d < 5.2] = (*BLUE[1], 255)
+        a[(d < 4.4) & (YY > 9 + 0.6 * np.sin(i * 1.05 + XX * 0.9))] = (*BLUE[2], 255)
+        if max_up:
+            a[(d < 5.2) & (np.abs(YY - 8.5) < 0.6)] = (*WHITE[2], 255)                   # white band
+        a[2:6, 5:9] = (*(WHITE[1] if max_up else BLUE[0]), 255); a[3:6, 6:8] = (200, 215, 235, 255)
+        a[0:3, 5:9] = (98, 60, 40, 255); a[0, 5:9] = (140, 96, 60, 255)
+        gx, gy = 4 + (i % 3 == 0), 9 + (i % 2); a[gy, gx] = (*BLUE[4], 255); a[gy + 1, gx] = (*BLUE[3], 255)
+        if max_up and i % 3 != 2:                                                     # twinkle
+            a[12, 8] = (255, 255, 255, 255); a[11, 8] = a[13, 8] = a[12, 7] = a[12, 9] = (*WHITE[2], 255)
+        out.append(Image.fromarray(a))
+    return out
 def sphere_frames(n=6):
     """red rage sphere (13x13), pulsing core"""
     out = []
@@ -339,6 +359,8 @@ if __name__ == '__main__':
                   discs=dict(sheet='spell_discs.png', cell=strip(discs(), f'{OUT}/spell_discs.png'), centre=[4, 4]),
                   lightning=dict(sheet='spell_lightning.png', cell=strip(lightning_frames(), f'{OUT}/spell_lightning.png'), ms=50),
                   potion=dict(sheet='pickup_potion.png', cell=strip(potion_frames(), f'{OUT}/pickup_potion.png'), ms=110),
+                  stamina=dict(sheet='pickup_stamina.png', cell=strip(stamina_potion_frames(), f'{OUT}/pickup_stamina.png'), ms=110),
+                  stamina_max=dict(sheet='pickup_stamina_max.png', cell=strip(stamina_potion_frames(max_up=True), f'{OUT}/pickup_stamina_max.png'), ms=110),
                   sphere=dict(sheet='pickup_sphere.png', cell=strip(sphere_frames(), f'{OUT}/pickup_sphere.png'), ms=90),
                   barrier=dict(sheet='spell_barrier.png', cell=strip(barrier_frames(), f'{OUT}/spell_barrier.png'), ms=80))
     import fit_barrier                                   # bubble sized from the barrier pose's opaque pixels (hand + energy ball)

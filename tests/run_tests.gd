@@ -66,6 +66,97 @@ func _combo(name: String, steps: Array, frames: int, want: Array, forbid: Array 
 	await process_frame
 
 
+# ---------------------------------------------------------------- v0.4 human-timing input replay
+## steps: [{a, chord?, gap:[lo,hi], hold:[lo,hi]}]. A chord's two buttons land 0-50 ms apart in random order.
+func _human_events(rng: RandomNumberGenerator, steps: Array) -> Array:
+	var ev: Array = []
+	var t := 100.0
+	var first := true
+	for st in steps:
+		if not first:
+			var gp: Array = st.get("gap", [80, 250])
+			t += rng.randf_range(float(gp[0]), float(gp[1]))
+		first = false
+		var hd: Array = st.get("hold", [45, 110])
+		var h := rng.randf_range(float(hd[0]), float(hd[1]))
+		if st.has("chord"):
+			var a1: String = st["a"]
+			var a2: String = st["chord"]
+			if rng.randf() < 0.5:
+				var tmp := a1
+				a1 = a2
+				a2 = tmp
+			var off := rng.randf_range(0.0, 50.0)
+			ev.append([t, a1, true]); ev.append([t + h, a1, false])
+			ev.append([t + off, a2, true]); ev.append([t + off + h, a2, false])
+		else:
+			ev.append([t, st["a"], true]); ev.append([t + h, st["a"], false])
+	# a button can't be pressed again while it is still held: cut the earlier hold 20 ms before the next press
+	var last_rel := {}
+	for e in ev:                     # generation order: each press is followed by its own release
+		if e[2]:
+			if last_rel.has(e[1]) and float(last_rel[e[1]][0]) > float(e[0]) - 20.0:
+				last_rel[e[1]][0] = float(e[0]) - 20.0
+		else:
+			last_rel[e[1]] = e
+	ev.sort_custom(func(x, y): return float(x[0]) < float(y[0]))
+	return ev
+
+
+## plays timed events (ms) through Mera's forced input; returns {bolts: [speed_mult...], air_before: frames airborne
+## before the first `watch` move, fast: bool (quick fire seen at anim speed 2), first_air_ms}
+func _replay(g: Node, ev: Array, tail_ms: float = 2200.0, watch: String = "") -> Dictionary:
+	var m: Node = g.mera
+	var t := 0.0
+	var i := 0
+	var end_ms := float(ev[-1][0]) + tail_ms
+	var seen := {}
+	var out := {"bolts": [], "air_before": 0, "fast": false, "qf_speed": 0.0, "first_air_ms": -1.0, "x_start": m.global_position.x}
+	var p0 := float(ev[0][0])
+	while t <= end_ms:
+		while i < ev.size() and float(ev[i][0]) <= t:
+			m.forced[ev[i][1]] = ev[i][2]
+			i += 1
+		await physics_frame
+		t += 1000.0 / 60.0
+		for c in g.world.get_children():
+			if c.get("speed_mult") != null and c.get("kind") == "bolt" and not seen.has(c.get_instance_id()):
+				seen[c.get_instance_id()] = true
+				out["bolts"].append(c.speed_mult)
+		if m.anim.key == "quick_fire":
+			out["qf_speed"] = maxf(float(out["qf_speed"]), m.anim.speed)
+		if watch != "" and not (watch in m.move_log) and not m.on_ground:
+			out["air_before"] = int(out["air_before"]) + 1
+		if float(out["first_air_ms"]) < 0.0 and not m.on_ground and t >= p0:
+			out["first_air_ms"] = t - p0
+	for a in ["btn_x", "btn_y", "btn_a", "btn_b", "up", "down", "left", "right"]:
+		m.forced[a] = false
+	return out
+
+
+## N seeded human trials of one combo
+func _human_combo(name: String, steps: Array, want: Array, forbid: Array, trials: int = 8, check: Callable = Callable()) -> void:
+	var rng := RandomNumberGenerator.new()
+	var bad := []
+	for n in trials:
+		rng.seed = 4000 + n * 7919 + name.hash() % 1000
+		var g: Node = await _new_game()
+		var ev := _human_events(rng, steps)
+		var r: Dictionary = await _replay(g, ev, 2200.0, String(want[0]) if want.size() > 0 else "")
+		var log: Array = g.mera.move_log
+		var ok := _has_seq(log, want)
+		for f in forbid:
+			if f in log:
+				ok = false
+		if ok and check.is_valid():
+			ok = check.call(g, r)
+		if not ok:
+			bad.append("seed%d %s %s" % [n, log, r])
+		g.queue_free()
+		await process_frame
+	_check("human timing x%d: %s" % [trials, name], bad.is_empty(), "%s" % [bad.slice(0, 2)])
+
+
 func _run() -> void:
 	var s: Array
 	# ---- X chains
@@ -95,13 +186,13 @@ func _run() -> void:
 	s = []; _tap(s, 5, "btn_x"); _tap(s, 5, "btn_y")
 	await _combo("X+Y same frame -> rear explosion", s, 40, ["rear_blast"], ["atk1", "quick_fire"])
 	s = []; _tap(s, 5, "btn_x"); _tap(s, 7, "btn_y")
-	await _combo("X then Y within 50 ms -> rear explosion", s, 40, ["rear_blast"], ["atk1", "quick_fire"])
+	await _combo("X then Y within 50 ms -> rear explosion", s, 40, ["rear_blast"], ["quick_fire"])
 	s = []; _tap(s, 5, "btn_y"); _tap(s, 7, "btn_x")
-	await _combo("Y then X within 50 ms -> rear explosion", s, 40, ["rear_blast"], ["atk1", "quick_fire"])
+	await _combo("Y then X within 50 ms -> rear explosion", s, 40, ["rear_blast"], ["atk1"])
 	s = []; _tap(s, 5, "btn_a"); _tap(s, 6, "btn_y")
 	await _combo("A+Y chord -> ground dash (aerial dash anim)", s, 40, ["adash"], ["quick_fire", "rear_blast"])
 	s = []; _tap(s, 6, "btn_a"); _tap(s, 5, "btn_y")
-	await _combo("Y then A within 50 ms -> ground dash", s, 40, ["adash"], ["quick_fire"])
+	await _combo("Y then A within 50 ms -> ground dash", s, 40, ["adash"], [])
 	s = [[5, "right", true], [5, "btn_a", true], [60, "right", false], [60, "btn_a", false]]; _tap(s, 40, "btn_y")
 	await _combo("Y while running (A held) -> ground dash", s, 70, ["run_start", "adash"], ["quick_fire"])
 	s = []; _tap(s, 5, "btn_x"); _tap(s, 5, "btn_a")
@@ -119,7 +210,7 @@ func _run() -> void:
 	s = []; _tap(s, 5, "btn_b"); _tap(s, 15, "btn_x")
 	await _combo("B then X -> back dodge, dodge attack", s, 90, ["bdodge", "datk1"], ["atk1"])
 	s = []; _tap(s, 5, "btn_b"); _tap(s, 15, "btn_x"); _tap(s, 45, "btn_x"); _tap(s, 75, "btn_x")
-	await _combo("B X X X -> dodge attack 1x, 2x, 3x", s, 200, ["bdodge", "datk1", "datk2", "datk3"], [])
+	await _combo("B X X X -> dodge attack only (v0.4: never the rising slash or slam)", s, 200, ["bdodge", "datk1"], ["datk2", "datk3"])
 	s = [[5, "down", true], [40, "down", false]]; _tap(s, 15, "btn_a")
 	await _combo("Down + A -> slide", s, 60, ["crouch", "slide"], [])
 	# ---- specials
@@ -259,8 +350,9 @@ func _run() -> void:
 		g._spawn_knight(1)
 		g.knight.position.x = m.global_position.x + 70.0 * sz + 40.0
 		g.knight.cooldown = 99.0
+		g.knight.block_chance = 0.0
 		await _drive(g, [[3, "btn_x", true], [6, "btn_x", false]], 30)
-		_check("1x attack at %dx deals %d damage" % [sz, sz], g.knight.hp == 10 - sz, "hp=%d" % g.knight.hp)
+		_check("1x attack at %dx deals %d damage" % [sz, sz], g.knight.hp == 20 - sz, "hp=%d" % g.knight.hp)
 		g.queue_free()
 		await process_frame
 	# knight: 10 HP, sphere +10 % rage, only one at a time, respawn after death
@@ -269,8 +361,8 @@ func _run() -> void:
 	await _drive(g, [], 90)
 	_check("a Fire Knight spawns off-screen ahead", g.knight != null and absf(g.knight.global_position.x - g.cam_x) > 960.0, "")
 	var k1: Node = g.knight
-	k1.take_damage(10, m.global_position.x)
-	_check("knight with 10 HP dies to 10 damage", not k1.alive(), "hp=%d" % k1.hp)
+	k1.take_damage(20, m.global_position.x)
+	_check("Fire Knight with 20 HP dies to 20 damage", not k1.alive(), "hp=%d" % k1.hp)
 	await _drive(g, [], 5)
 	var sphere: Node = null
 	for c in g.world.get_children():
@@ -312,14 +404,14 @@ func _run() -> void:
 	m = g.mera
 	m.rage = 100.0
 	await _drive(g, [[5, "r2", true], [8, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true], [60, "up", false], [60, "right", true]], 90)
-	_check("Fury aura: back + front flame layers and embers on", m.flame_back.visible and m.flame_front.visible and m.aura_fx.emitting and m.aura_fx.amount == 90, "")
+	_check("Fury aura (v0.4 particles): back + front flames and embers emitting, world-space", m.flame_back.emitting and m.flame_front.emitting and m.aura_fx.emitting and m.flame_back.amount == 160 and m.flame_front.amount == 70 and m.aura_fx.amount == 60 and not m.flame_back.local_coords and not m.flame_front.local_coords and not m.aura_fx.local_coords, "")
 	_check("flying right -> tilted head-first to the right (+90 deg)", absf(m.anim.rotation - PI / 2.0) < 0.05 and m.facing == 1, "rot=%f" % m.anim.rotation)
 	await _drive(g, [[1, "right", false], [1, "left", true], [1, "up", true]], 40)
 	_check("flying up-left -> tilted -45 deg, facing left", absf(m.anim.rotation + PI / 4.0) < 0.05 and m.facing == -1, "rot=%f" % m.anim.rotation)
 	await _drive(g, [[1, "left", false], [1, "up", false]], 60)
 	_check("idle hover -> eases back upright", absf(m.anim.rotation) < 0.01 and m.anim.idx == 3, "rot=%f" % m.anim.rotation)
 	m.set_aura_quality(0)
-	_check("aura quality cap 0 -> flame layers off, 20 embers", not m.flame_back.visible and m.aura_fx.amount == 20, "")
+	_check("aura quality cap 0 -> flame layers off, 20 embers", not m.flame_back.visible and not m.flame_back.emitting and m.aura_fx.amount == 20, "")
 	g.queue_free()
 	await process_frame
 	# ---- v0.3 speeds: walk 50 px/s at 1x; dashes 2x the distance in half the time; back dodge same distance, 2x faster
@@ -420,6 +512,7 @@ func _run() -> void:
 		var kn: Node = g.knight
 		kn.position.x = m.global_position.x + 420.0
 		kn.cooldown = 0.0
+		kn.block_chance = 0.0
 		await _drive(g, [], 2)
 		var sc_ok: bool = absf(kn.sprite.scale.x) == 6.0 and kn.sprite.scale.y == 6.0 and kn.hurt_rect().size == Vector2(26, 44) * 6.0
 		var hit_at := -1
@@ -429,13 +522,13 @@ func _run() -> void:
 				hit_at = fr
 				break
 		await _drive(g, [], 20)
-		if sz == 1:
-			_check("6x knight swing at 1x Mera -> exactly one hit, death", sc_ok and m.state == "dead", "scale=%s state=%s at=%d" % [kn.sprite.scale, m.state, hit_at])
+		if sz <= 2:
+			_check("6x knight hit (2 sizes) at %dx Mera -> death" % sz, sc_ok and m.state == "dead", "scale=%s state=%s at=%d" % [kn.sprite.scale, m.state, hit_at])
 		else:
-			_check("6x knight swing at %dx Mera -> exactly 1 size lost (%dx)" % [sz, sz - 1], sc_ok and m.size == sz - 1 and hit_at > int(kn.TELL * 60.0), "size=%d at=%d scale=%s" % [m.size, hit_at, kn.sprite.scale])
+			_check("6x knight hit at %dx Mera -> exactly 2 sizes lost (%dx)" % [sz, sz - 2], sc_ok and m.size == sz - 2 and hit_at > int(float(kn.cfg["tell"]) * 60.0), "size=%d at=%d scale=%s" % [m.size, hit_at, kn.sprite.scale])
 		m.set_size(6, true)
 		await _drive(g, [], 3)
-		_check("knight stays 6x when Mera is %dx -> 6x" % sz, absf(kn.sprite.scale.x) == 6.0 and kn.DAMAGE == 1, "scale=%s" % kn.sprite.scale)
+		_check("knight stays 6x when Mera is %dx -> 6x, 2 per hit, 3 for the special" % sz, absf(kn.sprite.scale.x) == 6.0 and kn.damage_for("atk1") == 2 and kn.damage_for("sp") == 3, "scale=%s" % kn.sprite.scale)
 		g.queue_free()
 		await process_frame
 	g = await _new_game()
@@ -491,5 +584,373 @@ func _run() -> void:
 				top_ok and st.segs > 0 and st.dropped == 0, "top=%.0f segs=%d" % [st.top_y if is_instance_valid(st) else 0.0, st.segs if is_instance_valid(st) else -1])
 			g.queue_free()
 			await process_frame
+	# ================================================================ v0.4
+	var X := {"a": "btn_x"}
+	var Y := {"a": "btn_y"}
+	var HX := {"a": "btn_x", "hold": [300, 450]}
+	await _human_combo("X X X -> 1x, 2x, 2x-2", [X, X, X], ["atk1", "atk2", "atk2_2"], ["atk2_1", "atk3", "beam_ender", "rear_blast"])
+	await _human_combo("X X X mashed fast (80-120 ms) -> 1x, 2x, 2x-2", [X, {"a": "btn_x", "gap": [80, 120]}, {"a": "btn_x", "gap": [80, 120]}], ["atk1", "atk2", "atk2_2"], ["atk3", "beam_ender"])
+	await _human_combo("X X hold-X -> 1x, 2x, 2x-1", [X, X, HX], ["atk1", "atk2", "atk2_1"], ["atk3", "beam_ender"])
+	await _human_combo("X X Y -> 1x, 2x, 3x", [X, X, Y], ["atk1", "atk2", "atk3"], ["beam_ender", "quick_fire", "rear_blast"])
+	await _human_combo("X X X Y -> beam ender", [X, X, X, Y], ["atk1", "atk2", "beam_ender"], ["atk3", "quick_fire"])
+	await _human_combo("X X X, Y late in the 3rd hit (250-450 ms) -> beam ender", [X, X, X, {"a": "btn_y", "gap": [250, 450]}], ["atk1", "atk2", "beam_ender"], ["atk3"])
+	await _human_combo("X X Y Y -> 3x, never the beam", [X, X, Y, Y], ["atk1", "atk2", "atk3"], ["beam_ender"])
+	await _human_combo("sloppy X+Y chord (0-50 ms) -> rear explosion, no bolt", [{"a": "btn_x", "chord": "btn_y"}], ["rear_blast"], ["atk2"], 8,
+		func(g, r): return r["bolts"].is_empty())
+	await _human_combo("sloppy A+Y chord -> ground dash, no bolt", [{"a": "btn_a", "chord": "btn_y"}], ["adash"], ["rear_blast"], 8,
+		func(g, r): return r["bolts"].is_empty())
+	await _human_combo("Y alone -> normal quick fire (1x anim, 1x bolt)", [Y], ["quick_fire"], ["rear_blast", "adash", "datk2"], 6,
+		func(g, r): return r["bolts"] == [1.0] and is_equal_approx(float(r["qf_speed"]), 1.0))
+	await _human_combo("sloppy B+Y chord -> rising slash, no dodge travel, no bolt", [{"a": "btn_b", "chord": "btn_y"}], ["datk2"], ["datk3", "datk1", "djump_v", "adash"], 10,
+		func(g, r): return r["bolts"].is_empty() and absf(g.mera.global_position.x - float(r["x_start"])) < 40.0)
+	await _human_combo("B+Y, Y -> rising slash then slam", [{"a": "btn_b", "chord": "btn_y"}, {"a": "btn_y", "gap": [150, 350]}], ["datk2", "datk3"], ["adash", "datk1"], 8,
+		func(g, r): return r["bolts"].is_empty())
+	await _human_combo("Up then Y in the air -> jump, aerial dash (no rising slash)", [{"a": "up"}, {"a": "btn_y", "gap": [110, 250]}], ["jump", "adash"], ["datk2", "quick_fire"], 8)
+	await _human_combo("B then Y (110-250 ms later) -> dodge, fast quick fire (2x anim, 2x bolt)", [{"a": "btn_b"}, {"a": "btn_y", "gap": [110, 250]}], ["bdodge", "quick_fire"], ["datk2", "rear_blast"], 8,
+		func(g, r): return r["bolts"] == [2.0] and is_equal_approx(float(r["qf_speed"]), 2.0))
+	await _human_combo("B then X -> dodge attack", [{"a": "btn_b"}, {"a": "btn_x", "gap": [110, 250]}], ["bdodge", "datk1"], ["datk2", "datk3", "atk1"])
+	await _human_combo("B, X, X, X -> dodge attack, never the rising slash or slam", [{"a": "btn_b"}, {"a": "btn_x", "gap": [110, 250]}, X, X], ["bdodge", "datk1"], ["datk2", "datk3"])
+	var sb: Array = []; _tap(sb, 5, "btn_b"); _tap(sb, 8, "btn_y")
+	await _combo("B then Y 3 frames (50 ms) later -> rising slash (retroactive, the dodge never plays out)", sb, 60, ["datk2"], ["quick_fire"])
+	sb = []; _tap(sb, 5, "btn_y"); _tap(sb, 8, "btn_b")
+	await _combo("Y then B within 50 ms -> rising slash, no bolt", sb, 60, ["datk2"], ["bdodge"])
+	sb = [[5, "btn_b", true], [30, "btn_b", false]]; _tap(sb, 12, "btn_y")
+	await _combo("B held, Y pressed 117 ms later -> dodge + fast quick fire (sequence, not chord)", sb, 60, ["bdodge", "quick_fire"], ["datk2"])
+	# Up alone: the jump starts on the frame the press is read
+	var gu: Node = await _new_game()
+	var ru: Dictionary = await _replay(gu, [[100.0, "up", true], [180.0, "up", false]], 600.0)
+	_check("Up alone -> jump starts immediately (airborne %.0f ms after the press)" % float(ru["first_air_ms"]), float(ru["first_air_ms"]) >= 0.0 and float(ru["first_air_ms"]) <= 34.0 and "jump" in gu.mera.move_log, "%s" % [ru])
+	gu.queue_free()
+	await process_frame
+	# fast bolt speed: 800 px/s x size
+	var gf: Node = await _new_game()
+	gf.mera.set_size(3, true)
+	await _replay(gf, [[50.0, "btn_b", true], [100.0, "btn_b", false], [200.0, "btn_y", true], [260.0, "btn_y", false]], 400.0)
+	var fbolt: Node = null
+	for c in gf.world.get_children():
+		if c.get("speed_mult") != null and c.get("kind") == "bolt":
+			fbolt = c
+	_check("fast quick fire bolt flies at 800 px/s x size (2400 at 3x)", fbolt != null and is_equal_approx(fbolt.speed(), 2400.0), "%s" % [fbolt.speed() if fbolt else -1.0])
+	gf.queue_free()
+	await process_frame
+	# ---- stamina
+	g = await _new_game()
+	m = g.mera
+	_check("stamina starts at 60 / 60", m.stamina == 60.0 and m.stamina_max == 60.0, "")
+	var costs_ok := true
+	for kk in Tuning.STAMINA_COST:
+		if m.stamina_cost(kk) != float(Tuning.STAMINA_COST[kk]):
+			costs_ok = false
+	_check("costs come from Tuning.STAMINA_COST (quick fire 5, dashes 6, rear 12, beam 20, bubble 3 + 4/s)", costs_ok and Tuning.STAMINA_COST["quick_fire"] == 5 and Tuning.STAMINA_COST["beam_ender"] == 20, "")
+	await _drive(g, [[3, "btn_y", true], [6, "btn_y", false]], 10)
+	_check("quick fire costs 5", absf(m.stamina - 55.0) < 0.3, "st=%f" % m.stamina)
+	var st0: float = m.stamina
+	await _drive(g, [], 120)
+	_check("regenerates 1 per second", absf(m.stamina - st0 - 2.0) < 0.2, "d=%f" % (m.stamina - st0))
+	m.stamina = 60.0
+	await _drive(g, [], 60)
+	_check("regen stops at the max", m.stamina == 60.0, "")
+	g.queue_free()
+	await process_frame
+	for kk in [["X+Y -> rear blast", [[5, "btn_x", true], [5, "btn_y", true], [8, "btn_x", false], [8, "btn_y", false]], "rear_blast", 48.0],
+			["A+Y -> dash", [[5, "btn_a", true], [5, "btn_y", true], [8, "btn_a", false], [8, "btn_y", false]], "adash", 54.0],
+			["Y -> quick fire", [[5, "btn_y", true], [8, "btn_y", false]], "quick_fire", 55.0],
+			["B+Y -> rising slash (free)", [[5, "btn_b", true], [5, "btn_y", true], [8, "btn_b", false], [8, "btn_y", false]], "datk2", 60.0],
+			["B -> back dodge (free)", [[5, "btn_b", true], [8, "btn_b", false]], "bdodge", 60.0]]:
+		g = await _new_game()
+		await _drive(g, kk[1], 9)
+		_check("stamina: %s leaves %d" % [kk[0], int(kk[3])], kk[2] in g.mera.move_log and absf(g.mera.stamina - float(kk[3])) < 0.3, "st=%f log=%s" % [g.mera.stamina, g.mera.move_log])
+		g.queue_free()
+		await process_frame
+	g = await _new_game()
+	m = g.mera
+	m._start_move("atk2_2")
+	m.mv["x3_t"] = m.now
+	await _drive(g, [[3, "btn_y", true], [6, "btn_y", false]], 12)
+	_check("beam ender costs 20", "beam_ender" in m.move_log and absf(m.stamina - 40.0) < 0.3, "st=%f" % m.stamina)
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	m.stamina = 4.0
+	var nfail := 0
+	for h in root.get_node("Sfx").history:
+		if h[0] == "fail":
+			nfail += 1
+	await _drive(g, [[3, "btn_y", true], [6, "btn_y", false]], 20)
+	var nfail2 := 0
+	for h in root.get_node("Sfx").history:
+		if h[0] == "fail":
+			nfail2 += 1
+	_check("not enough stamina -> no quick fire, fail cue, no stamina spent", not ("quick_fire" in m.move_log) and nfail2 > nfail and m.stamina < 5.0, "log=%s st=%f" % [m.move_log, m.stamina])
+	m.stamina = 10.0
+	await _drive(g, [[3, "btn_x", true], [3, "btn_y", true], [6, "btn_x", false], [6, "btn_y", false]], 12)
+	_check("not enough for the rear explosion -> nothing fires", not ("rear_blast" in m.move_log), "log=%s" % [m.move_log])
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	await _drive(g, [[3, "l2", true]], 123)
+	_check("bubble: 3 to raise + 4 per second held", m.barrier_on and absf(m.stamina - (60.0 - 3.0 - 4.0 * 2.0 + 2.0)) < 0.6, "st=%f" % m.stamina)
+	m.stamina = 1.0
+	await _drive(g, [], 30)
+	_check("bubble drops when stamina runs out", not m.barrier_on, "st=%f" % m.stamina)
+	g.queue_free()
+	await process_frame
+	g = await _new_game()
+	m = g.mera
+	m.stamina = 10.0
+	var pk = load("res://scripts/game/pickup.gd").new()
+	pk.setup(g, "stamina", m.global_position)
+	g.collect(pk)
+	_check("blue potion: +30 stamina", absf(m.stamina - 40.0) < 0.01, "st=%f" % m.stamina)
+	g.collect(pk)
+	_check("...capped at the max", m.stamina == m.stamina_max, "")
+	pk.kind = "stamina_max"
+	g.collect(pk)
+	_check("blue-and-white potion: +5 max stamina (65)", m.stamina_max == 65.0, "max=%f" % m.stamina_max)
+	for i in 20:
+		g.collect(pk)
+	_check("max stamina caps at 120", m.stamina_max == 120.0, "max=%f" % m.stamina_max)
+	pk.free()
+	var dr: Array = [g.blue_drops(0.34, 0.5), g.blue_drops(0.35, 0.09), g.blue_drops(0.1, 0.05), g.blue_drops(0.9, 0.9)]
+	_check("blue drops: 35 % stamina potion, 10 % max potion, independent rolls", dr == [["stamina"], ["stamina_max"], ["stamina", "stamina_max"], []], "%s" % [dr])
+	var drng := RandomNumberGenerator.new()
+	drng.seed = 99
+	var cnt := {"stamina": 0, "stamina_max": 0}
+	for i in 4000:
+		for d in g.blue_drops(drng.randf(), drng.randf()):
+			cnt[d] += 1
+	_check("blue drop rates over 4000 kills ~35 % / ~10 %", absf(cnt["stamina"] / 4000.0 - 0.35) < 0.03 and absf(cnt["stamina_max"] / 4000.0 - 0.10) < 0.02, "%s" % [cnt])
+	g.queue_free()
+	await process_frame
+	# ---- Fire / Blue Knight
+	g = await _new_game()
+	m = g.mera
+	g._spawn_knight(1)
+	var fk: Node = g.knight
+	fk.position.x = m.global_position.x + 1500.0
+	g.knight_calm_until = 1 << 30
+	_check("Fire Knight: 20 HP, 6x, 2 damage, special 3, blocks, has a special", fk.hp == 20 and fk.k == 6.0 and fk.damage_for("atk2") == 2 and fk.damage_for("sp") == 3 and fk.cfg["block"] and fk.cfg["special"], "")
+	fk.take_damage(1, m.global_position.x)
+	_check("first HP loss -> one Blue Knight", g.blues_spawned == 1, "%d" % g.blues_spawned)
+	fk.take_damage(5, m.global_position.x)
+	_check("more damage above 10 HP -> no new blue", g.blues_spawned == 1, "%d" % g.blues_spawned)
+	fk.take_damage(5, m.global_position.x)
+	_check("first drop below 10 HP -> a second Blue Knight", g.blues_spawned == 2 and fk.hp == 9, "%d hp=%d" % [g.blues_spawned, fk.hp])
+	fk.take_damage(1, m.global_position.x)
+	_check("...and never a third", g.blues_spawned == 2, "")
+	var bk: Node = g.blues[0]
+	_check("Blue Knight: 5 HP, 3x, 3x faster, 1 damage, no block, no special", bk.hp == 5 and bk.k == 3.0 and absf(bk.sprite.scale.x) == 3.0 and float(bk.cfg["speed"]) == 3.0 * float(fk.cfg["speed"]) and bk.damage_for("atk1") == 1 and bk.damage_for("air") == 1 and not bk.cfg["block"] and not bk.cfg["special"] and bk.sprite.material != null,
+		"hp=%d k=%f sc=%s spd=%s dmg=%d mat=%s" % [bk.hp, bk.k, bk.sprite.scale, bk.cfg["speed"], bk.damage_for("atk1"), bk.sprite.material])
+	_check("blue spawns behind Mera (off-screen)", signf(bk.global_position.x - m.global_position.x) == -float(m.facing) and absf(bk.global_position.x - g.cam_x) > 960.0, "")
+	var no_sp := true
+	for i in 30:
+		bk._start_string()
+		if bk.atk == "sp":
+			no_sp = false
+	bk._anim("idle")
+	_check("blue strings never use the special", no_sp, "")
+	var fsp := []
+	fk.strings = 0
+	for i in 6:
+		fk._start_string()
+		fsp.append(fk.atk == "sp")
+	fk._anim("idle")
+	_check("Fire Knight: every 3rd string is the special", fsp == [false, false, true, false, false, true], "%s" % [fsp])
+	g.queue_free()
+	await process_frame
+	# blue hits for 1 size; blue cannot block
+	g = await _new_game()
+	m = g.mera
+	m.set_size(3, true)
+	var b2: Node = g.spawn_blue()
+	b2.position.x = m.global_position.x - 300.0
+	var b_hit := -1
+	for fr in 400:
+		await physics_frame
+		if m.size != 3:
+			b_hit = fr
+			break
+	await _drive(g, [], 5)
+	_check("Blue Knight hit -> exactly 1 size (3x -> 2x)", m.size == 2, "size=%d at=%d" % [m.size, b_hit])
+	g.queue_free()
+	await process_frame
+	# blue flanks to Mera's back
+	g = await _new_game()
+	m = g.mera
+	g.knight_calm_until = 1 << 30
+	var b3: Node = g.spawn_blue()
+	b3.position.x = m.global_position.x + m.facing * 500.0
+	var got_back := false
+	for fr in 150:
+		await physics_frame
+		if signf(b3.global_position.x - m.global_position.x) == -float(m.facing):
+			got_back = true
+	_check("Blue Knight in front circles round to Mera's back", got_back, "dx=%f" % (b3.global_position.x - m.global_position.x))
+	g.queue_free()
+	await process_frame
+	# block: invulnerable except explosions and Fury, forced drop + cooldown
+	g = await _new_game()
+	m = g.mera
+	m.set_size(2, true)
+	g._spawn_knight(1)
+	fk = g.knight
+	fk.block_chance = 1.0
+	g.knight_calm_until = 1 << 30
+	fk.position.x = m.global_position.x + 260.0
+	await _drive(g, [], 30)
+	await _drive(g, [[3, "btn_x", true], [6, "btn_x", false]], 40)
+	_check("Fire Knight raises the block against a melee attack -> no damage", "block" in fk.history and fk.hp == 20 and fk.blocked >= 1, "hp=%d hist=%s" % [fk.hp, fk.history])
+	fk._start_block(-1)
+	await _drive(g, [], 3)
+	var bl1: bool = fk.blocking()
+	_check("blocking: a bolt does nothing", bl1 and not fk.take_damage(2, m.global_position.x, "bolt") and fk.hp == 20, "")
+	_check("blocking: the beam does nothing", not fk.take_damage(2, m.global_position.x, "beam") and fk.hp == 20, "")
+	_check("blocking: an explosion goes through", fk.take_damage(2, m.global_position.x, "explosion") and fk.hp == 18 and fk.block_cd > 0.0, "hp=%d" % fk.hp)
+	fk.block_cd = 0.0
+	fk._start_block(-1)
+	await _drive(g, [], 3)
+	m.fury = true
+	_check("blocking: a Fury attack goes through", fk.take_damage(1, m.global_position.x, "melee") and fk.hp == 17, "hp=%d" % fk.hp)
+	m.fury = false
+	fk.block_cd = 0.0
+	fk._start_block(-1)
+	m._start_move("beam_ender")        # a long threat: he would hold the guard forever
+	var dropped_at := -1.0
+	for fr in 150:
+		await physics_frame
+		if fk.state != "defend":
+			dropped_at = fr / 60.0
+			break
+	_check("forced block drop after %.1f s (max %.1f) and a %.1f s cooldown" % [dropped_at, Tuning.BLOCK_MAX_S, Tuning.BLOCK_COOLDOWN_S], dropped_at >= Tuning.BLOCK_MAX_S - 0.05 and dropped_at < Tuning.BLOCK_MAX_S + 0.5 and fk.block_cd > 1.5, "at=%f cd=%f" % [dropped_at, fk.block_cd])
+	g.queue_free()
+	await process_frame
+	# bolt AI: far bolts are jumped, close ones blocked
+	for vv in ["fire", "blue"]:
+		g = await _new_game()
+		m = g.mera
+		m.set_size(2, true)
+		g.knight_calm_until = 1 << 30
+		var kb: Node
+		if vv == "fire":
+			g._spawn_knight(1)
+			kb = g.knight
+		else:
+			kb = g.spawn_blue()
+		m._face(1)
+		kb.position.x = m.global_position.x + 1100.0
+		kb.dash_cd = 99.0
+		await _drive(g, [], 2)
+		m.stamina = 60.0
+		await _drive(g, [[2, "btn_y", true], [5, "btn_y", false]], 100)
+		_check("%s knight jumps a bolt seen > 400 px away (no damage)" % vv, kb.jumped_bolts >= 1 and kb.hp == kb.hp_max and "takeoff" in kb.history, "hp=%d jumped=%d hist=%s" % [kb.hp, kb.jumped_bolts, kb.history])
+		g.queue_free()
+		await process_frame
+	g = await _new_game()
+	m = g.mera
+	m.set_size(2, true)
+	g.knight_calm_until = 1 << 30
+	g._spawn_knight(1)
+	fk = g.knight
+	fk.block_chance = 1.0
+	m._face(1)
+	fk.position.x = m.global_position.x + 520.0
+	await _drive(g, [], 5)
+	await _drive(g, [[2, "btn_y", true], [5, "btn_y", false]], 60)
+	_check("Fire Knight blocks a bolt first seen close (< 400 px)", fk.hp == 20 and fk.blocked >= 1 and fk.jumped_bolts == 0, "hp=%d blocked=%d hist=%s" % [fk.hp, fk.blocked, fk.history])
+	g.queue_free()
+	await process_frame
+	# chase dash: 3x speed, limited, cooldown
+	g = await _new_game()
+	m = g.mera
+	g.knight_calm_until = 1 << 30
+	g._spawn_knight(1)
+	fk = g.knight
+	fk.position.x = m.global_position.x + 1700.0
+	var rolls := 0
+	var was_roll := false
+	var roll_px := 0.0
+	var roll_t := 0
+	var x_prev: float = fk.global_position.x
+	for fr in 170:
+		await physics_frame
+		var is_roll: bool = fk.state == "roll"
+		if is_roll and not was_roll:
+			rolls += 1
+		if is_roll and was_roll:
+			roll_px += absf(fk.global_position.x - x_prev)
+			roll_t += 1
+		was_roll = is_roll
+		x_prev = fk.global_position.x
+	var rs: float = roll_px / maxf(roll_t / 60.0, 0.001)
+	_check("chase dash when far: 3x run speed (%.0f px/s), at most %.1f s, then a cooldown" % [rs, Tuning.DASH_MAX_S], rolls == 1 and absf(rs - 3.0 * float(fk.cfg["speed"])) < 30.0 and roll_t <= int(Tuning.DASH_MAX_S * 60.0) + 1, "rolls=%d t=%d" % [rolls, roll_t])
+	g.queue_free()
+	await process_frame
+	# Mera in the air -> jump attack
+	g = await _new_game()
+	m = g.mera
+	m.set_size(2, true)
+	m.rage = 100.0
+	await _drive(g, [[3, "r2", true], [6, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [70, "up", false]], 80)
+	g._spawn_knight(1)
+	fk = g.knight
+	fk.block_chance = 0.0
+	fk.position.x = m.global_position.x + 380.0
+	fk.cooldown = 0.0
+	await _drive(g, [], 120)
+	var air_ok: bool = "takeoff" in fk.history and "air" in fk.history
+	_check("Mera flying near -> knight chases with a jump attack (jump + air_atk)", air_ok, "hist=%s my=%f fly=%s" % [fk.history, m.global_position.y, m.flying])
+	g.queue_free()
+	await process_frame
+	# every chierit animation is used
+	var all14 := ["idle", "run", "jump", "jump_up", "jump_down", "roll", "atk1", "atk2", "atk3", "sp", "defend", "hit", "death", "air"]
+	var missing := []
+	for a in all14:
+		if not load("res://scripts/game/fire_knight.gd").played_all.has(a):
+			missing.append(a)
+	# the tests above don't necessarily see atk1/2/3/sp/death; play a quick scripted fight for the rest
+	if not missing.is_empty():
+		g = await _new_game()
+		m = g.mera
+		m.set_size(6, true)
+		g._spawn_knight(1)
+		fk = g.knight
+		fk.block_chance = 0.0
+		fk.position.x = m.global_position.x + 300.0
+		for i in 6:
+			fk.cooldown = 0.0
+			for fr in 200:
+				await physics_frame
+				m.invuln = 5.0
+				if fk.state == "idle" and fr > 30:
+					break
+		fk.take_damage(99, m.global_position.x)
+		await _drive(g, [], 30)
+		g.queue_free()
+		await process_frame
+		missing = []
+		for a in all14:
+			if not load("res://scripts/game/fire_knight.gd").played_all.has(a):
+				missing.append(a)
+	_check("knight plays all 14 chierit animations (attacks, jumps, roll, block, hit, death)", missing.is_empty(), "missing=%s" % [missing])
+	# ---- Fury aura particles
+	g = await _new_game()
+	m = g.mera
+	m.set_size(2, true)
+	m.rage = 100.0
+	await _drive(g, [[3, "r2", true], [6, "r2", false]], 40)
+	_check("aura: still -> flames rise straight up", m.flame_back.emitting and m.flame_back.direction.distance_to(Vector2(0, -1)) < 0.01, "dir=%s" % m.flame_back.direction)
+	var sc2: float = m.flame_back.scale_amount_max
+	await _drive(g, [[1, "right", true]], 40)
+	_check("aura: moving right -> flames trail behind (left)", m.flame_back.direction.x < -0.3, "dir=%s" % m.flame_back.direction)
+	await _drive(g, [[1, "right", false]], 5)
+	m.set_size(5, true)
+	await _drive(g, [], 60)
+	_check("aura: flames scale with her size", m.flame_back.scale_amount_max > sc2 * 2.0, "%f vs %f" % [m.flame_back.scale_amount_max, sc2])
+	m.set_aura_quality(1)
+	_check("aura quality cap 1 -> 90 back flames, no front layer", m.flame_back.amount == 90 and not m.flame_front.emitting, "")
+	g.queue_free()
+	await process_frame
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)

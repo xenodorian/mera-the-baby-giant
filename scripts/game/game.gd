@@ -21,7 +21,10 @@ const POTION_EVERY := 2600.0  # a potion appears on the ground ahead for every 2
 var mera: Mera
 var cam: Camera2D
 var cam_x := 960.0
-var knight: Node2D = null
+var knight: Node2D = null       # the Fire Knight (one at a time)
+var blues: Array = []           # v0.4 Blue Knights he calls in
+var blues_spawned := 0
+var drop_rng := RandomNumberGenerator.new()
 var knight_timer := 1.2
 var knights_spawned := 0
 var shake_amt := 0.0
@@ -224,9 +227,13 @@ func shake(amount: float, t: float) -> void:
 
 # ---------------------------------------------------------------- enemies
 func enemies() -> Array:
+	var out: Array = []
 	if knight != null and is_instance_valid(knight) and knight.alive():
-		return [knight]
-	return []
+		out.append(knight)
+	for b in blues:
+		if is_instance_valid(b) and b.alive():
+			out.append(b)
+	return out
 
 
 func _spawn_knight(side: int = 0) -> void:
@@ -234,8 +241,8 @@ func _spawn_knight(side: int = 0) -> void:
 		side = mera.facing
 	if knight != null and is_instance_valid(knight):
 		knight.queue_free()
-	var k: Node2D = load("res://scripts/game/fire_knight.gd").new()
-	k.game = self
+	var k: FireKnight = FireKnight.new()
+	k.setup(self, "fire")
 	k.position = Vector2(cam_x + side * (960.0 + KNIGHT_GAP), GROUND_Y)
 	k.facing = -side
 	world.add_child(k)
@@ -251,6 +258,12 @@ func _manage_knight(delta: float) -> void:
 		if knight_timer <= 0.0 and not over:
 			_spawn_knight()
 		return
+	for b in blues.duplicate():           # Blue Knights left far behind are removed
+		if not is_instance_valid(b):
+			blues.erase(b)
+		elif b.alive() and absf(b.global_position.x - mera.global_position.x) > 1920.0 * 1.5:
+			blues.erase(b)
+			b.queue_free()
 	# off-screen and left far behind -> replace him with a new one ahead of Mera
 	if knight.alive():
 		var off_screen := absf(knight.global_position.x - cam_x) > 960.0 + 120.0
@@ -260,7 +273,23 @@ func _manage_knight(delta: float) -> void:
 			knight_timer = 0.0
 
 
+## v0.4: a Blue Knight comes in from off-screen behind Mera (he prefers her back)
+func spawn_blue(_from: Node2D = null) -> FireKnight:
+	var b: FireKnight = FireKnight.new()
+	b.setup(self, "blue")
+	var side := -mera.facing
+	b.position = Vector2(cam_x + side * (960.0 + 160.0), GROUND_Y)
+	b.facing = -side
+	world.add_child(b)
+	blues.append(b)
+	blues_spawned += 1
+	return b
+
+
 func on_knight_defeated(k: Node2D) -> void:
+	if k.variant == "blue":
+		_blue_defeated(k)
+		return
 	defeated += 1
 	var sp: Pickup = Pickup.new()
 	sp.setup(self, "sphere", k.global_position + Vector2(0, -10), 10.0)    # Fire Knight: +10 % rage
@@ -272,6 +301,34 @@ func on_knight_defeated(k: Node2D) -> void:
 	knight = null
 	knight_timer = 2.0
 	Sfx.play("boom", 1.6, -8.0)
+
+
+## the two independent rolls -> what a Blue Knight drops
+func blue_drops(r_stamina: float, r_max: float) -> Array:
+	var out: Array = []
+	if r_stamina < Tuning.BLUE_STAMINA_P:
+		out.append("stamina")
+	if r_max < Tuning.BLUE_MAX_P:
+		out.append("stamina_max")
+	return out
+
+
+## Blue Knight drops: a small red sphere (+4 % rage) always; rolled independently: 35 % a blue +30 stamina potion,
+## 10 % a blue-and-white +5 max-stamina potion
+func _blue_defeated(k: Node2D) -> void:
+	defeated += 1
+	blues.erase(k)
+	var p: Vector2 = k.global_position
+	var sp: Pickup = Pickup.new()
+	sp.setup(self, "sphere", p + Vector2(0, -10), float(Tuning.BLUE["rage"]))
+	world.add_child.call_deferred(sp)
+	var off := -60.0
+	for kind in blue_drops(drop_rng.randf(), drop_rng.randf()):
+		var po: Pickup = Pickup.new()
+		po.setup(self, kind, p + Vector2(k.facing * off, 0))
+		world.add_child.call_deferred(po)
+		off = -off
+	Sfx.play("boom", 2.0, -10.0)
 
 
 func _manage_potions() -> void:
@@ -300,6 +357,15 @@ func collect(p: Pickup) -> void:
 	if p.kind == "potion":
 		mera.potions += 1
 		Sfx.play("potion")
+	elif p.kind == "stamina":
+		mera.add_stamina(Tuning.STAMINA_POTION)
+		Sfx.play("potion", 1.3)
+		hud.flash("pickup:+30 stamina")
+	elif p.kind == "stamina_max":
+		var before := mera.stamina_max
+		mera.add_stamina_max(Tuning.STAMINA_MAX_POTION)
+		Sfx.play("potion", 1.6)
+		hud.flash("pickup:+5 max stamina (%d)" % int(mera.stamina_max) if mera.stamina_max > before else "pickup:max stamina is already 120")
 	else:
 		mera.add_rage(p.value)
 		Sfx.play("sphere")
@@ -316,9 +382,10 @@ func flash_hud(what: String) -> void:
 
 
 # ---------------------------------------------------------------- spells
-func spawn_bolt(_m: Node, p: Vector2, d: int, s: float, dmg: bool) -> void:
+func spawn_bolt(_m: Node, p: Vector2, d: int, s: float, dmg: bool, speed_mult: float = 1.0) -> void:
 	var sh := Shot.new()
 	sh.setup(self, "bolt", p, d, s, {}, dmg)
+	sh.speed_mult = speed_mult
 	world.add_child(sh)
 
 
@@ -338,7 +405,7 @@ func explode(p: Vector2, s: float, dmg: bool) -> void:
 		var r := Rect2(p.x - 50.0 * s, p.y - 90.0 * s, 100.0 * s, 90.0 * s)
 		for e in enemies():
 			if r.intersects(e.hurt_rect()):
-				mera.deal(e, 3, p.x)
+				mera.deal(e, 3, p.x, "explosion")
 
 
 func call_lightning(m: Mera) -> void:
@@ -361,7 +428,7 @@ func call_lightning(m: Mera) -> void:
 	var r := Rect2(x - 40.0 * s, top, 80.0 * s, GROUND_Y + 10.0 - top)
 	for e in enemies():
 		if r.intersects(e.hurt_rect()):
-			m.deal(e, 3, x)
+			m.deal(e, 3, x, "lightning")
 
 
 func hit_spark(p: Vector2, s: float) -> void:
