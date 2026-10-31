@@ -65,11 +65,11 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - Flight: Up in the air takes off; R2 or Down at ground level lands.
 - **Marked slash:** L1+R1+L2+R2 together (keyboard Q+W+1+2, within 150 ms, all held) while Fury is already on, or while the meter is full (this also starts Fury). Mera and the whole world stop for up to 8 s. Up to 9 nearest living enemies each get one unique mark from 1 to 9. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. It ends when every mark is cut or the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
 
-## Stamina (v0.4)
-- 60 / 60 at the start, regenerating 1 per second. HUD: the STAMINA bar under rage.
+## Mana (v0.4, renamed v0.9.4)
+- 60 / 60 at the start, regenerating 1 per second. HUD: the MANA bar under rage.
 - Costs (all in `Tuning.STAMINA_COST`):
 
-| Move | Stamina |
+| Move | Mana |
 |---|---|
 | Quick fire (normal or fast B, Y) | 5 |
 | Ground dash / aerial dash | 6 |
@@ -78,8 +78,8 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | Bubble (L2) | 3 to raise + 4 per second held. It drops at 0 |
 | Everything else (attacks, dodge, rising slash, slam, heal, lightning, Fury) | 0 |
 
-- Not enough stamina: fail cue + the bar flashes, and nothing starts (in X X X Y the third hit just plays out).
-- **Blue potion:** +30 stamina, up to the current max. **Blue-and-white potion:** +5 max stamina, capped at **120**. Picking one up shows a HUD note.
+- Not enough mana: fail cue + the bar flashes, and nothing starts (in X X X Y the third hit just plays out).
+- **Blue potion:** +30 mana, up to the current max. **Blue-and-white potion:** +5 max mana, capped at **200**. Picking one up shows a HUD note.
 
 ## Fire Knight
 - Always **6x** (264 px tall). **Enemies never scale**, in size or in damage, whatever Mera's size.
@@ -188,7 +188,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 ## Enemy roster (v0.6)
 - Sixteen enemies on levels 2-4, built from the ansimuz and chierit packs. **Every one of their animations is used.**
 - Enemies never scale with Mera (fixed size).
-- Each drops a rage sphere (the value is its "rage" %), plus a 20 % chance of a potion and a 25 % chance of a +30 stamina potion.
+- Each defeated enemy drops **one** thing (v0.9.4): a rage sphere (30%), a green size potion (28%), a blue +30 mana potion (28%), a +5 max mana potion (7%, cap 200), or a +5 max rage sphere (7%, cap 200). A rage sphere still grants that enemy's rage value.
 - Damage dealt by Mera = base × her size, as for the knights.
 
 | Level | Enemy | HP | Hits cost | Animations and what they do |
@@ -271,8 +271,8 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 
 ## Parry (v0.8)
 - **Press L2 at most 150 ms before a hit lands** = parry: no damage, 0.25 s i-frames, the attacker is **staggered 2 s** (bosses are not) and **slid back 400 px** (v0.9.3; bosses stay put), and Mera gets a **0.9 s counter window: her hits do ×2** (she glows gold). A 120 ms hit-stop and a clang sell it.
-- **Crouch bubble (v0.9.2):** holding Down raises a small bubble for free (radius 32 art px around the crouch; the L2 bubble is ~46 and costs stamina). Starting the crouch within the same 150 ms window **parries** the same way, but the shove is **200 px** and the stun is **1 s** (v0.9.3). After that window the bubble stays up and **reduces damage by 75%**: a quarter of the hit is kept (four hits of 1 drop one size) and she is not knocked out of the crouch.
-- **Holding the full bubble** (the parry window has passed) still blocks the hit, and now slides the attacker **200 px** with **no stun** (v0.9.3).
+- **Crouch bubble (v0.9.4):** holding Down raises a small bubble for free (radius 32 art px). A dial around it empties over **3 seconds**, then the bubble drops even if she stays crouched. Crouching again starts a new one. Starting the crouch within 150 ms **parries** (200 px, 1 s stun). After that window the bubble **subtracts 1** from the hit and does not knock her down, so a hit of 1 is stopped and a hit of 3 costs 2 size. Any button drops it and does that move.
+- **Full bubble (L2 hold):** stops **all** damage. Any button except the L2 hold itself drops it immediately and does that move. Holding it, with no parry window, still slides the attacker 200 px with no stun.
 - **Projectiles** (the hell beast's fireball, and a dragon bolt) parried with L2 in the window fly back 1.6× faster and hit the first enemy for 3. A dragon bolt popped by L2 still bursts harmlessly.
 - **Swing parry (v0.9.1):** X (`atk1` or the air `jatk1`) reflects a projectile when the hitbox meets it within **150 ms of the hitbox going live**. It flies at its shooter, or the nearest living enemy, and damages them. No counter window.
 - A player shot that touches an enemy shot: **both explode** (the blast does not also hurt Mera). The combo beam and the vertical beam **destroy** enemy projectiles.

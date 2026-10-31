@@ -579,22 +579,28 @@ func _spawn_next(list: Array, j: int, behind: bool = false) -> bool:
 	return back
 
 
-## v0.6 roster drops: a rage sphere (the enemy's "rage" %), 20 % a potion, 25 % a +30 stamina potion
+## v0.9.4: one drop. sphere / green potion / blue stamina are common; +5 max stamina and +5 max rage are rare.
+func enemy_loot_kind(roll: float) -> String:
+	var x := clampf(roll, 0.0, 0.999999) * 100.0
+	var acc := 0.0
+	for row in Tuning.ENEMY_LOOT:
+		acc += float(row[1])
+		if x < acc:
+			return String(row[0])
+	return "sphere"
+
+
+func _spawn_loot(kind: String, p: Vector2, rage_v: float) -> void:
+	var po: Pickup = Pickup.new()
+	po.setup(self, kind, p, rage_v if kind == "sphere" else -1.0)
+	world.add_child.call_deferred(po)
+
+
 func on_enemy_defeated(e: Node2D) -> void:
 	defeated += 1
 	mobs.erase(e)
 	var p: Vector2 = Vector2(e.global_position.x, GROUND_Y)
-	var sp: Pickup = Pickup.new()
-	sp.setup(self, "sphere", p + Vector2(0, -10), float(Roster.def(e.id)["rage"]))
-	world.add_child.call_deferred(sp)
-	if drop_rng.randf() < 0.2:
-		var po: Pickup = Pickup.new()
-		po.setup(self, "potion", p + Vector2(70, 0))
-		world.add_child.call_deferred(po)
-	if drop_rng.randf() < 0.25:
-		var st: Pickup = Pickup.new()
-		st.setup(self, "stamina", p + Vector2(-70, 0))
-		world.add_child.call_deferred(st)
+	_spawn_loot(enemy_loot_kind(drop_rng.randf()), p + Vector2(0, -10), float(Roster.def(e.id)["rage"]))
 	if e == boss:
 		boss_dead = true
 		shake(24.0, 0.8)
@@ -758,13 +764,7 @@ func on_knight_defeated(k: Node2D) -> void:
 		_blue_defeated(k)
 		return
 	defeated += 1
-	var sp: Pickup = Pickup.new()
-	sp.setup(self, "sphere", k.global_position + Vector2(0, -10), 10.0)    # Fire Knight: +10 % rage
-	world.add_child.call_deferred(sp)
-	if randf() < 0.35:
-		var po: Pickup = Pickup.new()
-		po.setup(self, "potion", k.global_position + Vector2(-k.facing * 90.0, 0))
-		world.add_child.call_deferred(po)
+	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), 10.0)
 	knight = null
 	knight_timer = 2.0
 	Sfx.play("boom", 1.6, -8.0)
@@ -780,21 +780,11 @@ func blue_drops(r_stamina: float, r_max: float) -> Array:
 	return out
 
 
-## Blue Knight drops: a small red sphere (+4 % rage) always; rolled independently: 35 % a blue +30 stamina potion,
-## 10 % a blue-and-white +5 max-stamina potion
+## one roll from the same table as every other enemy. A sphere still grants this knight's small rage value.
 func _blue_defeated(k: Node2D) -> void:
 	defeated += 1
 	blues.erase(k)
-	var p: Vector2 = k.global_position
-	var sp: Pickup = Pickup.new()
-	sp.setup(self, "sphere", p + Vector2(0, -10), float(Tuning.BLUE["rage"]))
-	world.add_child.call_deferred(sp)
-	var off := -60.0
-	for kind in blue_drops(drop_rng.randf(), drop_rng.randf()):
-		var po: Pickup = Pickup.new()
-		po.setup(self, kind, p + Vector2(k.facing * off, 0))
-		world.add_child.call_deferred(po)
-		off = -off
+	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), float(Tuning.BLUE["rage"]))
 	Sfx.play("boom", 2.0, -10.0)
 
 
@@ -830,12 +820,17 @@ func collect(p: Pickup) -> void:
 		var amt := p.value if p.value > 0.0 else Tuning.STAMINA_POTION
 		mera.add_stamina(amt)
 		Sfx.play("potion", 1.3)
-		hud.flash("pickup:+%d stamina" % int(amt))
+		hud.flash("pickup:+%d mana" % int(amt))
 	elif p.kind == "stamina_max":
 		var before := mera.stamina_max
 		mera.add_stamina_max(Tuning.STAMINA_MAX_POTION)
 		Sfx.play("potion", 1.6)
-		hud.flash("pickup:+5 max stamina (%d)" % int(mera.stamina_max) if mera.stamina_max > before else "pickup:max stamina is already 120")
+		hud.flash("pickup:+5 max mana (%d)" % int(mera.stamina_max) if mera.stamina_max > before else "pickup:max mana is already %d" % int(Tuning.STAMINA_MAX_CAP))
+	elif p.kind == "rage_max":
+		var before_r := mera.rage_max
+		mera.add_rage_max(Tuning.RAGE_MAX_POTION)
+		Sfx.play("sphere", 1.3)
+		hud.flash("pickup:+5 max rage (%d)" % int(mera.rage_max) if mera.rage_max > before_r else "pickup:max rage is already %d" % int(Tuning.RAGE_MAX_CAP))
 	else:
 		mera.add_rage(p.value)
 		Sfx.play("sphere")

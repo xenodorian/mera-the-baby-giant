@@ -4,14 +4,14 @@ Buttons use **Xbox names** (Godot/SDL maps a PS4 pad by position: A = Cross, B =
 LB/RB = L1/R1, LT/RT = L2/R2, Back = Share, Start = Options). The left stick works the same as the d-pad.
 Speeds are given at 1x and scale with Mera's size (2x moves twice as fast). v0.3: walk 50, run 200, dashes 1600, back dodge 800 px/s.
 
-v0.4: every button acts on the frame it is pressed. Moves marked with a **stamina** cost need that much stamina (see the Stamina section).
+v0.4: every button acts on the frame it is pressed. Moves marked with a **mana** cost need that much mana (see the Mana section). The resource used to be called stamina.
 
 ## Gamepad
 | Input | Action |
 |---|---|
 | D-pad Left / Right | walk, 50 px/s |
 | D-pad Up | jump, instantly (it never waits for another button). In the air: double jump. In Fury: take off and fly |
-| D-pad Down | crouch. Down + A = slide. **Holding crouch** (v0.9.2) raises a **small free bubble**: 75% less damage. A crouch started within 150 ms of a hit parries: no damage, **200 px** knockback, **1 s** stun, counter window, projectiles fly back |
+| D-pad Down | crouch. Down + A = slide. **Holding crouch** raises a **small free bubble** for 3 seconds (a dial empties, then it drops). It subtracts 1 from a hit. A crouch started within 150 ms of a hit parries: no damage, 200 px knockback, 1 s stun. Any button drops it and does that move |
 | **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts). **At 100 % rage (not in Fury): SUPER EARTHQUAKE** (v0.8): impact frame, then a 2 s quake, 7 s stun, flat 2 damage to every enemy, every ground breakable on screen destroyed; spends the whole meter + 20 stamina (see GAME_RULES) |
 | **A** (hold) + direction | run, 200 px/s |
 | **B** | back dodge (free): same distance as v0.2 in half the time (800 px/s backwards, animation at 2x). Invulnerable for its first 70 %, as are the dashes |
@@ -33,7 +33,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **stamin
 | **L1** | heal: drink one carried green potion, +1 size (max 6x). No potion = "fail" cue, nothing happens |
 | **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
-| **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (v0.9.3; bosses stay), and for 0.9 s Mera's hits do ×2 (gold glow). A projectile parried in the window flies back and hits the first enemy for 3. Holding the bubble after that window still blocks, and slides the attacker **200 px** with no stun |
+| **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (bosses stay), and for 0.9 s Mera's hits do ×2. Holding the full bubble after that window **stops all damage** and slides the attacker **200 px** with no stun. Any other button drops the bubble and does that move |
 | **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
 | **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
@@ -91,12 +91,12 @@ Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, 
 | Back dodge follow-ups | the dodge + 220 ms | Y → fast quick fire (from dodge frame 8), X → dodge attack (from frame 12) |
 | Slam | the rising slash + 350 ms | Y after B+Y gives the slam |
 
-## Stamina
-- A **STAMINA** bar on the HUD, under rage. It starts at 60 / 60 and regenerates 1 per second.
+## Mana
+- A **MANA** bar on the HUD, under rage. It starts at 60 / 60 and regenerates 1 per second.
+- Not enough mana: the fail cue plays, the MANA bar flashes, and the move doesn't start.
+- Blue potions: +30 mana. Blue-and-white potions: +5 max mana, up to 200. A gold sphere: +5 max rage, up to 200.
 - Costs: quick fire 5 (the fast quick fire too), ground dash 6, aerial dash 6, rear explosion 12, beam combo 20, bubble 3 to raise + 4 / s held.
 - Free: attacks, back dodge, dodge attack, rising slash, slam, jumps, heal and lightning (rage), Fury.
-- Not enough stamina: the fail cue plays, the STAMINA bar flashes, and the move doesn't start.
-- Blue potions: +30 stamina. Blue-and-white potions: +5 max stamina, up to 120. The bar grows with the max.
 
 ## Interpretations
 - "X modifies the jump into a jump attack" and "Y modifies the jump into an aerial dash": jump with Up, then press X or Y in the air.

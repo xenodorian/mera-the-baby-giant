@@ -39,7 +39,7 @@ const CHAIN_2X := 9               # 2x atk resolves its branch (2x-1 / 2x-2 / 3x
 
 # ---------------------------------------------------------------- stamina
 const STAMINA_START := 60.0
-const STAMINA_MAX_CAP := 120.0    # +5 max potions stop here
+const STAMINA_MAX_CAP := 200.0    # +5 max potions stop here
 const STAMINA_REGEN := 1.0        # per second
 const STAMINA_COST := {"earthquake": 20, 
 	"quick_fire": 5.0,
@@ -55,6 +55,9 @@ const STAMINA_COST := {"earthquake": 20,
 const BUBBLE_DRAIN := 4.0         # ... then this much per second while it is held (it drops at 0)
 const STAMINA_POTION := 30.0      # blue potion
 const STAMINA_MAX_POTION := 5.0   # blue-and-white potion: +5 max (and +5 now)
+const RAGE_MAX_START := 100.0
+const RAGE_MAX_CAP := 200.0
+const RAGE_MAX_POTION := 5.0       # +5 max rage (and +5 now)
 
 # ---------------------------------------------------------------- knights
 const FIRE := {
@@ -116,9 +119,11 @@ const CROUCH_PARRY_KNOCK_PX := 200.0  # small-bubble parry
 const BARRIER_KNOCK_PX := 200.0   # full bubble held, with no parry window: this far, no stun
 const PARRY_KNOCK_SPEED := 800.0  # how fast that slide plays (px/s). The distance above is what they travel.
 const SWING_PARRY_MS := 150.0     # v0.9.1: X (atk1 / jatk1) reflects a projectile if the hitbox meets it within this of going live
-# ---------------------------------------------------------------- v0.9.2 crouch bubble: free, small, 75% damage reduction, same parry as L2
-const CROUCH_BUBBLE_R := 32.0    # art px. The full barrier is ~46, fitted around the standing pose. This wraps the crouch.
-const CROUCH_BUBBLE_KEEP := 0.25  # fraction of a hit that gets through while it is held (75% reduced). A fresh crouch parries instead.
+# ---------------------------------------------------------------- v0.9.4 crouch bubble: free, 3 s, subtracts 1 damage. A fresh crouch still parries.
+const CROUCH_BUBBLE_R := 32.0
+const CROUCH_BUBBLE_S := 3.0
+## one defeated enemy drops exactly one of these. The two meter upgrades are the rare rows.
+const ENEMY_LOOT := [["sphere", 30.0], ["potion", 28.0], ["stamina", 28.0], ["stamina_max", 7.0], ["rage_max", 7.0]]
 # ---------------------------------------------------------------- v0.9.1 rising slash (datk2): windup 4x, rise 2x speed and 2x distance
 const RSLASH_WINDUP_SPEED := 4.0  # frames before the rise play at 4x (every frame is kept)
 const RSLASH_RISE_FROM := 7       # the upward burst is these frames ...

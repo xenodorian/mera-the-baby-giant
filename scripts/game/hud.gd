@@ -15,17 +15,18 @@ const CONTROLS := [
 	["B", "X", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire"],
 	["B+Y together", "X+S", "rising slash (fast windup), no dodge (free)    Y again during it = slam (free)"],
 	["X", "A", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
-	["X X Y", "A A S", "1x 2x 3x (with slash)     X X X Y = combo into beam, 20 stamina"],
-	["Y", "S", "quick fire (bolt) 5 stamina     X+Y together = rear explosion 12 stamina"],
-	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 stamina"],
-	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 stamina, Up = double jump"],
-	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 stamina)"],
+	["X X Y", "A A S", "1x 2x 3x (with slash)     X X X Y = combo into beam, 20 mana"],
+	["Y", "S", "quick fire (bolt) 5 mana     X+Y together = rear explosion 12 mana"],
+	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 mana"],
+	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 mana, Up = double jump"],
+	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 mana)"],
 	["L1", "Q", "heal: drink a green potion, +1 size (max 6x)"],
 	["L2 tap (rage 100 %)", "1 tap", "lightning strike from the sky (AOE), uses the whole meter"],
-	["L2 hold", "1 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
+	["L2 hold", "1 hold", "full bubble, stops all damage while held (3 mana + 4/s). Any button drops it and does that move"],
+	["Down hold", "Down hold", "small bubble, 3 s, subtracts 1 damage. A dial shows the time left"],
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
-	["Y in the bubble (rage 100 %)", "S in the bubble", "lightning strike while staying shielded"],
+	["Any button in a bubble", "", "drops that bubble immediately and does the move"],
 	["L2 + R2 (rage 100 %)", "1 + 2", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
 	["L1+R1+L2+R2 (Fury, or meter full)", "Q+W+1+2", "freeze; slash marked enemies (number, swipe, or right stick) for 3"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
@@ -94,9 +95,10 @@ func _draw_ui() -> void:
 	var w := 330.0
 	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.15, 0.03, 0.06))
 	var fc := Color(0.86, 0.08, 0.12) if m.fury else (Color(1.0, 0.25, 0.2) if m.rage >= 100.0 else Color(0.7, 0.12, 0.14))
-	ui.draw_rect(Rect2(140, 78, w * m.rage / 100.0, 26), fc)
+	var rage_frac := (m.rage / 100.0) if m.fury else (m.rage / maxf(m.rage_max, 1.0))
+	ui.draw_rect(Rect2(140, 78, w * clampf(rage_frac, 0.0, 1.0), 26), fc)
 	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
-	_txt(Vector2(482, 100), "%d%%" % int(m.rage), 24)
+	_txt(Vector2(482, 100), ("%d%%" % int(m.rage)) if m.fury else ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
 	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
 		_txt(Vector2(140, 136), "L2+R2: FURY!   or   tap L2: LIGHTNING", 24, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
@@ -117,7 +119,7 @@ func _draw_ui() -> void:
 	if _flash == "max" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "max size for potions is 6x", 22, Color(1, 0.6, 0.4))
 	# stamina (v0.4): bar length grows with the max (60 -> 120)
-	var sw := 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0
+	var sw := minf(500.0, 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0)
 	var sc := Color(0.25, 0.6, 1.0)
 	# v0.7 ally cards held
 	var cx := 36.0
@@ -134,13 +136,13 @@ func _draw_ui() -> void:
 		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
 	if _flash == "stamina" and _flash_t > 0.0:
 		sc = Color(1, 0.3, 0.3)
-	_txt(Vector2(36, 194), "STAM", 26, Color(0.6, 0.8, 1.0))
+	_txt(Vector2(36, 194), "MANA", 26, Color(0.6, 0.8, 1.0))
 	ui.draw_rect(Rect2(140, 172, sw, 22), Color(0.04, 0.08, 0.18))
 	ui.draw_rect(Rect2(140, 172, sw * m.stamina / maxf(m.stamina_max, 1.0), 22), sc)
 	ui.draw_rect(Rect2(140, 172, sw, 22), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(150 + sw, 194), "%d/%d" % [int(m.stamina), int(m.stamina_max)], 22, Color(0.75, 0.88, 1.0))
 	if _flash == "stamina" and _flash_t > 0.0:
-		_txt(Vector2(140, 236), "not enough stamina", 22, Color(1, 0.5, 0.4))
+		_txt(Vector2(140, 236), "not enough mana", 22, Color(1, 0.5, 0.4))
 	if _flash.begins_with("pickup:") and _flash_t > 0.0:
 		_txt(Vector2(140, 236), _flash.substr(7), 24, Color(0.6, 0.85, 1.0))
 	# state line

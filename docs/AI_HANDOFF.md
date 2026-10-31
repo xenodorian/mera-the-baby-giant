@@ -1,12 +1,14 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.3 parry knockback distances. Windows exe is `v0.9.3-playable`._
+_Last updated: 2026-10-31, v0.9.4. Mana (was stamina), 3 s crouch bubble, damage rules, enemy loot. Windows exe is `v0.9.4-playable`._
 
 
-## v0.9.3 status (2026-10-31)
-Parry knockback is a distance (`shove` / `knock_left` on monsters and the Fire Knight), not `vx` held for the whole stun. Full-bubble parry: 400 px, 2 s stun. Crouch parry: 200 px, 1 s stun. Held full bubble: 200 px, no stun. Bosses are not shoved. Android version code is 14. Linux and Android builds are still not attached.
-**Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change. Do not leave work only on the machine.
+## v0.9.4 status (2026-10-31)
+The HUD resource is **mana** (code still uses `stamina` / `Tuning.STAMINA_*`). Cap is 200. Rage cap is `rage_max`, also up to 200.
+Small bubble: `CROUCH_BUBBLE_S` 3, dial is `bubble_dial.gd`. After the parry window it subtracts 1 damage (`_crouch_soak`). Full bubble stops every `take_hit`. Any button in ` _pressed_since` drops the bubble and the normal action runs.
+Defeated enemies roll `enemy_loot_kind` once: sphere 30, potion 28, stamina 28, stamina_max 7, rage_max 7.
+**Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
 Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 
 ## The project
