@@ -1,12 +1,15 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.1 in progress (rising slash, real pause, swing parry). Not released._
+_Last updated: 2026-10-31, v0.9.1 Windows exe published as `v0.9.1-playable`. Linux and Android not attached._
 
 
 ## v0.9.1 status (2026-10-31)
-PR #4 merged the Y-chain work onto `main`. The old queue (t108u, t103u) is implemented in the working tree and covered by `_queued_tests`. Not released: no Windows/Linux/Android build and no `SHA256SUMS.txt` yet. Android version code is 12. The release keystore is not in this checkout. Screenshots of the Y chain are still outstanding.
-Repo rulesets block creating branches and tags. Push to the existing `wip/v0.9.1-ychain` branch. The v0.9.0 builds shipped without `mark_slash.gd` in the export list; that script is in all three presets now.
+PR #5 merged the combat queue onto `main` (406 tests). The Windows exe is on the GitHub release `v0.9.1-playable`:
+https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.1-playable/Mera_Playable_v0.9.1_Windows.exe
+Linux and Android are not in that release. Android version code is 12. The release keystore is not in this checkout. Screenshots of the Y chain are still outstanding.
+**Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change. Do not leave work only on the machine.
+Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one. The v0.9.0 builds shipped without `mark_slash.gd` in the export list; that script is in all three presets now.
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -60,7 +63,7 @@ Repo rulesets block creating branches and tags. Push to the existing `wip/v0.9.1
 | **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
 
 ## Left (see `docs/WORKFLOW.md`)
-- S0-S4 of the 2026-10-31 plan are done. v0.9.1 gameplay (faster rising slash, real pause, swing parry, melee knockback, shot clashes) is implemented and not released. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
+- v0.9.1 gameplay (faster rising slash, real pause, swing parry, melee knockback, shot clashes) is on `main` and in the Windows release `v0.9.1-playable`. Linux and Android builds are still outstanding. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
 - **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
 - **Every release must also attach `SHA256SUMS.txt`** (`sha256sum` over all binaries); the in-game updater refuses a release without it. Before exporting:
   - bump `application/config/version` in `project.godot`;
