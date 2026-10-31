@@ -29,7 +29,7 @@ _Last updated: S4 (2026-10-31), v0.8-playable._
 | `hit_stop.gd` | v0.8 autoload `HitStop`: freezes via `Engine.time_scale`, counts down per physics tick, `input_dt()` for Mera's clock |
 | `debris.gd` | v0.8 shatter/debris sim (textured polygon shards in one `_draw`), spark and blood `CPUParticles2D` pools, gibs |
 | `props.gd`, `prop.gd` | v0.8 prop kinds/numbers/layouts/secrets (`Props` data) and one prop node (breakables, barrel, chandelier, wall, lever, door, plank, ledge) |
-| `dragon.gd`, `dragon_bolt.gd` | v0.8 Infernal Dragon boss (extends `monster.gd`): size = health, flight phases, lobbed bolts |
+| `dragon.gd`, `dragon_bolt.gd` | v0.8 Infernal Dragon boss (extends `monster.gd`): size = health, flight phases, lobbed bolts. The volley plays the `spit` anim (breath without the plume, `tools/build_dragon_spit.py`); the ground breath is the roster attack and keeps the plume |
 | `controls.gd` | autoload `Controls`: the input map in code, plus the Android trigger guard (`trigger_near`, `joy_bindings`) |
 
 - Level maps are built by `tools/build_levels.py` into `assets/levels/<id>/*.png`, `thumb.png` and `levels.json`. Re-run it after changing a level, then add any new PNG to the export list.
@@ -99,6 +99,8 @@ _Last updated: S4 (2026-10-31), v0.8-playable._
   - restore `Engine.time_scale` after hit-stop with an `ignore_time_scale` timer.
 
 - **Super earthquake (v0.8):** `mera._start_move("earthquake")` checks `can_lightning()` (full meter, not Fury, not draining). If true it calls `spend_rage()` + `game.super_earthquake()`, else `game.earthquake()`. The impact frame is counted per physics tick in `game._impact_tick()` (called at the top of `_physics_process`), *not* with timers, because `HitStop.impact()` sets `Engine.time_scale` near 0. When it ends, `_super_quake_go()` deals the damage, breaks the props and starts `quake_t` with `super_on`. `_quake_tick` reads `super_on` for the shake and stun totals. New damage kind `"quake"`: fire_knight lets it through the guard.
+
+- **Baked-in effects in ansimuz frames:** the dragon `breath` frames contain the fire plume. Never reuse them for a different attack. Mask copies instead: the plume uses exactly 3 colours, (242,74,2), (255,141,7) and (255,214,133), found in no other dragon frame. After adding an anim in `tools/build_roster.py`, rebuild `roster.json`, run `--import` and add the PNGs to all three export presets.
 
 ## Tips
 - Read `docs/CONTROLS.md` (Timing windows) before touching `mera.gd` input code. Run the human-timing replay tests after any input change.
