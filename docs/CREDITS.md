@@ -12,10 +12,16 @@
 | **Platformer Character Pack v1 (full, purchased $15 on 2026-10-30) — MAIN CHARACTER** | **Merakintsugi** — https://merakintsugi.itch.io/platformer-character-pack · merakintsugi77@gmail.com · x.com/merakintsugi77 | Custom (item page; no license file in the zip). Verbatim: "Available for both commercial and non-commercial projects. Do not resell or redistribute as game assets. They must be used only as part of a project. Credit/ Attribution is optional. Feel free to modify the assets as needed. Play around with it however you like. Use of these assets for AI training or NFT conversion is strictly prohibited." | Attribution optional (we credit anyway). **No resale/redistribution as assets; no AI training; no NFTs.** Keep this repo private. |
 | Kira – Animated Pixel Art Swordswoman — **REJECTED, not used in the game** | **Sprite Kitchen** — https://spritekitchen.itch.io/kira-animated-pixel-art-swordswoman-pack | Custom (item page) | Personal + commercial game use; edits OK; credit appreciated, not required; **no resale/redistribution/sharing/uploading of the original files as a standalone pack, even modified**; don't claim the art as your own. Page discloses **AI-assisted graphics**. |
 
+## Audio
+| Asset | Author | License | Requirement |
+|---|---|---|---|
+| RPG Audio (`knifeSlice2`), Sci-fi Sounds (`forceField_000`, `lowFrequency_explosion_001`) | **Kenney** (kenney.nl): https://kenney.nl/assets/rpg-audio, https://kenney.nl/assets/sci-fi-sounds | CC0 | None (credit appreciated). `assets/sfx/kenney/SOURCES.md` |
+
 ## Suggested credits text
 > Main character art: Merakintsugi (merakintsugi.itch.io).
 > Alternate-form character art: "Elementals" series by chierit (chierit.itch.io), CC-BY 4.0.
 > Environments, enemies and effects: ansimuz (ansimuz.itch.io), CC0.
+> Sound effects: Kenney (kenney.nl), CC0.
 
 ## Repo note
 This repo is **private**. Merakintsugi and Sprite Kitchen forbid redistributing the original files; chierit asks not to resell.
