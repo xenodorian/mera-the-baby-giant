@@ -14,9 +14,9 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
   - D-pad / left stick: move. Up: jump (in Fury: fly). Down: crouch.
   - A [✕] hold: run. **X [□]: attack**. **Y [△]: special**.
   - B [○]: back dodge (B then X: dodge attack, B then Y: fast quick fire). **B+Y: rising slash** (Y again: slam). A+Y: ground dash. In the air, X: jump attack, Y: aerial dash.
-  - L1: potion. **L2 tap: lightning** (100 % rage), **L2 hold: barrier**. **Y in the bubble: lightning.** **L2+R2: Fury.** R1: summon an ally (cards). **Down+Y crouching: earthquake.**
+  - L1: potion. **L2 hold: full bubble**. **L2+R2: lightning** (100 rage, spends the bar). **R2 alone: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.**
   - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **stamina** (60, +1/s).
-  - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (Fury = 1+2), Enter/F1 = Start.
+  - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (Fury = 2, lightning = 1+2), Enter/F1 = Start.
 
 ### Clone and open
 The code, scenes, tests, tools and docs are public. **The art, audio and source packs are not**: they live in the private repo `xenodorian/mera-assets`, mounted as a git submodule at `assets/`. That includes the main character, a purchased pack with a custom licence that may not be redistributed.

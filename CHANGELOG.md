@@ -9,6 +9,9 @@ In the repo. No Windows build yet; the latest exe is still [v0.9.5-playable](htt
 - **Dancing Girl** walks out in front of Mera, stops, and dances for **5 seconds**. Then she waits out the rest of the 20.
 - **Water Priestess** heals Mera to 6x when she arrives, and once more just before she leaves.
 - **L1 inside either bubble drinks a potion and the bubble stays up.** Every other button still drops the bubble and does that move.
+- **L2 alone is the full bubble.** It is not a lightning tap.
+- **L2+R2 drops lightning** (needs 100 rage, spends the bar). R2 while the bubble is up drops the strike and the bubble stays.
+- **R2 alone starts Fury**, and Fury spends **100 rage** only. A raised meter keeps the rest. The red bar during Fury is the 12 s timer.
 - **Drinking a potion is four times as fast.** The heal plays at 4×: the size lands in about 0.1 s, and she can move again in about 0.25 s.
 - **Any projectile damages objects:** Mera's bolts and fireballs, the ranger's arrows, enemy shots (including ones sent back), and the dragon's bolts.
 - Android `versionCode` 17, `versionName` 0.9.6 (APK not published).

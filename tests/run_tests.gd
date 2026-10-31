@@ -302,20 +302,20 @@ func _keyboard_tests() -> void:
 	await _kdrive([], 40)
 	m.rage = 100.0
 	g.last_strike = null
+	await _kdrive([[2, KEY_1, true]], 40)
+	var shield: bool = m.barrier_on
+	await _kdrive([[0, KEY_1, false]], 30)
+	_check("keyboard: 1 hold -> barrier, released -> down, no lightning", shield and not m.barrier_on and g.last_strike == null and m.rage == 100.0, "rage=%f" % m.rage)
 	var struck := false
-	await _kdrive([[2, KEY_1, true], [5, KEY_1, false]], 10)
+	await _kdrive([[2, KEY_1, true], [2, KEY_2, true], [6, KEY_1, false], [6, KEY_2, false]], 10)
 	for i in 80:
 		await physics_frame
 		if is_instance_valid(g.last_strike):
 			struck = true
-	_check("keyboard: 1 tap at full rage -> lightning (like an L2 tap)", struck and m.rage == 0.0, "rage=%f" % m.rage)
-	await _kdrive([[2, KEY_1, true]], 40)
-	var shield: bool = m.barrier_on
-	await _kdrive([[0, KEY_1, false]], 30)
-	_check("keyboard: 1 hold -> barrier (like an L2 hold), released -> down", shield and not m.barrier_on, "")
+	_check("keyboard: 1+2 at full rage -> lightning", struck and m.rage == 0.0, "rage=%f" % m.rage)
 	m.rage = 100.0
-	await _kdrive([[2, KEY_1, true], [3, KEY_2, true], [6, KEY_1, false], [6, KEY_2, false]], 20)
-	_check("keyboard: 1 + 2 -> Fury (L2 + R2)", m.fury, "")
+	await _kdrive([[2, KEY_2, true], [8, KEY_2, false]], 24)
+	_check("keyboard: 2 alone -> Fury (costs 100)", m.fury and m.rage == 0.0, "rage=%f" % m.rage)
 	g.queue_free()
 	await physics_frame
 	g = await _new_game()
@@ -400,46 +400,49 @@ func _run() -> void:
 	await _combo("B X X X -> dodge attack only (v0.4: never the rising slash or slam)", s, 200, ["bdodge", "datk1"], ["datk2", "datk3"])
 	s = [[5, "down", true], [40, "down", false]]; _tap(s, 15, "btn_a")
 	await _combo("Down + A -> slide", s, 60, ["crouch", "slide"], [])
-	# ---- specials (v0.5 remap: L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = ally)
+	# ---- specials: L2 = bubble, L2+R2 = lightning, R2 alone = Fury (costs 100)
 	s = []; _tap(s, 5, "l2")
-	await _combo("L2 tap with a full meter -> lightning (heal pose)", s, 70, ["heal"], [], func(g): g.mera.rage = 100.0)
-	await _combo("L2 tap with 99 % rage -> no lightning", s, 70, [], [], func(g): g.mera.rage = 99.0)
+	await _combo("L2 tap -> bubble pose, not a separate move", s, 40, ["heal"], [])
 	var gr: Node = await _new_game()
 	gr.mera.rage = 100.0
+	gr.last_strike = null
+	await _drive(gr, [[5, "l2", true], [8, "l2", false]], 30)
+	_check("L2 tap does not spend rage or strike", gr.last_strike == null and gr.mera.rage == 100.0 and not gr.mera.fury, "rage=%f" % gr.mera.rage)
 	var struck := false
-	await _drive(gr, [[5, "l2", true], [8, "l2", false]], 10)
+	await _drive(gr, [[5, "l2", true], [5, "r2", true], [8, "l2", false], [8, "r2", false]], 10)
 	for _f in 80:
 		await physics_frame
 		if is_instance_valid(gr.last_strike):
 			struck = true
-	_check("L2 tap spends the whole meter (drains to 0) and strikes", gr.mera.rage == 0.0 and not gr.mera.rage_spending and struck, "rage=%f struck=%s" % [gr.mera.rage, struck])
-	gr.mera.rage = 100.0
-	await _drive(gr, [[5, "l2", true], [5, "r2", true], [8, "l2", false], [8, "r2", false]], 20)
-	_check("L2+R2 together -> Fury", gr.mera.fury, "")
+	_check("L2+R2 spends the meter and strikes", gr.mera.rage == 0.0 and not gr.mera.rage_spending and struck and not gr.mera.fury, "rage=%f struck=%s" % [gr.mera.rage, struck])
+	gr.mera.rage = 180.0
+	gr.mera.rage_max = 200.0
+	await _drive(gr, [[5, "r2", true], [12, "r2", false]], 24)
+	_check("R2 alone starts Fury and spends only 100 rage", gr.mera.fury and absf(gr.mera.rage - 80.0) < 0.1, "rage=%f fury=%s" % [gr.mera.rage, gr.mera.fury])
 	var before: int = gr.mera.move_log.size()
 	gr.last_strike = null
 	await _drive(gr, [[5, "l2", true], [8, "l2", false]], 40)
-	_check("L2 tap during Fury (meter already spent) -> no lightning", gr.mera.fury and gr.last_strike == null, "log=%s" % [gr.mera.move_log.slice(before)])
+	_check("L2 during Fury raises no lightning", gr.mera.fury and gr.last_strike == null, "log=%s" % [gr.mera.move_log.slice(before)])
 	gr.queue_free()
 	await process_frame
 	for order in [["l2", "r2"], ["r2", "l2"]]:
 		for gap in [0, 2, 3]:
 			gr = await _new_game()
 			gr.mera.rage = 100.0
-			await _drive(gr, [[5, order[0], true], [5 + gap, order[1], true], [10, order[0], false], [10 + gap, order[1], false]], 30)
-			_check("%s then %s %d ms later -> Fury, no lightning" % [order[0], order[1], int(gap * 16.7)], gr.mera.fury and gr.last_strike == null and not gr.mera.rage_spending, "")
+			await _drive(gr, [[5, order[0], true], [5 + gap, order[1], true], [14, order[0], false], [14 + gap, order[1], false]], 50)
+			_check("%s then %s %d ms later -> lightning, not Fury" % [order[0], order[1], int(gap * 16.7)], "lightning" in gr.mera.move_keys and not gr.mera.fury, "keys=%s fury=%s" % [gr.mera.move_keys, gr.mera.fury])
 			gr.queue_free()
 			await process_frame
 	gr = await _new_game()
 	gr.mera.rage = 100.0
-	await _drive(gr, [[5, "l2", true], [60, "r2", true], [64, "r2", false], [70, "l2", false]], 80)
-	_check("R2 while holding the L2 bubble -> Fury", gr.mera.fury and not gr.mera.barrier_on, "")
+	await _drive(gr, [[5, "l2", true]], 80)
+	gr.last_strike = null
+	await _drive(gr, [[3, "r2", true], [6, "r2", false]], 50)
+	_check("R2 while holding the L2 bubble -> lightning, bubble stays", gr.mera.barrier_on and gr.last_strike != null and not gr.mera.fury, "on=%s strike=%s" % [gr.mera.barrier_on, gr.last_strike])
 	gr.queue_free()
 	await process_frame
 	gr = await _new_game()
 	gr.mera.rage = 100.0
-	await _drive(gr, [[5, "r2", true], [8, "r2", false]], 30)
-	_check("R2 alone -> no Fury (it's L2+R2 now)", not gr.mera.fury and gr.mera.rage == 100.0, "")
 	await _drive(gr, [[5, "r1", true], [8, "r1", false]], 30)
 	var fails := 0
 	for h in root.get_node("Sfx").history:
@@ -464,7 +467,7 @@ func _run() -> void:
 	gr = await _new_game()
 	gr.mera.rage = 100.0
 	await _drive(gr, [[5, "up", true], [9, "up", false], [20, "l2", true], [21, "r2", true], [25, "l2", false], [25, "r2", false]], 40)
-	_check("L2+R2 in the air -> Fury", gr.mera.fury, "")
+	_check("L2+R2 in the air -> lightning, not Fury", "lightning" in gr.mera.move_keys and not gr.mera.fury, "keys=%s" % [gr.mera.move_keys])
 	gr.queue_free()
 	await process_frame
 	var gb: Node = await _new_game()
@@ -622,8 +625,8 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	m.rage = 100.0
-	await _drive(g, [[5, "r2", true], [5, "l2", true], [8, "r2", false], [8, "l2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true]], 65)
-	_check("R2 at 100 % rage -> Fury (red effects)", m.fury and root.get_node("AnimLib").fury, "")
+	await _drive(g, [[5, "r2", true], [12, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true]], 65)
+	_check("R2 at 100 rage -> Fury (red effects)", m.fury and root.get_node("AnimLib").fury, "")
 	_check("Fury: Up in the air -> flight with the active pose", m.flying and m.state == "fly" and m.anim.key == "djump_v" and m.anim.idx == 2, "state=%s %s f%d" % [m.state, m.anim.key, m.anim.idx])
 	await _drive(g, [[1, "up", false]], 20)
 	_check("Fury flight idle -> hover pose", m.anim.idx == 3, "f%d" % m.anim.idx)
@@ -639,7 +642,7 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	m.rage = 100.0
-	await _drive(g, [[5, "r2", true], [5, "l2", true], [8, "r2", false], [8, "l2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true], [60, "up", false], [60, "right", true]], 90)
+	await _drive(g, [[5, "r2", true], [12, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [34, "up", false], [40, "up", true], [60, "up", false], [60, "right", true]], 90)
 	_check("Fury aura (v0.4 particles): back + front flames and embers emitting, world-space", m.flame_back.emitting and m.flame_front.emitting and m.aura_fx.emitting and m.flame_back.amount == 160 and m.flame_front.amount == 70 and m.aura_fx.amount == 60 and not m.flame_back.local_coords and not m.flame_front.local_coords and not m.aura_fx.local_coords, "")
 	_check("flying right -> tilted head-first to the right (+90 deg)", absf(m.anim.rotation - PI / 2.0) < 0.05 and m.facing == 1, "rot=%f" % m.anim.rotation)
 	await _drive(g, [[1, "right", false], [1, "left", true], [1, "up", true]], 40)
@@ -1144,7 +1147,7 @@ func _run() -> void:
 	m = g.mera
 	m.set_size(2, true)
 	m.rage = 100.0
-	await _drive(g, [[3, "r2", true], [3, "l2", true], [6, "r2", false], [6, "l2", false], [20, "up", true], [24, "up", false], [30, "up", true], [70, "up", false]], 80)
+	await _drive(g, [[3, "r2", true], [12, "r2", false], [20, "up", true], [24, "up", false], [30, "up", true], [70, "up", false]], 80)
 	g._spawn_knight(1)
 	fk = g.knight
 	fk.block_chance = 0.0
@@ -1191,7 +1194,7 @@ func _run() -> void:
 	m = g.mera
 	m.set_size(2, true)
 	m.rage = 100.0
-	await _drive(g, [[3, "r2", true], [3, "l2", true], [6, "r2", false], [6, "l2", false]], 40)
+	await _drive(g, [[3, "r2", true], [12, "r2", false]], 40)
 	_check("aura: still -> flames rise straight up", m.flame_back.emitting and m.flame_back.direction.distance_to(Vector2(0, -1)) < 0.01, "dir=%s" % m.flame_back.direction)
 	var sc2: float = m.flame_back.scale_amount_max
 	await _drive(g, [[1, "right", true]], 40)
@@ -2282,7 +2285,7 @@ func _super_quake_tests() -> void:
 	await _s4_frames(g, 90)
 	m.rage = 100.0
 	m.stamina = 60.0
-	await _drive(g, [[2, "l2", true], [2, "r2", true], [5, "l2", false], [5, "r2", false]], 30)
+	await _drive(g, [[2, "r2", true], [10, "r2", false]], 30)
 	var fury0: bool = m.fury
 	m.stamina = 60.0
 	await _drive(g, [[2, "down", true], [10, "btn_y", true], [13, "btn_y", false], [20, "down", false]], 30)

@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.6. Summons retuned, projectiles break props, potions drink at 4×. No Windows exe yet; latest build is `v0.9.5-playable`._
+_Last updated: 2026-10-31, v0.9.6. L2 is the bubble, L2+R2 is lightning, R2 alone is Fury and spends 100 rage. No Windows exe yet; latest build is `v0.9.5-playable`._
 
 
 ## v0.9.6 status (2026-10-31)
@@ -11,6 +11,7 @@ The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`),
 L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.
 The standing drink (`_start_move("heal")`) plays at 4× via `FAST_ANIMS`. The size still lands on heal frame 7, about 0.1 s after the press. Lightning, the barrier and the other heal-pose moves are not sped up.
 Any projectile damages breakables through `game.prop_at`: player bolts and fireballs, ranger arrows, enemy shots, dragon bolts (the blast is an explosion).
+L2 alone starts the barrier (`no_tap`, a short press is not lightning). L2+R2 calls `_try_lightning`. R2 alone, after `CHORD_MS`, calls `_try_fury`. `start_fury` subtracts `FURY_COST` (100) and does not clear the rest; `_fury_tick` no longer overwrites `rage`. The HUD bar during Fury is `fury_left / FURY_TIME`.
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
 Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 
