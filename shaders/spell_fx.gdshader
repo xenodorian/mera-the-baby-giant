@@ -23,7 +23,8 @@ vec3 deep_red(float l) {
 void fragment() {
 	vec4 c = texture(TEXTURE, UV) * COLOR;
 	float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+	float lf = pow(l, 0.75);
 	if (remap == 1) { c.rgb = warm(l); }
-	if (fury > 0.5) { c.rgb = deep_red(l); }
+	if (fury > 0.5) { c.rgb = deep_red(lf); }
 	COLOR = c;
 }

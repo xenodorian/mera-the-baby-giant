@@ -43,6 +43,7 @@ var wait_frames := 60
 var quit_at := -1
 var demo: Array = []
 var defeated := 0
+var knight_calm_until := 0   # demo: frame before which the knight does not swing
 
 
 func _ready() -> void:
@@ -171,10 +172,13 @@ func _run_demo() -> void:
 				mera.rage = float(st[2])
 			"potions":
 				mera.potions = int(st[2])
+			"calm":
+				knight_calm_until = int(st[2])
 			"overlay":
 				hud.overlay = bool(st[2])
 			"spawn":
-				_spawn_knight(int(st[2]))
+				_spawn_knight(signi(int(st[2])))
+				knight.position.x = mera.global_position.x + (float(st[2]) if absi(int(st[2])) > 1 else signf(float(st[2])) * 900.0)
 
 
 func _follow_camera(delta: float) -> void:

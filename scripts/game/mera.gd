@@ -595,7 +595,7 @@ func _fly_tick(delta: float) -> void:
 		anim.paused = true
 	anim.position.y = 0.0 if want == 2 else roundf(sin(_hover_t * 3.0) * 1.0) * shown
 	position.y = clampf(position.y, 40.0 + 60.0 * shown, ground_y)
-	if position.y >= ground_y and pressed("down"):
+	if position.y >= ground_y - 1.0 and pressed("down"):
 		_land_from_flight()
 		return
 	var x := _find("btn_x")
@@ -743,8 +743,8 @@ func _move_tick(delta: float) -> void:
 				_chain("datk1")
 		"datk1":
 			vel.x = facing * DASH * shown if i >= 1 and i <= 8 else 0.0
-			if i >= 15 and not _find("btn_x", float(mv["t0"]) + 200.0).is_empty():
-				_use(_find("btn_x", float(mv["t0"]) + 200.0))
+			if i >= 15 and not _find("btn_x", float(mv["t0"]) - 100.0).is_empty():
+				_use(_find("btn_x", float(mv["t0"]) - 100.0))
 				vel.x = 0.0
 				_chain("datk2")
 		"datk2":
@@ -752,8 +752,8 @@ func _move_tick(delta: float) -> void:
 			if i >= 7 and i <= 11:
 				vel.y = -380.0 * shown
 				on_ground = false
-			if i >= 13 and not _find("btn_x", float(mv["t0"]) + 160.0).is_empty():
-				_use(_find("btn_x", float(mv["t0"]) + 160.0))
+			if i >= 13 and not _find("btn_x", float(mv["t0"]) - 100.0).is_empty():
+				_use(_find("btn_x", float(mv["t0"]) - 100.0))
 				_chain("datk3")
 		"datk3":
 			if i < 18:
@@ -769,8 +769,8 @@ func _move_tick(delta: float) -> void:
 				vel = Vector2.ZERO
 		"jatk1":
 			vel.x = move_toward(vel.x, 0.0, 300.0 * shown * delta)
-			if i >= 4 and not _find("btn_x", float(mv["t0"]) + 120.0).is_empty() and i >= 7:
-				_use(_find("btn_x", float(mv["t0"]) + 120.0))
+			if i >= 4 and not _find("btn_x", float(mv["t0"]) - 100.0).is_empty() and i >= 7:
+				_use(_find("btn_x", float(mv["t0"]) - 100.0))
 				_chain("jatk2")
 		"jatk2":
 			vel.x = move_toward(vel.x, 0.0, 300.0 * shown * delta)
@@ -814,7 +814,7 @@ func _move_tick(delta: float) -> void:
 func _chain_window(i: int, open: int, point: int, grace: int, _from: String) -> void:
 	if i < point:
 		return
-	var x := _find("btn_x", float(mv["t0"]) + open * 40.0)
+	var x := _find("btn_x", float(mv["t0"]) - 200.0)
 	if not x.is_empty() and i <= grace:
 		_use(x)
 		_chain("atk2")
@@ -826,7 +826,7 @@ func _chain_window(i: int, open: int, point: int, grace: int, _from: String) -> 
 func _chain_window_2x(i: int) -> void:
 	if i < 9:
 		return
-	var since := float(mv["t0"]) + 80.0
+	var since := float(mv["t0"]) - 200.0
 	var px: Dictionary = mv.get("pending_x", {})
 	var x: Dictionary = px if not px.is_empty() else _find("btn_x", since)
 	var y := _find("btn_y", since)

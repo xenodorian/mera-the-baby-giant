@@ -2,16 +2,18 @@ class_name FireKnight
 extends Node2D
 ## chierit Fire Knight, the demo's only enemy (docs/GAME_RULES.md): 10 HP with a health bar, deals 1 damage with
 ## his attack, simple AI (walk up, swing, flinch, die), drops a red rage sphere (+10 %) and sometimes a potion.
-## Drawn at the 6x reference scale from the scale test. Frames are 288x128, feet at (146, 127), he faces RIGHT.
+## Drawn at 3x: next to Mera's 2x start he is a bit taller than her (132 vs 110 px); she outgrows him from 3x on.
+## (The scale test used him at 6x as a fixed size reference.) Frames are 288x128, feet at (146, 127), he faces RIGHT.
 
 signal defeated(knight: Node2D)
 
 const DIR := "res://assets/characters/chierit/fire-knight/png/fire_knight/"
 const PIVOT := Vector2(146, 127)
-const SCALE := 6.0
+const SCALE := 3.0
 const HP_MAX := 10
-const SPEED := 30.0 * SCALE          # walk speed, px/s
-const REACH := 54.0 * SCALE          # starts a swing when Mera's body is this close
+const SPEED := 70.0 * SCALE          # walk speed, px/s
+const REACH := 50.0 * SCALE          # starts a swing when Mera's body is this close
+const CLOSE := 14.0 * SCALE          # walks up to this gap before waiting
 const HURT_BOX := Vector2(26, 44)    # native px, centred on the feet
 const ANIMS := {"idle": ["01_idle", "idle_", 8, 10.0, true], "run": ["02_run", "run_", 8, 12.0, true],
 	"atk": ["05_1_atk", "1_atk_", 11, 14.0, false], "hit": ["10_take_hit", "take_hit_", 6, 16.0, false],
@@ -126,8 +128,8 @@ func take_damage(amount: int, from_x: float) -> void:
 func _on_anim_done() -> void:
 	match state:
 		"atk", "hit":
+			cooldown = 1.4 if state == "atk" else 0.9
 			_anim("idle")
-			cooldown = 0.9
 		"death":
 			var t := create_tween()
 			t.tween_property(self, "modulate:a", 0.0, 0.6)
@@ -156,8 +158,9 @@ func _physics_process(delta: float) -> void:
 	var dx := mr.get_center().x - global_position.x
 	_face(1 if dx > 0 else -1)
 	var gap := absf(dx) - mr.size.x / 2.0
-	if gap <= REACH and absf(m.global_position.y - global_position.y) < 200.0:
-		if cooldown <= 0.0:
+	var can_swing: bool = cooldown <= 0.0 and game.frame_n >= game.knight_calm_until
+	if gap <= REACH and absf(m.global_position.y - global_position.y) < 60.0 * SCALE and (can_swing or gap <= CLOSE):
+		if can_swing:
 			hit_done = false
 			_anim("atk")
 		elif state != "idle":
@@ -169,8 +172,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw_bar() -> void:
-	var w := 26.0 * SCALE
-	var h := 3.0 * SCALE / 2.0
+	var w := 40.0 * SCALE
+	var h := 10.0
 	bar.draw_rect(Rect2(-w / 2.0 - 3, -3, w + 6, h + 6), Color(0.05, 0.03, 0.06, 0.85))
 	bar.draw_rect(Rect2(-w / 2.0, 0, w, h), Color(0.25, 0.05, 0.08))
 	bar.draw_rect(Rect2(-w / 2.0, 0, w * float(hp) / HP_MAX, h), Color(0.86, 0.18, 0.16))
