@@ -1,6 +1,6 @@
 extends Node2D
-## Playable test level: an endless looping cemetery (ansimuz, blurred seams), Mera with every pack + canon
-## animation, one Fire Knight at a time, potions, rage spheres, Fury mode, HUD, Game Over.
+## Playable level (v0.5): one of four large native maps (scripts/game/levels.gd, tools/build_levels.py), Mera with
+## every pack + canon animation, enemies, potions, rage spheres, Fury mode, earthquake, HUD, Game Over / Level Clear.
 ## Rules: docs/GAME_RULES.md. Controls: docs/CONTROLS.md.
 ##
 ## Command-line options (after "--"):
@@ -9,10 +9,10 @@ extends Node2D
 ##   --shot=PATH      save a PNG after --wait frames (default 60), then quit
 ##   --shots=PREFIX   with --demo: save PREFIX_<frame>.png at the frames listed by --at=f1,f2,...
 ##   --quit=N         quit after N frames
+##   --level=N        play level N (1-4) directly
 
 const GROUND_Y := 1060.0
 const ART := 5
-const LOOP_W := 384 * ART
 # v0.3.1: the camera is hard-locked horizontally on Mera's feet pivot, with no look-ahead and no smoothing, so turning
 # around never shifts the view and fast moves never drift. Vertical stays fixed (the level is one screen tall).
 const KNIGHT_GAP := 480.0     # new knights appear this far past the screen edge, ahead of Mera
@@ -51,9 +51,21 @@ var _trace_k := ""
 var defeated := 0
 var last_strike: Node2D = null
 var knight_calm_until := 0   # demo: frame before which the knight does not swing
+var layers: Array = []       # [Sprite2D, scroll, period] parallax layers of the level map
+var map_w := 19200.0
+var cleared := false
+var quake_t := 0.0           # v0.5 earthquake: time left of the 1 s quake
+var quake_age := 0.0
+var quaked := {}             # enemies already stunned by the current quake
+var exit_gate: Node2D
+var test_mode_no_exit := false
 
 
 func _ready() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--level="):
+			Levels.current = clampi(int(a.get_slice("=", 1)) - 1, 0, 3)
+	map_w = Levels.map_w()
 	_build_background()
 	world = Node2D.new()
 	world.name = "World"
@@ -87,19 +99,40 @@ func _ready() -> void:
 
 
 func _build_background() -> void:
-	var dir := "res://assets/environments/ansimuz/gothicvania-cemetery/loop/"
-	for layer in [["far_loop.png", 0.5, -20], ["near_loop.png", 1.0, -10]]:
-		var p := Parallax2D.new()
-		p.scroll_scale = Vector2(layer[1], 1.0)
-		p.repeat_size = Vector2(LOOP_W, 0)
-		p.repeat_times = 3
-		p.z_index = layer[2]
-		var s := Sprite2D.new()
-		s.texture = load(dir + String(layer[0]))
-		s.centered = false
-		s.scale = Vector2(ART, ART)
-		p.add_child(s)
-		add_child(p)
+	var lv := Levels.level()
+	RenderingServer.set_default_clear_color(Color8(int(lv["bg"][0]), int(lv["bg"][1]), int(lv["bg"][2])))
+	for L in lv["layers"]:
+		var sp := Sprite2D.new()
+		sp.texture = load(String(L["file"]))
+		sp.centered = false
+		sp.scale = Vector2(ART, ART)
+		sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sp.z_index = int(L["z"])
+		sp.position.y = float(L["y"])
+		var period := float(L["period"])
+		if period > 0.0:
+			sp.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+			sp.region_enabled = true
+			sp.region_rect = Rect2(0, 0, ceilf((1920.0 + period + 2.0 * Levels.pad()) / ART) + 1.0, sp.texture.get_height())
+		add_child(sp)
+		layers.append([sp, float(L["scroll"]), period])
+	exit_gate = load("res://scripts/game/exit_gate.gd").new()
+	exit_gate.position = Vector2(map_w - Levels.EXIT_PAD, GROUND_Y)
+	exit_gate.z_index = -5
+	add_child(exit_gate)
+
+
+## parallax: every layer is placed from the (unshaken) camera X, so the whole map shakes together with the camera
+func _place_layers() -> void:
+	var p := Levels.pad()
+	for L in layers:
+		var sp: Sprite2D = L[0]
+		var s: float = L[1]
+		var period: float = L[2]
+		if period > 0.0:
+			sp.position.x = roundf(cam_x - 960.0 - p - fposmod(cam_x * s, period))
+		else:
+			sp.position.x = roundf(cam_x * (1.0 - s) - 960.0 - p)
 
 
 func _parse_args() -> void:
@@ -150,8 +183,9 @@ func _physics_process(delta: float) -> void:
 	if not test_mode:
 		_manage_knight(delta)
 		_manage_potions()
-	if over:
+	if over or cleared:
 		over_t += delta
+	_quake_tick(delta)
 	debug_draw.queue_redraw()
 
 
@@ -200,7 +234,9 @@ func _run_demo() -> void:
 
 ## called by cam_rig.gd after all physics this frame: X locked on Mera, independent of her facing
 func _follow_camera(delta: float) -> void:
+	_clamp_to_map()
 	cam_x = mera.global_position.x
+	_place_layers()
 	var off := Vector2.ZERO
 	if shake_t > 0.0:
 		shake_t -= delta
@@ -213,6 +249,7 @@ func _follow_camera(delta: float) -> void:
 ## jump the camera onto its target (level start / restart)
 func snap_camera() -> void:
 	cam_x = mera.global_position.x
+	_place_layers()
 	cam.position = Vector2(roundf(cam_x), 540)
 
 
@@ -243,7 +280,8 @@ func _spawn_knight(side: int = 0) -> void:
 		knight.queue_free()
 	var k: FireKnight = FireKnight.new()
 	k.setup(self, "fire")
-	k.position = Vector2(cam_x + side * (960.0 + KNIGHT_GAP), GROUND_Y)
+	side = _spawn_side(side, 960.0 + KNIGHT_GAP)
+	k.position = Vector2(clampf(cam_x + side * (960.0 + KNIGHT_GAP), Levels.EDGE, map_w - Levels.EDGE), GROUND_Y)
 	k.facing = -side
 	world.add_child(k)
 	knight = k
@@ -273,12 +311,33 @@ func _manage_knight(delta: float) -> void:
 			knight_timer = 0.0
 
 
+## a side of the screen that still lies inside the map (near an end, enemies come in from the other side)
+func _spawn_side(side: int, dist: float) -> int:
+	var x := cam_x + side * dist
+	if x < Levels.EDGE or x > map_w - Levels.EDGE:
+		return -side
+	return side
+
+
+## invisible walls at both map ends; reaching the exit gate clears the level
+func _clamp_to_map() -> void:
+	var lo := Levels.EDGE
+	var hi := map_w - Levels.EDGE
+	mera.position.x = clampf(mera.position.x, lo, hi)
+	for e in enemies():
+		e.position.x = clampf(e.position.x, lo, hi)
+	if not cleared and not over and not test_mode_no_exit and mera.position.x >= map_w - Levels.EXIT_PAD - 40.0:
+		cleared = true
+		over_t = 0.0
+		Sfx.play("potion", 0.7)
+
+
 ## v0.4: a Blue Knight comes in from off-screen behind Mera (he prefers her back)
 func spawn_blue(_from: Node2D = null) -> FireKnight:
 	var b: FireKnight = FireKnight.new()
 	b.setup(self, "blue")
-	var side := -mera.facing
-	b.position = Vector2(cam_x + side * (960.0 + 160.0), GROUND_Y)
+	var side := _spawn_side(-mera.facing, 960.0 + 160.0)
+	b.position = Vector2(clampf(cam_x + side * (960.0 + 160.0), Levels.EDGE, map_w - Levels.EDGE), GROUND_Y)
 	b.facing = -side
 	world.add_child(b)
 	blues.append(b)
@@ -342,6 +401,8 @@ func _manage_potions() -> void:
 
 
 func _drop_potion(x: float) -> void:
+	if x < Levels.EDGE or x > map_w - Levels.EDGE:
+		return
 	var n := 0
 	for c in world.get_children():
 		if c is Pickup and c.kind == "potion":
@@ -437,6 +498,37 @@ func hit_spark(p: Vector2, s: float) -> void:
 	world.add_child(b)
 
 
+# ---------------------------------------------------------------- v0.5 earthquake
+## Down+Y while crouching: the ground shakes for QUAKE_S (very fast, violent shake of the whole map). Every enemy
+## touching the ground at any moment of the quake is stunned until QUAKE_STUN_S after the quake started.
+func earthquake() -> void:
+	quake_t = Tuning.QUAKE_S
+	quake_age = 0.0
+	quaked = {}
+	Sfx.play("boom_big", 0.5, 4.0)
+	Sfx.play("thunder", 0.4, 2.0)
+
+
+func _quake_tick(delta: float) -> void:
+	if quake_t <= 0.0:
+		return
+	quake_t -= delta
+	quake_age += delta
+	shake(Tuning.QUAKE_SHAKE, 0.05)
+	if int(quake_age * 60.0) % 6 == 0:
+		for i in 2:                      # dust bursting out of the ground across the screen (visual only)
+			var b := Blast.new()
+			b.setup("explosion", Vector2(cam_x + randf_range(-960.0, 960.0), GROUND_Y + 6.0), randf_range(1.5, 2.6))
+			b.modulate = Color(0.75, 0.62, 0.5, 0.8)
+			world.add_child(b)
+	for e in enemies():
+		if quaked.has(e) or not is_instance_valid(e):
+			continue
+		if e.on_ground and e.has_method("stun"):
+			quaked[e] = true
+			e.stun(Tuning.QUAKE_STUN_S - quake_age)
+
+
 # ---------------------------------------------------------------- game over / input
 func _on_died() -> void:
 	over = true
@@ -449,7 +541,24 @@ func restart() -> void:
 	get_tree().reload_current_scene()
 
 
+func to_menu() -> void:
+	AnimLib.set_fury(false)
+	Sfx.fury = false
+	get_tree().change_scene_to_file("res://scenes/menu.tscn")
+
+
+func next_level() -> void:
+	Levels.current = (Levels.current + 1) % Levels.list().size()
+	restart()
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if (over or cleared) and over_t > 1.0 and event.is_action_pressed("btn_b") and not event.is_echo():
+		to_menu()
+		return
+	if cleared and over_t > 1.0 and (event.is_action_pressed("btn_a") or event.is_action_pressed("start")) and not event.is_echo():
+		next_level()
+		return
 	if event.is_action_pressed("start") and not event.is_echo():
 		if over and over_t > 1.0:
 			restart()

@@ -2,6 +2,47 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.5-playable (2026-10-31)
+Stage S1 of the plan in `docs/WORKFLOW.md`. Pre-release with Windows and Linux builds.
+
+### Level select and 4 large native maps
+- The game now opens on a level select (`scenes/menu.tscn`):
+  1. **Moonlit Cemetery**
+  2. **Misty Woods**
+  3. **Moonlit Town**
+  4. **Infernal Caverns**
+- Each map is **19,200 px (10 screens)** wide, built natively by `tools/build_levels.py` from copies of the ansimuz packs:
+  - one long unique playable strip, with graves, trees, statues, houses, lamps, rocks and pillars placed by a seeded RNG;
+  - seamless or mirrored distant layers with their own parallax. No looping strip, no blurred seams.
+- Invisible walls stop Mera and the enemies at both ends, and an **exit gate** waits at the right end.
+  - **LEVEL CLEAR:** A goes to the next level, B to the level select.
+  - **Game Over:** B goes to the level select.
+- Level 1 plays as before (Fire Knight + Blue Knights). Levels 2-4 use the Fire Knight until the v0.6 enemy roster.
+- Test/capture arg: `--level=N`.
+
+### Button remap
+- **L2 tap** (full meter) = lightning. **L2 hold** = barrier. Both start with the same heal pose, so neither waits.
+- **L2 + R2** together (67 ms chord, either order, or R2 while in the bubble) = Fury. R2 alone = Fury-flight take off / land.
+- **R1** is freed for allies (v0.7); for now it gives a fail cue and a HUD note.
+- The v0.3 "lightning from inside the bubble" is gone, because L2 is busy holding the bubble.
+- Details: `docs/CONTROLS.md`, "v0.5 button remap: the decision".
+
+### Earthquake
+- **Down + Y while crouching**, 20 stamina.
+- A 1 s quake with a 34 px camera shake re-randomised every frame, across the whole map, plus ground dust.
+- Every enemy touching the ground during it is **stunned until 5 s after the quake started**. Stunned knights wobble, can't act or block, and take damage normally.
+
+### Docs
+- New: `docs/WORKFLOW.md` (staged plan), `docs/AI_HANDOFF.md` (for other agents) and `docs/RESEARCH.md` (fan-review mechanics, physics/FX packs and destructibles research; it drives S4).
+
+### Tests
+- New tests cover:
+  - the remap (L2 tap / hold, L2+R2 in both orders with sloppy timing, R2 alone, R1, Fury in the air);
+  - for every level, all layers cover the screen across the whole map, the walls hold, and the exit clears;
+  - the earthquake (cost, shake, ground-only stun, landing during the quake, the 5 s total, no quake without Down, no quake without stamina);
+  - the menu.
+- 222 tests pass.
+
 ## v0.4-playable (2026-10-31)
 Pre-release with Windows and Linux builds. All tunables are in `scripts/game/tuning.gd`.
 

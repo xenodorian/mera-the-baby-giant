@@ -71,6 +71,8 @@ var _threat_seen := false
 var seen_bolts := {}                 # bolt instance id -> distance when first seen
 var jumped_bolts := 0                # tests / stats
 var blocked := 0
+var stun_t := 0.0                    # v0.5 earthquake stun left (s)
+var stunned_total := 0               # tests
 var history: Array = []              # states/attacks entered (tests)
 var rng := RandomNumberGenerator.new()
 var sprite: AnimatedSprite2D
@@ -256,6 +258,8 @@ func take_damage(amount: int, from_x: float, kind: String = "melee") -> bool:
 		return true
 	if state == "defend":               # Fury / explosion broke through: the block drops
 		block_cd = Tuning.BLOCK_COOLDOWN_S
+	if state == "stun":                 # stunned: takes the damage, stays dazed
+		return true
 	if state == "atk" and sprite.frame >= COMMIT_FRAME:      # committed swing: no flinch
 		return true
 	if not on_ground:
@@ -267,6 +271,22 @@ func take_damage(amount: int, from_x: float, kind: String = "melee") -> bool:
 	hurt_t = 0.3
 	position.x += (-4.0 if from_x > global_position.x else 4.0) * k
 	return true
+
+
+## v0.5 earthquake: stunned for t seconds (only when on the ground). He can't act, block or flinch out of it.
+func stun(t: float) -> void:
+	if hp <= 0 or not on_ground or t <= 0.0:
+		return
+	stun_t = maxf(stun_t, t)
+	stunned_total += 1
+	if state != "stun":
+		vx = 0.0
+		tell_t = 0.0
+		_anim("hit")
+		state = "stun"
+		sprite.pause()
+		sprite.frame = 1
+		history.append("stun")
 
 
 func _on_anim_done() -> void:
@@ -312,6 +332,14 @@ func _physics_process(delta: float) -> void:
 			hits_done[w] = true
 			m.take_hit(damage_for(atk), global_position.x)     # fixed sizes per hit, never multiplied
 	match state:
+		"stun":
+			stun_t -= delta
+			sprite.position.x = sin(t_state * 30.0) * 1.5 * k      # wobbling in place
+			if stun_t <= 0.0:
+				sprite.position.x = 0.0
+				cooldown = 0.4
+				_anim("idle")
+			return
 		"hit", "death", "land", "takeoff":
 			if state == "takeoff" and t_state >= 0.08:
 				_launch()
@@ -354,6 +382,9 @@ func _tint() -> void:
 			sprite.modulate = Color(1.0 + 1.2 * q, 1.0 + 1.0 * q, 1.0 + 0.6 * q)
 		else:
 			sprite.modulate = Color(1.0 + 0.9 * q, 1.0 + 0.3 * q, 1.0 - 0.3 * q)
+	elif state == "stun":                # dazed: dim, flickering yellow
+		var q2 := 0.5 + 0.5 * sin(t_state * 18.0)
+		sprite.modulate = Color(0.8 + 0.4 * q2, 0.8 + 0.4 * q2, 0.55)
 	elif blocking():
 		sprite.modulate = Color(0.8, 0.9, 1.3)
 	elif state == "roll":

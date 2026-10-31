@@ -1,11 +1,11 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: S0 (2026-10-31), after v0.4-playable._
+_Last updated: S1 (2026-10-31), v0.5-playable._
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
-- Main scene: `scenes/game.tscn`. Key scripts in `scripts/game/`:
+- Main scene: `scenes/menu.tscn` (level select, `scripts/menu.gd`), which loads `scenes/game.tscn`. Any command-line user args skip the menu and go straight to the game. Key scripts in `scripts/game/`:
 
 | File | What it does |
 |---|---|
@@ -17,7 +17,10 @@ _Last updated: S0 (2026-10-31), after v0.4-playable._
 | `shot.gd`, `blast.gd`, `strike.gd`, `seg_strip.gd` | Spells |
 | `layered_anim.gd` | Mera's layered animation player. `AnimLib` autoload loads `assets/characters/merakintsugi/game/anims.json` |
 | `cam_rig.gd` | Camera X hard-locked on Mera, run after physics |
+| `levels.gd` | `Levels` class: the level list from `assets/levels/levels.json`, the current level, map width, edges |
+| `exit_gate.gd` | The exit pillar at the right end of each map |
 
+- Level maps are built by `tools/build_levels.py` into `assets/levels/<id>/*.png`, `thumb.png` and `levels.json`. Re-run it after changing a level, then add any new PNG to the export list.
 - Mera's animation frames are baked by `tools/export_game_anims.py`. Spell segments: `tools/tess_spells.py`. Barrier fit: `tools/fit_barrier.py`.
 - Docs: `docs/CONTROLS.md` (inputs and timing windows), `docs/GAME_RULES.md`, `docs/CREDITS.md`, `docs/WORKFLOW.md` (staged plan), and `CHANGELOG.md`.
 
@@ -28,13 +31,28 @@ _Last updated: S0 (2026-10-31), after v0.4-playable._
 | v0.2-playable | First playable cemetery level |
 | v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
 | v0.3.1 | Camera hard lock |
+| **v0.5-playable** (S1) | Level select + 4 large native maps (Cemetery, Misty Woods, Moonlit Town, Infernal Caverns; 19,200 px each, walls + exit gate), remap (L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = allies), Down+Y earthquake (1 s shake, 5 s ground stun) |
 | **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
 
 ## Left (see `docs/WORKFLOW.md`)
-- **S1:** level select + 4 large native maps, input remap (lightning L2, Fury R2+L2, R1 = allies), earthquake (Down+Y crouching) → v0.5.
 - **S2:** enemy roster (16 enemies incl. the boss dragon, all animations) → v0.6.
 - **S3:** ally cards + R1 summon picker + 4 allies → v0.7.
-- **S4:** research-driven mechanics, physics, destructibles (`docs/RESEARCH.md`, from a separate research worker) → v0.8.
+- **S4:** from `docs/RESEARCH.md` (top-8):
+  - impact pass (hit-stop, flash, sparks, SFX variance);
+  - breakables with drop tables;
+  - explosive barrels and chandeliers;
+  - juggle rules;
+  - consistent enemy telegraphs (do it together with S2);
+  - secret walls hiding ally cards.
+
+  → v0.8.
+- **User decisions for S4 (t79u, 2026-10-31):**
+  - **Yes** to all research recommendations, including the parry.
+  - **Parry** = a perfectly timed barrier raise (L2 pressed within about 0.15 s before a hit lands): parry, then a counter window, and projectiles are deflected. No new button.
+  - **Yes** to gore and gibs, using free CC0 gib packs.
+  - **No paid packs:** skip Gothicvania Interiors and use free CC0 props.
+  - **Shatter:** add a free (MIT/CC0) Godot 4 debris/fracture sim, so destroyed objects and enemies (for gore) shatter into pieces. Either sprite fracture into RigidBody2D shards or CPUParticles2D shards. It must work on the Compatibility renderer and in the Windows exe; prefer pure GDScript.
+- Levels 2-4 still spawn the Fire Knight until S2 adds the roster.
 
 ## Pitfalls (learned the hard way)
 - **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **both** presets, or the exported game silently misses it.
@@ -58,6 +76,17 @@ _Last updated: S0 (2026-10-31), after v0.4-playable._
 - **Particles:** use `CPUParticles2D` (GPU particles are unreliable on Compatibility). Set `local_coords = false` for world-space trails.
 - With the requested numbers, a Fire Knight hit (2) kills a 2x Mera. This is intended, so don't "fix" it.
 - `tools/make_loop_bg.py` created the old looping cemetery. It is superseded by large native maps from S1 on.
+
+- **New `class_name` scripts** are only found after the global class cache is refreshed: run `$G --headless --path . --import` once after adding one. Otherwise you get "Identifier not declared".
+- **Never `git stash -u` while the test suite is running.** It removes untracked assets (e.g. level PNGs) from disk for a moment, and the running tests can fail to load them.
+- Add export entries with `python3 tools/add_export_files.py res://a res://b` (idempotent, both presets), or `--include "glob"` for the include filter.
+- **Research constraints** (from `docs/RESEARCH.md`):
+  - use `CPUParticles2D`, not GPU particles;
+  - test the exported `.exe` when using GDExtension add-ons (Ropesim, LimboAI, Rapier);
+  - never install LimboAI and Beehave together;
+  - avoid Cyangmou, Elthen, Seliel/Mana Seed and RGS_Dev packs;
+  - no paid packs (decided); the parry is approved as a timed L2 barrier raise;
+  - restore `Engine.time_scale` after hit-stop with an `ignore_time_scale` timer.
 
 ## Tips
 - Read `docs/CONTROLS.md` (Timing windows) before touching `mera.gd` input code. Run the human-timing replay tests after any input change.

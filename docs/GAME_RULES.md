@@ -9,7 +9,7 @@
 - The L2 barrier blocks every hit while it is held.
   - The bubble is sized by `tools/fit_barrier.py`, from every opaque pixel of the held pose (heal f5-8: body, raised hand and energy ball), plus a 3 px margin. Result: centre (-3, -38) art px, radius 44.5 art px, scaled by size and mirrored by facing.
   - While it is up, Mera's hurtbox is the bubble's bounding square, so the blocking area matches what you see.
-  - **R1 works inside the bubble.** It needs and spends the full meter as usual, and the strike fires while she holds the pose and keeps blocking.
+  - v0.5: the lightning can no longer be cast from inside the bubble (L2 is busy holding it). R2 inside the bubble starts Fury.
 - Movement speed and hit/hurt boxes scale with size. At 1x: walk 50, run 200, ground/aerial dash 1600, and back dodge 800 px/s.
   - The dashes and the dodge play their animations at 2x speed, so every key frame is kept, and leave a pooled afterimage trail (up to 8 ghosts).
 
@@ -27,7 +27,8 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | Slide | 1 |
 | Quick-fire bolt | 1 |
 | Rear explosion (slash 1, explosion AOE 3) | 1 + 3 |
-| R1 lightning (AOE) | 3 |
+| L2-tap lightning (AOE) | 3 |
+| Earthquake (Down+Y) | 0 (5 s stun) |
 
 ## Potions
 - Green potions lie on the ground. Walk over one to carry it (HUD: POTIONS count). She starts with 1.
@@ -39,10 +40,10 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - Free size changes (1x–19x) exist only in debug mode (F2).
 
 ## Rage and Fury
-- **R1 lightning costs the whole meter.** It works only at 100 % rage and outside Fury, also while the L2 bubble is up. The meter then drains visibly to 0 (about 0.45 s) and refills normally afterwards.
+- **Lightning (L2 tap, v0.5) costs the whole meter.** It works only at 100 % rage and outside Fury. The meter then drains visibly to 0 (about 0.45 s) and refills normally afterwards.
   - Below 100 %: a fail cue plus a HUD hint, and nothing happens.
-  - During Fury the meter is the Fury timer, which R2 already spent, so R1 is unavailable until Fury ends and the meter refills.
-  - With a full meter, choose: R2 = Fury, or R1 = one lightning strike.
+  - During Fury the meter is the Fury timer, which L2+R2 already spent, so the lightning is unavailable until Fury ends and the meter refills.
+  - With a full meter, choose: L2+R2 = Fury, or tap L2 = one lightning strike.
 - **Fury aura (v0.4: particles):**
   - Two CPU particle layers of pixel flame tongues (`CPUParticles2D`, world space, so emitted flames stay where they were born):
     - a back layer of 160 flames, dark red → red → orange;
@@ -56,7 +57,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - A defeated enemy drops a **red sphere**. It flies to Mera and adds rage based on the enemy's difficulty.
   The Fire Knight's sphere gives **+10 %**.
 - Each hit Mera lands also adds **+1 %**. Spheres are the main source; the small per-hit bonus keeps "dealing damage builds Fury".
-- At 100 %, R2 starts **Fury** for 12 s and the meter drains to 0 over that time.
+- At 100 %, L2+R2 starts **Fury** for 12 s and the meter drains to 0 over that time.
   - Red aura; all spell fx, beams, explosions and lightning turn deep red.
   - Sfx are pitched down (×0.72) through a low-pass + overdrive bus.
   - Flight: Up in the air takes off; R2 or Down at ground level lands.
@@ -107,7 +108,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **Drops**, as two independent rolls: **35 %** a blue +30 stamina potion, **10 %** a blue-and-white +5 max stamina potion. Plus a red sphere for **+4 % rage** (my choice: he is easier than the Fire Knight's +10 %).
 
 ## Beam and lightning reach
-- The combo beam (X X X Y, normal and Fury red) and the R1 lightning always reach **off-screen**, at any size, from any position, in either facing, and while the camera scrolls.
+- The combo beam (X X X Y, normal and Fury red) and the lightning always reach **off-screen**, at any size, from any position, in either facing, and while the camera scrolls.
 - **Combo input:** the beam needs X X X Y. The Y may come at any time during the third hit (2x-1 or 2x-2) or up to 250 ms after it.
   - X X Y is always 1x → 2x → 3x. A second Y after it (X X Y Y) is swallowed, never the beam.
 - Both are built from **tessellating segments** (`tools/tess_spells.py`, sheets in `assets/characters/merakintsugi/game/spell_beam*.png` and `spell_lightning_seg.png`):
@@ -122,9 +123,32 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **Only one Fire Knight at a time** (plus the Blue Knights he calls). A new one appears just off-screen ahead of Mera:
   - 2 s after the previous one is defeated, or
   - when Mera has moved too far away (he is off-screen and more than 2400 px behind). He is then removed and replaced ahead of her.
-- The level loops forever: the cemetery background tiles every 1920 px, with blurred seams.
+- v0.5: no more looping. See **Levels** below.
 - **Camera (v0.3.1):** hard-locked horizontally on Mera's feet pivot, so she is always at the exact screen centre.
   - There is no look-ahead and no smoothing. Turning around never shifts the view, and dashes never drift.
   - It updates after all physics each frame (`scripts/game/cam_rig.gd`), so there is no one-frame lag.
   - Vertical is fixed (the level is one screen tall), apart from screen shake.
   - Beam and lightning lengths are computed against this camera every frame.
+
+## Levels (v0.5)
+- The game opens on a **level select** with four levels:
+
+| # | Level | Art | Enemies |
+|---|---|---|---|
+| 1 | **Moonlit Cemetery** | ansimuz Gothicvania Cemetery | Fire Knight + Blue Knights, no ally cards |
+| 2 | **Misty Woods** | ansimuz Mist Forest | wolf, werewolf, ogre, minotaur (from v0.6; until then the Fire Knight) |
+| 3 | **Moonlit Town** | ansimuz Night Town + a procedural cobbled street | ghosts, skeletons, death, nightmare (v0.6) |
+| 4 | **Infernal Caverns** | ansimuz Lava background | demons, hell hounds, hell beast, fire skulls, the boss dragon (v0.6) |
+
+- Every map is **19,200 px wide (10 screens)** and built natively by `tools/build_levels.py`. Nothing loops as a single strip any more:
+  - the playable layer is one long unique strip: ground tiles, plus graves, trees, houses, rocks and pillars placed by a seeded RNG with random spacing and flips;
+  - distant layers either tile seamlessly by design, or are mirrored pairs (seamless by construction, no blur);
+  - each layer has its own parallax factor.
+- **Invisible walls** stop Mera and the enemies 120 px from each end. The camera stays locked on her, and the art continues past the walls.
+- The **exit gate** (a pillar of light) stands near the right end. Reaching it means **LEVEL CLEAR**: A / Start goes to the next level, B to the level select. On Game Over, Start restarts and B goes back to the level select.
+
+## Earthquake (v0.5)
+- **Down + Y while crouching**, for 20 stamina.
+- Mera stomps (`roll_land` pose). The ground shakes for **1 s**: a 34 px camera shake re-randomised every frame (very fast, violent, the whole map) and dust bursting out of the ground across the screen.
+- Every enemy **touching the ground** at any moment of the quake is **stunned until 5 s after the quake started**. Enemies in the air when it starts are caught if they land before it ends.
+- A stunned enemy wobbles in a dazed yellow tint. It can't act, block or flinch out of it, and takes damage normally.

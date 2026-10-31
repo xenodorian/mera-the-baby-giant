@@ -18,10 +18,12 @@ const CONTROLS := [
 	["Y", "quick fire (bolt) 5 stamina     X+Y together = rear explosion 12 stamina"],
 	["A+Y together / Y while running", "ground dash (aerial dash animation), 6 stamina"],
 	["In the air", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 stamina, Up = double jump"],
+	["Down + Y (crouching)", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 stamina)"],
 	["L1", "heal: drink a green potion, +1 size (max 6x)"],
-	["R1 (rage 100 %)", "heal pose + lightning strike from the sky (AOE), uses the whole meter"],
-	["L2 (hold)", "spherical barrier, blocks hits while held (3 stamina + 4/s; R1 works inside)"],
-	["R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air / R2 again)"],
+	["L2 tap (rage 100 %)", "lightning strike from the sky (AOE), uses the whole meter"],
+	["L2 hold", "spherical barrier, blocks hits while held (3 stamina + 4/s)"],
+	["L2 + R2 (rage 100 %)", "Fury: red aura, red spells, flight (Up in the air; R2 lands / takes off)"],
+	["R1", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "8-way move, Down on the ground lands, R2 lands"],
 	["Start / Enter / F1", "this overlay (and restart after Game Over)"],
 	["Back(Share) / Tab / G", "animation gallery (Left/Right: previous/next, A: replay)"],
@@ -81,9 +83,13 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482, 100), "%d%%" % int(m.rage), 24)
 	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140, 136), "R2: FURY!   or   R1: LIGHTNING", 24, Color(1, 0.3, 0.25))
+		_txt(Vector2(140, 136), "L2+R2: FURY!   or   tap L2: LIGHTNING", 24, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
-		_txt(Vector2(260, 146), "R1 lightning needs a full meter (not in Fury)", 22, Color(1, 0.5, 0.4))
+		_txt(Vector2(260, 146), "lightning (tap L2) and Fury (L2+R2) need a full meter", 22, Color(1, 0.5, 0.4))
+	if _flash == "fury_chord" and _flash_t > 0.0:
+		_txt(Vector2(260, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
+	if _flash == "ally" and _flash_t > 0.0:
+		_txt(Vector2(260, 146), "R1: no ally card collected yet", 22, Color(0.6, 0.85, 1.0))
 	# potions
 	var pc := Color(0.45, 0.95, 0.45)
 	if _flash == "potions" and _flash_t > 0.0:
@@ -123,4 +129,13 @@ func _draw_ui() -> void:
 	if game.over and game.over_t > 0.9:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_txt(Vector2(700, 520), "GAME OVER", 110, Color(0.95, 0.2, 0.2))
-		_txt(Vector2(720, 600), "Mera shrank past 1x.   Start / Enter: restart", 30)
+		_txt(Vector2(560, 600), "Mera shrank past 1x.   Start / Enter: restart    B: level select", 30)
+	if game.cleared and game.over_t > 0.3:
+		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
+		_txt(Vector2(640, 500), "LEVEL CLEAR", 110, Color(1.0, 0.85, 0.45))
+		_txt(Vector2(620, 590), "A / Start: next level      B: level select", 32)
+	if game.frame_n < 150 and not game.test_mode:
+		var lv: Dictionary = Levels.level()
+		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)
+		_txt(Vector2(700, 330), "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
+		_txt(Vector2(760, 380), String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
