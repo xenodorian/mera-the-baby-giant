@@ -182,6 +182,9 @@ func _run() -> void:
 			if dr.phase == "volley" and bolts >= 2 and shot_n == 0:
 				await _shot("shot_dragon_flying_bolts.png")
 				shot_n += 1
+			if dr.phase == "volley" and shot_n == 1 and dr.bolt_i >= 2 and dr.sprite.animation == "spit" and dr.sprite.frame >= 4:
+				await _shot("shot_dragon_volley_no_plume.png")      # v0.8.1: mouth open on the spit frame, no breath plume
+				shot_n += 1
 			if dr.phase == "" and dr.landings > 0:
 				break
 		g.queue_free()

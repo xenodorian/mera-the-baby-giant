@@ -2,6 +2,11 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (private). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## Unreleased (v0.8.1, merged to main; ships with the dragon flight fix)
+- **Dragon volley: no more breath plume.** The ansimuz breath frames have the fire plume baked in, and the volley played them, so every lobbed bolt came out with a full breath. The volley now plays new **`spit`** frames, copies of the breath frames with the 3 plume colours made transparent (`tools/build_dragon_spit.py`; the originals are untouched). A small muzzle spark marks each launch. The ground fire breath attack is unchanged (separate code path).
+- Wing/flight motion: not changed yet (pending review of the raw animations).
+- Tests: **325 pass, 0 fail**. New: the volley never shows `breath` and no shown frame has a plume pixel; the ground breath still has its plume.
+
 ## v0.8-playable (2026-10-31)
 Stage S4 of `docs/WORKFLOW.md`. Pre-release with **Windows, Linux and Android (ARM) builds**. From now on every version ships a Windows `.exe` **and** an Android APK.
 

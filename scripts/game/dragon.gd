@@ -152,8 +152,8 @@ func _phase_tick(delta: float) -> void:
 					sprite.modulate = TELE.pulse("ranged", bolt_t)          # red tell before every bolt
 					marker.set_kind("ranged")
 					marker.visible = true
-					if sprite.animation != "breath":
-						_play("breath")
+					if sprite.animation != "spit":
+						_play("spit")                      # v0.8.1: breath frames with the fire plume masked out (no plume in the volley)
 						sprite.pause()
 						sprite.frame = 0
 					if bolt_t >= Tuning.DRAGON_BOLT_TELL_S:
@@ -198,7 +198,9 @@ func _spit(m: Node2D) -> void:
 	b.setup(game, self, mouth, Vector2(tx, float(game.GROUND_Y)))
 	get_parent().add_child(b)
 	bolts_fired += 1
-	played["breath"] = true
+	played["spit"] = true
+	if game and game.debris:
+		game.debris.spark(mouth, 3.0)                # a small muzzle flash at most; the bolt itself is the fire
 	Sfx.play("cast", 0.55, -2.0)
 
 

@@ -1908,10 +1908,15 @@ func _dragon_tests() -> void:
 	var max_lift := 0.0
 	var tells := 0
 	var was_tell := false
+	var volley_anims := {}
+	var volley_frames := {}
 	for i in 1500:
 		await physics_frame
 		m.invuln = 1.0
 		max_lift = maxf(max_lift, dr.lift)
+		if dr.phase == "volley":
+			volley_anims[String(dr.sprite.animation)] = true
+			volley_frames["%s:%d" % [dr.sprite.animation, dr.sprite.frame]] = dr.sprite.sprite_frames.get_frame_texture(dr.sprite.animation, dr.sprite.frame)
 		var tl: bool = dr.marker.visible and dr.phase == "volley"
 		if tl and not was_tell:
 			tells += 1
@@ -1920,6 +1925,34 @@ func _dragon_tests() -> void:
 			break
 	_check("dragon phase 12x: takes off, 5 bolts each with a red tell, then lands", flying and max_lift > T.DRAGON_FLY_H * 0.9 and dr.bolts_fired == 5 and tells == 5 and dr.landings == 1 and dr.phase_log == [12] and absf(dr.global_position.y - feet0) < 0.5 and dr.state != "fly",
 		"fly=%s lift=%f bolts=%d tells=%d land=%d log=%s" % [flying, max_lift, dr.bolts_fired, tells, dr.landings, dr.phase_log])
+	var fire_px := 0
+	for key in volley_frames:
+		var img: Image = volley_frames[key].get_image()
+		if img.is_compressed():
+			img.decompress()
+		for y in img.get_height():
+			for x in img.get_width():
+				var c: Color = img.get_pixel(x, y)
+				if c.a > 0.5:
+					var c8 := Vector3i(c.r8, c.g8, c.b8)
+					if c8 == Vector3i(242, 74, 2) or c8 == Vector3i(255, 141, 7) or c8 == Vector3i(255, 214, 133):   # the plume palette
+						fire_px += 1
+	_check("dragon volley: plays the plume-free 'spit' frames (idle between bolts, never 'breath'), no fire pixels in any shown frame", not volley_anims.has("breath") and volley_anims.has("spit") and volley_frames.size() >= 3 and fire_px == 0, "anims=%s frames=%d fire_px=%d" % [volley_anims.keys(), volley_frames.size(), fire_px])
+	var breath_kept := false
+	for at in dr.attacks:
+		if at["anim"] == "breath" and at["mode"] == "frames":
+			breath_kept = true
+	var bt: Texture2D = dr.sprite.sprite_frames.get_frame_texture("breath", 6)
+	var bimg: Image = bt.get_image()
+	if bimg.is_compressed():
+		bimg.decompress()
+	var bfire := 0
+	for y in bimg.get_height():
+		for x in bimg.get_width():
+			var c: Color = bimg.get_pixel(x, y)
+			if c.a > 0.5 and Vector3i(c.r8, c.g8, c.b8) in [Vector3i(242, 74, 2), Vector3i(255, 141, 7), Vector3i(255, 214, 133)]:
+				bfire += 1
+	_check("dragon ground breath attack unchanged (still the original 'breath' frames with the plume)", breath_kept and bt.resource_path.find("/sprites/breath/") >= 0 and bfire > 100, "%s fire_px=%d" % [bt.resource_path, bfire])
 	_check("dragon: no growth when no bolt hurts Mera (she was invulnerable)", dr.size == 12 and dr.growths == 0, "size=%d" % dr.size)
 	# one huge hit skips 9x, 6x and 3x: every crossed phase runs once, in order, each landing
 	dr.take_damage(T.DRAGON_HP_PER_SIZE * 10, m.global_position.x, "explosion")
