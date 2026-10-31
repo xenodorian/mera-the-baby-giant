@@ -30,7 +30,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | L2-tap lightning (AOE) | 3 |
 | Earthquake (Down+Y) | 0 (5 s stun) |
 | **Super earthquake** (Down+Y at 100 % rage, v0.8) | flat 2 to every enemy (7 s stun) |
-| **Marked slash** (L1+R1+L2+R2 while Fury is on, or the meter is full) | flat 3 to each marked enemy |
+| **Marked slash** (L1+R1+L2+R2, costs 100 rage) | flat 3 to each marked enemy |
 
 ## Potions
 - Green potions lie on the ground. Walk over one to carry it (HUD: POTIONS count). She starts with 1.
@@ -42,10 +42,10 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - Free size changes (1x–19x) exist only in debug mode (F2).
 
 ## Rage and Fury
-- **Lightning (L2+R2, outside Fury) spends the whole rage meter.** It needs at least 100 rage. The meter then drains visibly to 0 (about 0.45 s) and refills normally afterwards.
-  - Below 100: a fail cue plus a HUD hint, and nothing happens.
-  - During Fury the meter is not spent by lightning; lightning is unavailable until Fury ends.
-- **Fury (R2 alone) costs 100 rage, never the rest of the meter.** A meter raised past 100 (up to 200) keeps everything above that 100. The red bar during Fury is the 12 s timer, not the leftover rage. When Fury ends, the leftover is still there.
+- **Three rage attacks, each costs 100.** A meter raised past 100 keeps the rest.
+  - **R2 alone: Fury** for 12 s. The red bar during Fury is the timer, not the leftover rage.
+  - **L2+R2: lightning.** Needs 100 rage and you must not already be in Fury. Costs 100, not the whole bar.
+  - **L1+R1+L2+R2: freeze slash.** Needs 100 rage (even during Fury). Costs 100. It does not start Fury. Up to 9 nearest enemies are marked; cut each for a flat 3.
 - **Fury aura (v0.4: particles):**
   - Two CPU particle layers of pixel flame tongues (`CPUParticles2D`, world space, so emitted flames stay where they were born):
     - a back layer of 160 flames, dark red → red → orange;
@@ -63,7 +63,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - Red aura; all spell fx, beams, explosions and lightning turn deep red.
   - Sfx are pitched down (×0.72) through a low-pass + overdrive bus.
   - Flight: Up in the air takes off; R2 or Down at ground level lands.
-- **Marked slash:** L1+R1+L2+R2 together (keyboard Q+W+1+2, within 150 ms, all held) while Fury is already on, or while the meter is full (this also starts Fury). Mera and the whole world stop for up to 8 s. Up to 9 nearest living enemies each get one unique mark from 1 to 9. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. It ends when every mark is cut or the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
+- **Freeze slash:** L1+R1+L2+R2 together (keyboard Q+W+1+2, within 150 ms, all held) at **100 rage or more**. It costs **100 rage** and does **not** start Fury. Mera and the whole world stop for up to 8 s. Up to 9 nearest living enemies each get one unique mark from 1 to 9. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. It ends when every mark is cut or the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
 
 ## Mana (v0.4, renamed v0.9.4)
 - 60 / 60 at the start, regenerating 1 per second. HUD: the MANA bar under rage.
@@ -241,8 +241,8 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 |---|---|---|
 | **Water Priestess** (chierit) | blue | Surfs in and **heals Mera back up to 6x** as soon as she arrives, then once more just before she leaves. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
-| **Brawler Girl** (ansimuz, skin recolour) | orange | Lands in front of Mera and **runs right** until her time is up. She stops only to fight something in reach, or when a wall or a closed door is in the way. **Non-boss enemies chase her** (bosses still come for Mera). Jab → punch → kick; jump kick to close in |
-| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every non-boss enemy on screen drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. **Bosses ignore her.** After the 5 s she stops, and she leaves with the others at 20 s |
+| **Brawler Girl** (ansimuz, skin recolour) | orange | Lands in front of Mera and **runs right** until her time is up. She stops only to fight something in reach, or when a wall or a closed door is in the way. Enemies do **not** chase her; they stay on Mera |
+| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others at 20 s |
 
 ## Impact (v0.8)
 - **Hit-stop:** a landed hit freezes the whole game for a moment (real time): **45 ms** normal, **80 ms** heavy (2+ base damage, launchers, explosions, lightning, counter hits), **100 ms** a kill, **120 ms** a parry; never more than 120 ms (overlaps extend, never stack). Beam ticks only stop on a kill. `scripts/game/hit_stop.gd` (autoload `HitStop`) drops `Engine.time_scale` and restores it per physics tick; Mera's input clock keeps real time through it, so combo windows don't change.
@@ -306,6 +306,6 @@ Each of levels 2-4 hides **3 of its 4 ally cards**:
     - So that the shot is never backwards or straight down, the target is always at least 160 px in front of his mouth. His lob spots also stay at least mouth reach + 160 px from Mera; when he is big (12x), they spread over the room left between that and the screen edge.
     - A red ring on the ground shows where it lands. It explodes on touching Mera or the ground (**170 px** blast, **2 damage**, fixed). Then he **lands, always** (0.8 s, wherever he is), and goes back to the ground fight.
 - **If any bolt hurts Mera during a phase, he grows +3 sizes** (once per phase, not per bolt; capped at 19x). Growing back never re-arms a threshold he has already used.
-- The barrier blocks bolts; a parry (L2 in the window) pops one harmlessly. The earthquake can't stun him while he flies. The Dancing Girl doesn't distract him.
+- The barrier blocks bolts; a parry (L2 in the window) pops one harmlessly. The earthquake can't stun him while he flies. The Dancing Girl pulls him over to hop with everyone else.
 - His **ground fire breath** attack is unchanged: it still plays the original breath frames with the plume (a separate code path, the roster attack).
 - **Boss bar:** "INFERNAL DRAGON 12x" plus a bar with one notch per size.

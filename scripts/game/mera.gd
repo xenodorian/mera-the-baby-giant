@@ -1022,11 +1022,11 @@ func _chord_convert(k: String) -> bool:
 	return true
 
 
-## L1+R1+L2+R2 together (Q+W+1+2), while Fury is on or the meter is full: mark-slash freeze.
+## L1+R1+L2+R2 together (Q+W+1+2): the freeze-frame slash. Costs 100 rage. It does not start Fury.
 func _try_mark() -> bool:
 	if game == null or state in ["dead", "gallery"]:
 		return false
-	if not fury and (rage < 100.0 or rage_spending):
+	if rage_spending or rage < FURY_COST:
 		return false
 	var got: Array = []
 	var newest := -1e9
@@ -1043,8 +1043,7 @@ func _try_mark() -> bool:
 		return false
 	for e in got:
 		_use(e)
-	if not fury:
-		start_fury()
+	pay_rage()
 	return true
 
 
@@ -1108,14 +1107,13 @@ func _try_fury() -> bool:
 
 
 func _try_lightning() -> bool:
-	if can_lightning():
-		spend_rage()
-		_start_move("lightning")
-		return true
-	Sfx.play("fail", 1.4, -6.0)
-	if game:
-		game.flash_hud("rage")
-	return false
+	if fury or not pay_rage():
+		Sfx.play("fail", 1.4, -6.0)
+		if game:
+			game.flash_hud("rage")
+		return false
+	_start_move("lightning")
+	return true
 
 
 func _jump() -> void:
@@ -1329,6 +1327,14 @@ func _land_from_flight() -> void:
 ## R1 lightning: only with a full meter outside Fury (in Fury the meter is the Fury timer, already spent by R2)
 func can_lightning() -> bool:
 	return not fury and not rage_spending and rage >= R1_COST
+
+
+## spend 100 rage. Fury, lightning and the freeze slash each call this. The rest of a raised meter stays.
+func pay_rage() -> bool:
+	if rage_spending or rage < FURY_COST:
+		return false
+	rage -= FURY_COST
+	return true
 
 
 ## spend the whole meter; it drains visibly over ~0.45 s, and nothing refills it until it is empty
@@ -1771,8 +1777,7 @@ func _move_tick(delta: float) -> void:
 			var r2b := _find("r2", float(mv["t0"]) - CHORD_MS)
 			if not r2b.is_empty() and not fury:
 				_use(r2b)
-				if can_lightning():
-					spend_rage()
+				if pay_rage():
 					if barrier_on:
 						if game:
 							game.call_lightning(self)

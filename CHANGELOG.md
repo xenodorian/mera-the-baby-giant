@@ -2,6 +2,17 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.7-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.7-playable/Mera_Playable_v0.9.7_Windows.exe
+- **Every enemy chases and attacks Mera.** The brawler no longer pulls them off her.
+- **While the Dancing Girl is dancing, every enemy, bosses included, runs to her and jumps.** They go back to Mera when the dance ends.
+- **Three rage attacks, each costs 100:**
+  - **R2** — Fury for 12 s.
+  - **L2+R2** — lightning. Does not empty a raised meter.
+  - **L1+R1+L2+R2** — freeze slash. Marks up to 9 enemies; cut each for 3. Does not start Fury.
+- Android `versionCode` 18, `versionName` 0.9.7 (APK not published).
+
 ## v0.9.6-playable (2026-10-31)
 Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.6-playable/Mera_Playable_v0.9.6_Windows.exe

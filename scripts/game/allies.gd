@@ -14,8 +14,8 @@ const COLORS := {
 const BLURB := {
 	"priestess": "heals Mera to 6x (30 s cooldown), water magic",
 	"ranger": "arrows, kicks and a leaf beam",
-	"brawler": "runs right, ahead of Mera, and pulls enemies onto her",
-	"dancer": "dances: every non-boss enemy on screen rushes over to watch",
+	"brawler": "runs right, ahead of Mera, and fights what she reaches",
+	"dancer": "dances: every enemy on screen rushes over and jumps",
 }
 const STAY_S := {"priestess": 20.0, "ranger": 20.0, "brawler": 20.0, "dancer": 20.0}
 const DANCE_S := 5.0          # she walks ahead, then dances this long (the lure), then waits out the rest of the 20 s

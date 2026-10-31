@@ -103,6 +103,8 @@ func _physics_process(delta: float) -> void:
 	if state == "dead" or hp <= 0 or game == null:
 		super(delta)
 		return
+	if _distracted(delta):
+		return
 	if phase == "" and not phase_queue.is_empty() and state != "spawn":
 		_begin_phase(int(phase_queue.pop_front()))
 	if phase != "":

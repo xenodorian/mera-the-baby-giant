@@ -22,13 +22,13 @@ const CONTROLS := [
 	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 mana)"],
 	["L1", "Q", "heal: drink a green potion, +1 size (max 6x), plays at 4x"],
 	["L2", "1", "full bubble while held (3 mana + 4/s). L1 drinks without dropping it"],
-	["L2 + R2 (100 rage)", "1 + 2", "lightning from the sky (AOE). Spends the rage meter"],
-	["R2 (100 rage)", "2", "Fury for 12 s. Costs 100 rage, not the whole meter. In Fury, R2 takes off / lands"],
+	["L2 + R2 (100 rage)", "1 + 2", "lightning from the sky (AOE). Costs 100 rage"],
+	["R2 (100 rage)", "2", "Fury for 12 s. Costs 100 rage. In Fury, R2 takes off / lands"],
 	["Down hold", "Down hold", "small bubble, 3 s, subtracts 1 damage. L1 drinks without dropping it"],
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
 	["Any button in a bubble", "", "drops that bubble and does the move. L1 drinks and the bubble stays"],
-	["L1+R1+L2+R2 (Fury, or 100 rage)", "Q+W+1+2", "freeze; slash marked enemies (number, swipe, or right stick) for 3"],
+	["L1+R1+L2+R2 (100 rage)", "Q+W+1+2", "freeze slash: mark up to 9 enemies, cut each for 3. Costs 100 rage"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
 	["Start", "Enter / F1", "pause (game freezes) and this overlay; again to resume. Restarts after Game Over"],
@@ -100,9 +100,9 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
 	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140, 136), "R2: FURY!   or   L2+R2: LIGHTNING", 24, Color(1, 0.3, 0.25))
+		_txt(Vector2(140, 136), "R2 FURY   ·   L2+R2 LIGHTNING   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
-		_txt(Vector2(260, 146), "lightning (L2+R2) and Fury (R2) need 100 rage", 22, Color(1, 0.5, 0.4))
+		_txt(Vector2(200, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
 	if _flash == "fury_chord" and _flash_t > 0.0:
 		_txt(Vector2(260, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
 	if _flash == "parry" and _flash_t > 0.0:            # v0.8

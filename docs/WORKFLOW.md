@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.7 (2026-10-31): three 100-rage attacks, enemies stay on Mera
+R2 is Fury, L2+R2 is lightning, L1+R1+L2+R2 is the freeze slash (`_try_mark`). Each spends `FURY_COST` (100) through `start_fury` or `pay_rage`. The slash does not call `start_fury`. `monster._prey` is always Mera. `_distracted` includes bosses, and the dragon and the Fire Knight honor it too. Windows exe is `v0.9.7-playable`.
+
 ## v0.9.6 (2026-10-31): summons, controls, Windows exe
 Brawler lands ahead of Mera and runs right (`march` is always +1). She stops to fight or at a wall / closed door. Non-bosses chase `game.brawler()`. Dancer walks ahead and dances for `DANCE_S` (5). Priestess heals on arrival and once as she leaves. L2 is the full bubble, L2+R2 is lightning, R2 alone is Fury and spends 100 rage. Summon portraits are cropped. Bolts damage breakables via `game.prop_at`. Potions play the heal at 4×. Windows exe is `v0.9.6-playable`.
 
