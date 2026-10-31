@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.9.5 (2026-10-31): every level ends
+Cemetery stops after `Roster.KNIGHT_CAP` (5) Fire Knights. Woods and Town stop the empty-screen trickle once the waves are done, and the gate waits for a clear field. Caverns still waits on the dragon. The last clear returns to the menu. Windows exe is `v0.9.5-playable`.
+
 ## v0.9.4 (2026-10-31): mana, bubble timer, flat soak, one drop
 Stamina is shown as mana. Small bubble lasts `CROUCH_BUBBLE_S` (3) with `bubble_dial.gd`, then drops. It subtracts 1 damage. The full bubble stops all damage. A button drops either bubble and performs the move. `enemy_loot_kind` rolls one drop; max mana and max rage are the 7% rows, both cap at 200. Windows exe is `v0.9.4-playable`.
 

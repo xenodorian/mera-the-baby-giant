@@ -182,8 +182,9 @@ func _draw_ui() -> void:
 		_txt(Vector2(420, 600), "Mera shrank past 1x.   A / Start (Z / Enter): restart    B (X): level select", 30)
 	if game.cleared and game.over_t > 0.3:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
-		_txt(Vector2(640, 500), "LEVEL CLEAR", 110, Color(1.0, 0.85, 0.45))
-		_txt(Vector2(470, 590), "A / Start (Z / Enter): next level      B (X): level select", 32)
+		var last: bool = game.has_method("is_last_level") and game.is_last_level()
+		_txt(Vector2(640, 500), "JOURNEY COMPLETE" if last else "LEVEL CLEAR", 90, Color(1.0, 0.85, 0.45))
+		_txt(Vector2(470, 590), "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32)
 	if game.frame_n < 150 and not game.test_mode:
 		var lv: Dictionary = Levels.level()
 		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)

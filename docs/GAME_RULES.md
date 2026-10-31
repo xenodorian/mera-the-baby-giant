@@ -126,7 +126,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **Only one Fire Knight at a time** (plus the Blue Knights he calls). A new one appears just off-screen ahead of Mera:
   - 2 s after the previous one is defeated, or
   - when Mera has moved too far away (he is off-screen and more than 2400 px behind). He is then removed and replaced ahead of her.
-- v0.5: no more looping. See **Levels** below.
+- **The cemetery ends (v0.9.5).** After **5** Fire Knights, no more spawn. The exit stays shut ("SLAY THE KNIGHT") until that last knight and his Blue Knights are dead. Then the gate opens.
 - **Camera (v0.3.1):** hard-locked horizontally on Mera's feet pivot, so she is always at the exact screen centre.
   - There is no look-ahead and no smoothing. Turning around never shifts the view, and dashes never drift.
   - It updates after all physics each frame (`scripts/game/cam_rig.gd`), so there is no one-frame lag.
@@ -148,7 +148,10 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - distant layers either tile seamlessly by design, or are mirrored pairs (seamless by construction, no blur);
   - each layer has its own parallax factor.
 - **Invisible walls** stop Mera and the enemies 120 px from each end. The camera stays locked on her, and the art continues past the walls.
-- The **exit gate** (a pillar of light) stands near the right end. Reaching it means **LEVEL CLEAR**: A / Start goes to the next level, B to the level select. On Game Over, Start restarts and B goes back to the level select.
+- The **exit gate** (a pillar of light) stands near the right end of every level. It stays shut until that level's fight is over, then reaching it means **LEVEL CLEAR**. A / Start goes to the next level (on the last level, back to the level select). B always goes to the level select.
+  - **Moonlit Cemetery:** shut until 5 Fire Knights (and the Blue Knights still with the last one) are dead.
+  - **Misty Woods and Moonlit Town:** shut until every scheduled wave has spawned and no roster enemy is left alive ("CLEAR THE ROAD"). Standing still no longer calls in enemies forever.
+  - **Infernal Caverns:** shut until the dragon falls ("SLAY THE DRAGON").
 
 ## Earthquake (v0.5)
 - **Down + Y while crouching**, for 20 stamina.

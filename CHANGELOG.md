@@ -2,6 +2,15 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.5-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.5-playable/Mera_Playable_v0.9.5_Windows.exe
+- Every level now ends. The exit stays shut until that level's fight is over, then the gate at the right edge clears it.
+- **Moonlit Cemetery** no longer sends Fire Knights forever. Five of them, then the gate opens ("SLAY THE KNIGHT" until the last one and his Blue Knights are dead).
+- **Misty Woods** and **Moonlit Town** stop calling enemies once their waves are done and the field is clear ("CLEAR THE ROAD").
+- **Infernal Caverns** is unchanged: the gate stays shut until the dragon falls. Clearing the last level returns to the level select instead of wrapping back to the cemetery.
+- Android `versionCode` 16, `versionName` 0.9.5 (APK not published).
+
 ## v0.9.4-playable (2026-10-31)
 Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.4-playable/Mera_Playable_v0.9.4_Windows.exe

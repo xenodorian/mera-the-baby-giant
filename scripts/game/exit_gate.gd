@@ -27,6 +27,7 @@ func _draw() -> void:
 		draw_rect(Rect2(-60 + 15 * sin(k * 1.7 + t), y, 8, 8), Color(1, 0.9, 0.6, 0.8))
 	var f := ThemeDB.fallback_font
 	if locked:
-		draw_string(f, Vector2(-250, -800), "SLAY THE DRAGON", HORIZONTAL_ALIGNMENT_CENTER, 500, 44, Color(1, 0.6, 0.5))
+		var msg := "SLAY THE DRAGON" if game == null or not game.has_method("exit_lock_text") else String(game.exit_lock_text())
+		draw_string(f, Vector2(-360, -800), msg, HORIZONTAL_ALIGNMENT_CENTER, 720, 44, Color(1, 0.6, 0.5))
 	else:
 		draw_string(f, Vector2(-70, -800), "EXIT", HORIZONTAL_ALIGNMENT_CENTER, 140, 48, Color(1, 0.9, 0.6))
