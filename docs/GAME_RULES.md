@@ -30,6 +30,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | L2-tap lightning (AOE) | 3 |
 | Earthquake (Down+Y) | 0 (5 s stun) |
 | **Super earthquake** (Down+Y at 100 % rage, v0.8) | flat 2 to every enemy (7 s stun) |
+| **Marked slash** (L1+R1+L2+R2 while Fury is on, or the meter is full) | flat 3 to each marked enemy |
 
 ## Potions
 - Green potions lie on the ground. Walk over one to carry it (HUD: POTIONS count). She starts with 1.
@@ -62,6 +63,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - Red aura; all spell fx, beams, explosions and lightning turn deep red.
   - Sfx are pitched down (×0.72) through a low-pass + overdrive bus.
   - Flight: Up in the air takes off; R2 or Down at ground level lands.
+- **Marked slash:** L1+R1+L2+R2 together (keyboard Q+W+1+2, within 150 ms, all held) while Fury is already on, or while the meter is full (this also starts Fury). Mera and the whole world stop for up to 8 s. Up to 9 nearest living enemies each get one unique mark from 1 to 9. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. It ends when every mark is cut or the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
 
 ## Stamina (v0.4)
 - 60 / 60 at the start, regenerating 1 per second. HUD: the STAMINA bar under rage.
