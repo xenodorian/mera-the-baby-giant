@@ -91,6 +91,12 @@ func _physics_process(delta: float) -> void:
 					game.hit_spark(position, size)
 					queue_free()
 					return
+			var pr: Node2D = game.prop_at(r)
+			if pr != null:
+				game.mera.deal(pr, 1, position.x, "bolt")
+				game.hit_spark(position, size)
+				queue_free()
+				return
 		if absf(position.x - game.camera_x()) > 1920.0 or (up and position.y < game.cam.position.y - 700.0):
 			queue_free()
 		return
@@ -112,6 +118,8 @@ func _physics_process(delta: float) -> void:
 		for e in game.enemies():
 			if e.alive() and r.intersects(e.hurt_rect()):
 				hit = true
+		if not hit and game.prop_at(r) != null:
+			hit = true
 	if hit:
 		done = true
 		game.explode(Vector2(position.x, game.GROUND_Y), size, damaging)

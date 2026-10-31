@@ -6,7 +6,7 @@ config_version=5
 [application]
 
 config/name="Mera: The Baby Giant"
-config/version="0.9.5"
+config/version="0.9.6"
 config/icon="res://assets/_project/icon.png"
 config/description="2D sword-and-sorcery action game starring Mera, with fighting-game combos, meter, supers and size-shifting."
 run/main_scene="res://scenes/menu.tscn"

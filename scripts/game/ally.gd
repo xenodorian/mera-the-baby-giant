@@ -42,6 +42,8 @@ var heals := 0
 var heal_done := false
 var air_phase := ""
 var dance_i := 0
+var march := 1                   # the way the brawler keeps running (Mera's facing when she was summoned)
+var heal_farewell := false       # the priestess's second heal, played as she leaves
 var flash := 0.0
 var target_x := 0.0
 var played := {}
@@ -65,13 +67,17 @@ func setup(g: Node, ally_id: String) -> void:
 	var mf: int = m.facing if m else 1
 	var mx: float = m.global_position.x if m else 960.0
 	facing = mf
+	march = mf
 	match id:
 		"priestess":
 			position = Vector2(mx - mf * 1000.0, gy)
 			target_x = mx - mf * 170.0
 		"dancer":
-			position = Vector2(mx - mf * 1000.0, gy)
-			target_x = mx + mf * 320.0
+			position = Vector2(mx - mf * 60.0, gy)
+			target_x = mx + mf * 460.0
+		"brawler":
+			position = Vector2(mx - mf * 180.0, gy)
+			target_x = mx + mf * 40.0
 		_:
 			position = Vector2(mx - mf * 520.0, gy)
 			target_x = mx - mf * 160.0
@@ -298,7 +304,10 @@ func take_hit(dmg: int, from_x: float) -> void:
 func _on_anim_done() -> void:
 	match state:
 		"atk", "heal", "hit", "dodge":
-			_idle()
+			if state == "heal" and heal_farewell:
+				leave()
+			else:
+				_idle()
 		"defend":
 			if sprite.animation == "defend":
 				_idle()
@@ -369,10 +378,16 @@ func _physics_process(delta: float) -> void:
 			return
 		"dance":
 			_dance_tick()
+			if t_state >= AL.DANCE_S:
+				_idle()
+				return
 			if age >= stay:
 				leave()
 			return
 	if age >= stay:
+		if id == "priestess" and heals < 2:
+			_begin_heal(true)
+			return
 		leave()
 		return
 	_ai(delta)
@@ -405,6 +420,8 @@ func _arrive_tick() -> void:
 			vx = 0.0
 			if id == "dancer":
 				_go("dance", "hips")
+			elif id == "priestess":
+				_begin_heal(false)
 			else:
 				_idle()
 		return
@@ -433,15 +450,12 @@ func _threat() -> Node2D:
 
 func _ai(_delta: float) -> void:
 	var m: Node2D = game.mera
-	# 1) the priestess heals Mera back up to 6x (cooldown)
-	if id == "priestess" and heal_cd <= 0.0 and m.size < AL.HEAL_TO and m.state != "dead":
-		heal_cd = AL.HEAL_CD
+	if id == "dancer":
 		vx = 0.0
-		_face(1 if m.global_position.x > global_position.x else -1)
-		heal_done = false
-		_go("heal", "heal")
+		if state != "idle":
+			_idle()
 		return
-	# 2) a nearby wind-up: block it (priestess / ranger) or get out of the way
+	# 1) a nearby wind-up: block it (priestess / ranger) or get out of the way
 	var th := _threat()
 	if th != null:
 		_face(1 if th.global_position.x > global_position.x else -1)
@@ -454,8 +468,13 @@ func _ai(_delta: float) -> void:
 			_dodge(-facing)
 			return
 	var e := _nearest()
+	if id == "brawler":
+		e = _ahead()
 	if e == null:
-		_follow(m)
+		if id == "brawler":
+			_march()
+		else:
+			_follow(m)
 		return
 	var gap := _gap(e)
 	var face := 1 if e.global_position.x > global_position.x else -1
@@ -513,6 +532,40 @@ func _travel(face: int, gap: float) -> void:
 			pass
 		else:
 			_go("move", a)
+
+
+func _march() -> void:
+	_face(march)
+	vx = float(march) * float(AL.SPEED[id]) * 1.7
+	if state != "move" or sprite.animation != "walk":
+		_go("move", "walk")
+
+
+func _ahead() -> Node2D:
+	var best: Node2D = null
+	var bd := 1400.0
+	for e in _enemies():
+		var dx: float = (e.global_position.x - global_position.x) * float(march)
+		if dx < -40.0:
+			continue
+		if dx < bd and absf(e.global_position.x - game.cam_x) < 1200.0:
+			bd = dx
+			best = e
+	return best
+
+
+func _begin_heal(farewell: bool) -> void:
+	if state == "heal" or state == "leave" or state == "dead":
+		return
+	if game == null or game.mera.state == "dead":
+		if farewell:
+			leave()
+		return
+	heal_farewell = farewell
+	heal_done = false
+	vx = 0.0
+	_face(1 if game.mera.global_position.x > global_position.x else -1)
+	_go("heal", "heal")
 
 
 func _follow(m: Node2D) -> void:

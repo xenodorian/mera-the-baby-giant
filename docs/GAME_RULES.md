@@ -1,7 +1,7 @@
 # Mera: The Baby Giant: test-level game rules
 
 ## Size is health
-- Mera starts at **2x**. Her size is her HP (HUD: six size pips).
+- A green potion (L1) plays the heal at **4×** speed: +1 size on frame 7, about **0.1 s** after the press, and she is free again in about **0.25 s**. Inside either bubble the drink is instant and the bubble stays up.
 - Each hit costs as many sizes as its damage: Fire Knight 1 (special 2; was 2/3 before v0.8), Blue Knight 1.
   The size change animates one step at a time.
 - A hit that would take her below 1x (any hit while she is at 1x) kills her. **Game Over**: Start / Enter restarts.
@@ -233,16 +233,16 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 - **Rules:**
   - A summon uses one card.
   - At most 2 allies at once, one of each type.
-  - Allies stay 25 s (the dancer 12 s), then leave.
+  - Allies stay **20 s**, then leave. The dancer dances for **5 s** of that.
   - Enemy attacks hurt allies too, and allies can be beaten.
 - **Level 1** has no cards.
 
 | Ally | Colour | What she does (every animation is used) |
 |---|---|---|
-| **Water Priestess** (chierit) | blue | Surfs in. **Heals Mera back up to 6x** when she is smaller (heal animation), at most once every **30 s**. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
+| **Water Priestess** (chierit) | blue | Surfs in and **heals Mera back up to 6x** as soon as she arrives, then once more just before she leaves. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
-| **Brawler Girl** (ansimuz, skin recolour) | orange | Jumps in. Jab → punch → kick combo; jump → jump kick → dive kick to close in or hit flyers; jumps out of rushes; hurt (also her knock-out) |
-| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Skips in and dances (hips, snap, balancing, slide). **Every non-boss enemy on screen drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. **Bosses ignore her** |
+| **Brawler Girl** (ansimuz, skin recolour) | orange | Jumps in, then **runs forward** instead of following Mera. **Non-boss enemies chase her** (bosses still come for Mera). Jab → punch → kick combo; jump → jump kick → dive kick to close in or hit flyers; jumps out of rushes; hurt (also her knock-out) |
+| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every non-boss enemy on screen drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. **Bosses ignore her.** After the 5 s she stops, and she leaves with the others at 20 s |
 
 ## Impact (v0.8)
 - **Hit-stop:** a landed hit freezes the whole game for a moment (real time): **45 ms** normal, **80 ms** heavy (2+ base damage, launchers, explosions, lightning, counter hits), **100 ms** a kill, **120 ms** a parry; never more than 120 ms (overlaps extend, never stack). Beam ticks only stop on a kill. `scripts/game/hit_stop.gd` (autoload `HitStop`) drops `Engine.time_scale` and restores it per physics tick; Mera's input clock keeps real time through it, so combo windows don't change.
@@ -261,7 +261,7 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 | Explosive barrel | 1 | none: explodes |
 | Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
 
-- **Smart drops:** the item is weighted by what Mera needs: small size / few potions → green size potion, low stamina → blue stamina potion, low rage → red sphere.
+- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. A candle, urn or barrel goes in one hit. A crate, chest or wall loses one hit, the same as a swing. A dragon bolt's blast breaks everything in the burst.
 - **Explosive barrel:** **8 damage** (fixed, never × size) and a launch to every enemy within **300 px**; it pierces the Fire Knight's block (kind "explosion"); other barrels in the blast go off 0.14 s later (chains); chandeliers in range (1.8 × radius) drop; breakables in range break. Mera is not hurt.
 - **Chandelier:** hit it, blast it, or **earthquake** (Down+Y shakes loose every chandelier on screen). It falls and crushes enemies under it: **6 damage + 2.5 s stun**.
 - Destroyed props **shatter** into textured shards (`scripts/game/debris.gd`, pure GDScript, one draw call); crates also throw their 4 plank pieces.
@@ -274,8 +274,8 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 
 ## Parry (v0.8)
 - **Press L2 at most 150 ms before a hit lands** = parry: no damage, 0.25 s i-frames, the attacker is **staggered 2 s** (bosses are not) and **slid back 400 px** (v0.9.3; bosses stay put), and Mera gets a **0.9 s counter window: her hits do ×2** (she glows gold). A 120 ms hit-stop and a clang sell it.
-- **Crouch bubble (v0.9.4):** holding Down raises a small bubble for free (radius 32 art px). A dial around it empties over **3 seconds**, then the bubble drops even if she stays crouched. Crouching again starts a new one. Starting the crouch within 150 ms **parries** (200 px, 1 s stun). After that window the bubble **subtracts 1** from the hit and does not knock her down, so a hit of 1 is stopped and a hit of 3 costs 2 size. Any button drops it and does that move.
-- **Full bubble (L2 hold):** stops **all** damage. Any button except the L2 hold itself drops it immediately and does that move. Holding it, with no parry window, still slides the attacker 200 px with no stun.
+- **Crouch bubble (v0.9.4):** holding Down raises a small bubble for free (radius 32 art px). A dial around it empties over **3 seconds**, then the bubble drops even if she stays crouched. Crouching again starts a new one. Starting the crouch within 150 ms **parries** (200 px, 1 s stun). After that window the bubble **subtracts 1** from the hit and does not knock her down, so a hit of 1 is stopped and a hit of 3 costs 2 size. Any button except L1 drops it and does that move. **L1 drinks a potion and the bubble stays.**
+- **Full bubble (L2 hold):** stops **all** damage. Any button except L1 and the L2 hold itself drops it immediately and does that move. **L1 drinks a potion and the bubble stays.** Holding it, with no parry window, still slides the attacker 200 px with no stun.
 - **Projectiles** (the hell beast's fireball, and a dragon bolt) parried with L2 in the window fly back 1.6× faster and hit the first enemy for 3. A dragon bolt popped by L2 still bursts harmlessly.
 - **Swing parry (v0.9.1):** X (`atk1` or the air `jatk1`) reflects a projectile when the hitbox meets it within **150 ms of the hitbox going live**. It flies at its shooter, or the nearest living enemy, and damages them. No counter window.
 - A player shot that touches an enemy shot: **both explode** (the blast does not also hurt Mera). The combo beam and the vertical beam **destroy** enemy projectiles.

@@ -590,7 +590,7 @@ func _physics_process(delta: float) -> void:
 		"tell":
 			tell_t += delta
 			if tell_t >= maxf(float(atk["tell"]), TELE.MIN_TELL):
-				_start_active(m)
+				_start_active(_prey())
 			return
 		"atk":
 			_active_tick(m, delta)
@@ -605,7 +605,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if _distracted(delta):
 		return
-	_ai(m, delta)
+	_ai(_prey(), delta)
 
 
 ## v0.7 dancing girl: every non-boss enemy on screen rushes to her side and jumps up and down, cheering
@@ -671,6 +671,14 @@ func _physics(delta: float) -> void:
 			vy = 0.0
 			on_ground = true
 	position.x += vx * delta
+
+
+func _prey() -> Node2D:
+	if not boss and game != null and game.has_method("brawler"):
+		var b: Node2D = game.brawler()
+		if b != null:
+			return b
+	return game.mera
 
 
 func _ai(m: Node2D, delta: float) -> void:
@@ -825,11 +833,12 @@ func _hit_allies(r: Rect2, w: int) -> void:
 			a.take_hit(int(atk["dmg"]), global_position.x)
 
 
-func _fire(m: Node2D) -> void:
+func _fire(_m: Node2D) -> void:
+	var aim := _prey()
 	var s: Node2D = load("res://scripts/game/enemy_shot.gd").new()
 	var hr := hurt_rect()
 	var p := Vector2(global_position.x + facing * hr.size.x * 0.4, hr.get_center().y - hr.size.y * 0.15)
-	var dir: Vector2 = (m.hurt_rect().get_center() - p).normalized()
+	var dir: Vector2 = (aim.hurt_rect().get_center() - p).normalized()
 	if absf(dir.y) > 0.6:
 		dir = Vector2(facing, signf(dir.y) * 0.6).normalized()
 	s.setup(game, id, String(atk["shot"]), p, dir * float(atk.get("shot_speed", 700.0)), int(atk["dmg"]), k)

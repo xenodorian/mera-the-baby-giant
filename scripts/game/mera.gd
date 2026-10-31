@@ -14,7 +14,7 @@ const RUN := 200.0
 const DASH := 400.0         # slide, dodge attack lunge
 const DASH_FAST := 1600.0   # v0.3 ground/aerial dash: 2x the distance in half the time (4x the old 400 px/s)
 const DODGE := 800.0        # v0.3 back dodge: same distance as before in half the time
-const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0, "datk2": Tuning.RSLASH_WINDUP_SPEED}   # datk2: windup only; the rise drops back to 1x
+const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0, "heal": 4.0, "datk2": Tuning.RSLASH_WINDUP_SPEED}   # heal: the drink plays at 4x; datk2: windup only
 const FLY := 320.0
 const GRAVITY := 1500.0
 const JUMP_V := 520.0
@@ -686,9 +686,11 @@ func _go_neutral(start_idle: int = 0) -> void:
 		anim.section(16, 18)
 
 
-## X / Y / A / B / Up / L1 / R1 / L2 / R2 from the ground. Returns true when a move started.
+## X / Y / A / B / Up / R1 / L2 / R2 from the ground. L1 drinks and does not drop a bubble. Returns true when a move started.
 func _try_ground_actions() -> bool:
-	if crouch_bubble_on() and not _pressed_since(-1e9, ["btn_x", "btn_y", "btn_a", "btn_b", "up", "l1", "r1", "l2", "r2"]).is_empty():
+	if crouch_bubble_on():
+		_sip()
+	if crouch_bubble_on() and not _pressed_since(-1e9, ["btn_x", "btn_y", "btn_a", "btn_b", "up", "r1", "l2", "r2"]).is_empty():
 		crouch_bubble_left = 0.0
 	var x := _find("btn_x")
 	var y := _find("btn_y")
@@ -807,6 +809,24 @@ func add_stamina_max(v: float) -> void:
 func add_rage_max(v: float) -> void:
 	rage_max = minf(rage_max + v, Tuning.RAGE_MAX_CAP)
 	add_rage(v)
+
+
+func _sip() -> bool:
+	var l1 := _find("l1")
+	if l1.is_empty():
+		return false
+	_use(l1)
+	if potions > 0 and size < SIZE_HEAL_MAX:
+		potions -= 1
+		set_size(size + 1)
+		Sfx.play("heal")
+		if game:
+			game.on_potions_changed()
+	else:
+		Sfx.play("fail")
+		if game:
+			game.flash_hud("potions" if potions <= 0 else "max")
+	return true
 
 
 ## the newest unused press of one of `actions` at or after `since` ({} if none)
@@ -1771,7 +1791,8 @@ func _move_tick(delta: float) -> void:
 			elif mv.get("released", false) and not barrier_on and i < 9 and i >= 5:
 				anim.seek(9)
 			elif barrier_on:
-				var act := _pressed_since(float(mv["t0"]), ["btn_x", "btn_y", "btn_a", "btn_b", "up", "l1", "r1"])
+				_sip()
+				var act := _pressed_since(float(mv["t0"]), ["btn_x", "btn_y", "btn_a", "btn_b", "up", "r1"])
 				if not act.is_empty():
 					_root_from_body()
 					var grounded := on_ground

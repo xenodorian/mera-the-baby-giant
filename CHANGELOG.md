@@ -2,6 +2,17 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.6 (2026-10-31)
+In the repo. No Windows build yet; the latest exe is still [v0.9.5-playable](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.5-playable/Mera_Playable_v0.9.5_Windows.exe).
+- Every summon lasts **20 seconds**.
+- **Brawler Girl** runs forward instead of following Mera. Non-boss enemies chase her. Bosses still come for Mera.
+- **Dancing Girl** walks out in front of Mera, stops, and dances for **5 seconds**. Then she waits out the rest of the 20.
+- **Water Priestess** heals Mera to 6x when she arrives, and once more just before she leaves.
+- **L1 inside either bubble drinks a potion and the bubble stays up.** Every other button still drops the bubble and does that move.
+- **Drinking a potion is four times as fast.** The heal plays at 4×: the size lands in about 0.1 s, and she can move again in about 0.25 s.
+- **Any projectile damages objects:** Mera's bolts and fireballs, the ranger's arrows, enemy shots (including ones sent back), and the dragon's bolts.
+- Android `versionCode` 17, `versionName` 0.9.6 (APK not published).
+
 ## v0.9.5-playable (2026-10-31)
 Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.5-playable/Mera_Playable_v0.9.5_Windows.exe

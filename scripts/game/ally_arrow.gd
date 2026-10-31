@@ -54,3 +54,10 @@ func _physics_process(delta: float) -> void:
 				owner_ally.played["arrow_hit"] = true
 			spr.play("arrow_hit")
 			return
+	var pr: Node2D = game.prop_at(r)
+	if pr != null:
+		done = true
+		pr.take_damage(dmg, global_position.x, "bolt")
+		if is_instance_valid(owner_ally):
+			owner_ally.played["arrow_hit"] = true
+		spr.play("arrow_hit")

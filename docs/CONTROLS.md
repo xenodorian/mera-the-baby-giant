@@ -11,7 +11,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 |---|---|
 | D-pad Left / Right | walk, 50 px/s |
 | D-pad Up | jump, instantly (it never waits for another button). In the air: double jump. In Fury: take off and fly |
-| D-pad Down | crouch. Down + A = slide. **Holding crouch** raises a **small free bubble** for 3 seconds (a dial empties, then it drops). It subtracts 1 from a hit. A crouch started within 150 ms of a hit parries: no damage, 200 px knockback, 1 s stun. Any button drops it and does that move |
+| D-pad Down | crouch. Down + A = slide. **Holding crouch** raises a **small free bubble** for 3 seconds (a dial empties, then it drops). It subtracts 1 from a hit. A crouch started within 150 ms of a hit parries: no damage, 200 px knockback, 1 s stun. Any button except L1 drops it and does that move. L1 drinks a potion and the bubble stays |
 | **Down + Y** while crouching | **earthquake** (v0.5), 20 stamina: the ground shakes for 1 s (very fast, violent shake of the whole map). Every enemy touching the ground during the quake is stunned until 5 s after it started (enemies in the air are stunned if they land while it lasts). **At 100 % rage (not in Fury): SUPER EARTHQUAKE** (v0.8): impact frame, then a 2 s quake, 7 s stun, flat 2 damage to every enemy, every ground breakable on screen destroyed; spends the whole meter + 20 stamina (see GAME_RULES) |
 | **A** (hold) + direction | run, 200 px/s |
 | **B** | back dodge (free): same distance as v0.2 in half the time (800 px/s backwards, animation at 2x). Invulnerable for its first 70 %, as are the dashes |
@@ -30,10 +30,10 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | X + A | plain 1x attack (no longer a dash) |
 | In the air: **X** | jump attack. X again: second hit |
 | In the air: **Y** (e.g. Up, then Y) | aerial dash (once per jump), 6 stamina, 1600 px/s, same timing as the ground dash. In Fury flight Y is a quick fire (5 stamina) |
-| **L1** | heal: drink one carried green potion, +1 size (max 6x). No potion = "fail" cue, nothing happens |
+| **L1** | heal: drink one carried green potion, +1 size (max 6x). The drink plays at **4×** speed (the size lands in about 0.1 s, and she can move again in about 0.25 s). No potion = "fail" cue, nothing happens. **Inside either bubble, L1 drinks at once and the bubble stays up** |
 | **L2 tap** (released within 300 ms) at 100 % rage, outside Fury | **lightning**: spends the **whole meter**; heal pose, then a strike from above the top of the screen to the ground, on the nearest enemy or in front of Mera (AOE, damage 3 × size). Below 100 % a tap does nothing (HUD hint) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
-| **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (bosses stay), and for 0.9 s Mera's hits do ×2. Holding the full bubble after that window **stops all damage** and slides the attacker **200 px** with no stun. Any other button drops the bubble and does that move |
+| **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (bosses stay), and for 0.9 s Mera's hits do ×2. Holding the full bubble after that window **stops all damage** and slides the attacker **200 px** with no stun. Any other button except L1 drops the bubble and does that move. **L1 drinks a potion and the bubble stays** |
 | **Y while the L2 bubble is up** at 100 % rage, outside Fury (v0.6) | **lightning from inside the bubble**: the same strike and cost as the L2 tap, but Mera keeps the pose and keeps blocking. Below 100 % it's a fail cue and the bubble stays up |
 | **L2 + R2** together (within 67 ms, either order, or R2 while the L2 bubble is up) at 100 % rage | **Fury** for 12 s: red aura, deep-red spells and explosions, deeper sfx, flight. Works on the ground and in the air |
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |

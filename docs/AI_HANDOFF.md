@@ -1,14 +1,16 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.5. Every level has an endpoint. Windows exe is `v0.9.5-playable`._
+_Last updated: 2026-10-31, v0.9.6. Summons retuned, projectiles break props, potions drink at 4×. No Windows exe yet; latest build is `v0.9.5-playable`._
 
 
-## v0.9.5 status (2026-10-31)
-The exit stays shut until the level's fight is over (`exit_locked`, gate text from `exit_lock_text`).
-Cemetery: `Roster.KNIGHT_CAP` (5) Fire Knights, then no more, including no replace-ahead once the cap is hit. The last knight and any living Blue Knights must be dead.
-Woods and Town: trickle stops once `_waves_done()`, and the gate waits until those waves have spawned and no non-boss roster enemy is alive.
-Caverns: still the dragon. Clearing the last level calls `to_menu()` instead of wrapping to level 1.
+## v0.9.6 status (2026-10-31)
+All four allies stay `Allies.STAY_S` 20 s. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the 20 s. `dancing()` is only that 5 s, which is what `game.dancer()` reports, so the lure ends with the dance.
+The brawler stores `march` (Mera's facing at the summon) and runs that way. `game.brawler()` is who non-boss monsters chase (`monster._prey`). Bosses still target Mera.
+The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`), then leaves. No repeating heal cooldown.
+L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.
+The standing drink (`_start_move("heal")`) plays at 4× via `FAST_ANIMS`. The size still lands on heal frame 7, about 0.1 s after the press. Lightning, the barrier and the other heal-pose moves are not sped up.
+Any projectile damages breakables through `game.prop_at`: player bolts and fireballs, ranger arrows, enemy shots, dragon bolts (the blast is an explosion).
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
 Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 
