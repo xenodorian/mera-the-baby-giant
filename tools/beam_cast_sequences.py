@@ -45,6 +45,12 @@ for k, ref, rf in [('1x', 'idle', 0), ('2x', '1x', 9), ('3x', '2x', 9), ('d1', '
 _iou, _dx = best_dx(mask(img('cr', 0)), mask(img('3x', 23)), OFF['3x'][1] - OFF['cr'][1], range(-250, 100))
 OFF_3X_FROM_CROUCH = (OFF['cr'][0] + _dx, OFF['3x'][1])
 
+# pick2 v2 (user [pt32u]) lead-in 2x atk f0 -> 3x atk f0 -> 3x atk f2 without the combo: 2x f0 matched to idle f0, 3x f0 to 2x f0
+_i2, _d2 = best_dx(mask(img('idle', 0)), mask(img('2x', 0)), GROUND - bottom(img('2x', 0)), range(-250, 100))
+OFF_2X_FROM_IDLE = (_d2, GROUND - bottom(img('2x', 0)))
+_i3, _d3 = best_dx(mask(img('2x', 0)), mask(img('3x', 0)), OFF['3x'][1] - OFF_2X_FROM_IDLE[1], range(-250, 100))
+OFF_3X_FROM_2X0 = (OFF_2X_FROM_IDLE[0] + _d3, OFF['3x'][1])
+
 # wand tip per frame (native canvas px of that animation), picked by eye on zoomed grids and snapped to the
 # wand's own pixels. None = wand hidden behind her body (orb position interpolated between neighbours).
 TIPS = {
@@ -61,6 +67,10 @@ PICKS = {
  # user [pt30u]: charge on idle 1 (index 0), crouching 1 (index 0) and 3x atk f23, then continue the 3x atk animation
  'pick1_v2_3x_atk_f24': dict(lead=[('idle', 0)] * 10 + [('cr', 0)] * 10 + [('3x', 23)] * 10, pre=0,
                              pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)], off={'3x': OFF_3X_FROM_CROUCH}, c0=0.3, cexp=1.0),
+ # user [pt32u]: lead into pick2's blast with 2x atk f0 -> 3x atk f0 -> 3x atk f2 (frames she picked), native durations
+ 'pick2_v2_3x_atk_f4': dict(lead=[('2x', 0), ('3x', 0), ('3x', 2)], lead_ms=[40, 40, 40], pre=2, motes=2.5,
+                            pose='3x', hold=[4], ang=11.0, rec=[('3x', i) for i in range(5, 34)],
+                            off={'2x': OFF_2X_FROM_IDLE, '3x': OFF_3X_FROM_2X0}, c0=0.45, cexp=1.0),
  # user [pt31u]: no holds - each lead-in frame plays once at its normal duration (idle 60 ms, crouching 70 ms as in the
  # .aseprite files; 3x atk is 35 ms in the file, shown at 40 ms like the rest of 3x atk here, GIF has 10 ms resolution)
  'pick1_v3_3x_atk_f24': dict(lead=[('idle', 0), ('cr', 0), ('3x', 23)], lead_ms=[60, 70, 40], pre=0, motes=2.5,
