@@ -588,6 +588,14 @@ func _run() -> void:
 	m.position.x += 6000.0
 	await _drive(g, [], 30)
 	_check("leaving the knight far behind replaces him ahead", g.knight != k2 and g.knight != null and g.knights_spawned >= 3, "spawned=%d" % g.knights_spawned)
+	g.knights_spawned = Roster.KNIGHT_CAP
+	var last: Node = g.knight
+	last.take_damage(99, m.global_position.x)
+	for b in g.blues.duplicate():
+		if is_instance_valid(b) and b.alive():
+			b.take_damage(99, m.global_position.x)
+	await _drive(g, [], 200)
+	_check("cemetery ends after %d knights: no further knight, and the exit opens" % Roster.KNIGHT_CAP, not g._knight_fight_live() and g.knights_spawned == Roster.KNIGHT_CAP and not g.exit_locked(), "spawned=%d locked=%s knight=%s" % [g.knights_spawned, g.exit_locked(), g.knight])
 	g.queue_free()
 	await process_frame
 	# fury
@@ -1201,12 +1209,12 @@ func _run() -> void:
 		await physics_frame
 		await physics_frame
 		var lo_ok: bool = absf(m.position.x - LV.EDGE) < 1.0
-		if g.exit_locked():                    # v0.6: Infernal Caverns' exit stays shut while the dragon lives
+		if g.exit_locked():
 			m.position.x = LV.map_w() + 900.0
 			await physics_frame
 			await physics_frame
-			_check("level %d: the exit is locked while the boss lives" % (li + 1), not g.cleared, "")
-			g.boss_dead = true
+			_check("level %d: the exit stays shut until the fight is over" % (li + 1), not g.cleared, "")
+			g.finish_endpoint()
 			m.position.x = 9000.0
 			await physics_frame
 		m.position.x = LV.map_w() + 900.0
@@ -2251,7 +2259,7 @@ func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
-	_check("updater: this build's version comes from application/config/version (0.9.4)", U.current_version() == "0.9.4", U.current_version())
+	_check("updater: this build's version comes from application/config/version (0.9.5)", U.current_version() == "0.9.5", U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
 	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:

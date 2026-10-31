@@ -1,13 +1,14 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.4. Mana (was stamina), 3 s crouch bubble, damage rules, enemy loot. Windows exe is `v0.9.4-playable`._
+_Last updated: 2026-10-31, v0.9.5. Every level has an endpoint. Windows exe is `v0.9.5-playable`._
 
 
-## v0.9.4 status (2026-10-31)
-The HUD resource is **mana** (code still uses `stamina` / `Tuning.STAMINA_*`). Cap is 200. Rage cap is `rage_max`, also up to 200.
-Small bubble: `CROUCH_BUBBLE_S` 3, dial is `bubble_dial.gd`. After the parry window it subtracts 1 damage (`_crouch_soak`). Full bubble stops every `take_hit`. Any button in ` _pressed_since` drops the bubble and the normal action runs.
-Defeated enemies roll `enemy_loot_kind` once: sphere 30, potion 28, stamina 28, stamina_max 7, rage_max 7.
+## v0.9.5 status (2026-10-31)
+The exit stays shut until the level's fight is over (`exit_locked`, gate text from `exit_lock_text`).
+Cemetery: `Roster.KNIGHT_CAP` (5) Fire Knights, then no more, including no replace-ahead once the cap is hit. The last knight and any living Blue Knights must be dead.
+Woods and Town: trickle stops once `_waves_done()`, and the gate waits until those waves have spawned and no non-boss roster enemy is alive.
+Caverns: still the dragon. Clearing the last level calls `to_menu()` instead of wrapping to level 1.
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
 Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
 

@@ -67,6 +67,7 @@ const LEVELS := {
 	3: ["hell_hound", "fire_skull", "hell_beast", "demon"],
 }
 const BOSSES := {3: "dragon"}
+const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then the exit opens. No more after that.
 const WAVE_FIRST := 2200.0     # first wave trigger x
 const WAVE_EVERY := 1500.0     # then one wave every this many px
 const WAVE_SIZES := [1, 2, 2, 3]

@@ -547,7 +547,7 @@ func _manage_roster(delta: float) -> void:
 				jf += 1
 			alive += 1
 	trickle_t -= delta
-	if alive == 0 and trickle_t <= 0.0:
+	if not _waves_done() and alive == 0 and trickle_t <= 0.0:
 		_spawn_next(list, 0)
 		trickle_t = 8.0
 	elif alive > 0:
@@ -684,7 +684,63 @@ func summon_type(aid: String) -> Node2D:
 
 
 func exit_locked() -> bool:
-	return Roster.BOSSES.has(Levels.current) and not boss_dead
+	if not Roster.LEVELS.has(Levels.current):
+		return knights_spawned < Roster.KNIGHT_CAP or _knight_fight_live()
+	if Roster.BOSSES.has(Levels.current):
+		return not boss_dead
+	return not _waves_done() or _roster_threat()
+
+
+## the scheduled waves have all been placed (the boss, if any, stands in the ground after that)
+func _waves_done() -> bool:
+	return Roster.WAVE_FIRST + float(wave_i) * Roster.WAVE_EVERY >= map_w - Roster.BOSS_AT
+
+
+func _roster_threat() -> bool:
+	for e in mobs:
+		if is_instance_valid(e) and e.alive() and not e.boss:
+			return true
+	return false
+
+
+func _knight_fight_live() -> bool:
+	if knight != null and is_instance_valid(knight) and knight.alive():
+		return true
+	for b in blues:
+		if is_instance_valid(b) and b.alive():
+			return true
+	return false
+
+
+## tests: the level's fight is over, so the exit may open
+func finish_endpoint() -> void:
+	if Roster.BOSSES.has(Levels.current):
+		boss_dead = true
+		return
+	if not Roster.LEVELS.has(Levels.current):
+		knights_spawned = Roster.KNIGHT_CAP
+		if knight != null and is_instance_valid(knight):
+			knight.queue_free()
+		knight = null
+		blues.clear()
+		return
+	wave_i = 100
+	for e in mobs.duplicate():
+		if is_instance_valid(e) and not e.boss:
+			e.queue_free()
+	mobs = mobs.filter(func(e): return is_instance_valid(e) and e.boss)
+
+
+func exit_lock_text() -> String:
+	if Roster.BOSSES.has(Levels.current):
+		return "SLAY THE DRAGON"
+	if not Roster.LEVELS.has(Levels.current):
+		return "SLAY THE KNIGHT"
+	return "CLEAR THE ROAD"
+
+
+func is_last_level() -> bool:
+	return Levels.current >= Levels.list().size() - 1
 
 
 func _spawn_knight(side: int = 0) -> void:
@@ -706,6 +762,8 @@ func _manage_knight(delta: float) -> void:
 	if knight != null and not is_instance_valid(knight):
 		knight = null
 	if knight == null:
+		if knights_spawned >= Roster.KNIGHT_CAP:
+			return
 		knight_timer -= delta
 		if knight_timer <= 0.0 and not over:
 			_spawn_knight()
@@ -720,6 +778,8 @@ func _manage_knight(delta: float) -> void:
 	if knight.alive():
 		var off_screen := absf(knight.global_position.x - cam_x) > 960.0 + 120.0
 		if off_screen and absf(knight.global_position.x - mera.global_position.x) > 1920.0 * 1.25:
+			if knights_spawned >= Roster.KNIGHT_CAP:
+				return
 			knight.queue_free()
 			knight = null
 			knight_timer = 0.0
@@ -1098,7 +1158,10 @@ func to_menu() -> void:
 
 
 func next_level() -> void:
-	Levels.current = (Levels.current + 1) % Levels.list().size()
+	if is_last_level():
+		to_menu()
+		return
+	Levels.current += 1
 	restart()
 
 
