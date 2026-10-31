@@ -42,7 +42,7 @@ var heals := 0
 var heal_done := false
 var air_phase := ""
 var dance_i := 0
-var march := 1                   # the way the brawler keeps running (Mera's facing when she was summoned)
+var march := 1                   # the brawler always runs right, ahead of Mera
 var heal_farewell := false       # the priestess's second heal, played as she leaves
 var flash := 0.0
 var target_x := 0.0
@@ -67,7 +67,7 @@ func setup(g: Node, ally_id: String) -> void:
 	var mf: int = m.facing if m else 1
 	var mx: float = m.global_position.x if m else 960.0
 	facing = mf
-	march = mf
+	march = 1
 	match id:
 		"priestess":
 			position = Vector2(mx - mf * 1000.0, gy)
@@ -76,8 +76,9 @@ func setup(g: Node, ally_id: String) -> void:
 			position = Vector2(mx - mf * 60.0, gy)
 			target_x = mx + mf * 460.0
 		"brawler":
-			position = Vector2(mx - mf * 180.0, gy)
-			target_x = mx + mf * 40.0
+			facing = 1
+			position = Vector2(mx + 40.0, gy)
+			target_x = mx + 280.0
 		_:
 			position = Vector2(mx - mf * 520.0, gy)
 			target_x = mx - mf * 160.0
@@ -123,6 +124,7 @@ func _play(a: String, from: int = 0) -> void:
 	sprite.offset = Vector2(-float(e["pivot"][0]), -float(e["pivot"][1]))
 	sprite.play(a)
 	sprite.frame = from
+	sprite.speed_scale = 1.0
 
 
 func _go(s: String, a: String = "") -> void:
@@ -455,21 +457,27 @@ func _ai(_delta: float) -> void:
 		if state != "idle":
 			_idle()
 		return
-	# 1) a nearby wind-up: block it (priestess / ranger) or get out of the way
-	var th := _threat()
-	if th != null:
-		_face(1 if th.global_position.x > global_position.x else -1)
-		var rush: bool = th.get("atk") is Dictionary and String((th.get("atk") as Dictionary).get("kind", "")) == "rush"
-		if id != "brawler" and not rush:
-			_go("defend", "defend_pose" if id == "ranger" else "defend")   # the ranger holds her guard during the wind-up
-			vx = 0.0
-			return
-		if on_ground:
-			_dodge(-facing)
-			return
-	var e := _nearest()
+	# a nearby wind-up: the priestess and ranger block or dodge. The brawler keeps running.
+	if id != "brawler":
+		var th := _threat()
+		if th != null:
+			_face(1 if th.global_position.x > global_position.x else -1)
+			var rush: bool = th.get("atk") is Dictionary and String((th.get("atk") as Dictionary).get("kind", "")) == "rush"
+			if not rush:
+				_go("defend", "defend_pose" if id == "ranger" else "defend")
+				vx = 0.0
+				return
+			if on_ground:
+				_dodge(-facing)
+				return
+	var e: Node2D = _nearest()
 	if id == "brawler":
-		e = _ahead()
+		if _wall_ahead() and (e == null or _gap(e) > MELEE_REACH[id] + 30.0):
+			vx = 0.0
+			if state != "idle":
+				_idle()
+			return
+		e = e if e != null and _gap(e) <= MELEE_REACH[id] + 30.0 else _ahead()
 	if e == null:
 		if id == "brawler":
 			_march()
@@ -513,6 +521,9 @@ func _ai(_delta: float) -> void:
 		_jump_attack()
 		vx = face * 450.0
 		return
+	if id == "brawler":
+		_march()
+		return
 	# 7) walk / run over (the priestess surfs long distances)
 	_travel(face, gap)
 
@@ -535,10 +546,32 @@ func _travel(face: int, gap: float) -> void:
 
 
 func _march() -> void:
-	_face(march)
-	vx = float(march) * float(AL.SPEED[id]) * 1.7
+	march = 1
+	_face(1)
+	var spd := float(AL.SPEED[id]) * 1.85
+	var hero: Node2D = game.mera
+	if hero != null and global_position.x < hero.global_position.x + 120.0:
+		spd = maxf(spd, 720.0)
+	vx = spd
 	if state != "move" or sprite.animation != "walk":
 		_go("move", "walk")
+	sprite.speed_scale = 1.8
+
+
+func _wall_ahead() -> bool:
+	if game == null:
+		return false
+	var probe := Rect2(global_position + Vector2(10.0, -100.0), Vector2(36.0, 96.0))
+	for p in game.props:
+		if not is_instance_valid(p) or not p.alive():
+			continue
+		if String(p.kind) not in ["wall", "door"]:
+			continue
+		if String(p.state) == "open":
+			continue
+		if p.hurt_rect().intersects(probe):
+			return true
+	return false
 
 
 func _ahead() -> Node2D:

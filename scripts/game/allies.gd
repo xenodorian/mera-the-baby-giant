@@ -14,7 +14,7 @@ const COLORS := {
 const BLURB := {
 	"priestess": "heals Mera to 6x (30 s cooldown), water magic",
 	"ranger": "arrows, kicks and a leaf beam",
-	"brawler": "jabs, punches, kicks, jump and dive kicks",
+	"brawler": "runs right, ahead of Mera, and pulls enemies onto her",
 	"dancer": "dances: every non-boss enemy on screen rushes over to watch",
 }
 const STAY_S := {"priestess": 20.0, "ranger": 20.0, "brawler": 20.0, "dancer": 20.0}

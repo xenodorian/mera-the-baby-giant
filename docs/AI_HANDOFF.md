@@ -1,12 +1,12 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.6. L2 is the bubble, L2+R2 is lightning, R2 alone is Fury and spends 100 rage. No Windows exe yet; latest build is `v0.9.5-playable`._
+_Last updated: 2026-10-31, v0.9.6. Windows exe is `v0.9.6-playable`. L2 is the bubble, L2+R2 is lightning, R2 alone is Fury and spends 100 rage. The brawler runs right, in front of Mera._
 
 
 ## v0.9.6 status (2026-10-31)
 All four allies stay `Allies.STAY_S` 20 s. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the 20 s. `dancing()` is only that 5 s, which is what `game.dancer()` reports, so the lure ends with the dance.
-The brawler stores `march` (Mera's facing at the summon) and runs that way. `game.brawler()` is who non-boss monsters chase (`monster._prey`). Bosses still target Mera.
+The brawler's `march` is always +1. She spawns at Mera's x + 40 and lands further right. `_march` runs right (walk at 1.8×, faster if she falls behind Mera). `_wall_ahead` stops her on a live wall or a closed door. She fights whoever is in melee reach, otherwise the nearest enemy to her right. She does not dodge. `game.brawler()` is her while she is alive and not leaving, and non-boss `monster._prey` chases her.
 The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`), then leaves. No repeating heal cooldown.
 L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.
 The standing drink (`_start_move("heal")`) plays at 4× via `FAST_ANIMS`. The size still lands on heal frame 7, about 0.1 s after the press. Lightning, the barrier and the other heal-pose moves are not sped up.
