@@ -1,24 +1,23 @@
 ; Engine configuration file.
-; Godot 4.7 - Sorcery Brawler
+; Godot 4.7 - Mera: The Baby Giant
 
 config_version=5
 
 [application]
 
-config/name="Sorcery Brawler"
-config/description="2D sword-and-sorcery action game with fighting-game combos, meter and supers."
-run/main_scene="res://scenes/main.tscn"
+config/name="Mera: The Baby Giant"
+config/description="2D sword-and-sorcery action game starring Mera, with fighting-game combos, meter, supers and size-shifting."
+run/main_scene="res://scenes/stage.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]
 
-window/size/viewport_width=384
-window/size/viewport_height=216
-window/size/window_width_override=1920
-window/size/window_height_override=1080
-window/stretch/mode="viewport"
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/mode=3
+window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
-window/stretch/scale_mode="integer"
+window/stretch/scale_mode="fractional"
 
 [physics]
 
@@ -31,3 +30,4 @@ renderer/rendering_method.mobile="gl_compatibility"
 textures/canvas_textures/default_texture_filter=0
 2d/snap/snap_2d_transforms_to_pixel=true
 2d/snap/snap_2d_vertices_to_pixel=true
+environment/defaults/default_clear_color=Color(0.06, 0.05, 0.09, 1)

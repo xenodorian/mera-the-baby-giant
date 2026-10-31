@@ -26,3 +26,6 @@ __pycache__/
 .env
 *.pem
 *.key
+
+# export output
+build/

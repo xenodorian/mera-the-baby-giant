@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/stage.gd" id="1_stage"]
+[ext_resource type="Script" path="res://scripts/mera.gd" id="2_mera"]
+[ext_resource type="Script" path="res://scripts/fire_knight.gd" id="3_fk"]
+[ext_resource type="Script" path="res://scripts/debug_overlay.gd" id="4_dbg"]
+
+[node name="Stage" type="Node2D"]
+script = ExtResource("1_stage")
+
+[node name="Background" type="Node2D" parent="."]
+z_index = -10
+
+[node name="FireKnight" type="Node2D" parent="."]
+script = ExtResource("3_fk")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="FireKnight"]
+
+[node name="Hurtbox" type="Area2D" parent="FireKnight"]
+
+[node name="Shape" type="CollisionShape2D" parent="FireKnight/Hurtbox"]
+
+[node name="Mera" type="Node2D" parent="."]
+script = ExtResource("2_mera")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Mera"]
+
+[node name="Hurtbox" type="Area2D" parent="Mera"]
+
+[node name="Shape" type="CollisionShape2D" parent="Mera/Hurtbox"]
+
+[node name="DebugOverlay" type="Node2D" parent="."]
+z_index = 10
+script = ExtResource("4_dbg")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Info" type="Label" parent="HUD"]
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 1900.0
+offset_bottom = 200.0
+theme_override_colors/font_color = Color(1, 0.95, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 26
