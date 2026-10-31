@@ -14,7 +14,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PK = f'{ROOT}/assets/characters/merakintsugi/platformer-character-pack/'
 OUT = f'{ROOT}/previews/beam/user_picks'
 PICKS = [  # name, file, layer, frame(0-based), hold frames, wand tip (native canvas px), direction (+1 right / -1 left)
-    ('pick1_3x_atk_f24', 'atk/3x atk/3x atk.aseprite', '3x atk', 24, [24], (192, 72), +1),
+    ('pick1_3x_atk_f24', 'atk/3x atk/3x atk.aseprite', '3x atk', 24, [24], (162, 72), -1),  # left end of the hip shaft (user-corrected)
     ('pick2_3x_atk_f4', 'atk/3x atk/3x atk.aseprite', '3x atk', 4, [4], (160, 36), +1),
     ('pick3_dodge_atk_1x_f14', 'dodge atk/dodge atk 1x/dodge atk 1x.aseprite', 'dodge atk 1x', 14, [14, 14, 14, 15, 15, 15], (94, 22), -1),
 ]
