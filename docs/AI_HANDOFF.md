@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.9. Windows exe is `v0.9.9-playable`. The run is saved to `user://mera_run.json` and is not cleared by death or the menu. A death forces size 2._
+_Last updated: 2026-10-31, v0.10.0. Windows exe is `v0.10.0-playable`. The title is an endless run, not a level select. `user://mera_run.json` is written when a stage is cleared (and when a life is spent). A death with no lives deletes it. A death with a life returns size to 2 and restarts the same map._
 
 
 ## v0.9.6 status (2026-10-31)

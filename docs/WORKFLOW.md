@@ -4,6 +4,9 @@ This is the working plan for the big request of 2026-10-31: level select, 4 larg
 Every stage ends with a tested build, a Windows exe **and an Android APK (from v0.8)** published as a GitHub **pre-release**, CHANGELOG notes, and an update to `docs/AI_HANDOFF.md`.
 
 
+## v0.10.0 (2026-10-31): endless run
+No level select. Stage 1 has 3 enemies; each clear adds 1 enemy, 1 life, and writes `user://mera_run.json`. A death with a life restarts that map at 2x and keeps items. A death with none deletes the save. New CC0 monsters are in `scripts/game/roster.gd` (`lm_*`, `sx_*`). Maps are built from the unused Ansimuz tilesets in `scripts/game/run_maps.gd`. Windows exe is `v0.10.0-playable`.
+
 ## v0.9.9 (2026-10-31): no fresh runs, death is 2x
 `game.carry` and `user://mera_run.json` hold potions, cards, size, stamina, stamina_max, rage and rage_max. Nothing clears it. `_on_died` and `restart` bank with size 2. Windows exe is `v0.9.9-playable`.
 

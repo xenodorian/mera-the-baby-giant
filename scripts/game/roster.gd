@@ -58,6 +58,26 @@ const DEFS := {
 	"skeleton": {"k": 5.0, "hp": 6, "speed": 110.0, "ai": "walker", "idle": "walk", "move": "walk", "spawn": "rise", "rage": 3.0,
 		"clothed": {"idle": "walk_clothed", "move": "walk_clothed", "spawn": "rise_clothed"},
 		"attacks": [{"anim": "walk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 140.0, "cd": 1.2, "mode": "contact", "vx": 380.0, "dur": 0.45}]},
+	# v0.10 itch.io CC0. Every one of these has 2 HP. A normal attack costs 1. Attack2 is the special and costs 2.
+	"lm_goblin": {"k": 4.0, "hp": 6, "speed": 150.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 3.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 90.0, "cd": 1.2, "mode": "frames", "active": [2, 6]},
+			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 60.0, "far": 160.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},
+	"lm_mushroom": {"k": 4.0, "hp": 7, "speed": 130.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 3.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 90.0, "cd": 1.2, "mode": "frames", "active": [2, 6]},
+			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 60.0, "far": 160.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},
+	"lm_skeleton": {"k": 4.0, "hp": 8, "speed": 110.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 4.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 100.0, "cd": 1.2, "mode": "frames", "active": [2, 6]},
+			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 70.0, "far": 170.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},
+	"lm_eye": {"k": 4.0, "hp": 5, "speed": 180.0, "ai": "flyer", "hover": 260.0, "idle": "fly", "move": "fly", "rage": 3.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 220.0, "cd": 1.3, "mode": "frames", "active": [2, 6]},
+			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": 80.0, "far": 300.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},
+	"sx_zombie": {"k": 8.0, "hp": 6, "speed": 80.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 3.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 70.0, "cd": 1.1, "mode": "contact", "vx": 240.0, "dur": 0.4}]},
+	"sx_skeleton": {"k": 8.0, "hp": 4, "speed": 100.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 2.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 70.0, "cd": 1.1, "mode": "contact", "vx": 260.0, "dur": 0.4}]},
+	"sx_witch": {"k": 6.0, "hp": 9, "speed": 90.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 4.0,
+		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 80.0, "cd": 1.2, "mode": "contact", "vx": 200.0, "dur": 0.35},
+			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 40.0, "far": 160.0, "cd": 1.8, "mode": "contact", "vx": 180.0, "dur": 0.45}]},
 }
 
 ## who appears where (level index 1-3 = Misty Woods, Moonlit Town, Infernal Caverns). Level 0 keeps the knights.
@@ -67,6 +87,15 @@ const LEVELS := {
 	3: ["hell_hound", "fire_skull", "hell_beast", "demon"],
 }
 const BOSSES := {3: "dragon"}
+## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
+const RUN_POOL := [
+	"wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur",
+	"skeleton", "hell_gato", "ghost", "death", "nightmare",
+	"hell_hound", "fire_skull", "hell_beast", "demon",
+	"lm_goblin", "lm_goblin", "lm_mushroom", "lm_mushroom", "lm_skeleton", "lm_skeleton", "lm_eye", "lm_eye",
+	"sx_zombie", "sx_zombie", "sx_skeleton", "sx_skeleton", "sx_witch", "sx_witch",
+]
+const RUN_START := 3           # enemies on the first map
 const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then the exit opens. No more after that.
 const WAVE_FIRST := 2200.0     # first wave trigger x
 const WAVE_EVERY := 1500.0     # then one wave every this many px

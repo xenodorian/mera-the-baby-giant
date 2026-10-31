@@ -1,8 +1,6 @@
 extends Control
-## v0.5 title / level select: four levels (scripts/game/levels.gd). Left/Right (d-pad, stick, arrows) choose,
-## A / Start / Enter (or a click) plays. Esc quits.
-## v0.9: Down goes to the bottom row: CHECK FOR UPDATES (Updater autoload, docs/UPDATER.md) and CREDITS.
-## The title screen also checks for updates once on launch (silently; a banner shows when one is available).
+## v0.10 title: an endless run. A / Start begins, or continues the saved run. No level select.
+## Down goes to CHECK FOR UPDATES and CREDITS.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
 
@@ -160,18 +158,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _click_buttons(e.position):
 		return
-	if e.is_action_pressed("left"):
-		_move(-1)
-	elif e.is_action_pressed("right"):
-		_move(1)
-	elif e.is_action_pressed("btn_a") or e.is_action_pressed("start") or e.is_action_pressed("ui_accept"):
+	if e.is_action_pressed("btn_a") or e.is_action_pressed("start") or e.is_action_pressed("ui_accept"):
 		_start()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		for i in thumbs.size():
-			if _card(i).has_point(e.position):
-				if sel == i:
-					_start()
-				sel = i
+		_start()
 	elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_ESCAPE:
 		get_tree().quit()
 
@@ -187,27 +177,20 @@ func _click_buttons(p: Vector2) -> bool:
 
 
 func _draw() -> void:
-	# backdrop: the selected level, dimmed
-	draw_texture_rect(thumbs[sel], Rect2(0, 0, 1920, 1080), false, Color(0.35, 0.3, 0.4))
-	draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.0, 0.05, 0.45))
-	draw_string(font, Vector2(0, 200), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
-	draw_string(font, Vector2(0, 280), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
-	draw_string(font, Vector2(0, 370), "SELECT A LEVEL", HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
-	var ls := Levels.list()
-	for i in thumbs.size():
-		var r := _card(i)
-		var on := i == sel
-		if on:
-			var g := 0.5 + 0.5 * sin(t * 5.0)
-			draw_rect(r.grow(10), Color(1.0, 0.8, 0.4, 0.6 + 0.4 * g))
-		draw_texture_rect(thumbs[i], r, false, Color(1, 1, 1) if on else Color(0.55, 0.55, 0.6))
-		draw_rect(r, Color(0, 0, 0), false, 3.0)
-		var lv: Dictionary = ls[i]
-		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 34,
-			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
-		draw_string(font, Vector2(r.position.x, r.end.y + 90), String(lv["sub"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24, Color(0.8, 0.8, 0.85))
-	draw_string(font, Vector2(0, 860), "Left / Right (arrows): choose      A / Start (Z / Enter): play      Down: updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
-	draw_string(font, Vector2(0, 905), "In game: Start / F1 = controls    Game Over or Level Clear: B (X key) = back here", HORIZONTAL_ALIGNMENT_CENTER, 1920, 22, Color(0.7, 0.7, 0.78))
+	if not thumbs.is_empty():
+		draw_texture_rect(thumbs[0], Rect2(0, 0, 1920, 1080), false, Color(0.35, 0.3, 0.4))
+	draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.0, 0.05, 0.55))
+	draw_string(font, Vector2(0, 220), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
+	draw_string(font, Vector2(0, 300), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
+	var bag := _saved_run()
+	if bag.is_empty():
+		draw_string(font, Vector2(0, 460), "BEGIN THE RUN", HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(1, 0.85, 0.5))
+		draw_string(font, Vector2(0, 540), "Stage 1. Three foes. No spare lives yet.", HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(0.85, 0.85, 0.92))
+	else:
+		draw_string(font, Vector2(0, 460), "CONTINUE", HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(1, 0.85, 0.5))
+		draw_string(font, Vector2(0, 540), "Stage %d.   %d lives.   %d foes on this map." % [int(bag.get("stage", 1)), int(bag.get("lives", 0)), int(bag.get("quota", 3))], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(0.85, 0.85, 0.92))
+	draw_string(font, Vector2(0, 640), "Clear a stage for a life and a save. Die with none, and the save is gone.", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.75, 0.75, 0.82))
+	draw_string(font, Vector2(0, 860), "A / Start (Z / Enter): play      Down: updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
 	for i in 2:
 		var r := _button(i)
 		var on := row == 1 and btn == i
@@ -222,6 +205,16 @@ func _draw() -> void:
 		_draw_credits()
 	elif mode == "update":
 		_draw_update()
+
+
+func _saved_run() -> Dictionary:
+	if not FileAccess.file_exists("user://mera_run.json"):
+		return {}
+	var f := FileAccess.open("user://mera_run.json", FileAccess.READ)
+	if f == null:
+		return {}
+	var data = JSON.parse_string(f.get_as_text())
+	return data if data is Dictionary else {}
 
 
 func _draw_version() -> void:

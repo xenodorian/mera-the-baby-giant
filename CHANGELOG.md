@@ -2,6 +2,15 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.0-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.0-playable/Mera_Playable_v0.10.0_Windows.exe
+- **No level select.** The run is an endless sequence of maps built from the unused Ansimuz tilesets.
+- **Stage 1 has 3 enemies.** Each cleared stage adds one enemy to the next map, grants one life, and saves the run (items, upgrades, size, the new life, the next stage).
+- **A death with a life left** spends it, returns Mera to 2x, keeps items and upgrades, and restarts the same map. **A death with no lives deletes the save.**
+- New CC0 monsters. LuizMelo: goblin 6 HP, mushroom 7, skeleton 8, flying eye 5. Stealthix: zombie 6, skeleton 4, witch 9. A normal attack costs 1. A second attack costs 2.
+- Android `versionCode` 21, `versionName` 0.10.0 (APK not published).
+
 ## v0.9.9-playable (2026-10-31)
 Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.9-playable/Mera_Playable_v0.9.9_Windows.exe

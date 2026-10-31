@@ -3,7 +3,9 @@ extends RefCounted
 
 const ENTRIES := [
 	{"who": "chierit", "what": "Fire Knight, Water Priestess, Leaf Ranger (Elementals), Minotaur", "lic": "CC-BY 4.0", "url": "https://chierit.itch.io"},
-	{"who": "Luis Zuno (ansimuz)", "what": "Gothicvania / Legacy Collection: enemies, dragon, levels, VFX, allies", "lic": "CC0", "url": "https://ansimuz.itch.io"},
+	{"who": "Luis Zuno (ansimuz)", "what": "Gothicvania / Legacy Collection: enemies, dragon, levels, VFX, allies, tilesets", "lic": "CC0", "url": "https://ansimuz.itch.io"},
+	{"who": "LuizMelo", "what": "Monsters Creatures Fantasy: goblin, mushroom, skeleton, flying eye", "lic": "CC0", "url": "https://luizmelo.itch.io/monsters-creatures-fantasy"},
+	{"who": "Stealthix", "what": "Animated Monsters: zombie, skeleton, witch", "lic": "CC0", "url": "https://stealthix.itch.io/animated-monsters"},
 	{"who": "Merakintsugi", "what": "Mera: Platformer Character Pack (main character, licensed)", "lic": "Licensed", "url": "https://merakintsugi.itch.io/platformer-character-pack"},
 	{"who": "Kenney", "what": "RPG Audio, Sci-fi Sounds, Impact Sounds", "lic": "CC0", "url": "https://kenney.nl"},
 	{"who": "Pixel Frog", "what": "Kings and Pigs (crate)", "lic": "CC0", "url": "https://pixelfrog-assets.itch.io/kings-and-pigs"},
