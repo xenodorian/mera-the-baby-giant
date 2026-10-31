@@ -63,7 +63,12 @@ TIPS = {
  'd1': {0: (130, 19), 1: (130, 21), 2: (145, 37), 3: (144, 38), 4: (144, 39), 5: (148, 42), 6: (155, 45), 7: (147, 47), 8: (72, 36),
         9: (74, 34), 10: (80, 25), 11: (80, 25), 12: (88, 23), 13: (95, 22), 14: (94, 22), 15: (94, 22)},
 }
+# the pack's own effect (slash) layers per animation, excluded from the body-only renders
+FX_LAYERS = {'1x': {'1x atk_fx'}, '2x': {'fx01'}, '3x': {'3x atk_fx01', '3x atk_fx02', '3x atk_fx03'}}
 PICKS = {
+ # user [pt51u]: the combo into beam (pick1 v1) with each animation's own slash/fx layers on every frame that has them
+ 'pick1_combo_beam_slash': dict(lead=[('1x', i) for i in range(10)] + [('2x', i) for i in range(10)] + [('3x', i) for i in range(24)],
+                                pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)], fx=FX_LAYERS, exact=True),
  # user [pt30u]: charge on idle 1 (index 0), crouching 1 (index 0) and 3x atk f23, then continue the 3x atk animation
  'pick1_v2_3x_atk_f24': dict(lead=[('idle', 0)] * 10 + [('cr', 0)] * 10 + [('3x', 23)] * 10, pre=0,
                              pose='3x', hold=[24], ang=180.0, rec=[('3x', i) for i in range(25, 34)], off={'3x': OFF_3X_FROM_CROUCH}, c0=0.3, cexp=1.0),
@@ -96,6 +101,24 @@ class HoverBeam(mb.Beam):
         else:
             super().spawn(x, y, vx, vy, life, e, g, kind)
 
+
+def save_exact_gif(path, frames, durs, scale, allc):
+    """exact-palette GIF: index every pixel by lookup (PIL's quantize(palette=) approximates colours)"""
+    from PIL import ImageSequence
+    key = (allc[:, 0].astype(np.int64) << 16) | (allc[:, 1].astype(np.int64) << 8) | allc[:, 2]
+    flat = allc.flatten().tolist() + [0] * (768 - allc.size); ims = []
+    for f in frames:
+        a = np.array(f.resize((f.width * scale, f.height * scale), Image.NEAREST)).astype(np.int64)
+        im = Image.fromarray(np.searchsorted(key, (a[..., 0] << 16) | (a[..., 1] << 8) | a[..., 2]).astype(np.uint8), 'P'); im.putpalette(flat); ims.append(im)
+    ims[0].save(path, save_all=True, append_images=ims[1:], duration=durs, loop=0, disposal=1, optimize=False)
+    dec = [np.array(g.convert('RGB')) for g in ImageSequence.Iterator(Image.open(path))]
+    assert all((np.array(f.resize((f.width * scale, f.height * scale), Image.NEAREST)) == d).all() for f, d in zip(frames, dec))
+
+_fxc = {}
+def fx_img(a, f, layers):
+    k = (a, f, tuple(sorted(layers)))
+    if k not in _fxc: _fxc[k] = frame(D[a], f, only=set(layers))
+    return _fxc[k]
 
 def build(name, cfg):
     rng = random.Random(23)
@@ -151,6 +174,8 @@ def build(name, cfg):
     xs, ys = [], []
     for a, f, p, _ in seq:
         b = img(a, f).getbbox(); o = woff(a, p); xs += [b[0] + o[0] - 6, b[2] + o[0] + 6]; ys += [b[1] + o[1], b[3] + o[1]]
+        if a in cfg.get('fx', {}) and fx_img(a, f, cfg['fx'][a]).getbbox():
+            b = fx_img(a, f, cfg['fx'][a]).getbbox(); xs += [b[0] + o[0] - 4, b[2] + o[0] + 4]; ys += [b[1] + o[1] - 2, b[3] + o[1] + 2]
     end = (tip_pose[0] + d[0] * (RANGE + 14), tip_pose[1] + d[1] * (RANGE + 14)); xs += [end[0], tip_pose[0] - d[0] * 10]; ys += [end[1] - 14, end[1] + 14]
     X0, Y0 = int(min(xs)) - 8, int(min(ys)) - 14; W = int(max(xs)) - X0 + 8; H = int(max(ys)) - Y0 + 10
     floor_w = GROUND + 1
@@ -227,6 +252,9 @@ def build(name, cfg):
         if glow > 0.2:   # rim light on the beam side
             sp = mb.rim(spr.transpose(Image.FLIP_LEFT_RIGHT), glow).transpose(Image.FLIP_LEFT_RIGHT) if d[0] < 0 else mb.rim(spr, glow)
         im.alpha_composite(sp, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
+        if a in cfg.get('fx', {}):   # the pack's own effect layers, original pixels, same canvas offset + recoil as the body
+            fxi = fx_img(a, f, cfg['fx'][a])
+            if fxi.getbbox(): im.alpha_composite(fxi, (o[0] + rc[0] - X0, o[1] + rc[1] - Y0))
         rgb, al = mb.bands(np.clip(E, 0, 1.2)); base = np.array(im).astype(float) / 255
         out = base[..., :3] * (1 - al[..., None]) + rgb * al[..., None]
         frames.append(Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8), 'RGB'))
@@ -241,9 +269,12 @@ def build(name, cfg):
         strip = Image.new('RGB', (W, H * len(frames)))
         for i, fr in enumerate(frames): strip.paste(fr, (0, i * H))
         pal = strip.quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
-    q = [fr.resize((W * S, H * S), Image.NEAREST).quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
     gif = f'{OUT}/{name}_cast.gif'
-    q[0].save(gif, save_all=True, append_images=q[1:], duration=durs, loop=0, disposal=1, optimize=False)
+    if cfg.get('exact') and len(allc) <= 256:   # exact palette indexing, verified on read-back (newer previews)
+        save_exact_gif(gif, frames, durs, S, allc)
+    else:
+        q = [fr.resize((W * S, H * S), Image.NEAREST).quantize(palette=pal, dither=Image.Dither.NONE) for fr in frames]
+        q[0].save(gif, save_all=True, append_images=q[1:], duration=durs, loop=0, disposal=1, optimize=False)
     return frames, log, dict(gif=gif, size=[W * S, H * S], frames=len(frames), ms=sum(durs), colours=int(len(allc)), bytes=os.path.getsize(gif),
                              world_origin=[X0, Y0], tip_pose_world=list(tip_pose), idle_end_match=dict(idle_frame=idle_start, dx=idle_dx, iou=round(best[0], 3)))
 
@@ -268,7 +299,7 @@ def keystrip(name, frames, log):
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True); rows = []
     meta = json.load(open(f'{OUT}/cast_sequences.json')) if os.path.exists(f'{OUT}/cast_sequences.json') else {}
-    only = sys.argv[1:] or list(PICKS)
+    only = sys.argv[1:] or [k for k in PICKS if k != 'pick1_combo_beam_slash'] + ['pick1_combo_beam_slash']
     for name in only:
         frames, log, info = build(name, PICKS[name]); keystrip(name, frames, log)
         json.dump(log, open(f'{OUT}/{name}_timeline.json', 'w'), indent=0); meta[name] = info; print(name, info)
