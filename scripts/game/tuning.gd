@@ -18,6 +18,22 @@ const FAST_FIRE_FRAME := 8       # B, Y: the dodge cuts into the fast quick fire
 const DODGE_GRACE_MS := 220.0     # B, Y / B, X still work this long after the dodge ends
 const FAST_FIRE_ANIM := 2.0       # B, Y fast quick fire: animation playback rate ...
 const FAST_FIRE_BOLT := 2.0       # ... and bolt speed multiplier (800 px/s x size)
+# v0.9.1 Y chain (owner t99u): Y, Y, Y ... (docs/CONTROLS.md "Y chain")
+const YCHAIN_FIRST_FRAME := 11    # the 1st quick fire (fires on f10 = canon GIF frame 12) takes the next Y from this frame
+const YCHAIN_START := 12          # each follow-up replays quick fire from this frame ...
+const YCHAIN_FIRE := 14           # ... and fires on f14 (canon GIF frame 16: the extended f14 pose) ...
+const YCHAIN_NEXT_FRAME := 15     # ... and takes the next press from this frame
+const YCHAIN_SPAWN := [-32.0, -41.0]   # wand tip on f14 (canon GIF tip (94,22) vs f10 (80,25))
+const YCHAIN_GRACE_MS := 220.0    # after a chain shot recovers, the next press still continues the chain (= COMBO_GRACE_MS)
+const PULSE_REACH := 900.0        # Y Y Y then L2: the pulse wave pushes every enemy within this (px, at 2x; scales with size) ...
+const PULSE_PUSH := 340.0         # ... this far away from her (px, scales with size; bosses are not moved), 0 damage
+const PULSE_S := 0.35             # ring expands over this long
+const VBEAM_S := 0.7              # Y Y Y then X: the vertical beam lasts this long ...
+const VBEAM_DMG := 3              # ... and hits every airborne / flying enemy in its column once, for this x size
+const VBEAM_HALF_W := 34.0        # column half width, native px (x size)
+const VFIRE_FRAME := 6            # Up+Y vertical quick fire: the bolt leaves on heal frame 6 (360 ms, quick fire: 400 ms)
+const VFIRE_SPAWN := [-15.0, -74.0]    # raised wand tip in the heal pose (native px)
+const HEAL_POSE_END := 9          # vertical fire / pulse / vertical beam play heal frames 0-8 only (no heal burst)
 const SLAM_GRACE_MS := 350.0      # rising slash (B+Y): Y during it (any frame) or this long after it -> slam
 const CHAIN_2X := 9               # 2x atk resolves its branch (2x-1 / 2x-2 / 3x / beam) from this frame
 
@@ -31,6 +47,9 @@ const STAMINA_COST := {"earthquake": 20,
 	"adash": 6.0,
 	"rear_blast": 12.0,
 	"beam_ender": 20.0,
+	"vfire": 5.0,                 # v0.9.1 Up+Y vertical quick fire (same as quick fire)
+	"pulse": 3.0,                 # v0.9.1 Y Y Y, L2 pulse wave
+	"vbeam": 12.0,                # v0.9.1 Y Y Y, X vertical beam
 	"barrier": 3.0,               # to raise the bubble ...
 }
 const BUBBLE_DRAIN := 4.0         # ... then this much per second while it is held (it drops at 0)
