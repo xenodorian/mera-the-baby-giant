@@ -150,7 +150,7 @@ func _draw_ui() -> void:
 	# state line
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
-	_txt(Vector2(1300, 76), "defeated: %d    F1 / Start: controls" % game.defeated, 22, Color(0.8, 0.8, 0.85))
+	_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "volume: pause" if OS.get_name() == "Android" else "F1 / Start: controls"], 22, Color(0.8, 0.8, 0.85))
 	var bs = game.boss                                          # untyped: may be a freed instance
 	if bs != null and is_instance_valid(bs) and bs.alive():        # v0.6 boss bar
 		ui.draw_rect(Rect2(460, 1000, 1000, 34), Color(0.05, 0.02, 0.03, 0.85))
@@ -175,7 +175,10 @@ func _draw_ui() -> void:
 		_txt(Vector2(530, 215), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
 		for i in CONTROLS.size():
 			var y := 250 + i * 35
-			_txt(Vector2(180, y), String(CONTROLS[i][0]), 20, Color(1, 0.75, 0.45))
+			var pad_name := String(CONTROLS[i][0])
+			if pad_name == "Start" and OS.get_name() == "Android":
+				pad_name = "Volume up / down"
+			_txt(Vector2(180, y), pad_name, 20, Color(1, 0.75, 0.45))
 			_txt(Vector2(530, y), String(CONTROLS[i][1]), 20, Color(0.55, 0.85, 1.0))
 			_txt(Vector2(760, y), String(CONTROLS[i][2]), 20)
 	if game.over and game.over_t > 0.9:

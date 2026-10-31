@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.1-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.1-playable/Mera_Playable_v0.10.1_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.1-playable/Mera_Playable_v0.10.1_Android.apk
+- **Android touch controls.** A grayscale pad is on screen unless a gamepad is connected, then it fades out. Left is a diamond D-pad with L2 stacked on L1. Right is the Xbox diamond (Y, B, A, X) in gray, with R2 stacked on R1. There is no Start button. The phone's volume buttons pause the game and open the controls.
+- Android `versionCode` 22, `versionName` 0.10.1. Same signing key as v0.10.0, so it updates in place.
+
 ## v0.10.0-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.0-playable/Mera_Playable_v0.10.0_Windows.exe
