@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.7. Windows exe is `v0.9.7-playable`. Enemies chase Mera, and the dancer. R2 is Fury, L2+R2 is lightning, L1+R1+L2+R2 is the freeze slash. Each costs 100 rage._
+_Last updated: 2026-10-31, v0.9.8. Windows exe is `v0.9.8-playable`. A cleared level keeps potions, cards, size, mana, rage and both max upgrades (`game.carry`)._
 
 
 ## v0.9.6 status (2026-10-31)

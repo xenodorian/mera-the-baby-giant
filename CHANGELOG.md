@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.9.8-playable (2026-10-31)
+Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
+- Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.8-playable/Mera_Playable_v0.9.8_Windows.exe
+- **Clearing a level keeps the run.** Potions, ally cards, size, mana, rage, max mana and max rage come with you. Dying retries that level with what you had when you entered it. Going back to the level select starts over.
+- Android `versionCode` 19, `versionName` 0.9.8 (APK not published).
+
 ## v0.9.7-playable (2026-10-31)
 Windows build only. Linux and Android are not attached. `SHA256SUMS.txt` covers the exe.
 - Download: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.9.7-playable/Mera_Playable_v0.9.7_Windows.exe

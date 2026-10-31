@@ -148,7 +148,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - distant layers either tile seamlessly by design, or are mirrored pairs (seamless by construction, no blur);
   - each layer has its own parallax factor.
 - **Invisible walls** stop Mera and the enemies 120 px from each end. The camera stays locked on her, and the art continues past the walls.
-- The **exit gate** (a pillar of light) stands near the right end of every level. It stays shut until that level's fight is over, then reaching it means **LEVEL CLEAR**. A / Start goes to the next level (on the last level, back to the level select). B always goes to the level select.
+- The **exit gate** (a pillar of light) stands near the right end of every level. It stays shut until that level's fight is over, then reaching it means **LEVEL CLEAR**. A / Start goes to the next level (on the last level, back to the level select). B always goes to the level select. **Potions, ally cards, size, mana, rage, max mana and max rage come with you.** Dying retries that level with what you had when you entered it. Going back to the level select starts a fresh run.
   - **Moonlit Cemetery:** shut until 5 Fire Knights (and the Blue Knights still with the last one) are dead.
   - **Misty Woods and Moonlit Town:** shut until every scheduled wave has spawned and no roster enemy is left alive ("CLEAR THE ROAD"). Standing still no longer calls in enemies forever.
   - **Infernal Caverns:** shut until the dragon falls ("SLAY THE DRAGON").

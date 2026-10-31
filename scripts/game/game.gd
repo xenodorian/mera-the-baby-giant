@@ -142,6 +142,8 @@ func _ready() -> void:
 	_place_cards()
 	_place_props()
 	_parse_args()
+	if not carry.is_empty():
+		_apply_run(carry)
 	mera.set_size(mera.size, true)
 	explored_max = mera.position.x
 	explored_min = mera.position.x
@@ -1156,6 +1158,41 @@ func _on_died() -> void:
 var restart_requests := 0       # tests
 
 
+static var carry: Dictionary = {}   # the run, kept across a level reload. Empty on a fresh start from the menu.
+
+
+## potions, cards, size, both meters and both max upgrades. Written when a level is cleared.
+func _pack_run() -> Dictionary:
+	return {
+		"potions": mera.potions,
+		"stamina": mera.stamina,
+		"stamina_max": mera.stamina_max,
+		"rage": mera.rage,
+		"rage_max": mera.rage_max,
+		"size": mera.size,
+		"cards": cards.duplicate(true),
+	}
+
+
+func _apply_run(bag: Dictionary) -> void:
+	mera.potions = int(bag.get("potions", mera.potions))
+	mera.stamina_max = float(bag.get("stamina_max", mera.stamina_max))
+	mera.stamina = clampf(float(bag.get("stamina", mera.stamina)), 0.0, mera.stamina_max)
+	mera.rage_max = float(bag.get("rage_max", mera.rage_max))
+	mera.rage = clampf(float(bag.get("rage", mera.rage)), 0.0, mera.rage_max)
+	mera.set_size(int(bag.get("size", mera.size)), true)
+	cards = (bag.get("cards", {}) as Dictionary).duplicate(true)
+	on_potions_changed()
+
+
+func held_run() -> Dictionary:
+	return carry
+
+
+func drop_run() -> void:
+	carry = {}
+
+
 func restart() -> void:
 	restart_requests += 1
 	HitStop.clear()
@@ -1167,6 +1204,7 @@ func restart() -> void:
 
 
 func to_menu() -> void:
+	carry = {}
 	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
@@ -1175,10 +1213,18 @@ func to_menu() -> void:
 
 func next_level() -> void:
 	if is_last_level():
+		carry = {}
 		to_menu()
 		return
+	carry = _pack_run()
 	Levels.current += 1
-	restart()
+	restart_requests += 1
+	HitStop.clear()
+	AnimLib.set_fury(false)
+	Sfx.fury = false
+	if get_tree().current_scene == null:
+		return
+	get_tree().reload_current_scene()
 
 
 var _menu_pending := {}   # joypad Start/Select waiting out the trigger-collision guard (Controls.GUARD_FRAMES)
