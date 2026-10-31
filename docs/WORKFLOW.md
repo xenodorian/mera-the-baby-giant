@@ -47,6 +47,13 @@ Level 1 (cemetery, Fire Knight + Blue Knights, no ally cards) stays as it is, ap
   - **Shatter:** add a free (MIT/CC0) Godot 4 debris/fracture sim, so destroyed objects and enemies (for gore) shatter into pieces. Either sprite fracture into RigidBody2D shards or CPUParticles2D shards. It must work on the Compatibility renderer and in the Windows exe; prefer pure GDScript.
 - Restore `Engine.time_scale` after hit-stop with an `ignore_time_scale` timer.
 
+## Repository layout since 2026-10-31 (public code, private assets)
+- `xenodorian/mera-the-baby-giant` is **public**: code, scenes, shaders, tests, tools, docs and gameplay screenshots (`previews/playable/`).
+- `xenodorian/mera-assets` is **private**: everything under `assets/` (all art, audio and source packs, plus the app icon `_project/icon.png`) and the raw sprite-sheet previews (`_previews/`). It is a git submodule at `assets/`.
+- **Changing an asset:** commit and push inside `assets/` first (to `mera-assets`), then commit the updated submodule pointer in the game repo.
+- **Never** add art, audio or packs to the public repo, and never paste the purchased Merakintsugi sprites anywhere public. Screenshots and gameplay GIFs in `previews/playable/` are fine. Release binaries contain the packed art, which is a normal game distribution.
+- The history was rewritten with `git filter-repo` to strip `assets/`, `icon.png` and the sprite-sheet previews from every commit. **Re-clone** after that date.
+
 ## Hard rules (from the user)
 - Work on **copies** of assets. Never modify, move or delete originals or user uploads (`assets/_source`, `assets/_incoming`, scratch folders).
 - Pixel art uses nearest-neighbour, integer scales.

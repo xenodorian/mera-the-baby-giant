@@ -56,6 +56,13 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 - S0-S4 of the 2026-10-31 plan are done. Nothing from that plan is open. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
 - **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
 
+## Repo split (2026-10-31): public code, private assets
+- The game repo is public. `assets/` is the **private submodule** `xenodorian/mera-assets` (LFS). Clone with `--recurse-submodules`, then run `git submodule foreach git lfs pull`.
+- History was rewritten (`git filter-repo --invert-paths --path assets/ --path icon.png --path icon.png.import --path previews/{merakintsugi,spritekitchen,chierit,ansimuz,beam,compat}/`). **Old clones and worktrees must be discarded and re-cloned.** A pre-rewrite mirror (all refs and LFS objects) is kept on the build box at `/workspace/backups/mera-pre-public-2026-10-31/`. Never delete it.
+- The app icon moved to `res://assets/_project/icon.png` (project.godot and all three export presets).
+- Asset edits: commit and push in `assets/` first, then commit the submodule bump. Tools that write into `assets/` (build_roster, build_props, recolor scripts) write into the submodule.
+- `git-filter-repo` is installed on the box at `/workspace/tools/bin/git-filter-repo`.
+
 ## Pitfalls (learned the hard way)
 - **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **all three** presets (Windows, Linux, Android), or the exported game silently misses it.
   - Never `grep` the file with broad patterns: the list is one enormous line.
@@ -121,6 +128,7 @@ _Last updated: 2026-10-31, v0.8.2-playable (dragon bolts: head-first, horizontal
 | Tool | Version / path |
 |---|---|
 | Godot | **4.7.2-stable** Linux binary at `/workspace/tools/Godot_v4.7.2-stable_linux.x86_64` (download: `/workspace/tools/godot.zip`) |
+| git-filter-repo | a40bce548d2c (v2.47.0 script) at `/workspace/tools/bin/git-filter-repo` (used for the 2026-10-31 public split) |
 | Godot export templates | `~/.local/share/godot/export_templates/4.7.2.stable/` (from `/workspace/tools/templates.tpz`) |
 | git | system `/usr/bin/git` |
 | git-lfs | 3.8.1, `/usr/local/bin/git-lfs` |
