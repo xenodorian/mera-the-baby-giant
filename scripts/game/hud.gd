@@ -179,14 +179,14 @@ func _draw_ui() -> void:
 	if game.over and game.over_t > 0.9:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_txt(Vector2(700, 520), "GAME OVER", 110, Color(0.95, 0.2, 0.2))
-		_txt(Vector2(420, 600), "Mera shrank past 1x.   A / Start (Z / Enter): restart    B (X): level select", 30)
+		_txt(Vector2(360, 600), "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28)
 	if game.cleared and game.over_t > 0.3:
 		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
 		var last: bool = game.has_method("is_last_level") and game.is_last_level()
 		_txt(Vector2(640, 500), "JOURNEY COMPLETE" if last else "LEVEL CLEAR", 90, Color(1.0, 0.85, 0.45))
 		_txt(Vector2(470, 590), "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32)
 		if not last:
-			_txt(Vector2(430, 640), "potions, cards, size, mana and rage come with you", 28, Color(0.8, 0.9, 1.0))
+			_txt(Vector2(380, 640), "potions, cards, mana and rage come with you. A death returns her to 2x", 28, Color(0.8, 0.9, 1.0))
 	if game.frame_n < 150 and not game.test_mode:
 		var lv: Dictionary = Levels.level()
 		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)

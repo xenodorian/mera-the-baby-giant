@@ -2902,6 +2902,9 @@ func _v091_tests() -> void:
 	g.cards = {}
 	g._apply_run(bag)
 	_check("a cleared level keeps potions, cards, size, mana, rage and both upgrades", m.potions == 4 and m.size == 5 and m.stamina_max == 90.0 and absf(m.stamina - 12.0) < 0.1 and m.rage_max == 130.0 and absf(m.rage - 40.0) < 0.1 and int(g.cards.get("ranger", 0)) == 2 and int(g.cards.get("brawler", 0)) == 1, "p=%d size=%d mana %.0f/%.0f rage %.0f/%.0f cards=%s" % [m.potions, m.size, m.stamina, m.stamina_max, m.rage, m.rage_max, g.cards])
+	m.set_size(6, true)
+	var dead: Dictionary = g.death_bag()
+	_check("a death keeps the run but returns her to 2x", int(dead["size"]) == 2 and int(dead["potions"]) == 4 and int(dead["cards"]["ranger"]) == 2, "size=%s potions=%s" % [dead["size"], dead["potions"]])
 	g.drop_run()
 	g.queue_free(); await process_frame
 

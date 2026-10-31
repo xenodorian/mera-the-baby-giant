@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.9.8. Windows exe is `v0.9.8-playable`. A cleared level keeps potions, cards, size, mana, rage and both max upgrades (`game.carry`)._
+_Last updated: 2026-10-31, v0.9.9. Windows exe is `v0.9.9-playable`. The run is saved to `user://mera_run.json` and is not cleared by death or the menu. A death forces size 2._
 
 
 ## v0.9.6 status (2026-10-31)

@@ -142,8 +142,11 @@ func _ready() -> void:
 	_place_cards()
 	_place_props()
 	_parse_args()
-	if not carry.is_empty():
-		_apply_run(carry)
+	if not test_mode:
+		if carry.is_empty():
+			_load_run()
+		if not carry.is_empty():
+			_apply_run(carry)
 	mera.set_size(mera.size, true)
 	explored_max = mera.position.x
 	explored_min = mera.position.x
@@ -265,6 +268,11 @@ func _process(_delta: float) -> void:
 		shot_at.erase(frame_n)
 	if quit_at > 0 and frame_n >= quit_at:
 		get_tree().quit()
+	if not test_mode and not over:
+		_save_t += _delta
+		if _save_t >= 2.0:
+			_save_t = 0.0
+			_bank(false)
 
 
 func _save(path: String) -> void:
@@ -633,6 +641,7 @@ func collect_card(c: Node2D) -> void:
 	card_nodes.erase(c)
 	Sfx.play("sphere", 0.8)
 	hud.flash("pickup:%s card  (R1: summon)" % Allies.NAMES[c.ally_id])
+	_bank(false)
 
 
 func allies() -> Array:
@@ -913,6 +922,7 @@ func collect(p: Pickup) -> void:
 		mera.add_rage(p.value)
 		Sfx.play("sphere")
 	on_potions_changed()
+	_bank(false)
 
 
 func on_potions_changed() -> void:
@@ -1153,15 +1163,18 @@ func _quake_tick(delta: float) -> void:
 func _on_died() -> void:
 	over = true
 	over_t = 0.0
+	_bank(true)
 
 
 var restart_requests := 0       # tests
 
 
-static var carry: Dictionary = {}   # the run, kept across a level reload. Empty on a fresh start from the menu.
+static var carry: Dictionary = {}   # the run. Never wiped by death or the level select.
+const RUN_PATH := "user://mera_run.json"
+var _save_t := 0.0
 
 
-## potions, cards, size, both meters and both max upgrades. Written when a level is cleared.
+## potions, cards, size, both meters and both max upgrades.
 func _pack_run() -> Dictionary:
 	return {
 		"potions": mera.potions,
@@ -1180,9 +1193,36 @@ func _apply_run(bag: Dictionary) -> void:
 	mera.stamina = clampf(float(bag.get("stamina", mera.stamina)), 0.0, mera.stamina_max)
 	mera.rage_max = float(bag.get("rage_max", mera.rage_max))
 	mera.rage = clampf(float(bag.get("rage", mera.rage)), 0.0, mera.rage_max)
+	var saved_cards: Dictionary = bag.get("cards", {})
+	var clean := {}
+	for k in saved_cards:
+		clean[String(k)] = int(saved_cards[k])
+	cards = clean
 	mera.set_size(int(bag.get("size", mera.size)), true)
-	cards = (bag.get("cards", {}) as Dictionary).duplicate(true)
 	on_potions_changed()
+
+
+func _bank(reset_size: bool) -> void:
+	if test_mode or mera == null:
+		return
+	var bag := _pack_run()
+	if reset_size:
+		bag["size"] = 2
+	carry = bag
+	var f := FileAccess.open(RUN_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(bag))
+
+
+func _load_run() -> void:
+	if not FileAccess.file_exists(RUN_PATH):
+		return
+	var f := FileAccess.open(RUN_PATH, FileAccess.READ)
+	if f == null:
+		return
+	var data = JSON.parse_string(f.get_as_text())
+	if data is Dictionary and not data.is_empty():
+		carry = data
 
 
 func held_run() -> Dictionary:
@@ -1193,7 +1233,14 @@ func drop_run() -> void:
 	carry = {}
 
 
+func death_bag() -> Dictionary:
+	var bag := _pack_run()
+	bag["size"] = 2
+	return bag
+
+
 func restart() -> void:
+	_bank(true)
 	restart_requests += 1
 	HitStop.clear()
 	AnimLib.set_fury(false)
@@ -1204,7 +1251,7 @@ func restart() -> void:
 
 
 func to_menu() -> void:
-	carry = {}
+	_bank(over and not cleared)
 	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
@@ -1212,11 +1259,10 @@ func to_menu() -> void:
 
 
 func next_level() -> void:
+	_bank(false)
 	if is_last_level():
-		carry = {}
 		to_menu()
 		return
-	carry = _pack_run()
 	Levels.current += 1
 	restart_requests += 1
 	HitStop.clear()
