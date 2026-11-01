@@ -72,6 +72,7 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
   - Never `grep` the file with broad patterns: the list is one enormous line.
   - Add entries with `sed`/python right after `"res://scripts/game/cam_rig.gd", `.
 - **Git LFS:** PNG/GIF/WAV/ZIP/etc. go through LFS. After pushing, also run `git lfs push origin main`. Commit `*.import` and `*.uid` files, but never `.godot/`.
+- **Run `git lfs pull` before the first Godot import.** Importing while the art is still LFS pointer files makes Godot rewrite about 2,200 tracked `.import` files with `valid=false`, and every later import keeps them broken (audio and textures fail to load). Fix: `git checkout -- .`, delete `.godot/`, then `--headless --import` again.
 - **Run headless tests with `--fixed-fps 60`.** The whole suite then takes about 10 s instead of about 15 min, because the game clock is game-time based (`Mera.now`).
   - Command: `$G --headless --fixed-fps 60 --path . -s tests/run_tests.gd`.
   - Without the flag, headless Godot runs physics in real time.
