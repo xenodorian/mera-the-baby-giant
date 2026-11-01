@@ -1,3 +1,8 @@
+## Current tasks
+
+Read [TASKS.md](TASKS.md) on `main` before doing anything else. The same list is in `docs/AI_HANDOFF.md` under `TASKS FOR THE NEXT AGENT`. If that section is missing, you are not on live `main`.
+Any note for another agent must be committed and pushed to `main` in the same turn. A local file does not count.
+
 # Working on this repo (humans and agents)
 
 Multiple agents share this repo. Keep it safe and mergeable.
