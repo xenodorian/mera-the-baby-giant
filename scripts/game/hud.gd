@@ -17,7 +17,7 @@ const CONTROLS := [
 	["X", "A", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
 	["X X Y", "A A S", "1x 2x 3x (with slash)     X X X Y = combo into beam, 20 mana"],
 	["Y", "S", "quick fire (bolt) 5 mana     X+Y together = rear explosion 12 mana"],
-	["Up + Y", "Up + S", "three bolts: up and both diagonals, 15 mana. The orb matches the bolt"],
+	["Up + Y", "Up + S", "three large bolts: up and both diagonals, 15 mana"],
 	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 mana"],
 	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 mana, Up = double jump"],
 	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 mana)"],

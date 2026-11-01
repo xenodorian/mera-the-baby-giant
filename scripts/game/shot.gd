@@ -20,14 +20,16 @@ var done := false
 var speed_mult := 1.0          # v0.4: B, Y fast quick fire = 2.0
 var up := false                # v0.9.1 Up+Y: the same bolt flies straight up (sprite rotated head-up)
 var aim := Vector2.ZERO        # set: fly this way (up, and the two upward diagonals)
+var bulk := 1.0                # Up+Y bolts are drawn bigger. Speed stays the quick-fire speed.
 
 
 func hit_rect() -> Rect2:
+	var vis := size * bulk
 	if kind == "bolt":
 		if up:
-			return Rect2(global_position - Vector2(3, 5) * size, Vector2(6, 10) * size)
-		return Rect2(global_position - Vector2(5, 3) * size, Vector2(10, 6) * size)
-	return Rect2(global_position - Vector2(6, 6) * size, Vector2(12, 12) * size)
+			return Rect2(global_position - Vector2(3, 5) * vis, Vector2(6, 10) * vis)
+		return Rect2(global_position - Vector2(5, 3) * vis, Vector2(10, 6) * vis)
+	return Rect2(global_position - Vector2(6, 6) * vis, Vector2(12, 12) * vis)
 
 
 ## v0.9.1: an enemy projectile met this shot. Both explode (no extra damage; the blast is the tell).
@@ -64,11 +66,12 @@ func _ready() -> void:
 		spr.hframes = int(lib.spell_cell("bolt")[2])
 		spr.centered = false
 		spr.offset = -Vector2(9, 4)
-		spr.scale = Vector2(-dir * size, size)       # sprite flies LEFT natively
+		var vis := size * bulk
+		spr.scale = Vector2(-dir * vis, vis)       # sprite flies LEFT natively
 		spr.material = lib.fx_mat
 		add_child(spr)
 		if up or aim != Vector2.ZERO:
-			spr.scale = Vector2(size, size)
+			spr.scale = Vector2(vis, vis)
 			var dir_v := aim if aim != Vector2.ZERO else Vector2(0, -1)
 			spr.rotation = dir_v.angle() - PI
 	else:
@@ -87,18 +90,19 @@ func _physics_process(delta: float) -> void:
 		else:
 			position.x += dir * speed() * delta
 		spr.frame = int(t * 1000.0 / 40.0) % spr.hframes
-		var r := Rect2(position - Vector2(3, 5) * size, Vector2(6, 10) * size) if up else Rect2(position - Vector2(5, 3) * size, Vector2(10, 6) * size)
+		var vis := size * bulk
+		var r := Rect2(position - Vector2(3, 5) * vis, Vector2(6, 10) * vis) if up else Rect2(position - Vector2(5, 3) * vis, Vector2(10, 6) * vis)
 		if damaging:
 			for e in game.enemies():
 				if e.alive() and r.intersects(e.hurt_rect()):
 					game.mera.deal(e, 1, position.x if up else position.x - dir * 50.0, "bolt")
-					game.hit_spark(position, size)
+					game.hit_spark(position, vis)
 					queue_free()
 					return
 			var pr: Node2D = game.prop_at(r)
 			if pr != null:
 				game.mera.deal(pr, 1, position.x, "bolt")
-				game.hit_spark(position, size)
+				game.hit_spark(position, vis)
 				queue_free()
 				return
 		if absf(position.x - game.camera_x()) > 2200.0 or position.y < game.cam.position.y - 800.0:
