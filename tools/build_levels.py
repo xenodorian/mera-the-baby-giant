@@ -161,7 +161,7 @@ def build():
     save(lid, 'graves_far', tileable(img(f'{C}/graveyard.png')), L, 0.7, 105, -30, 768)
     w = strip_width(1.0)
     near = row(w, 236, img(f'{C}/tileset.png').crop((64, 48, 128, 96)), 196)
-    props = [(img(f'{C}/sliced-objects/{n}.png'), wt, 201) for n, wt in
+    props = [(img(f'{C}/sliced-objects/{n}.png'), wt, 212) for n, wt in
              [('stone-1', 3), ('stone-2', 3), ('stone-3', 3), ('stone-4', 3), ('statue', 1.5), ('bush-large', 1.2),
               ('bush-small', 2), ('tree-1', 0.8), ('tree-2', 0.8), ('tree-3', 0.5)]]
     deco = scatter(w, 236, props, rng, (10, 70))
