@@ -15,7 +15,7 @@ L2 alone starts the barrier (`no_tap`, a short press is not lightning). R2 alone
 The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) pose cropped to the body box. That does not call `get_image()`, which is null in an export and used to fall back to the full sheet (a blank square). The HUD held-card icons use the same crop. Start no longer opens the controls list; it opens the pause menu in `hud.gd` (`pause_sel`). The controls list is only `--overlay`. Full-screen panels are drawn in a centered 1920×1080 design; the background and the dim cover `ui.size` / the menu control, so aspect `expand` does not leave a bare strip. The in-game bars stay at the top left so they do not sit on the touch pad.
 
 ## The project
-- A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
+- A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (public, Git LFS).
 - Main scene: `scenes/menu.tscn` (level select, `scripts/menu.gd`), which loads `scenes/game.tscn`. Any command-line user args skip the menu and go straight to the game. Key scripts in `scripts/game/`:
 
 | File | What it does |
@@ -59,11 +59,11 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 - Name the files `Mera_Playable_vX.Y.Z_Windows.exe` and `Mera_Playable_vX.Y.Z_Android.apk`, tag `vX.Y.Z-playable`, and attach both plus `SHA256SUMS.txt` to the GitHub release. Updater details: `docs/UPDATER.md` and `tools/updater_e2e.sh`.
 - The keystore (alias `mera`) lives only in the private `mera-assets` repo under `_keys/android/`. Never commit it to the public repo. A v0.9.0 install must be uninstalled once; later APKs signed with this key update in place.
 
-## Repo split (2026-10-31): public code, private assets
-- The game repo is public. `assets/` is the **private submodule** `xenodorian/mera-assets` (LFS). Clone with `--recurse-submodules`, then run `git submodule foreach git lfs pull`.
-- History was rewritten (`git filter-repo --invert-paths --path assets/ --path icon.png --path icon.png.import --path previews/{merakintsugi,spritekitchen,chierit,ansimuz,beam,compat}/`). **Old clones and worktrees must be discarded and re-cloned.**
-- The app icon moved to `res://assets/_project/icon.png` (project.godot and all three export presets).
-- Asset edits: commit and push in `assets/` first, then commit the submodule bump. Tools that write into `assets/` (build_roster, build_props, recolor scripts) write into the submodule.
+## Repository layout (assets merged into this repo, 2026-11-01)
+- This repo is public and holds the art, audio and source packs under `assets/` (Git LFS). The former private submodule `xenodorian/mera-assets` is no longer a submodule. It stays private and holds only the Android keystore under `_keys/android/`.
+- History was rewritten once (2026-10-31) to strip `assets/` from old commits. Old clones and worktrees from before that date must be discarded and re-cloned.
+- The app icon is `res://assets/_project/icon.png`.
+- Tools that write into `assets/` (build_roster, build_props, recolor scripts) now write into this repo.
 
 ## Pitfalls (learned the hard way)
 - **Don't name a method `_set`** on a Node: it overrides `Object._set()` (the property setter hook) and breaks every property assignment. The updater uses `_state()`.
@@ -126,5 +126,5 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 ## Build tools
 - Godot 4.7.2-stable (Linux binary) and the matching export templates in `~/.local/share/godot/export_templates/4.7.2.stable/` (from the official `Godot_v4.7.2-stable_export_templates.tpz`).
 - Android export: OpenJDK 21 (the system Java works) and the Android SDK at `~/Android/Sdk` (`cmdline-tools/latest`, `platform-tools`, `build-tools;35.0.1` and `36.0.0`, `platforms;android-35` and `android-36`). `~/.config/godot/editor_settings-4.7.tres` points at both (`export/android/java_sdk_path`, `export/android/android_sdk_path`). The preset uses the prebuilt template (`gradle_build/use_gradle_build=false`), so no Gradle build is needed.
-- The art is the private submodule `assets/`: clone `xenodorian/mera-assets`, run `git lfs pull` inside it, then `--headless --import`.
+- The art is in this repo under `assets/` (Git LFS): `git lfs install`, clone, then `--headless --import`. Only the signing keystore is private (`xenodorian/mera-assets`, `_keys/android/`).
 - Screenshots need `xvfb-run` and the OpenGL driver (see Pitfalls). Python 3 with Pillow and numpy runs the `tools/` scripts.

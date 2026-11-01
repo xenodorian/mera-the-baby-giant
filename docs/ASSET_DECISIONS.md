@@ -2,6 +2,8 @@
 
 _Last updated: 2026-10-30 18:45 (America/Chicago)._
 
+**Owner decision, 2026-11-01:** the licence notes below record what each pack's item page says. The owner states they hold full distribution rights to the purchased Merakintsugi pack and has overridden the no-redistribution notes for it: all assets are published in this repo. The rejected Sprite Kitchen pack is not published.
+
 ## Art direction (decided 2026-10-30)
 **Mera — the merakintsugi Platformer Character Pack hero — is the MAIN CHARACTER** of *Mera: The Baby Giant* (purchased by the owner, $15). Her signature mechanic is size-shifting (1x–19x).
 Every other pack only supplies **shapeshifted alternate forms** (chierit Elementals), **enemies / bosses** and **side characters** (ansimuz).
@@ -22,7 +24,7 @@ Downloaded but not copied in: ansimuz Warped Caves; Legacy `TinyRPG/`, `Warped/`
 ## Rejected / struck
 | Pack | Why |
 |---|---|
-| **Sprite Kitchen — Kira swordswoman** | **Rejected.** AI-assisted graphics (page disclosure); not palette pixel art (9,588 colours in one frame); ~3× too large (130–133 px body); idle drawn at 1.45× the scale of other animations; muddy when downscaled. Files kept in repo only as the evaluation record (`assets/characters/spritekitchen/`) — do not use. |
+| **Sprite Kitchen — Kira swordswoman** | **Rejected.** AI-assisted graphics (page disclosure); not palette pixel art (9,588 colours in one frame); ~3× too large (130–133 px body); idle drawn at 1.45× the scale of other animations; muddy when downscaled. Files are kept locally only as the evaluation record and are not published (gitignored; the licence forbids redistribution). |
 | CraftPix | Tengu sheathed-katana inconsistency; Vampire "dorky". |
 | LuizMelo | Style disliked across characters. |
 | willYEE | "Looks awful". |

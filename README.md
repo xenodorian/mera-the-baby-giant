@@ -14,14 +14,12 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
   - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (lightning = 2, Fury = 1+2), Enter/F1 = Start.
 
 ### Clone and open
-The code, scenes, tests, tools and docs are public. **The art, audio and source packs are not**: they live in the private repo `xenodorian/mera-assets`, mounted as a git submodule at `assets/`. That includes the main character, a purchased pack with a custom licence that may not be redistributed.
+Everything needed to run the game, including the art, audio and source packs, is in this repo (binary files are in Git LFS).
 ```bash
 git lfs install                # binary files are in Git LFS: required!
-# owner / collaborators with access to the private assets repo:
-git clone --recurse-submodules https://github.com/xenodorian/mera-the-baby-giant.git
-cd mera-the-baby-giant && git submodule foreach git lfs pull
+git clone https://github.com/xenodorian/mera-the-baby-giant.git
 ```
-Without access to `mera-assets`, the project opens but has no art or sound, so it can't run. Play the release builds instead: GitHub → Releases.
+Play the release builds instead: GitHub → Releases.
 Open in **Godot 4.7.2 stable** (standard build, not .NET):
 1. Project Manager → Import → choose `project.godot`.
 2. Let it import.
@@ -110,7 +108,7 @@ docs/                    Decisions, credits, licenses (Godot-ignored)
 ## Getting started (any agent / machine)
 ```bash
 git lfs install                # binary files are in Git LFS: required!
-git clone --recurse-submodules https://github.com/xenodorian/mera-the-baby-giant.git   # assets/ = private submodule
+git clone https://github.com/xenodorian/mera-the-baby-giant.git
 ```
 **History was rewritten on 2026-10-31** (the repo went public and the asset packs were moved out). Any clone made before that must be **re-cloned**: don't pull or push from an old clone, because it still contains the asset history.
 Read `AGENTS.md` before committing. Credits: `docs/CREDITS.md`.

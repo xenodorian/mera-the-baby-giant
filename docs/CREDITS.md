@@ -16,7 +16,7 @@
 | Kings and Pigs (the box: crate, hit frame, 4 pieces; recoloured to wood brown) — v0.8 crate | **Pixel Frog** — https://pixelfrog-assets.itch.io/kings-and-pigs | CC0 | None |
 | Red Oil Barrel and Exploding Red Oil Barrel — v0.8 explosive barrel | **Jimmy D. Journey** — itch.io | CC0 | None |
 | Gore Blood Gibs Meat Chunks — v0.8 gibs and blood | **Reactorcore** — OpenGameArt | CC0 | None |
-| **Platformer Character Pack v1 (full, purchased $15 on 2026-10-30) — MAIN CHARACTER** | **Merakintsugi** — https://merakintsugi.itch.io/platformer-character-pack · merakintsugi77@gmail.com · x.com/merakintsugi77 | Custom (item page; no license file in the zip). Verbatim: "Available for both commercial and non-commercial projects. Do not resell or redistribute as game assets. They must be used only as part of a project. Credit/ Attribution is optional. Feel free to modify the assets as needed. Play around with it however you like. Use of these assets for AI training or NFT conversion is strictly prohibited." | Attribution optional (we credit anyway). **No resale/redistribution as assets; no AI training; no NFTs.** Keep this repo private. |
+| **Platformer Character Pack v1 (full, purchased $15 on 2026-10-30) — MAIN CHARACTER** | **Merakintsugi** — https://merakintsugi.itch.io/platformer-character-pack · merakintsugi77@gmail.com · x.com/merakintsugi77 | Custom (item page; no license file in the zip). Verbatim: "Available for both commercial and non-commercial projects. Do not resell or redistribute as game assets. They must be used only as part of a project. Credit/ Attribution is optional. Feel free to modify the assets as needed. Play around with it however you like. Use of these assets for AI training or NFT conversion is strictly prohibited." | Attribution optional (we credit anyway). **No AI training; no NFTs.** The item-page text quoted here forbids resale and redistribution as game assets; the owner states they hold distribution rights and publishes the files here (see Repo note). |
 | Kira – Animated Pixel Art Swordswoman — **REJECTED, not used in the game** | **Sprite Kitchen** — https://spritekitchen.itch.io/kira-animated-pixel-art-swordswoman-pack | Custom (item page) | Personal + commercial game use; edits OK; credit appreciated, not required; **no resale/redistribution/sharing/uploading of the original files as a standalone pack, even modified**; don't claim the art as your own. Page discloses **AI-assisted graphics**. |
 
 ## Audio
@@ -43,8 +43,7 @@ The v0.7 allies are copies of chierit's **Water Priestess** and **Leaf Ranger** 
 > Sound effects: Kenney (kenney.nl), CC0.
 
 ## Repo note
-This repo is **private**. Merakintsugi and Sprite Kitchen forbid redistributing the original files; chierit asks not to resell.
-Do **not** make this repo public with `assets/` inside — move raw assets to a private location/submodule first.
+This repo is **public** and contains `assets/`, including the original source packs. Owner decision (2026-11-01): the owner states they hold full distribution rights to the purchased Merakintsugi Platformer Character Pack and instructs that all assets are published here. The credit table above still applies. Two things are deliberately not published: the Android signing key (`assets/_keys/`, gitignored, kept in the private `xenodorian/mera-assets` repo) and the rejected, unused Sprite Kitchen pack (its licence forbids redistribution; gitignored).
 
 ## Tools
 - Godot Engine 4.7.2 — MIT license (https://godotengine.org/license).

@@ -189,7 +189,7 @@ General Godot 4 references:
 - ⚠️ Restricted (no redistribution, attribution, or non-standard terms).
 - ⛔ Avoid: bans AI use or training, or bans derivatives. Already struck: aamatniekss, LuizMelo, willYEE, CraftPix.
 
-**Repo note:** the repo is private, so "no redistribution" packs are OK to commit there, but they must never be put in a public repo.
+**Repo note:** this repo is now public. A "no redistribution" pack is published only if the owner decides to (see `docs/CREDITS.md`, Repo note).
 
 ### 3.1 Godot plugins
 
@@ -246,7 +246,7 @@ General Godot 4 references:
 
 | Pack | Contents | License | Price (today) | Style fit with Gothicvania |
 |---|---|---|---|---|
-| [ansimuz Gothicvania Interiors](https://ansimuz.itch.io/gothicvania-interiors) | Candle, **chandelier**, chest, crate, platform, tables, weapon racks, 3 NPCs, house tileset | ⚠️ commercial OK, modification OK, **no redistribution** (fine in the private repo) | $13.99 (sale, normally $19.99) | ★★★★★ same artist |
+| [ansimuz Gothicvania Interiors](https://ansimuz.itch.io/gothicvania-interiors) | Candle, **chandelier**, chest, crate, platform, tables, weapon racks, 3 NPCs, house tileset | ⚠️ commercial OK, modification OK, **no redistribution** (publish only on the owner's decision) | $13.99 (sale, normally $19.99) | ★★★★★ same artist |
 | [ansimuz Gothicvania Collection](https://ansimuz.itch.io/ultimate-gothicvania-collection) | Environments, props, items (potions, scrolls, food, crystals), FX, bosses (Dragon, Wendigo), music | ⚠️ same terms as above | $104.99 (sale, normally $149.99); bundle $299 | ★★★★★. Check overlap with the CC0 Legacy Collection already owned. Probably a superset with extra props and items. |
 | [ansimuz Magic Castle](https://ansimuz.itch.io/magic-castle-tileset) | Castle tiles, doors, torches, props | ⚠️ same terms | $17.49 (sale) | ★★★★★ |
 | [Pixel Frog — Kings and Pigs](https://pixelfrog-assets.itch.io/kings-and-pigs) | **Box, bomb + explosion, cannon, door, diamond, heart** | ✅ **CC0** | free | ★★★ cuter and brighter. Fine as placeholders or recoloured. |

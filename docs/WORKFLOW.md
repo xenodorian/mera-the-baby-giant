@@ -33,7 +33,7 @@ The steps (version bump, Windows exe, Android APK, `SHA256SUMS.txt`, tag and Git
 - The Windows exe and the Android APK are the deliverables.
 
 ## Repository layout
-- `xenodorian/mera-the-baby-giant` is **public**: code, scenes, shaders, tests, tools, docs and gameplay screenshots (`previews/playable/`).
-- `xenodorian/mera-assets` is **private**: everything under `assets/` (art, audio, source packs, the app icon `_project/icon.png`) and the raw sprite-sheet previews. It is a git submodule at `assets/`.
-- To change an asset, commit and push inside `assets/` first, then commit the updated submodule pointer in the game repo.
-- Never add art, audio or packs to the public repo, and never paste the purchased Merakintsugi sprites anywhere public. Release binaries contain the packed art, which is a normal game distribution.
+- `xenodorian/mera-the-baby-giant` is **public** and holds everything: code, scenes, shaders, tests, tools, docs, gameplay screenshots, and all art, audio and source packs under `assets/` (binary files in Git LFS).
+- `xenodorian/mera-assets` is **private** and holds only the Android release keystore and its env file (`_keys/android/`). Never commit those, or any key, password or receipt, to this repo (`assets/_keys/` is gitignored).
+- Do not add the rejected Sprite Kitchen pack (gitignored; its licence forbids redistribution).
+- Changing an asset is a normal commit in this repo. Run `--headless --import` afterwards.
