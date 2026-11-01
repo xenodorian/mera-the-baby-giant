@@ -14,7 +14,7 @@ const RUN := 200.0
 const DASH := 400.0         # slide, dodge attack lunge
 const DASH_FAST := 1600.0   # v0.3 ground/aerial dash: 2x the distance in half the time (4x the old 400 px/s)
 const DODGE := 800.0        # v0.3 back dodge: same distance as before in half the time
-const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0, "heal": 4.0, "datk2": Tuning.RSLASH_WINDUP_SPEED}   # heal: the drink plays at 4x; datk2: windup only
+const FAST_ANIMS := {"gdash": 2.0, "adash": 2.0, "bdodge": 2.0, "datk2": Tuning.RSLASH_WINDUP_SPEED}   # datk2: windup only. Heal poses are one rendered frame each.
 const FLY := 320.0
 const GRAVITY := 1500.0
 const JUMP_V := 520.0
@@ -1598,6 +1598,9 @@ func _start_move(k: String) -> void:
 		vel = Vector2.ZERO
 	_play(a)
 	anim.speed = FAST_ANIMS.get(k, 1.0)
+	if a == "heal":
+		anim.frame_for_frame = true
+		anim.hold_step = true
 	match k:
 		"bdodge":
 			Sfx.play("dash", 1.2)

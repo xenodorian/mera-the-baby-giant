@@ -13,6 +13,8 @@ var idx := 0
 var t_ms := 0.0
 var speed := 1.0
 var paused := false
+var frame_for_frame := false   # one authored frame per physics step; the step that started it already shows the first
+var hold_step := false
 var loop := false
 var loop_from := -1
 var loop_to := -1
@@ -44,6 +46,8 @@ func play(k: String, start: int = 0) -> void:
 	t_ms = 0.0
 	paused = false
 	speed = 1.0
+	frame_for_frame = false
+	hold_step = false
 	serial += 1
 	var tex := AnimLib.sheet(k)
 	for s in [light, body, fx]:
@@ -60,6 +64,8 @@ func section(a: int, b: int) -> void:
 func seek(i: int) -> void:
 	idx = clampi(i, 0, frames.size() - 1)
 	t_ms = 0.0
+	if frame_for_frame:
+		hold_step = true
 	_apply()
 	frame_changed.emit(idx)
 
@@ -82,25 +88,38 @@ func total_ms() -> float:
 func step(delta_ms: float) -> void:
 	if paused or frames.is_empty():
 		return
+	if frame_for_frame:
+		if hold_step:
+			hold_step = false
+			return
+		_advance_one()
+		return
 	t_ms += delta_ms * speed
 	var my := serial
 	while t_ms >= frame_ms(idx):
 		t_ms -= frame_ms(idx)
-		if loop_to >= 0 and idx >= loop_to:
-			idx = loop_from
-		elif idx + 1 < frames.size():
-			idx += 1
-		elif loop:
-			idx = 0
-		else:
-			t_ms = 0.0
-			paused = true
-			finished.emit(key)
+		if not _advance_one():
 			return
-		_apply()
-		frame_changed.emit(idx)
 		if serial != my:
 			return
+
+
+## false when the clip ended and stayed on its last frame
+func _advance_one() -> bool:
+	if loop_to >= 0 and idx >= loop_to:
+		idx = loop_from
+	elif idx + 1 < frames.size():
+		idx += 1
+	elif loop:
+		idx = 0
+	else:
+		t_ms = 0.0
+		paused = true
+		finished.emit(key)
+		return false
+	_apply()
+	frame_changed.emit(idx)
+	return true
 
 
 func _apply() -> void:

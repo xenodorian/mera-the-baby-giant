@@ -539,7 +539,7 @@ func _run() -> void:
 		waited += 1
 		if mt.size >= 3:
 			break
-	_check("a potion lands within 0.2 s (the drink plays at 4x)", mt.size == 3 and mt.potions == 0 and waited <= 10 and is_equal_approx(float(mt.anim.speed), 4.0), "frames=%d speed=%s size=%d" % [waited, mt.anim.speed, mt.size])
+	_check("a potion lands within 0.2 s (one rendered frame per heal frame)", mt.size == 3 and mt.potions == 0 and waited <= 12 and mt.anim.frame_for_frame, "frames=%d speed=%s size=%d" % [waited, mt.anim.speed, mt.size])
 	gt.queue_free()
 	await process_frame
 	await _drive(g, [[5, "l1", true], [8, "l1", false]], 60)

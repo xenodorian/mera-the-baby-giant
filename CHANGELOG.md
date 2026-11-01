@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.2-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.2-playable/Mera_Playable_v0.11.2_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.2-playable/Mera_Playable_v0.11.2_Android.apk
+- **Heal poses play at one drawing per rendered frame.** That is the potion, the barrier, lightning, Up+Y, the pulse, and the vertical beam. Up+Y bolts leave on frame 6, about 100 ms after the press, instead of 360 ms. The potion still grows her on frame 7. Same signing key as v0.10.0. Android `versionCode` 31.
+
 ## v0.11.1-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.1-playable/Mera_Playable_v0.11.1_Windows.exe

@@ -31,7 +31,7 @@ const PULSE_S := 0.35             # ring expands over this long
 const VBEAM_S := 0.7              # Y Y Y then X: the vertical beam lasts this long ...
 const VBEAM_DMG := 3              # ... and hits every airborne / flying enemy in its column once, for this x size
 const VBEAM_HALF_W := 34.0        # column half width, native px (x size)
-const VFIRE_FRAME := 6            # Up+Y vertical quick fire: the bolt leaves on heal frame 6 (360 ms, quick fire: 400 ms)
+const VFIRE_FRAME := 6            # Up+Y: bolts leave on heal frame 6. The pose is one rendered frame per drawing (~100 ms).
 const VFIRE_SPAWN := [-15.0, -74.0]    # raised wand tip in the heal pose (native px)
 const HEAL_POSE_END := 9          # vertical fire / pulse / vertical beam play heal frames 0-8 only (no heal burst)
 const SLAM_GRACE_MS := 350.0      # rising slash (B+Y): Y during it (any frame) or this long after it -> slam
@@ -96,7 +96,7 @@ const SUPER_QUAKE_SHAKE := 70.0  # ... twice the normal shake ...
 const SUPER_QUAKE_DMG := 2       # ... every enemy takes this, flat (never x Mera's size) ...
 const SUPER_QUAKE_REACH := 1920.0  # ... and every ground breakable within this of the camera centre is destroyed
 # ---------------------------------------------------------------- v0.5 L2 / R2 remap
-const L2_TAP_FRAMES := 5        # L2 released before the bubble forms (heal frame 5, 300 ms) = a tap = lightning
+const L2_TAP_FRAMES := 5        # L2 released before the bubble forms (heal frame 5, one rendered frame each, ~83 ms) drops the pose
 
 # ---------------------------------------------------------------- v0.8 (S4) impact pass (scripts/game/hit_stop.gd)
 const HITSTOP_LIGHT_MS := 45.0    # a normal hit freezes the game this long (real time) ...

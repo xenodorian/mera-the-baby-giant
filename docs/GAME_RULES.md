@@ -1,7 +1,7 @@
 # Mera: The Baby Giant: test-level game rules
 
 ## Size is health
-- A green potion (L1) plays the heal at **4×** speed: +1 size on frame 7, about **0.1 s** after the press, and she is free again in about **0.25 s**. Inside either bubble the drink is instant and the bubble stays up.
+- A green potion (L1) plays the heal at one rendered frame per drawing: +1 size on frame 7, about **0.12 s** after the press, and she is free again in about **0.3 s**. Inside either bubble the drink is instant and the bubble stays up.
 - Each hit costs as many sizes as its damage: Fire Knight 1 (special 2; was 2/3 before v0.8), Blue Knight 1.
   The size change animates one step at a time.
 - A hit that would take her below 1x (any hit while she is at 1x) kills her. **Game Over**: Start / Enter restarts.
