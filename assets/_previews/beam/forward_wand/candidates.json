@@ -1,0 +1,158 @@
+[
+ {
+  "rank": 1,
+  "file": "dodge atk/dodge atk 2x/dodge atk 2x.aseprite",
+  "layer": "dodge atk 2x",
+  "frame": 0,
+  "angle_deg": -10,
+  "tip_native": [
+   44,
+   69
+  ],
+  "identical_frames": {
+   "1": 713,
+   "2": 1720
+  },
+  "note": "arm straight out at chest height, wand forward, near horizontal",
+  "png": "01_dodge_atk_2x_dodge_atk_2x_f0.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 2,
+  "file": "atk/2x-2 atk/2x-2 atk.aseprite",
+  "layer": "2x-2 atk",
+  "frame": 9,
+  "angle_deg": -31,
+  "tip_native": [
+   49,
+   68
+  ],
+  "identical_frames": {
+   "7": 247,
+   "8": 207
+  },
+  "note": "deep lunge, both arms forward, wand angled down-forward",
+  "png": "02_2x-2_atk_2x-2_atk_f9.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 3,
+  "file": "dodge atk/dodge atk 1x/dodge atk 1x.aseprite",
+  "layer": "dodge atk 1x",
+  "frame": 13,
+  "angle_deg": -4,
+  "tip_native": [
+   95,
+   22
+  ],
+  "identical_frames": {
+   "11": 700,
+   "12": 72,
+   "14": 422,
+   "15": 436
+  },
+  "note": "wand horizontal at eye level, hand by her face (aiming along it)",
+  "png": "03_dodge_atk_1x_dodge_atk_1x_f13.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 4,
+  "file": "atk/2x atk/2x atk.aseprite",
+  "layer": "2x atk",
+  "frame": 3,
+  "angle_deg": -7,
+  "tip_native": [
+   79,
+   39
+  ],
+  "identical_frames": {
+   "1": 1700,
+   "2": 1159,
+   "4": 2017,
+   "5": 1994
+  },
+  "note": "arm fully thrust forward, horizontal, but a motion-smear frame",
+  "png": "04_2x_atk_2x_atk_f3.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 5,
+  "file": "atk/2x-2 atk/2x-2 atk.aseprite",
+  "layer": "2x-2 atk",
+  "frame": 7,
+  "angle_deg": -37,
+  "tip_native": [
+   44,
+   72
+  ],
+  "identical_frames": {
+   "5": 576,
+   "6": 296,
+   "8": 139,
+   "9": 247
+  },
+  "note": "lunge, wand forward-down with smear streaks",
+  "png": "05_2x-2_atk_2x-2_atk_f7.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 6,
+  "file": "dodge atk/dodge atk 1x/dodge atk 1x.aseprite",
+  "layer": "dodge atk 1x",
+  "frame": 10,
+  "angle_deg": -7,
+  "tip_native": [
+   88,
+   24
+  ],
+  "identical_frames": {
+   "8": 1262,
+   "9": 960,
+   "11": 310,
+   "12": 729
+  },
+  "note": "eye-level wand with a swing trail",
+  "png": "06_dodge_atk_1x_dodge_atk_1x_f10.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 7,
+  "file": "atk/2x atk/2x atk.aseprite",
+  "layer": "2x atk",
+  "frame": 2,
+  "angle_deg": -10,
+  "tip_native": [
+   81,
+   39
+  ],
+  "identical_frames": {
+   "0": 1562,
+   "1": 1496,
+   "3": 1159,
+   "4": 2156
+  },
+  "note": "thrust smear, first frame",
+  "png": "07_2x_atk_2x_atk_f2.png",
+  "tick_overlap": false
+ },
+ {
+  "rank": 8,
+  "file": "atk/2x atk/2x atk.aseprite",
+  "layer": "to idle(short delay)",
+  "frame": 13,
+  "angle_deg": -2,
+  "tip_native": [
+   114,
+   41
+  ],
+  "identical_frames": {
+   "11": 1408,
+   "12": 776,
+   "14": 1318,
+   "15": 1380
+  },
+  "note": "wand forward but held across her body; tip only reaches her fist",
+  "png": "08_2x_atk_to_idleshort_delay_f13.png",
+  "tick_overlap": false
+ }
+]

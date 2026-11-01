@@ -1,0 +1,84 @@
+[
+ {
+  "name": "pick1_3x_atk_f24",
+  "file": "atk/3x atk/3x atk.aseprite",
+  "layer": "3x atk",
+  "frame": 24,
+  "frame_1based": 25,
+  "held_frames": [
+   24
+  ],
+  "wand_tip": [
+   162,
+   72
+  ],
+  "beam_direction": "left",
+  "gif": "pick1_3x_atk_f24_beam.gif",
+  "gif_size": [
+   816,
+   328
+  ],
+  "frames": 43,
+  "colours": 86,
+  "beam_origin_in_gif_1x": [
+   162,
+   49
+  ],
+  "bytes": 344873
+ },
+ {
+  "name": "pick2_3x_atk_f4",
+  "file": "atk/3x atk/3x atk.aseprite",
+  "layer": "3x atk",
+  "frame": 4,
+  "frame_1based": 5,
+  "held_frames": [
+   4
+  ],
+  "wand_tip": [
+   160,
+   36
+  ],
+  "beam_direction": "right",
+  "gif": "pick2_3x_atk_f4_beam.gif",
+  "gif_size": [
+   860,
+   340
+  ],
+  "frames": 43,
+  "colours": 59,
+  "beam_origin_in_gif_1x": [
+   52,
+   18
+  ],
+  "bytes": 318399
+ },
+ {
+  "name": "pick3_dodge_atk_1x_f14",
+  "file": "dodge atk/dodge atk 1x/dodge atk 1x.aseprite",
+  "layer": "dodge atk 1x",
+  "frame": 14,
+  "frame_1based": 15,
+  "held_frames": [
+   14,
+   15
+  ],
+  "wand_tip": [
+   94,
+   22
+  ],
+  "beam_direction": "left",
+  "gif": "pick3_dodge_atk_1x_f14_beam.gif",
+  "gif_size": [
+   908,
+   316
+  ],
+  "frames": 43,
+  "colours": 52,
+  "beam_origin_in_gif_1x": [
+   162,
+   24
+  ],
+  "bytes": 330599
+ }
+]

@@ -1,0 +1,794 @@
+[
+{
+"t": 0,
+"anim": "idle",
+"frame": 0,
+"phase": "idle",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 60,
+"anim": "idle",
+"frame": 1,
+"phase": "idle",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 120,
+"anim": "dodge atk 1x",
+"frame": 0,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 160,
+"anim": "dodge atk 1x",
+"frame": 1,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 200,
+"anim": "dodge atk 1x",
+"frame": 2,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 240,
+"anim": "dodge atk 1x",
+"frame": 3,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 280,
+"anim": "dodge atk 1x",
+"frame": 4,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 320,
+"anim": "dodge atk 1x",
+"frame": 5,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 360,
+"anim": "dodge atk 1x",
+"frame": 6,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 400,
+"anim": "dodge atk 1x",
+"frame": 7,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 440,
+"anim": "dodge atk 1x",
+"frame": 8,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 480,
+"anim": "dodge atk 1x",
+"frame": 9,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 520,
+"anim": "dodge atk 1x",
+"frame": 10,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 560,
+"anim": "dodge atk 1x",
+"frame": 11,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 600,
+"anim": "dodge atk 1x",
+"frame": 12,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 640,
+"anim": "dodge atk 1x",
+"frame": 13,
+"phase": "lead",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 40
+},
+{
+"t": 680,
+"anim": "dodge atk 1x",
+"frame": 14,
+"phase": "fire",
+"recoil": [
+2,
+0
+],
+"explosion_frame": null,
+"projectile": [
+3.0,
+22
+],
+"ms": 40
+},
+{
+"t": 720,
+"anim": "dodge atk 1x",
+"frame": 15,
+"phase": "fire",
+"recoil": [
+1,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-13.0,
+22
+],
+"ms": 40
+},
+{
+"t": 760,
+"anim": "dodge atk 1x",
+"frame": 16,
+"phase": "recover",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-29.0,
+22
+],
+"ms": 40
+},
+{
+"t": 800,
+"anim": "dodge atk 1x",
+"frame": 17,
+"phase": "recover",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-45.0,
+22
+],
+"ms": 40
+},
+{
+"t": 840,
+"anim": "dodge atk 1x",
+"frame": 18,
+"phase": "recover",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-61.0,
+22
+],
+"ms": 40
+},
+{
+"t": 880,
+"anim": "idle",
+"frame": 7,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-77.0,
+22
+],
+"ms": 40
+},
+{
+"t": 920,
+"anim": "idle",
+"frame": 7,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-93.0,
+22
+],
+"ms": 20
+},
+{
+"t": 940,
+"anim": "idle",
+"frame": 8,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-101.0,
+22
+],
+"ms": 20
+},
+{
+"t": 960,
+"anim": "idle",
+"frame": 8,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-109.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1000,
+"anim": "idle",
+"frame": 9,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-125.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1040,
+"anim": "idle",
+"frame": 9,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-141.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1060,
+"anim": "idle",
+"frame": 0,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-149.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1080,
+"anim": "idle",
+"frame": 0,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-157.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1120,
+"anim": "idle",
+"frame": 1,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-173.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1160,
+"anim": "idle",
+"frame": 1,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-189.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1180,
+"anim": "idle",
+"frame": 2,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-197.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1200,
+"anim": "idle",
+"frame": 2,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-205.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1240,
+"anim": "idle",
+"frame": 3,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-221.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1280,
+"anim": "idle",
+"frame": 3,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-237.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1300,
+"anim": "idle",
+"frame": 4,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-245.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1320,
+"anim": "idle",
+"frame": 4,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-253.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1360,
+"anim": "idle",
+"frame": 5,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-269.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1400,
+"anim": "idle",
+"frame": 5,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-285.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1420,
+"anim": "idle",
+"frame": 6,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-293.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1440,
+"anim": "idle",
+"frame": 6,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-301.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1480,
+"anim": "idle",
+"frame": 7,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-317.0,
+22
+],
+"ms": 40
+},
+{
+"t": 1520,
+"anim": "idle",
+"frame": 7,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-333.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1540,
+"anim": "idle",
+"frame": 8,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-341.0,
+22
+],
+"ms": 20
+},
+{
+"t": 1560,
+"anim": "idle",
+"frame": 8,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-349.0,
+22
+],
+"ms": 22
+},
+{
+"t": 1582,
+"anim": "idle",
+"frame": 8,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": [
+-357.8,
+22
+],
+"ms": 20
+},
+{
+"t": 1602,
+"anim": "idle",
+"frame": 9,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 58
+},
+{
+"t": 1660,
+"anim": "idle",
+"frame": 0,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 1720,
+"anim": "idle",
+"frame": 1,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 1780,
+"anim": "idle",
+"frame": 2,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 1840,
+"anim": "idle",
+"frame": 3,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 1900,
+"anim": "idle",
+"frame": 4,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 1960,
+"anim": "idle",
+"frame": 5,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+},
+{
+"t": 2020,
+"anim": "idle",
+"frame": 6,
+"phase": "idle_end",
+"recoil": [
+0,
+0
+],
+"explosion_frame": null,
+"projectile": null,
+"ms": 60
+}
+]

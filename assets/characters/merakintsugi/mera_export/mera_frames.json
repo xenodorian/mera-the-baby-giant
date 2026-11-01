@@ -1,0 +1,111 @@
+{
+ "cell": [
+  74,
+  57
+ ],
+ "pivot": [
+  37,
+  55
+ ],
+ "faces": "left",
+ "source": "assets/characters/merakintsugi/platformer-character-pack",
+ "animations": {
+  "idle": {
+   "file": "mera_idle_strip10.png",
+   "frames": 10,
+   "durations_ms": [
+    60,
+    60,
+    60,
+    60,
+    60,
+    60,
+    60,
+    60,
+    60,
+    60
+   ],
+   "loop": true
+  },
+  "run_start": {
+   "file": "mera_run_start_strip2.png",
+   "frames": 2,
+   "durations_ms": [
+    100,
+    100
+   ],
+   "loop": false
+  },
+  "run": {
+   "file": "mera_run_strip20.png",
+   "frames": 20,
+   "durations_ms": [
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35,
+    35
+   ],
+   "loop": true
+  },
+  "run_stop": {
+   "file": "mera_run_stop_strip15.png",
+   "frames": 15,
+   "durations_ms": [
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+   ],
+   "loop": false
+  },
+  "run_turn": {
+   "file": "mera_run_turn_strip8.png",
+   "frames": 8,
+   "durations_ms": [
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+   ],
+   "loop": false
+  }
+ },
+ "idle_body_bbox_rel_pivot": [
+  -23,
+  -55,
+  23,
+  0
+ ],
+ "body_height_px": 55
+}

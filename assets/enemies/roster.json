@@ -1,0 +1,8867 @@
+{
+ "minotaur": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_1.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_2.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_3.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_4.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_5.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_6.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_7.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_8.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_9.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_10.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_11.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_12.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_13.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_14.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_15.png",
+     "res://assets/characters/chierit/minotaur/animations/idle/idle_16.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     160
+    ],
+    "pivot": [
+     155.0,
+     144.0
+    ],
+    "boxes": [
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -101.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -101.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -101.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -101.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -103.0,
+      50.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -108.0,
+      51.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -108.0,
+      51.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -108.0,
+      51.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -108.0,
+      51.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -103.0,
+      50.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_1.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_2.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_3.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_4.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_5.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_6.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_7.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_8.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_9.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_10.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_11.png",
+     "res://assets/characters/chierit/minotaur/animations/walk/walk_12.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     160
+    ],
+    "pivot": [
+     155.0,
+     144.0
+    ],
+    "boxes": [
+     [
+      -62.0,
+      -88.0,
+      33.0,
+      0.0
+     ],
+     [
+      -59.0,
+      -88.0,
+      41.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -88.0,
+      49.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -90.0,
+      55.0,
+      0.0
+     ],
+     [
+      -51.0,
+      -96.0,
+      52.0,
+      0.0
+     ],
+     [
+      -50.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -50.0,
+      -101.0,
+      53.0,
+      0.0
+     ],
+     [
+      -50.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -51.0,
+      -96.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -90.0,
+      55.0,
+      0.0
+     ],
+     [
+      -62.0,
+      -87.0,
+      49.0,
+      0.0
+     ],
+     [
+      -65.0,
+      -87.0,
+      41.0,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_1.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_2.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_3.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_4.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_5.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_6.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_7.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_8.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_9.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_10.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_11.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_12.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_13.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_14.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_15.png",
+     "res://assets/characters/chierit/minotaur/animations/atk_1/atk_1_16.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     160
+    ],
+    "pivot": [
+     155.0,
+     144.0
+    ],
+    "boxes": [
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -119.0,
+      53.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -117.0,
+      54.0,
+      0.0
+     ],
+     [
+      -58.0,
+      -117.0,
+      54.0,
+      0.0
+     ],
+     [
+      -132.0,
+      -88.0,
+      40.0,
+      0.0
+     ],
+     [
+      -137.0,
+      -94.0,
+      28.0,
+      1.0
+     ],
+     [
+      -142.0,
+      -101.0,
+      36.0,
+      1.0
+     ],
+     [
+      -68.0,
+      -115.0,
+      40.0,
+      0.0
+     ],
+     [
+      -69.0,
+      -115.0,
+      40.0,
+      0.0
+     ],
+     [
+      -72.0,
+      -117.0,
+      40.0,
+      0.0
+     ],
+     [
+      -126.0,
+      -93.0,
+      31.0,
+      0.0
+     ],
+     [
+      -119.0,
+      -81.0,
+      35.0,
+      3.0
+     ],
+     [
+      -118.0,
+      -80.0,
+      61.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -83.0,
+      62.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -85.0,
+      58.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -100.0,
+      52.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -52.0,
+   -100.0,
+   52.0,
+   0.0
+  ]
+ },
+ "ogre": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/ogre/Sprites/Idle/ogre-idle1.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Idle/ogre-idle2.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Idle/ogre-idle3.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Idle/ogre-idle4.png"
+    ],
+    "fps": 6,
+    "loop": true,
+    "size": [
+     144,
+     80
+    ],
+    "pivot": [
+     62.0,
+     80.0
+    ],
+    "boxes": [
+     [
+      -32.0,
+      -58.0,
+      32.0,
+      0.0
+     ],
+     [
+      -34.0,
+      -58.0,
+      32.0,
+      0.0
+     ],
+     [
+      -35.0,
+      -59.0,
+      33.0,
+      0.0
+     ],
+     [
+      -34.0,
+      -58.0,
+      32.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/ansimuz/ogre/Sprites/walk/ogre-walk1.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk/ogre-walk2.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk/ogre-walk3.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk/ogre-walk4.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk/ogre-walk5.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk/ogre-walk6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     144,
+     80
+    ],
+    "pivot": [
+     62.0,
+     80.0
+    ],
+    "boxes": [
+     [
+      -19.0,
+      -53.0,
+      34.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -52.0,
+      34.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      34.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -53.0,
+      35.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -52.0,
+      36.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      36.0,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack1.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack2.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack3.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack4.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack5.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack6.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/Attack/ogre-attack7.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     144,
+     80
+    ],
+    "pivot": [
+     62.0,
+     80.0
+    ],
+    "boxes": [
+     [
+      -32.0,
+      -58.0,
+      32.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -55.0,
+      42.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -72.0,
+      44.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -69.0,
+      44.0,
+      0.0
+     ],
+     [
+      -59.0,
+      -76.0,
+      32.0,
+      0.0
+     ],
+     [
+      -61.0,
+      -44.0,
+      33.0,
+      0.0
+     ],
+     [
+      -49.0,
+      -45.0,
+      32.0,
+      0.0
+     ]
+    ]
+   },
+   "idle_unarmed": {
+    "frames": [
+     "res://assets/characters/ansimuz/ogre/Sprites/idle-unarmed/ogre-idle-unarmed1.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/idle-unarmed/ogre-idle-unarmed2.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/idle-unarmed/ogre-idle-unarmed3.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/idle-unarmed/ogre-idle-unarmed4.png"
+    ],
+    "fps": 6,
+    "loop": true,
+    "size": [
+     144,
+     80
+    ],
+    "pivot": [
+     62.0,
+     80.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -58.0,
+      32.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -58.0,
+      32.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -59.0,
+      33.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -58.0,
+      32.0,
+      0.0
+     ]
+    ]
+   },
+   "walk_unarmed": {
+    "frames": [
+     "res://assets/characters/ansimuz/ogre/Sprites/walk-unarmed/ogre-walk-unarmed1.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk-unarmed/ogre-walk-unarmed2.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk-unarmed/ogre-walk-unarmed3.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk-unarmed/ogre-walk-unarmed4.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk-unarmed/ogre-walk-unarmed5.png",
+     "res://assets/characters/ansimuz/ogre/Sprites/walk-unarmed/ogre-walk-unarmed6.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     144,
+     80
+    ],
+    "pivot": [
+     62.0,
+     80.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -53.0,
+      34.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -52.0,
+      34.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -50.0,
+      34.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -53.0,
+      35.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -52.0,
+      36.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -50.0,
+      36.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -32.0,
+   -58.0,
+   32.0,
+   0.0
+  ]
+ },
+ "werewolf": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/werewolf/Sprites/Idle/werewolf-idle1.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/Idle/werewolf-idle2.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/Idle/werewolf-idle3.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/Idle/werewolf-idle4.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/Idle/werewolf-idle5.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     96,
+     76
+    ],
+    "pivot": [
+     40.5,
+     76.0
+    ],
+    "boxes": [
+     [
+      -28.5,
+      -39.0,
+      28.5,
+      0.0
+     ],
+     [
+      -27.5,
+      -39.0,
+      28.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -38.0,
+      28.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -39.0,
+      28.5,
+      0.0
+     ],
+     [
+      -28.5,
+      -39.0,
+      28.5,
+      0.0
+     ]
+    ]
+   },
+   "run": {
+    "frames": [
+     "res://assets/characters/ansimuz/werewolf/Sprites/run/werewolf-run1.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/run/werewolf-run2.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/run/werewolf-run3.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/run/werewolf-run4.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/run/werewolf-run5.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/run/werewolf-run6.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     96,
+     76
+    ],
+    "pivot": [
+     40.5,
+     76.0
+    ],
+    "boxes": [
+     [
+      -39.5,
+      -31.0,
+      33.5,
+      0.0
+     ],
+     [
+      -38.5,
+      -37.0,
+      32.5,
+      0.0
+     ],
+     [
+      -39.5,
+      -43.0,
+      34.5,
+      -2.0
+     ],
+     [
+      -39.5,
+      -43.0,
+      35.5,
+      -2.0
+     ],
+     [
+      -39.5,
+      -41.0,
+      37.5,
+      0.0
+     ],
+     [
+      -39.5,
+      -35.0,
+      36.5,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/ansimuz/werewolf/Sprites/jump/werewolf-jump1.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/jump/werewolf-jump2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     96,
+     76
+    ],
+    "pivot": [
+     40.5,
+     76.0
+    ],
+    "boxes": [
+     [
+      -20.5,
+      -54.0,
+      35.5,
+      -4.0
+     ],
+     [
+      -18.5,
+      -54.0,
+      35.5,
+      -4.0
+     ]
+    ]
+   },
+   "fall": {
+    "frames": [
+     "res://assets/characters/ansimuz/werewolf/Sprites/fall/werewolf-fall1.png",
+     "res://assets/characters/ansimuz/werewolf/Sprites/fall/werewolf-fall2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     96,
+     76
+    ],
+    "pivot": [
+     40.5,
+     76.0
+    ],
+    "boxes": [
+     [
+      -17.5,
+      -51.0,
+      30.5,
+      -12.0
+     ],
+     [
+      -12.5,
+      -51.0,
+      30.5,
+      -12.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -28.5,
+   -39.0,
+   28.5,
+   0.0
+  ]
+ },
+ "wolf": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "run": {
+    "frames": [
+     "res://assets/enemies/wolf/run_1.png",
+     "res://assets/enemies/wolf/run_2.png",
+     "res://assets/enemies/wolf/run_3.png",
+     "res://assets/enemies/wolf/run_4.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     56,
+     32
+    ],
+    "pivot": [
+     28.0,
+     31.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -18.0,
+      21.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -20.0,
+      21.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -19.0,
+      23.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -20.0,
+      22.0,
+      1.0
+     ]
+    ]
+   },
+   "run_skin": {
+    "frames": [
+     "res://assets/enemies/wolf/run_skin_1.png",
+     "res://assets/enemies/wolf/run_skin_2.png",
+     "res://assets/enemies/wolf/run_skin_3.png",
+     "res://assets/enemies/wolf/run_skin_4.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     56,
+     32
+    ],
+    "pivot": [
+     28.0,
+     31.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -18.0,
+      21.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -20.0,
+      21.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -19.0,
+      23.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -20.0,
+      22.0,
+      1.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -21.0,
+   -18.0,
+   21.0,
+   0.0
+  ]
+ },
+ "hell_hound": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame1.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame2.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame3.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame4.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame5.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame6.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame7.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame8.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame9.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame10.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Idle/frame11.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     64,
+     48
+    ],
+    "pivot": [
+     31.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -19.0,
+      -24.0,
+      19.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -21.0,
+      20.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -21.0,
+      18.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -21.0,
+      20.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame1.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame2.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame3.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame4.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame5.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame6.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame7.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame8.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame9.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame10.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame11.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Walk/frame12.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     64,
+     48
+    ],
+    "pivot": [
+     31.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -24.0,
+      23.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -25.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -26.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -25.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -24.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -24.0,
+      23.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -24.0,
+      23.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -25.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -26.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -25.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -24.0,
+      24.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -24.0,
+      23.0,
+      0.0
+     ]
+    ]
+   },
+   "run": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Run/frame1.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Run/frame2.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Run/frame3.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Run/frame4.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Run/frame5.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     64,
+     48
+    ],
+    "pivot": [
+     31.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -19.0,
+      -29.0,
+      26.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -22.0,
+      26.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -26.0,
+      26.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -25.0,
+      25.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -26.0,
+      26.0,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Jump/frame1.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Jump/frame2.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Jump/frame3.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Jump/frame4.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Jump/frame5.png",
+     "res://assets/characters/ansimuz/hell-hound/Sprites/Jump/frame6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     64,
+     48
+    ],
+    "pivot": [
+     31.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -20.0,
+      -26.0,
+      25.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -34.0,
+      21.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -41.0,
+      26.0,
+      -4.0
+     ],
+     [
+      -20.0,
+      -39.0,
+      27.0,
+      -15.0
+     ],
+     [
+      -21.0,
+      -43.0,
+      20.0,
+      -4.0
+     ],
+     [
+      -20.0,
+      -28.0,
+      18.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -19.0,
+   -24.0,
+   19.0,
+   0.0
+  ]
+ },
+ "hell_beast": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-beast/Idle/Sprites/hell-beast-idle1.png",
+     "res://assets/characters/ansimuz/hell-beast/Idle/Sprites/hell-beast-idle2.png",
+     "res://assets/characters/ansimuz/hell-beast/Idle/Sprites/hell-beast-idle3.png",
+     "res://assets/characters/ansimuz/hell-beast/Idle/Sprites/hell-beast-idle4.png",
+     "res://assets/characters/ansimuz/hell-beast/Idle/Sprites/hell-beast-idle5.png",
+     "res://assets/characters/ansimuz/hell-beast/Idle/Sprites/hell-beast-idle6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     80,
+     160
+    ],
+    "pivot": [
+     41.0,
+     160.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -60.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -63.0,
+      21.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -65.0,
+      23.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      22.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -53.0,
+      23.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -54.0,
+      21.0,
+      0.0
+     ]
+    ]
+   },
+   "breath": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-beast/Breath/Sprites/hell-beast-breath1.png",
+     "res://assets/characters/ansimuz/hell-beast/Breath/Sprites/hell-beast-breath2.png",
+     "res://assets/characters/ansimuz/hell-beast/Breath/Sprites/hell-beast-breath3.png",
+     "res://assets/characters/ansimuz/hell-beast/Breath/Sprites/hell-beast-breath4.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     80,
+     160
+    ],
+    "pivot": [
+     41.0,
+     160.0
+    ],
+    "boxes": [
+     [
+      -20.0,
+      -60.0,
+      24.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -63.0,
+      23.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -58.0,
+      28.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -48.0,
+      21.0,
+      0.0
+     ]
+    ]
+   },
+   "burn": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-beast/Burn/Sprites/hell-beast-burn1.png",
+     "res://assets/characters/ansimuz/hell-beast/Burn/Sprites/hell-beast-burn2.png",
+     "res://assets/characters/ansimuz/hell-beast/Burn/Sprites/hell-beast-burn3.png",
+     "res://assets/characters/ansimuz/hell-beast/Burn/Sprites/hell-beast-burn4.png",
+     "res://assets/characters/ansimuz/hell-beast/Burn/Sprites/hell-beast-burn5.png",
+     "res://assets/characters/ansimuz/hell-beast/Burn/Sprites/hell-beast-burn6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     80,
+     160
+    ],
+    "pivot": [
+     41.0,
+     160.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -59.0,
+      22.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -47.0,
+      20.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -47.0,
+      23.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -51.0,
+      24.0,
+      0.0
+     ],
+     [
+      -35.0,
+      -159.0,
+      34.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -159.0,
+      37.0,
+      0.0
+     ]
+    ]
+   },
+   "fireball": {
+    "frames": [
+     "res://assets/characters/ansimuz/hell-beast/Fireball/Sprites/frame1.png",
+     "res://assets/characters/ansimuz/hell-beast/Fireball/Sprites/frame2.png",
+     "res://assets/characters/ansimuz/hell-beast/Fireball/Sprites/frame3.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     19,
+     16
+    ],
+    "pivot": [
+     9.5,
+     11.0
+    ],
+    "boxes": [
+     [
+      -7.5,
+      -7.0,
+      7.5,
+      0.0
+     ],
+     [
+      -7.5,
+      -8.0,
+      8.5,
+      1.0
+     ],
+     [
+      -7.5,
+      -7.0,
+      8.5,
+      1.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.0,
+   -60.0,
+   22.0,
+   0.0
+  ]
+ },
+ "demon": {
+  "facing": -1,
+  "flyer": true,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/demon/Sprites/Idle/idle1.png",
+     "res://assets/characters/ansimuz/demon/Sprites/Idle/idle2.png",
+     "res://assets/characters/ansimuz/demon/Sprites/Idle/idle3.png",
+     "res://assets/characters/ansimuz/demon/Sprites/Idle/idle4.png",
+     "res://assets/characters/ansimuz/demon/Sprites/Idle/idle5.png",
+     "res://assets/characters/ansimuz/demon/Sprites/Idle/idle6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     256,
+     176
+    ],
+    "pivot": [
+     133.0,
+     81.0
+    ],
+    "boxes": [
+     [
+      -67.0,
+      -62.0,
+      67.0,
+      62.0
+     ],
+     [
+      -81.0,
+      -30.0,
+      76.0,
+      63.0
+     ],
+     [
+      -73.0,
+      -30.0,
+      67.0,
+      61.0
+     ],
+     [
+      -67.0,
+      -32.0,
+      33.0,
+      61.0
+     ],
+     [
+      -73.0,
+      -30.0,
+      67.0,
+      61.0
+     ],
+     [
+      -81.0,
+      -30.0,
+      76.0,
+      61.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame1.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame2.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame3.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame4.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame5.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame6.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame7.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame8.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame9.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame10.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame11.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame12.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame13.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame14.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame15.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame16.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame17.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttack/frame18.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     312,
+     220
+    ],
+    "pivot": [
+     189.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -67.0,
+      -62.0,
+      67.0,
+      62.0
+     ],
+     [
+      -67.0,
+      -52.0,
+      29.0,
+      52.0
+     ],
+     [
+      -70.0,
+      -42.0,
+      24.0,
+      50.0
+     ],
+     [
+      -82.0,
+      -31.0,
+      65.0,
+      57.0
+     ],
+     [
+      -74.0,
+      -23.0,
+      68.0,
+      55.0
+     ],
+     [
+      -64.0,
+      -21.0,
+      55.0,
+      56.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ],
+     [
+      -59.0,
+      -95.0,
+      47.0,
+      59.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ],
+     [
+      -59.0,
+      -95.0,
+      47.0,
+      59.0
+     ],
+     [
+      -59.0,
+      -95.0,
+      47.0,
+      59.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ],
+     [
+      -59.0,
+      -95.0,
+      47.0,
+      59.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ],
+     [
+      -59.0,
+      -95.0,
+      47.0,
+      59.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ],
+     [
+      -59.0,
+      -95.0,
+      47.0,
+      59.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ]
+    ]
+   },
+   "breath": {
+    "frames": [
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame1.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame2.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame3.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame4.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame5.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame6.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame7.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame8.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame9.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame10.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame11.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame12.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame13.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame14.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame15.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame16.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame17.png",
+     "res://assets/characters/ansimuz/demon/Sprites/DemonAttackBreath/frame18.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     312,
+     220
+    ],
+    "pivot": [
+     189.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -67.0,
+      -62.0,
+      67.0,
+      62.0
+     ],
+     [
+      -67.0,
+      -52.0,
+      29.0,
+      52.0
+     ],
+     [
+      -70.0,
+      -42.0,
+      24.0,
+      50.0
+     ],
+     [
+      -82.0,
+      -31.0,
+      65.0,
+      57.0
+     ],
+     [
+      -74.0,
+      -23.0,
+      68.0,
+      55.0
+     ],
+     [
+      -64.0,
+      -21.0,
+      55.0,
+      56.0
+     ],
+     [
+      -78.0,
+      -96.0,
+      47.0,
+      60.0
+     ],
+     [
+      -150.0,
+      -95.0,
+      47.0,
+      72.0
+     ],
+     [
+      -153.0,
+      -96.0,
+      47.0,
+      74.0
+     ],
+     [
+      -145.0,
+      -95.0,
+      47.0,
+      72.0
+     ],
+     [
+      -150.0,
+      -95.0,
+      47.0,
+      72.0
+     ],
+     [
+      -153.0,
+      -96.0,
+      47.0,
+      74.0
+     ],
+     [
+      -145.0,
+      -95.0,
+      47.0,
+      72.0
+     ],
+     [
+      -150.0,
+      -96.0,
+      47.0,
+      72.0
+     ],
+     [
+      -153.0,
+      -95.0,
+      47.0,
+      74.0
+     ],
+     [
+      -145.0,
+      -96.0,
+      47.0,
+      72.0
+     ],
+     [
+      -141.0,
+      -95.0,
+      47.0,
+      72.0
+     ],
+     [
+      -61.0,
+      -96.0,
+      47.0,
+      60.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -67.0,
+   -62.0,
+   67.0,
+   62.0
+  ]
+ },
+ "flying_eye": {
+  "facing": 1,
+  "flyer": true,
+  "anims": {
+   "fly": {
+    "frames": [
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon1.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon2.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon3.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon4.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon5.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon6.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon7.png",
+     "res://assets/characters/ansimuz/flying-eye-demon/Sprites/flying-eye-demon8.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     48,
+     48
+    ],
+    "pivot": [
+     23.0,
+     23.0
+    ],
+    "boxes": [
+     [
+      -11.0,
+      -14.0,
+      11.0,
+      14.0
+     ],
+     [
+      -12.0,
+      -13.0,
+      16.0,
+      14.0
+     ],
+     [
+      -12.0,
+      -7.0,
+      11.0,
+      15.0
+     ],
+     [
+      -12.0,
+      -6.0,
+      14.0,
+      13.0
+     ],
+     [
+      -11.0,
+      -14.0,
+      11.0,
+      14.0
+     ],
+     [
+      -12.0,
+      -13.0,
+      16.0,
+      16.0
+     ],
+     [
+      -12.0,
+      -7.0,
+      11.0,
+      15.0
+     ],
+     [
+      -12.0,
+      -6.0,
+      14.0,
+      13.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -11.0,
+   -14.0,
+   11.0,
+   14.0
+  ]
+ },
+ "death": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "rise": {
+    "frames": [
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp1.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp2.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp3.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp4.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp5.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp6.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp7.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp8.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp9.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp10.png",
+     "res://assets/characters/ansimuz/death/Sprites/rise/death-lamp11.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     32,
+     48
+    ],
+    "pivot": [
+     15.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -7.0,
+      -3.0,
+      7.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -4.0,
+      7.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -30.0,
+      8.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -18.0,
+      9.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -16.0,
+      7.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -10.0,
+      8.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -8.0,
+      8.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -12.0,
+      8.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -20.0,
+      8.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -27.0,
+      7.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -28.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/ansimuz/death/Sprites/walk/death-lamp-walk1.png",
+     "res://assets/characters/ansimuz/death/Sprites/walk/death-lamp-walk2.png",
+     "res://assets/characters/ansimuz/death/Sprites/walk/death-lamp-walk3.png",
+     "res://assets/characters/ansimuz/death/Sprites/walk/death-lamp-walk4.png",
+     "res://assets/characters/ansimuz/death/Sprites/walk/death-lamp-walk5.png",
+     "res://assets/characters/ansimuz/death/Sprites/walk/death-lamp-walk6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     32,
+     48
+    ],
+    "pivot": [
+     15.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -30.0,
+      12.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -31.0,
+      12.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -32.0,
+      12.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -30.0,
+      15.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -31.0,
+      12.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -32.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "walk_nolamp": {
+    "frames": [
+     "res://assets/characters/ansimuz/death/Sprites/No-lamp-walk/death-walk1.png",
+     "res://assets/characters/ansimuz/death/Sprites/No-lamp-walk/death-walk2.png",
+     "res://assets/characters/ansimuz/death/Sprites/No-lamp-walk/death-walk3.png",
+     "res://assets/characters/ansimuz/death/Sprites/No-lamp-walk/death-walk4.png",
+     "res://assets/characters/ansimuz/death/Sprites/No-lamp-walk/death-walk5.png",
+     "res://assets/characters/ansimuz/death/Sprites/No-lamp-walk/death-walk6.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     32,
+     48
+    ],
+    "pivot": [
+     15.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -30.0,
+      12.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -31.0,
+      12.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -32.0,
+      12.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -30.0,
+      12.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -31.0,
+      12.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -32.0,
+      12.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -12.0,
+   -30.0,
+   12.0,
+   0.0
+  ]
+ },
+ "nightmare": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/nightmare/Sprites/Idle/frame1.png",
+     "res://assets/characters/ansimuz/nightmare/Sprites/Idle/frame2.png",
+     "res://assets/characters/ansimuz/nightmare/Sprites/Idle/frame3.png",
+     "res://assets/characters/ansimuz/nightmare/Sprites/Idle/frame4.png"
+    ],
+    "fps": 6,
+    "loop": true,
+    "size": [
+     160,
+     96
+    ],
+    "pivot": [
+     75.5,
+     96.0
+    ],
+    "boxes": [
+     [
+      -45.5,
+      -81.0,
+      45.5,
+      0.0
+     ],
+     [
+      -45.5,
+      -82.0,
+      54.5,
+      0.0
+     ],
+     [
+      -45.5,
+      -86.0,
+      47.5,
+      0.0
+     ],
+     [
+      -45.5,
+      -89.0,
+      47.5,
+      0.0
+     ]
+    ]
+   },
+   "run": {
+    "frames": [
+     "res://assets/characters/ansimuz/nightmare/Sprites/Run/frame1.png",
+     "res://assets/characters/ansimuz/nightmare/Sprites/Run/frame2.png",
+     "res://assets/characters/ansimuz/nightmare/Sprites/Run/frame3.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     160,
+     96
+    ],
+    "pivot": [
+     75.5,
+     96.0
+    ],
+    "boxes": [
+     [
+      -44.5,
+      -73.0,
+      67.5,
+      -2.0
+     ],
+     [
+      -44.5,
+      -77.0,
+      73.5,
+      0.0
+     ],
+     [
+      -45.5,
+      -74.0,
+      61.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -45.5,
+   -81.0,
+   45.5,
+   0.0
+  ]
+ },
+ "ghost": {
+  "facing": 1,
+  "flyer": true,
+  "anims": {
+   "float": {
+    "frames": [
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/no-particles/frame1.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/no-particles/frame2.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/no-particles/frame3.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/no-particles/frame4.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/no-particles/frame5.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/no-particles/frame6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     31.5
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -15.5,
+      14.0,
+      15.5
+     ],
+     [
+      -13.0,
+      -14.5,
+      14.0,
+      18.5
+     ],
+     [
+      -12.0,
+      -13.5,
+      13.0,
+      20.5
+     ],
+     [
+      -12.0,
+      -10.5,
+      13.0,
+      19.5
+     ],
+     [
+      -12.0,
+      -10.5,
+      13.0,
+      20.5
+     ],
+     [
+      -13.0,
+      -12.5,
+      14.0,
+      18.5
+     ]
+    ]
+   },
+   "haunt": {
+    "frames": [
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/Particles/frame1.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/Particles/frame2.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/Particles/frame3.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/Particles/frame4.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/Particles/frame5.png",
+     "res://assets/characters/ansimuz/enemy-ghost/Sprites/Particles/frame6.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     31.5
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -15.5,
+      14.0,
+      15.5
+     ],
+     [
+      -17.0,
+      -14.5,
+      14.0,
+      18.5
+     ],
+     [
+      -17.0,
+      -13.5,
+      15.0,
+      20.5
+     ],
+     [
+      -17.0,
+      -13.5,
+      13.0,
+      19.5
+     ],
+     [
+      -18.0,
+      -15.5,
+      13.0,
+      20.5
+     ],
+     [
+      -13.0,
+      -12.5,
+      14.0,
+      18.5
+     ]
+    ]
+   }
+  },
+  "body": [
+   -14.0,
+   -15.5,
+   14.0,
+   15.5
+  ]
+ },
+ "fire_skull": {
+  "facing": -1,
+  "flyer": true,
+  "anims": {
+   "fire": {
+    "frames": [
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame1.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame2.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame3.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame4.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame5.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame6.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame7.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/Fire/frame8.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     96,
+     112
+    ],
+    "pivot": [
+     44.0,
+     65.0
+    ],
+    "boxes": [
+     [
+      -34.0,
+      -39.0,
+      34.0,
+      39.0
+     ],
+     [
+      -38.0,
+      -45.0,
+      42.0,
+      43.0
+     ],
+     [
+      -42.0,
+      -56.0,
+      45.0,
+      42.0
+     ],
+     [
+      -37.0,
+      -41.0,
+      46.0,
+      43.0
+     ],
+     [
+      -40.0,
+      -38.0,
+      47.0,
+      40.0
+     ],
+     [
+      -30.0,
+      -34.0,
+      29.0,
+      43.0
+     ],
+     [
+      -38.0,
+      -36.0,
+      39.0,
+      42.0
+     ],
+     [
+      -36.0,
+      -39.0,
+      37.0,
+      39.0
+     ]
+    ]
+   },
+   "nofire": {
+    "frames": [
+     "res://assets/characters/ansimuz/fire-skull/Sprites/NoFire/frame1.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/NoFire/frame2.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/NoFire/frame3.png",
+     "res://assets/characters/ansimuz/fire-skull/Sprites/NoFire/frame4.png"
+    ],
+    "fps": 6,
+    "loop": true,
+    "size": [
+     54,
+     70
+    ],
+    "pivot": [
+     27.0,
+     39.5
+    ],
+    "boxes": [
+     [
+      -20.0,
+      -27.5,
+      20.0,
+      27.5
+     ],
+     [
+      -20.0,
+      -27.5,
+      21.0,
+      24.5
+     ],
+     [
+      -19.0,
+      -28.5,
+      20.0,
+      25.5
+     ],
+     [
+      -20.0,
+      -27.5,
+      21.0,
+      24.5
+     ]
+    ]
+   }
+  },
+  "body": [
+   -34.0,
+   -39.0,
+   34.0,
+   39.0
+  ]
+ },
+ "mutant_toad": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/idle/mutant-toad-idle1.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/idle/mutant-toad-idle2.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/idle/mutant-toad-idle3.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/idle/mutant-toad-idle4.png"
+    ],
+    "fps": 6,
+    "loop": true,
+    "size": [
+     80,
+     64
+    ],
+    "pivot": [
+     39.0,
+     64.0
+    ],
+    "boxes": [
+     [
+      -24.0,
+      -36.0,
+      24.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -36.0,
+      24.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -36.0,
+      24.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -36.0,
+      24.0,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/jump/mutant-toad-jump1.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/jump/mutant-toad-jump2.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/jump/mutant-toad-jump3.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/jump/mutant-toad-jump4.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     80,
+     64
+    ],
+    "pivot": [
+     39.0,
+     64.0
+    ],
+    "boxes": [
+     [
+      -24.0,
+      -36.0,
+      24.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -38.0,
+      24.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -58.0,
+      24.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -51.0,
+      24.0,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/attack/mutant-toad-attack1.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/attack/mutant-toad-attack2.png",
+     "res://assets/characters/ansimuz/mutant-toad/Sprites/attack/mutant-toad-attack3.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     80,
+     64
+    ],
+    "pivot": [
+     39.0,
+     64.0
+    ],
+    "boxes": [
+     [
+      -24.0,
+      -36.0,
+      24.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -38.0,
+      24.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -43.0,
+      41.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -24.0,
+   -36.0,
+   24.0,
+   0.0
+  ]
+ },
+ "dragon": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/idle/_0000_Layer-1.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/idle/_0001_Layer-2.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/idle/_0002_Layer-3.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/idle/_0003_Layer-4.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/idle/_0004_Layer-5.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/idle/_0005_Layer-6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     144,
+     64
+    ],
+    "pivot": [
+     95.5,
+     64.0
+    ],
+    "boxes": [
+     [
+      -35.5,
+      -39.0,
+      35.5,
+      0.0
+     ],
+     [
+      -34.5,
+      -39.0,
+      33.5,
+      0.0
+     ],
+     [
+      -32.5,
+      -40.0,
+      31.5,
+      0.0
+     ],
+     [
+      -30.5,
+      -40.0,
+      30.5,
+      0.0
+     ],
+     [
+      -32.5,
+      -40.0,
+      31.5,
+      0.0
+     ],
+     [
+      -34.5,
+      -39.0,
+      33.5,
+      0.0
+     ]
+    ]
+   },
+   "breath": {
+    "frames": [
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0000_Layer-1.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0001_Layer-2.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0002_Layer-3.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0003_Layer-4.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0004_Layer-5.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0005_Layer-6.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/breath/_0006_Layer-7.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     144,
+     64
+    ],
+    "pivot": [
+     95.5,
+     64.0
+    ],
+    "boxes": [
+     [
+      -35.5,
+      -39.0,
+      35.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -48.0,
+      39.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -55.0,
+      38.5,
+      0.0
+     ],
+     [
+      -54.5,
+      -51.0,
+      28.5,
+      0.0
+     ],
+     [
+      -61.5,
+      -49.0,
+      31.5,
+      0.0
+     ],
+     [
+      -78.5,
+      -51.0,
+      28.5,
+      0.0
+     ],
+     [
+      -80.5,
+      -49.0,
+      31.5,
+      0.0
+     ]
+    ]
+   },
+   "tail": {
+    "frames": [
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0000_Layer-1.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0001_Layer-2.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0002_Layer-3.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0003_Layer-4.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0004_Layer-5.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0005_Layer-6.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0006_Layer-7.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/sprites/tail/_0007_Layer-8.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     144,
+     64
+    ],
+    "pivot": [
+     95.5,
+     64.0
+    ],
+    "boxes": [
+     [
+      -40.5,
+      -39.0,
+      30.5,
+      0.0
+     ],
+     [
+      -37.5,
+      -37.0,
+      24.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -36.0,
+      22.5,
+      0.0
+     ],
+     [
+      -43.5,
+      -35.0,
+      22.5,
+      0.0
+     ],
+     [
+      -49.5,
+      -36.0,
+      16.5,
+      0.0
+     ],
+     [
+      -46.5,
+      -35.0,
+      -4.5,
+      0.0
+     ],
+     [
+      -64.5,
+      -36.0,
+      -4.5,
+      0.0
+     ],
+     [
+      -56.5,
+      -35.0,
+      -1.5,
+      0.0
+     ]
+    ]
+   },
+   "spit": {
+    "frames": [
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0000_Layer-1.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0001_Layer-2.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0002_Layer-3.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0003_Layer-4.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0004_Layer-5.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0005_Layer-6.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0006_Layer-7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     144,
+     64
+    ],
+    "pivot": [
+     95.5,
+     64.0
+    ],
+    "boxes": [
+     [
+      -35.5,
+      -39.0,
+      35.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -48.0,
+      39.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -55.0,
+      38.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -51.0,
+      28.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -49.0,
+      31.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -51.0,
+      28.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -49.0,
+      31.5,
+      0.0
+     ]
+    ]
+   },
+   "fly": {
+    "frames": [
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0000_Layer-1.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0004_Layer-5.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0003_Layer-4.png",
+     "res://assets/characters/ansimuz/grotto-escape-2-boss-dragon/spit-nofire/sprites/spit/_0004_Layer-5.png"
+    ],
+    "fps": 11,
+    "loop": true,
+    "size": [
+     144,
+     64
+    ],
+    "pivot": [
+     95.5,
+     64.0
+    ],
+    "boxes": [
+     [
+      -35.5,
+      -39.0,
+      35.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -49.0,
+      31.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -51.0,
+      28.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -49.0,
+      31.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -35.5,
+   -39.0,
+   35.5,
+   0.0
+  ]
+ },
+ "hell_gato": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "run": {
+    "frames": [
+     "res://assets/characters/ansimuz/cemetery-hell-gato/Sprites/hell-gato-1.png",
+     "res://assets/characters/ansimuz/cemetery-hell-gato/Sprites/hell-gato-2.png",
+     "res://assets/characters/ansimuz/cemetery-hell-gato/Sprites/hell-gato-3.png",
+     "res://assets/characters/ansimuz/cemetery-hell-gato/Sprites/hell-gato-4.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     96,
+     53
+    ],
+    "pivot": [
+     48.0,
+     53.0
+    ],
+    "boxes": [
+     [
+      -29.0,
+      -35.0,
+      29.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -35.0,
+      20.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -30.0,
+      32.0,
+      0.0
+     ],
+     [
+      -39.0,
+      -36.0,
+      46.0,
+      -3.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -29.0,
+   -35.0,
+   29.0,
+   0.0
+  ]
+ },
+ "skeleton": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "rise": {
+    "frames": [
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise/skeleton-rise-1.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise/skeleton-rise-2.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise/skeleton-rise-3.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise/skeleton-rise-4.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise/skeleton-rise-5.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise/skeleton-rise-6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     44,
+     52
+    ],
+    "pivot": [
+     22.0,
+     52.0
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -4.0,
+      -2.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -13.0,
+      9.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -19.0,
+      13.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -28.0,
+      12.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -43.0,
+      13.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      16.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-1.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-2.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-3.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-4.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-5.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-6.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-7.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/Walk/skeleton-8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     44,
+     52
+    ],
+    "pivot": [
+     22.0,
+     52.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -40.0,
+      16.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -43.0,
+      13.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      8.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      16.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -40.0,
+      16.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -43.0,
+      13.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -45.0,
+      8.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -38.0,
+      16.0,
+      0.0
+     ]
+    ]
+   },
+   "rise_clothed": {
+    "frames": [
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise-clothed/skeleton-rise-clothed-1.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise-clothed/skeleton-rise-clothed-2.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise-clothed/skeleton-rise-clothed-3.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise-clothed/skeleton-rise-clothed-4.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise-clothed/skeleton-rise-clothed-5.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/skeleton-rise-clothed/skeleton-rise-clothed-6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     44,
+     52
+    ],
+    "pivot": [
+     22.0,
+     52.0
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -4.0,
+      -2.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -13.0,
+      9.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -20.0,
+      13.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -28.0,
+      12.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -43.0,
+      13.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      16.0,
+      0.0
+     ]
+    ]
+   },
+   "walk_clothed": {
+    "frames": [
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-1.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-2.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-3.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-4.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-5.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-6.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-7.png",
+     "res://assets/characters/ansimuz/cemetery-skeleton/Sprites/walk-clothed/skeleton-clothed-8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     44,
+     52
+    ],
+    "pivot": [
+     22.0,
+     52.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -40.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -43.0,
+      6.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -45.0,
+      0.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -40.0,
+      15.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -43.0,
+      6.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -45.0,
+      1.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -38.0,
+      15.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -16.0,
+   -40.0,
+   16.0,
+   0.0
+  ]
+ },
+ "lm_goblin": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/goblin/idle/f1.png",
+     "res://assets/characters/itch/luizmelo/goblin/idle/f2.png",
+     "res://assets/characters/itch/luizmelo/goblin/idle/f3.png",
+     "res://assets/characters/itch/luizmelo/goblin/idle/f4.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     74.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -16.5,
+      -36.0,
+      16.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -35.0,
+      16.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -34.0,
+      16.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -32.0,
+      16.5,
+      0.0
+     ]
+    ]
+   },
+   "move": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/goblin/move/f1.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f2.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f3.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f4.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f5.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f6.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f7.png",
+     "res://assets/characters/itch/luizmelo/goblin/move/f8.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     74.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -18.5,
+      -38.0,
+      16.5,
+      -2.0
+     ],
+     [
+      -15.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -36.0,
+      15.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -38.0,
+      19.5,
+      -3.0
+     ],
+     [
+      -7.5,
+      -37.0,
+      17.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -37.0,
+      17.5,
+      0.0
+     ],
+     [
+      -12.5,
+      -36.0,
+      13.5,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/goblin/atk/f1.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f2.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f3.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f4.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f5.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f6.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f7.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     74.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -16.5,
+      -36.0,
+      16.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -36.0,
+      13.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -34.0,
+      14.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -34.0,
+      14.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -34.0,
+      14.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -35.0,
+      16.5,
+      0.0
+     ],
+     [
+      -43.5,
+      -46.0,
+      44.5,
+      0.0
+     ],
+     [
+      -43.5,
+      -46.0,
+      43.5,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f1.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f2.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f3.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f4.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f5.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f6.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f7.png",
+     "res://assets/characters/itch/luizmelo/goblin/atk2/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     74.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -32.5,
+      -30.0,
+      12.5,
+      0.0
+     ],
+     [
+      -26.5,
+      -40.0,
+      -3.5,
+      0.0
+     ],
+     [
+      -39.5,
+      -25.0,
+      -5.5,
+      0.0
+     ],
+     [
+      -39.5,
+      -25.0,
+      -5.5,
+      0.0
+     ],
+     [
+      -39.5,
+      -25.0,
+      -5.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -27.0,
+      21.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -29.0,
+      66.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -25.0,
+      68.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -16.5,
+   -36.0,
+   16.5,
+   0.0
+  ]
+ },
+ "lm_mushroom": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/mushroom/idle/f1.png",
+     "res://assets/characters/itch/luizmelo/mushroom/idle/f2.png",
+     "res://assets/characters/itch/luizmelo/mushroom/idle/f3.png",
+     "res://assets/characters/itch/luizmelo/mushroom/idle/f4.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     75.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -11.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -36.0,
+      11.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -35.0,
+      11.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -36.0,
+      11.5,
+      0.0
+     ]
+    ]
+   },
+   "move": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/mushroom/move/f1.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f2.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f3.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f4.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f5.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f6.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f7.png",
+     "res://assets/characters/itch/luizmelo/mushroom/move/f8.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     75.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -13.5,
+      -39.0,
+      11.5,
+      -3.0
+     ],
+     [
+      -12.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -38.0,
+      11.5,
+      -1.0
+     ],
+     [
+      -11.5,
+      -39.0,
+      11.5,
+      -3.0
+     ],
+     [
+      -11.5,
+      -37.0,
+      12.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -38.0,
+      11.5,
+      -1.0
+     ],
+     [
+      -11.5,
+      -39.0,
+      12.5,
+      -3.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f1.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f2.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f3.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f4.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f5.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f6.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f7.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     75.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -11.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -40.0,
+      8.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -43.0,
+      4.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -43.0,
+      4.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -43.0,
+      4.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -45.0,
+      4.5,
+      0.0
+     ],
+     [
+      -19.5,
+      -42.0,
+      30.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -42.0,
+      39.5,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f1.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f2.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f3.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f4.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f5.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f6.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f7.png",
+     "res://assets/characters/itch/luizmelo/mushroom/atk2/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     75.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -11.5,
+      -37.0,
+      11.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -40.0,
+      8.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -42.0,
+      6.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -42.0,
+      6.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -42.0,
+      6.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -46.0,
+      7.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -38.0,
+      33.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -38.0,
+      46.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -11.5,
+   -37.0,
+   11.5,
+   0.0
+  ]
+ },
+ "lm_skeleton": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/skeleton/idle/f1.png",
+     "res://assets/characters/itch/luizmelo/skeleton/idle/f2.png",
+     "res://assets/characters/itch/luizmelo/skeleton/idle/f3.png",
+     "res://assets/characters/itch/luizmelo/skeleton/idle/f4.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     82.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -22.5,
+      -51.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -50.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -49.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -50.0,
+      22.5,
+      0.0
+     ]
+    ]
+   },
+   "move": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/skeleton/move/f1.png",
+     "res://assets/characters/itch/luizmelo/skeleton/move/f2.png",
+     "res://assets/characters/itch/luizmelo/skeleton/move/f3.png",
+     "res://assets/characters/itch/luizmelo/skeleton/move/f4.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     82.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -22.5,
+      -51.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -50.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -50.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -51.0,
+      22.5,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f1.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f2.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f3.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f4.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f5.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f6.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f7.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     82.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -22.5,
+      -51.0,
+      22.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -52.0,
+      19.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -57.0,
+      6.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -57.0,
+      6.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -57.0,
+      6.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -57.0,
+      6.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -53.0,
+      65.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -52.0,
+      65.5,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f1.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f2.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f3.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f4.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f5.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f6.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f7.png",
+     "res://assets/characters/itch/luizmelo/skeleton/atk2/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     82.5,
+     101.0
+    ],
+    "boxes": [
+     [
+      -14.5,
+      -49.0,
+      18.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -49.0,
+      19.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -51.0,
+      20.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -51.0,
+      20.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -51.0,
+      20.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -52.0,
+      14.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -87.0,
+      65.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -87.0,
+      65.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.5,
+   -51.0,
+   22.5,
+   0.0
+  ]
+ },
+ "lm_eye": {
+  "facing": 1,
+  "flyer": true,
+  "anims": {
+   "fly": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/eye/fly/f1.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f2.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f3.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f4.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f5.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f6.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f7.png",
+     "res://assets/characters/itch/luizmelo/eye/fly/f8.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     77.5,
+     76.5
+    ],
+    "boxes": [
+     [
+      -20.5,
+      -15.5,
+      20.5,
+      15.5
+     ],
+     [
+      -20.5,
+      -16.5,
+      20.5,
+      15.5
+     ],
+     [
+      -20.5,
+      -16.5,
+      19.5,
+      12.5
+     ],
+     [
+      -19.5,
+      -11.5,
+      19.5,
+      13.5
+     ],
+     [
+      -20.5,
+      -10.5,
+      19.5,
+      13.5
+     ],
+     [
+      -21.5,
+      -9.5,
+      20.5,
+      14.5
+     ],
+     [
+      -19.5,
+      -8.5,
+      20.5,
+      15.5
+     ],
+     [
+      -19.5,
+      -8.5,
+      20.5,
+      16.5
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/eye/atk/f1.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f2.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f3.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f4.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f5.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f6.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f7.png",
+     "res://assets/characters/itch/luizmelo/eye/atk/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     77.5,
+     76.5
+    ],
+    "boxes": [
+     [
+      -20.5,
+      -15.5,
+      20.5,
+      15.5
+     ],
+     [
+      -20.5,
+      -13.5,
+      20.5,
+      15.5
+     ],
+     [
+      -24.5,
+      -13.5,
+      16.5,
+      11.5
+     ],
+     [
+      -24.5,
+      -13.5,
+      16.5,
+      11.5
+     ],
+     [
+      -24.5,
+      -13.5,
+      16.5,
+      10.5
+     ],
+     [
+      -22.5,
+      -14.5,
+      14.5,
+      11.5
+     ],
+     [
+      -16.5,
+      -9.5,
+      18.5,
+      14.5
+     ],
+     [
+      -15.5,
+      -9.5,
+      17.5,
+      14.5
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/eye/atk2/f1.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f2.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f3.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f4.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f5.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f6.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f7.png",
+     "res://assets/characters/itch/luizmelo/eye/atk2/f8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     150,
+     150
+    ],
+    "pivot": [
+     77.5,
+     76.5
+    ],
+    "boxes": [
+     [
+      -20.5,
+      -15.5,
+      20.5,
+      15.5
+     ],
+     [
+      -10.5,
+      -13.5,
+      13.5,
+      6.5
+     ],
+     [
+      -6.5,
+      -13.5,
+      16.5,
+      3.5
+     ],
+     [
+      -3.5,
+      -13.5,
+      18.5,
+      2.5
+     ],
+     [
+      -4.5,
+      -13.5,
+      14.5,
+      4.5
+     ],
+     [
+      -15.5,
+      -27.5,
+      25.5,
+      17.5
+     ],
+     [
+      -9.5,
+      -23.5,
+      21.5,
+      14.5
+     ],
+     [
+      -6.5,
+      -27.5,
+      26.5,
+      17.5
+     ]
+    ]
+   }
+  },
+  "body": [
+   -20.5,
+   -15.5,
+   20.5,
+   15.5
+  ]
+ },
+ "sx_zombie": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/zombie/idle/f1.png",
+     "res://assets/characters/itch/stealthix/zombie/idle/f2.png",
+     "res://assets/characters/itch/stealthix/zombie/idle/f3.png",
+     "res://assets/characters/itch/stealthix/zombie/idle/f4.png",
+     "res://assets/characters/itch/stealthix/zombie/idle/f5.png",
+     "res://assets/characters/itch/stealthix/zombie/idle/f6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -4.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -14.0,
+      4.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -14.0,
+      4.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -15.0,
+      4.5,
+      0.0
+     ]
+    ]
+   },
+   "move": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/zombie/move/f1.png",
+     "res://assets/characters/itch/stealthix/zombie/move/f2.png",
+     "res://assets/characters/itch/stealthix/zombie/move/f3.png",
+     "res://assets/characters/itch/stealthix/zombie/move/f4.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -5.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -6.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -15.0,
+      5.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      5.5,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/zombie/atk/f1.png",
+     "res://assets/characters/itch/stealthix/zombie/atk/f2.png",
+     "res://assets/characters/itch/stealthix/zombie/atk/f3.png",
+     "res://assets/characters/itch/stealthix/zombie/atk/f4.png",
+     "res://assets/characters/itch/stealthix/zombie/atk/f5.png",
+     "res://assets/characters/itch/stealthix/zombie/atk/f6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -2.5,
+      -15.0,
+      9.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -15.0,
+      11.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -15.0,
+      12.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -15.0,
+      11.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -15.0,
+      9.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      5.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -4.5,
+   -15.0,
+   4.5,
+   0.0
+  ]
+ },
+ "sx_skeleton": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/skeleton/idle/f1.png",
+     "res://assets/characters/itch/stealthix/skeleton/idle/f2.png",
+     "res://assets/characters/itch/stealthix/skeleton/idle/f3.png",
+     "res://assets/characters/itch/stealthix/skeleton/idle/f4.png",
+     "res://assets/characters/itch/stealthix/skeleton/idle/f5.png",
+     "res://assets/characters/itch/stealthix/skeleton/idle/f6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     17.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -4.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -15.0,
+      3.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -14.0,
+      3.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -14.0,
+      3.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -15.0,
+      3.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -15.0,
+      3.5,
+      0.0
+     ]
+    ]
+   },
+   "move": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/skeleton/move/f1.png",
+     "res://assets/characters/itch/stealthix/skeleton/move/f2.png",
+     "res://assets/characters/itch/stealthix/skeleton/move/f3.png",
+     "res://assets/characters/itch/stealthix/skeleton/move/f4.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     17.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -5.5,
+      -15.0,
+      3.5,
+      0.0
+     ],
+     [
+      -6.5,
+      -15.0,
+      3.5,
+      0.0
+     ],
+     [
+      -6.5,
+      -15.0,
+      3.5,
+      0.0
+     ],
+     [
+      -4.5,
+      -15.0,
+      4.5,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/skeleton/atk/f1.png",
+     "res://assets/characters/itch/stealthix/skeleton/atk/f2.png",
+     "res://assets/characters/itch/stealthix/skeleton/atk/f3.png",
+     "res://assets/characters/itch/stealthix/skeleton/atk/f4.png",
+     "res://assets/characters/itch/stealthix/skeleton/atk/f5.png",
+     "res://assets/characters/itch/stealthix/skeleton/atk/f6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     17.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -3.5,
+      -15.0,
+      8.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      10.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      11.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      10.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      4.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -15.0,
+      3.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -4.5,
+   -15.0,
+   4.5,
+   0.0
+  ]
+ },
+ "sx_witch": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/witch/idle/f1.png",
+     "res://assets/characters/itch/stealthix/witch/idle/f2.png",
+     "res://assets/characters/itch/stealthix/witch/idle/f3.png",
+     "res://assets/characters/itch/stealthix/witch/idle/f4.png",
+     "res://assets/characters/itch/stealthix/witch/idle/f5.png",
+     "res://assets/characters/itch/stealthix/witch/idle/f6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -20.0,
+      6.5,
+      0.0
+     ],
+     [
+      -11.5,
+      -20.0,
+      5.5,
+      0.0
+     ],
+     [
+      -9.5,
+      -20.0,
+      7.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ]
+    ]
+   },
+   "move": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/witch/move/f1.png",
+     "res://assets/characters/itch/stealthix/witch/move/f2.png",
+     "res://assets/characters/itch/stealthix/witch/move/f3.png",
+     "res://assets/characters/itch/stealthix/witch/move/f4.png",
+     "res://assets/characters/itch/stealthix/witch/move/f5.png",
+     "res://assets/characters/itch/stealthix/witch/move/f6.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -19.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -19.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -9.5,
+      -20.0,
+      7.5,
+      0.0
+     ]
+    ]
+   },
+   "atk": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/witch/atk/f1.png",
+     "res://assets/characters/itch/stealthix/witch/atk/f2.png",
+     "res://assets/characters/itch/stealthix/witch/atk/f3.png",
+     "res://assets/characters/itch/stealthix/witch/atk/f4.png",
+     "res://assets/characters/itch/stealthix/witch/atk/f5.png",
+     "res://assets/characters/itch/stealthix/witch/atk/f6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -8.5,
+      -21.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -21.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -21.0,
+      8.5,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/itch/stealthix/witch/atk2/f1.png",
+     "res://assets/characters/itch/stealthix/witch/atk2/f2.png",
+     "res://assets/characters/itch/stealthix/witch/atk2/f3.png",
+     "res://assets/characters/itch/stealthix/witch/atk2/f4.png",
+     "res://assets/characters/itch/stealthix/witch/atk2/f5.png",
+     "res://assets/characters/itch/stealthix/witch/atk2/f6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     32,
+     32
+    ],
+    "pivot": [
+     16.5,
+     23.0
+    ],
+    "boxes": [
+     [
+      -5.5,
+      -20.0,
+      11.5,
+      0.0
+     ],
+     [
+      -5.5,
+      -20.0,
+      12.5,
+      0.0
+     ],
+     [
+      -6.5,
+      -20.0,
+      11.5,
+      0.0
+     ],
+     [
+      -7.5,
+      -20.0,
+      9.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -20.0,
+      8.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -8.5,
+   -20.0,
+   8.5,
+   0.0
+  ]
+ },
+ "priestess": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_1.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_2.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_3.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_4.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_5.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_6.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_7.png",
+     "res://assets/characters/chierit/water-priestess/png/01_idle/idle_8.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -38.0,
+      14.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -38.0,
+      14.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -38.0,
+      14.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -38.0,
+      14.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      17.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      15.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -37.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_1.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_2.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_3.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_4.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_5.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_6.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_7.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_8.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_9.png",
+     "res://assets/characters/chierit/water-priestess/png/02_walk/walk_10.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      14.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -38.0,
+      14.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      14.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -38.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "surf": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_1.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_2.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_3.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_4.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_5.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_6.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_7.png",
+     "res://assets/characters/chierit/water-priestess/png/03_surf/surf_8.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -43.0,
+      -39.0,
+      15.0,
+      0.0
+     ],
+     [
+      -40.0,
+      -39.0,
+      23.0,
+      0.0
+     ],
+     [
+      -39.0,
+      -39.0,
+      26.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -39.0,
+      29.0,
+      0.0
+     ],
+     [
+      -34.0,
+      -39.0,
+      16.0,
+      0.0
+     ],
+     [
+      -33.0,
+      -39.0,
+      20.0,
+      0.0
+     ],
+     [
+      -32.0,
+      -39.0,
+      25.0,
+      0.0
+     ],
+     [
+      -47.0,
+      -39.0,
+      28.0,
+      0.0
+     ]
+    ]
+   },
+   "j_up": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/04_j_up/j_up_1.png",
+     "res://assets/characters/chierit/water-priestess/png/04_j_up/j_up_2.png",
+     "res://assets/characters/chierit/water-priestess/png/04_j_up/j_up_3.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -41.0,
+      17.0,
+      -2.0
+     ],
+     [
+      -21.0,
+      -41.0,
+      17.0,
+      -2.0
+     ],
+     [
+      -21.0,
+      -41.0,
+      18.0,
+      -2.0
+     ]
+    ]
+   },
+   "j_down": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/05_j_down/j_down_1.png",
+     "res://assets/characters/chierit/water-priestess/png/05_j_down/j_down_2.png",
+     "res://assets/characters/chierit/water-priestess/png/05_j_down/j_down_3.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -56.0,
+      17.0,
+      -3.0
+     ],
+     [
+      -21.0,
+      -55.0,
+      17.0,
+      -3.0
+     ],
+     [
+      -21.0,
+      -55.0,
+      18.0,
+      -3.0
+     ]
+    ]
+   },
+   "tumble": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/06_tumble/tumble_1.png",
+     "res://assets/characters/chierit/water-priestess/png/06_tumble/tumble_2.png",
+     "res://assets/characters/chierit/water-priestess/png/06_tumble/tumble_3.png",
+     "res://assets/characters/chierit/water-priestess/png/06_tumble/tumble_4.png",
+     "res://assets/characters/chierit/water-priestess/png/06_tumble/tumble_5.png",
+     "res://assets/characters/chierit/water-priestess/png/06_tumble/tumble_6.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -20.0,
+      -39.0,
+      19.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -42.0,
+      19.0,
+      -3.0
+     ],
+     [
+      -21.0,
+      -38.0,
+      19.0,
+      -4.0
+     ],
+     [
+      -21.0,
+      -43.0,
+      23.0,
+      -8.0
+     ],
+     [
+      -20.0,
+      -31.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -36.0,
+      17.0,
+      0.0
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_1.png",
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_2.png",
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_3.png",
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_4.png",
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_5.png",
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_6.png",
+     "res://assets/characters/chierit/water-priestess/png/07_1_atk/1_atk_7.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -37.0,
+      27.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -36.0,
+      16.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -36.0,
+      55.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -36.0,
+      56.0,
+      0.0
+     ],
+     [
+      3.0,
+      -38.0,
+      35.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -44.0,
+      16.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -37.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_1.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_2.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_3.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_4.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_5.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_6.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_7.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_8.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_9.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_10.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_11.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_12.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_13.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_14.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_15.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_16.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_17.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_18.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_19.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_20.png",
+     "res://assets/characters/chierit/water-priestess/png/08_2_atk/2_atk_21.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -37.0,
+      27.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -36.0,
+      16.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -36.0,
+      55.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -36.0,
+      56.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -36.0,
+      50.0,
+      0.0
+     ],
+     [
+      -1.0,
+      -36.0,
+      41.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      25.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -44.0,
+      28.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -38.0,
+      28.0,
+      0.0
+     ],
+     [
+      -32.0,
+      -48.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -50.0,
+      16.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -36.0,
+      12.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -36.0,
+      11.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      80.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -37.0,
+      78.0,
+      0.0
+     ],
+     [
+      -1.0,
+      -40.0,
+      84.0,
+      0.0
+     ],
+     [
+      0.0,
+      -44.0,
+      88.0,
+      0.0
+     ],
+     [
+      3.0,
+      -38.0,
+      35.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -44.0,
+      16.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -37.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "atk3": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_1.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_2.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_3.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_4.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_5.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_6.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_7.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_8.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_9.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_10.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_11.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_12.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_13.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_14.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_15.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_16.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_17.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_18.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_19.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_20.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_21.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_22.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_23.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_24.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_25.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_26.png",
+     "res://assets/characters/chierit/water-priestess/png/09_3_atk/3_atk_27.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -37.0,
+      27.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -36.0,
+      16.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -36.0,
+      55.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -36.0,
+      56.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -36.0,
+      50.0,
+      0.0
+     ],
+     [
+      -1.0,
+      -36.0,
+      41.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      25.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -44.0,
+      28.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -38.0,
+      28.0,
+      0.0
+     ],
+     [
+      -32.0,
+      -48.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -50.0,
+      16.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -37.0,
+      14.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -36.0,
+      12.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -36.0,
+      11.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      80.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -37.0,
+      78.0,
+      0.0
+     ],
+     [
+      6.0,
+      -56.0,
+      84.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -60.0,
+      88.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -53.0,
+      39.0,
+      0.0
+     ],
+     [
+      2.0,
+      -43.0,
+      52.0,
+      0.0
+     ],
+     [
+      25.0,
+      -40.0,
+      72.0,
+      0.0
+     ],
+     [
+      27.0,
+      -49.0,
+      100.0,
+      0.0
+     ],
+     [
+      27.0,
+      -50.0,
+      101.0,
+      0.0
+     ],
+     [
+      14.0,
+      -52.0,
+      95.0,
+      0.0
+     ],
+     [
+      3.0,
+      -52.0,
+      98.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -53.0,
+      101.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -37.0,
+      106.0,
+      0.0
+     ]
+    ]
+   },
+   "sp": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_1.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_2.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_3.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_4.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_5.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_6.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_7.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_8.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_9.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_10.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_11.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_12.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_13.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_14.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_15.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_16.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_17.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_18.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_19.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_20.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_21.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_22.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_23.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_24.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_25.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_26.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_27.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_28.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_29.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_30.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_31.png",
+     "res://assets/characters/chierit/water-priestess/png/10_sp_atk/sp_atk_32.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -17.0,
+      -37.0,
+      63.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -34.0,
+      64.0,
+      0.0
+     ],
+     [
+      -27.0,
+      -47.0,
+      66.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -61.0,
+      70.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -74.0,
+      73.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -79.0,
+      75.0,
+      0.0
+     ],
+     [
+      -32.0,
+      -82.0,
+      76.0,
+      0.0
+     ],
+     [
+      -32.0,
+      -86.0,
+      75.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -88.0,
+      75.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -89.0,
+      75.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -89.0,
+      75.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -82.0,
+      68.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -37.0,
+      96.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -53.0,
+      97.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -55.0,
+      97.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -54.0,
+      97.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -54.0,
+      100.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -55.0,
+      97.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -56.0,
+      97.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -57.0,
+      97.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -58.0,
+      97.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -52.0,
+      97.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      99.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -42.0,
+      98.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -40.0,
+      104.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -39.0,
+      101.0,
+      0.0
+     ]
+    ]
+   },
+   "heal": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_1.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_2.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_3.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_4.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_5.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_6.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_7.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_8.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_9.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_10.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_11.png",
+     "res://assets/characters/chierit/water-priestess/png/11_heal/heal_12.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -11.0,
+      -37.0,
+      9.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -37.0,
+      9.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -37.0,
+      8.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -37.0,
+      14.0,
+      1.0
+     ],
+     [
+      -10.0,
+      -37.0,
+      8.0,
+      1.0
+     ],
+     [
+      -8.0,
+      -37.0,
+      8.0,
+      0.0
+     ]
+    ]
+   },
+   "defend": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_1.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_2.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_3.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_4.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_5.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_6.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_7.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_8.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_9.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_10.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_11.png",
+     "res://assets/characters/chierit/water-priestess/png/12_defend/defend_12.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -37.0,
+      38.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -50.0,
+      43.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -54.0,
+      42.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -54.0,
+      42.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -54.0,
+      42.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -54.0,
+      42.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -51.0,
+      38.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -37.0,
+      40.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -37.0,
+      35.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -37.0,
+      37.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -37.0,
+      41.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -37.0,
+      35.0,
+      0.0
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_1.png",
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_2.png",
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_3.png",
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_4.png",
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_5.png",
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_6.png",
+     "res://assets/characters/chierit/water-priestess/png/13_take_hit/take_hit_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -36.0,
+      14.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -40.0,
+      13.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -41.0,
+      16.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -44.0,
+      18.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -46.0,
+      19.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -47.0,
+      20.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -37.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_1.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_2.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_3.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_4.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_5.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_6.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_7.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_8.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_9.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_10.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_11.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_12.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_13.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_14.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_15.png",
+     "res://assets/characters/chierit/water-priestess/png/14_death/death_16.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -28.0,
+      -28.0,
+      26.0,
+      0.0
+     ],
+     [
+      -27.0,
+      -28.0,
+      27.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -28.0,
+      27.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -27.0,
+      27.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      26.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      26.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      26.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      27.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -26.0,
+      30.0,
+      0.0
+     ]
+    ]
+   },
+   "air": {
+    "frames": [
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_1.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_2.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_3.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_4.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_5.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_6.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_7.png",
+     "res://assets/characters/chierit/water-priestess/png/air_atk/air_atk_8.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     146.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -19.0,
+      -42.0,
+      20.0,
+      -3.0
+     ],
+     [
+      -25.0,
+      -43.0,
+      22.0,
+      -4.0
+     ],
+     [
+      -30.0,
+      -44.0,
+      22.0,
+      -5.0
+     ],
+     [
+      -16.0,
+      -44.0,
+      82.0,
+      -7.0
+     ],
+     [
+      -14.0,
+      -44.0,
+      81.0,
+      -7.0
+     ],
+     [
+      -13.0,
+      -49.0,
+      82.0,
+      -7.0
+     ],
+     [
+      -19.0,
+      -55.0,
+      85.0,
+      -5.0
+     ],
+     [
+      -10.0,
+      -57.0,
+      77.0,
+      -4.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -14.0,
+   -37.0,
+   14.0,
+   0.0
+  ]
+ },
+ "ranger": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/idle/idle_12.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -24.5,
+      -44.0,
+      24.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -44.0,
+      24.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ],
+     [
+      -21.5,
+      -44.0,
+      23.5,
+      0.0
+     ],
+     [
+      -21.5,
+      -43.0,
+      23.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -43.0,
+      24.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -43.0,
+      24.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -43.0,
+      24.5,
+      0.0
+     ],
+     [
+      -21.5,
+      -43.0,
+      24.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "run": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/run/run_10.png"
+    ],
+    "fps": 14,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -22.5,
+      -43.0,
+      25.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -44.0,
+      26.5,
+      -6.0
+     ],
+     [
+      -22.5,
+      -44.0,
+      23.5,
+      -8.0
+     ],
+     [
+      -20.5,
+      -43.0,
+      26.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -42.0,
+      25.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -43.0,
+      26.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -44.0,
+      26.5,
+      -6.0
+     ],
+     [
+      -20.5,
+      -44.0,
+      24.5,
+      -4.0
+     ],
+     [
+      -19.5,
+      -43.0,
+      26.5,
+      0.0
+     ],
+     [
+      -19.5,
+      -42.0,
+      26.5,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_12.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_13.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_14.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_15.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_16.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_17.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_18.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_19.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_20.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_21.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_full/jump_22.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -23.5,
+      -36.0,
+      21.5,
+      0.0
+     ],
+     [
+      -27.5,
+      -35.0,
+      21.5,
+      0.0
+     ],
+     [
+      -18.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -12.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -19.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -18.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -12.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -19.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -18.5,
+      -51.0,
+      25.5,
+      -6.0
+     ],
+     [
+      -21.5,
+      -51.0,
+      25.5,
+      -9.0
+     ],
+     [
+      -23.5,
+      -54.0,
+      29.5,
+      -7.0
+     ],
+     [
+      -23.5,
+      -61.0,
+      22.5,
+      -5.0
+     ],
+     [
+      -13.5,
+      -80.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -9.5,
+      -80.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -11.5,
+      -81.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -13.5,
+      -80.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -9.5,
+      -80.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -11.5,
+      -81.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -12.5,
+      -68.0,
+      28.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -36.0,
+      32.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -35.0,
+      26.5,
+      0.0
+     ],
+     [
+      -18.5,
+      -40.0,
+      25.5,
+      0.0
+     ]
+    ]
+   },
+   "j_up": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_up/jump_up_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_up/jump_up_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_up/jump_up_3.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -12.5,
+      -51.0,
+      24.5,
+      -3.0
+     ],
+     [
+      -19.5,
+      -51.0,
+      24.5,
+      -3.0
+     ]
+    ]
+   },
+   "j_down": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_down/jump_down_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_down/jump_down_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/jump_down/jump_down_3.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -13.5,
+      -80.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -9.5,
+      -80.0,
+      26.5,
+      -2.0
+     ],
+     [
+      -11.5,
+      -81.0,
+      26.5,
+      -2.0
+     ]
+    ]
+   },
+   "roll": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/roll/roll_8.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -20.5,
+      -38.0,
+      33.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -30.0,
+      21.5,
+      0.0
+     ],
+     [
+      -19.5,
+      -29.0,
+      18.5,
+      -1.0
+     ],
+     [
+      -30.5,
+      -32.0,
+      11.5,
+      0.0
+     ],
+     [
+      -28.5,
+      -26.0,
+      11.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -30.0,
+      12.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -35.0,
+      19.5,
+      0.0
+     ],
+     [
+      -18.5,
+      -40.0,
+      25.5,
+      0.0
+     ]
+    ]
+   },
+   "slide": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_12.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide/slide_13.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -24.5,
+      -45.0,
+      30.5,
+      0.0
+     ],
+     [
+      -36.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -36.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -41.0,
+      28.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -35.0,
+      19.5,
+      0.0
+     ],
+     [
+      -18.5,
+      -40.0,
+      25.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "slide_loop": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide_loop/slide_loop_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide_loop/slide_loop_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide_loop/slide_loop_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/slide_loop/slide_loop_4.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -36.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -40.0,
+      34.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -40.0,
+      34.5,
+      0.0
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/1_atk/1_atk_10.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -19.5,
+      -43.0,
+      22.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -42.0,
+      22.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -42.0,
+      22.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -42.0,
+      26.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -42.0,
+      56.5,
+      0.0
+     ],
+     [
+      7.5,
+      -42.0,
+      82.5,
+      0.0
+     ],
+     [
+      18.5,
+      -43.0,
+      81.5,
+      0.0
+     ],
+     [
+      18.5,
+      -43.0,
+      81.5,
+      0.0
+     ],
+     [
+      -7.5,
+      -42.0,
+      30.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_12.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_13.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_14.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/2_atk/2_atk_15.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -21.5,
+      -44.0,
+      22.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -47.0,
+      25.5,
+      0.0
+     ],
+     [
+      -19.5,
+      -61.0,
+      27.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -57.0,
+      34.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -53.0,
+      34.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -52.0,
+      34.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -50.0,
+      34.5,
+      0.0
+     ],
+     [
+      -24.5,
+      -50.0,
+      34.5,
+      0.0
+     ],
+     [
+      -21.5,
+      -53.0,
+      49.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -53.0,
+      49.5,
+      0.0
+     ],
+     [
+      -19.5,
+      -53.0,
+      51.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -53.0,
+      32.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -46.0,
+      22.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -44.0,
+      23.5,
+      0.0
+     ],
+     [
+      -22.5,
+      -44.0,
+      23.5,
+      0.0
+     ]
+    ]
+   },
+   "atk3": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/3_atk/3_atk_12.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -17.5,
+      -43.0,
+      18.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -43.0,
+      12.5,
+      0.0
+     ],
+     [
+      -21.5,
+      -41.0,
+      17.5,
+      0.0
+     ],
+     [
+      -31.5,
+      -39.0,
+      18.5,
+      0.0
+     ],
+     [
+      -26.5,
+      -52.0,
+      16.5,
+      0.0
+     ],
+     [
+      -28.5,
+      -52.0,
+      11.5,
+      0.0
+     ],
+     [
+      -28.5,
+      -52.0,
+      11.5,
+      0.0
+     ],
+     [
+      -28.5,
+      -73.0,
+      20.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -88.0,
+      37.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -101.0,
+      36.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -42.0,
+      11.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "sp": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_12.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_13.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_14.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_15.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_16.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/sp_atk/sp_atk_17.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -17.5,
+      -42.0,
+      21.5,
+      0.0
+     ],
+     [
+      -19.5,
+      -39.0,
+      17.5,
+      0.0
+     ],
+     [
+      -25.5,
+      -36.0,
+      21.5,
+      0.0
+     ],
+     [
+      -42.5,
+      -35.0,
+      18.5,
+      0.0
+     ],
+     [
+      -38.5,
+      -39.0,
+      20.5,
+      0.0
+     ],
+     [
+      -37.5,
+      -35.0,
+      17.5,
+      0.0
+     ],
+     [
+      -35.5,
+      -45.0,
+      27.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -47.0,
+      30.5,
+      0.0
+     ],
+     [
+      -33.5,
+      -58.0,
+      38.5,
+      0.0
+     ],
+     [
+      -34.5,
+      -35.0,
+      145.5,
+      0.0
+     ],
+     [
+      -40.5,
+      -35.0,
+      145.5,
+      0.0
+     ],
+     [
+      -48.5,
+      -29.0,
+      145.5,
+      0.0
+     ],
+     [
+      -49.5,
+      -29.0,
+      145.5,
+      0.0
+     ],
+     [
+      -49.5,
+      -29.0,
+      -8.5,
+      0.0
+     ],
+     [
+      -41.5,
+      -38.0,
+      5.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -40.0,
+      18.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "air": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/air_atk/air_atk_10.png"
+    ],
+    "fps": 18,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.5,
+      -51.0,
+      25.5,
+      -6.0
+     ],
+     [
+      -21.5,
+      -51.0,
+      26.5,
+      -9.0
+     ],
+     [
+      -26.5,
+      -51.0,
+      30.5,
+      -7.0
+     ],
+     [
+      -25.5,
+      -51.0,
+      30.5,
+      -7.0
+     ],
+     [
+      -27.5,
+      -51.0,
+      30.5,
+      -7.0
+     ],
+     [
+      -27.5,
+      -51.0,
+      31.5,
+      -7.0
+     ],
+     [
+      -28.5,
+      -52.0,
+      36.5,
+      -7.0
+     ],
+     [
+      -22.5,
+      -52.0,
+      36.5,
+      -6.0
+     ],
+     [
+      -23.5,
+      -59.0,
+      23.5,
+      -7.0
+     ],
+     [
+      -23.5,
+      -61.0,
+      22.5,
+      -5.0
+     ]
+    ]
+   },
+   "defend": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_12.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_13.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_14.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_15.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_16.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_17.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_18.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend/defend_19.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -16.5,
+      -47.0,
+      18.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -47.0,
+      15.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -42.0,
+      28.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -52.0,
+      41.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -52.0,
+      41.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -53.0,
+      44.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -54.0,
+      50.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ],
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -54.0,
+      50.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -53.0,
+      44.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -52.0,
+      41.5,
+      0.0
+     ],
+     [
+      -2.5,
+      -52.0,
+      41.5,
+      0.0
+     ],
+     [
+      -8.5,
+      -44.0,
+      28.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "defend_pose": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/defend_pose/defend_pose_.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -3.5,
+      -65.0,
+      48.5,
+      0.0
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/take_hit/take_hit_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/take_hit/take_hit_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/take_hit/take_hit_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/take_hit/take_hit_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/take_hit/take_hit_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/take_hit/take_hit_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -21.5,
+      -42.0,
+      17.5,
+      0.0
+     ],
+     [
+      -21.5,
+      -42.0,
+      17.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -50.0,
+      9.5,
+      0.0
+     ],
+     [
+      -30.5,
+      -50.0,
+      5.5,
+      0.0
+     ],
+     [
+      -29.5,
+      -50.0,
+      6.5,
+      0.0
+     ],
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_6.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_7.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_8.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_9.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_10.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_11.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_12.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_13.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_14.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_15.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_16.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_17.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_18.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/death/death_19.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     288,
+     128
+    ],
+    "pivot": [
+     142.5,
+     127.0
+    ],
+    "boxes": [
+     [
+      -23.5,
+      -44.0,
+      24.5,
+      0.0
+     ],
+     [
+      -20.5,
+      -42.0,
+      37.5,
+      0.0
+     ],
+     [
+      -17.5,
+      -39.0,
+      38.5,
+      0.0
+     ],
+     [
+      -12.5,
+      -34.0,
+      35.5,
+      0.0
+     ],
+     [
+      -12.5,
+      -33.0,
+      33.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -33.0,
+      33.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -33.0,
+      34.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -33.0,
+      33.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -33.0,
+      32.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -33.0,
+      32.5,
+      0.0
+     ],
+     [
+      -12.5,
+      -33.0,
+      32.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -27.0,
+      32.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -11.0,
+      40.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -7.0,
+      45.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -6.0,
+      46.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -6.0,
+      47.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -6.0,
+      47.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -6.0,
+      47.5,
+      0.0
+     ],
+     [
+      -10.5,
+      -6.0,
+      47.5,
+      0.0
+     ]
+    ]
+   },
+   "arrow": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow/arrow_.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     256,
+     128
+    ],
+    "pivot": [
+     128.0,
+     65.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -3.0,
+      16.0,
+      0.0
+     ]
+    ]
+   },
+   "arrow_hit": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_1.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_2.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_3.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_4.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_5.png",
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow_hit/arrow_hit_6.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     256,
+     128
+    ],
+    "pivot": [
+     128.5,
+     67.0
+    ],
+    "boxes": [
+     [
+      -13.5,
+      -11.0,
+      13.5,
+      0.0
+     ],
+     [
+      -13.5,
+      -7.0,
+      13.5,
+      1.0
+     ],
+     [
+      -14.5,
+      -7.0,
+      13.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -7.0,
+      13.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -7.0,
+      13.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -7.0,
+      13.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -24.5,
+   -44.0,
+   24.5,
+   0.0
+  ]
+ },
+ "brawler": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Idle/idle1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Idle/idle2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Idle/idle3.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Idle/idle4.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -46.0,
+      12.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -45.0,
+      12.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -44.0,
+      12.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -45.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk3.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk4.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk5.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk6.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk7.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk8.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk9.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Walk/walk10.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -8.0,
+      -46.0,
+      14.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -46.0,
+      12.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -46.0,
+      8.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -47.0,
+      11.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -47.0,
+      12.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -46.0,
+      16.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -46.0,
+      11.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -46.0,
+      8.0,
+      0.0
+     ],
+     [
+      -5.0,
+      -47.0,
+      9.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -47.0,
+      11.0,
+      0.0
+     ]
+    ]
+   },
+   "jab": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jab/jab1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jab/jab2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jab/jab3.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -45.0,
+      14.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -45.0,
+      37.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -45.0,
+      32.0,
+      0.0
+     ]
+    ]
+   },
+   "punch": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Punch/punch1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Punch/punch2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Punch/punch3.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -44.0,
+      17.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -43.0,
+      39.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -43.0,
+      36.0,
+      0.0
+     ]
+    ]
+   },
+   "kick": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Kick/kick1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Kick/kick2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Kick/kick3.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Kick/kick4.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Kick/kick5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -46.0,
+      12.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -43.0,
+      6.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -41.0,
+      7.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -38.0,
+      33.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -38.0,
+      28.0,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump/jump1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump/jump2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump/jump3.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump/jump4.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -11.0,
+      -39.0,
+      11.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      8.0,
+      -1.0
+     ],
+     [
+      -11.0,
+      -46.0,
+      8.0,
+      -1.0
+     ],
+     [
+      -16.0,
+      -43.0,
+      10.0,
+      -10.0
+     ]
+    ]
+   },
+   "jump_kick": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump_kick/jump_kick1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump_kick/jump_kick2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Jump_kick/jump_kick3.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -43.0,
+      10.0,
+      -10.0
+     ],
+     [
+      -12.0,
+      -53.0,
+      24.0,
+      -5.0
+     ],
+     [
+      -7.0,
+      -49.0,
+      17.0,
+      -7.0
+     ]
+    ]
+   },
+   "dive_kick": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Dive_kick/dive_kick1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Dive_kick/dive_kick2.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Dive_kick/dive_kick3.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Dive_kick/dive_kick4.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Dive_kick/dive_kick5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -43.0,
+      10.0,
+      -10.0
+     ],
+     [
+      -9.0,
+      -47.0,
+      15.0,
+      -9.0
+     ],
+     [
+      -8.0,
+      -44.0,
+      18.0,
+      -9.0
+     ],
+     [
+      -9.0,
+      -45.0,
+      40.0,
+      -13.0
+     ],
+     [
+      -12.0,
+      -46.0,
+      30.0,
+      -13.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Hurt/hurt1.png",
+     "res://assets/characters/ansimuz/brawler-girl/skin-recolor/sprites/Hurt/hurt2.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     96,
+     63
+    ],
+    "pivot": [
+     45.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -15.0,
+      -37.0,
+      13.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -34.0,
+      13.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -12.0,
+   -46.0,
+   12.0,
+   0.0
+  ]
+ },
+ "dancer": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "skip": {
+    "frames": [
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip1.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip2.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip3.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip4.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip5.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip6.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip7.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Skip/skip8.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     39,
+     53
+    ],
+    "pivot": [
+     18.0,
+     53.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -50.0,
+      12.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -45.0,
+      12.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -44.0,
+      12.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -51.0,
+      15.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -49.0,
+      19.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -46.0,
+      16.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      16.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -51.0,
+      16.0,
+      0.0
+     ]
+    ]
+   },
+   "hips": {
+    "frames": [
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips1.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips2.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips3.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips4.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips5.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips6.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips7.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/hips/hips8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     39,
+     53
+    ],
+    "pivot": [
+     18.0,
+     53.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -45.0,
+      11.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -45.0,
+      11.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      14.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      18.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      19.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -45.0,
+      13.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -45.0,
+      11.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -45.0,
+      11.0,
+      0.0
+     ]
+    ]
+   },
+   "snap": {
+    "frames": [
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap1.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap2.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap3.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap4.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap5.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap6.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap7.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/snap/snap8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     39,
+     53
+    ],
+    "pivot": [
+     18.0,
+     53.0
+    ],
+    "boxes": [
+     [
+      -9.0,
+      -44.0,
+      11.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -46.0,
+      11.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -7.0,
+      -45.0,
+      15.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -43.0,
+      16.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -45.0,
+      12.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      11.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -44.0,
+      13.0,
+      0.0
+     ]
+    ]
+   },
+   "balancing": {
+    "frames": [
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing1.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing2.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing3.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing4.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing5.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing6.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing7.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/Balancing/balancing8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     39,
+     53
+    ],
+    "pivot": [
+     18.0,
+     53.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -44.0,
+      10.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -45.0,
+      10.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -46.0,
+      12.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -46.0,
+      11.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -45.0,
+      15.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -44.0,
+      13.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -45.0,
+      13.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -45.0,
+      10.0,
+      0.0
+     ]
+    ]
+   },
+   "slide": {
+    "frames": [
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide1.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide2.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide3.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide4.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide5.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide6.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide7.png",
+     "res://assets/characters/ansimuz/dancing-girl/skin-recolor/sprites/slide/slide8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     39,
+     53
+    ],
+    "pivot": [
+     18.0,
+     53.0
+    ],
+    "boxes": [
+     [
+      -11.0,
+      -48.0,
+      18.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -46.0,
+      19.0,
+      0.0
+     ],
+     [
+      -8.0,
+      -46.0,
+      19.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -47.0,
+      19.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -48.0,
+      14.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -46.0,
+      12.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -46.0,
+      11.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      15.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -12.0,
+   -50.0,
+   12.0,
+   0.0
+  ]
+ },
+ "_fx": {
+  "enemy_death": {
+   "frames": [
+    "res://assets/characters/ansimuz/cemetery-enemydeath/Sprites/enemy-death-1.png",
+    "res://assets/characters/ansimuz/cemetery-enemydeath/Sprites/enemy-death-2.png",
+    "res://assets/characters/ansimuz/cemetery-enemydeath/Sprites/enemy-death-3.png",
+    "res://assets/characters/ansimuz/cemetery-enemydeath/Sprites/enemy-death-4.png",
+    "res://assets/characters/ansimuz/cemetery-enemydeath/Sprites/enemy-death-5.png"
+   ],
+   "fps": 12,
+   "loop": false,
+   "size": [
+    44,
+    52
+   ],
+   "pivot": [
+    22.0,
+    38.0
+   ],
+   "boxes": [
+    [
+     -7.0,
+     -10.0,
+     7.0,
+     10.0
+    ],
+    [
+     -14.0,
+     -21.0,
+     12.0,
+     12.0
+    ],
+    [
+     -14.0,
+     -32.0,
+     12.0,
+     9.0
+    ],
+    [
+     -11.0,
+     -36.0,
+     7.0,
+     4.0
+    ],
+    [
+     -7.0,
+     -37.0,
+     5.0,
+     -9.0
+    ]
+   ]
+  }
+ }
+}

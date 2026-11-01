@@ -1,0 +1,78 @@
+{
+ "gif": "previews/beam/cast_sequences/pick3_v2_projectile_cast.gif",
+ "size": [
+  748,
+  272
+ ],
+ "frames": 52,
+ "ms": 2140,
+ "colours": 36,
+ "bytes": 210702,
+ "t_fire": 680,
+ "t_hit": 980.0,
+ "t_explosion_end": 1400.0,
+ "t_idle": 880,
+ "tip_world": [
+  3,
+  22
+ ],
+ "impact_world": [
+  -87.0,
+  29.3
+ ],
+ "explosion_ms": [
+  60,
+  60,
+  60,
+  60,
+  60,
+  60,
+  60
+ ],
+ "palette": {
+  "core": [
+   255,
+   248,
+   230
+  ],
+  "hot": [
+   250,
+   169,
+   83
+  ],
+  "mid": [
+   207,
+   86,
+   56
+  ],
+  "outer": [
+   163,
+   33,
+   33
+  ],
+  "dark": [
+   105,
+   27,
+   43
+  ],
+  "deep": [
+   74,
+   20,
+   39
+  ],
+  "smoke": [
+   130,
+   88,
+   97
+  ]
+ },
+ "canvas_origin": [
+  -109,
+  3
+ ],
+ "idle_end": {
+  "frame": 7,
+  "dx": 5,
+  "iou": 0.873
+ }
+}

@@ -1,0 +1,170 @@
+{
+ "pick1_3x_atk_f24": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick1_3x_atk_f24_cast.gif",
+  "size": [
+   976,
+   344
+  ],
+  "frames": 108,
+  "ms": 4960,
+  "colours": 97,
+  "bytes": 876258,
+  "world_origin": [
+   -172,
+   -12
+  ],
+  "tip_pose_world": [
+   0,
+   44
+  ],
+  "idle_end_match": {
+   "idle_frame": 4,
+   "dx": -15,
+   "iou": 0.817
+  }
+ },
+ "pick2_3x_atk_f4": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick2_3x_atk_f4_cast.gif",
+  "size": [
+   1032,
+   344
+  ],
+  "frames": 108,
+  "ms": 4960,
+  "colours": 88,
+  "bytes": 891337,
+  "world_origin": [
+   -92,
+   -12
+  ],
+  "tip_pose_world": [
+   -2,
+   8
+  ],
+  "idle_end_match": {
+   "idle_frame": 4,
+   "dx": -15,
+   "iou": 0.817
+  }
+ },
+ "pick3_dodge_atk_1x_f14": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick3_dodge_atk_1x_f14_cast.gif",
+  "size": [
+   1004,
+   320
+  ],
+  "frames": 72,
+  "ms": 3520,
+  "colours": 63,
+  "bytes": 584043,
+  "world_origin": [
+   -169,
+   -7
+  ],
+  "tip_pose_world": [
+   3,
+   22
+  ],
+  "idle_end_match": {
+   "idle_frame": 7,
+   "dx": 5,
+   "iou": 0.873
+  }
+ },
+ "pick1_v2_3x_atk_f24": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick1_v2_3x_atk_f24_cast.gif",
+  "size": [
+   936,
+   320
+  ],
+  "frames": 88,
+  "ms": 4040,
+  "colours": 97,
+  "bytes": 751253,
+  "world_origin": [
+   -112,
+   -6
+  ],
+  "tip_pose_world": [
+   60,
+   44
+  ],
+  "idle_end_match": {
+   "idle_frame": 4,
+   "dx": 45,
+   "iou": 0.817
+  }
+ },
+ "pick1_v3_3x_atk_f24": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick1_v3_3x_atk_f24_cast.gif",
+  "size": [
+   936,
+   320
+  ],
+  "frames": 61,
+  "ms": 3010,
+  "colours": 99,
+  "bytes": 557869,
+  "world_origin": [
+   -112,
+   -6
+  ],
+  "tip_pose_world": [
+   60,
+   44
+  ],
+  "idle_end_match": {
+   "idle_frame": 4,
+   "dx": 45,
+   "iou": 0.817
+  }
+ },
+ "pick2_v2_3x_atk_f4": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick2_v2_3x_atk_f4_cast.gif",
+  "size": [
+   1032,
+   344
+  ],
+  "frames": 83,
+  "ms": 3880,
+  "colours": 82,
+  "bytes": 723079,
+  "world_origin": [
+   -54,
+   -12
+  ],
+  "tip_pose_world": [
+   36,
+   8
+  ],
+  "idle_end_match": {
+   "idle_frame": 4,
+   "dx": 23,
+   "iou": 0.817
+  }
+ },
+ "pick1_combo_beam_slash": {
+  "gif": "/workspace/mera-beam/previews/beam/cast_sequences/pick1_combo_beam_slash_cast.gif",
+  "size": [
+   984,
+   488
+  ],
+  "frames": 108,
+  "ms": 4960,
+  "colours": 112,
+  "bytes": 972368,
+  "world_origin": [
+   -174,
+   -44
+  ],
+  "tip_pose_world": [
+   0,
+   44
+  ],
+  "idle_end_match": {
+   "idle_frame": 4,
+   "dx": -15,
+   "iou": 0.817
+  }
+ }
+}

@@ -1,0 +1,372 @@
+{
+ "timeline": [
+  {
+   "t": 0,
+   "src_frame": 1,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 1,
+   "src_frame": 2,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 2,
+   "src_frame": 3,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 3,
+   "src_frame": 4,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 4,
+   "src_frame": 5,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 5,
+   "src_frame": 6,
+   "hold": 0,
+   "phase": "charge",
+   "beam_end": null
+  },
+  {
+   "t": 6,
+   "src_frame": 6,
+   "hold": 1,
+   "phase": "charge",
+   "beam_end": null
+  },
+  {
+   "t": 7,
+   "src_frame": 6,
+   "hold": 2,
+   "phase": "charge",
+   "beam_end": null
+  },
+  {
+   "t": 8,
+   "src_frame": 6,
+   "hold": 3,
+   "phase": "charge",
+   "beam_end": null
+  },
+  {
+   "t": 9,
+   "src_frame": 6,
+   "hold": 4,
+   "phase": "charge",
+   "beam_end": null
+  },
+  {
+   "t": 10,
+   "src_frame": 6,
+   "hold": 5,
+   "phase": "charge",
+   "beam_end": null
+  },
+  {
+   "t": 11,
+   "src_frame": 6,
+   "hold": 6,
+   "phase": "fire",
+   "beam_end": 203
+  },
+  {
+   "t": 12,
+   "src_frame": 6,
+   "hold": 7,
+   "phase": "fire",
+   "beam_end": 251
+  },
+  {
+   "t": 13,
+   "src_frame": 6,
+   "hold": 8,
+   "phase": "fire",
+   "beam_end": 290
+  },
+  {
+   "t": 14,
+   "src_frame": 6,
+   "hold": 9,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 15,
+   "src_frame": 6,
+   "hold": 10,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 16,
+   "src_frame": 6,
+   "hold": 11,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 17,
+   "src_frame": 6,
+   "hold": 12,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 18,
+   "src_frame": 6,
+   "hold": 13,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 19,
+   "src_frame": 6,
+   "hold": 14,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 20,
+   "src_frame": 6,
+   "hold": 15,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 21,
+   "src_frame": 6,
+   "hold": 16,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 22,
+   "src_frame": 6,
+   "hold": 17,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 23,
+   "src_frame": 6,
+   "hold": 18,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 24,
+   "src_frame": 6,
+   "hold": 19,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 25,
+   "src_frame": 6,
+   "hold": 20,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 26,
+   "src_frame": 6,
+   "hold": 21,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 27,
+   "src_frame": 6,
+   "hold": 22,
+   "phase": "sustain",
+   "beam_end": 308
+  },
+  {
+   "t": 28,
+   "src_frame": 6,
+   "hold": 23,
+   "phase": "fade",
+   "beam_end": 308
+  },
+  {
+   "t": 29,
+   "src_frame": 6,
+   "hold": 24,
+   "phase": "fade",
+   "beam_end": 308
+  },
+  {
+   "t": 30,
+   "src_frame": 6,
+   "hold": 25,
+   "phase": "fade",
+   "beam_end": 308
+  },
+  {
+   "t": 31,
+   "src_frame": 6,
+   "hold": 26,
+   "phase": "fade",
+   "beam_end": 308
+  },
+  {
+   "t": 32,
+   "src_frame": 6,
+   "hold": 27,
+   "phase": "fade",
+   "beam_end": 308
+  },
+  {
+   "t": 33,
+   "src_frame": 6,
+   "hold": 28,
+   "phase": "fade",
+   "beam_end": 308
+  },
+  {
+   "t": 34,
+   "src_frame": 7,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 35,
+   "src_frame": 8,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 36,
+   "src_frame": 9,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 37,
+   "src_frame": 10,
+   "hold": null,
+   "phase": "atk",
+   "beam_end": null
+  },
+  {
+   "t": 38,
+   "src_frame": 11,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 39,
+   "src_frame": 12,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 40,
+   "src_frame": 13,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 41,
+   "src_frame": 14,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 42,
+   "src_frame": 15,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 43,
+   "src_frame": 16,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 44,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 45,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 46,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 47,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 48,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 49,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  },
+  {
+   "t": 50,
+   "src_frame": 17,
+   "hold": null,
+   "phase": "to idle",
+   "beam_end": null
+  }
+ ],
+ "geometry": {
+  "mera_x": 8,
+  "mera_y": 10,
+  "origin_x": 158,
+  "origin_y": 49,
+  "W": 330,
+  "H": 80,
+  "feet": 72
+ },
+ "fps": 25,
+ "frame_ms": 40
+}

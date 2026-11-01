@@ -1,0 +1,840 @@
+{
+ "map_w": 19200,
+ "pad": 64,
+ "art": 5,
+ "levels": [
+  {
+   "id": "country",
+   "name": "Sunlit Country",
+   "sub": "High grass, wolves and the toad",
+   "layers": [
+    {
+     "file": "res://assets/levels/country/sky.png",
+     "scroll": 0.15,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/country/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 20800,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    166,
+    214,
+    236
+   ],
+   "music": "res://assets/music/country.ogg",
+   "surfaces": [
+    [
+     -39,
+     51,
+     590
+    ],
+    [
+     -39,
+     66,
+     605
+    ],
+    [
+     -49,
+     71,
+     620
+    ],
+    [
+     -59,
+     81,
+     635
+    ],
+    [
+     -59,
+     91,
+     650
+    ],
+    [
+     -79,
+     101,
+     665
+    ],
+    [
+     -89,
+     111,
+     680
+    ],
+    [
+     -89,
+     121,
+     710
+    ],
+    [
+     -99,
+     121,
+     740
+    ],
+    [
+     -104,
+     121,
+     770
+    ],
+    [
+     -114,
+     126,
+     785
+    ],
+    [
+     -114,
+     136,
+     800
+    ],
+    [
+     -124,
+     146,
+     815
+    ],
+    [
+     -124,
+     151,
+     830
+    ],
+    [
+     831,
+     871,
+     975
+    ],
+    [
+     796,
+     896,
+     990
+    ],
+    [
+     786,
+     926,
+     1005
+    ],
+    [
+     776,
+     936,
+     1020
+    ],
+    [
+     1376,
+     2016,
+     820
+    ],
+    [
+     2531,
+     2571,
+     975
+    ],
+    [
+     2496,
+     2596,
+     990
+    ],
+    [
+     2486,
+     2626,
+     1005
+    ],
+    [
+     2476,
+     2636,
+     1020
+    ],
+    [
+     3161,
+     3251,
+     590
+    ],
+    [
+     3161,
+     3266,
+     605
+    ],
+    [
+     3151,
+     3271,
+     620
+    ],
+    [
+     3141,
+     3281,
+     635
+    ],
+    [
+     3141,
+     3291,
+     650
+    ],
+    [
+     3121,
+     3301,
+     665
+    ],
+    [
+     3111,
+     3311,
+     680
+    ],
+    [
+     3111,
+     3321,
+     710
+    ],
+    [
+     3101,
+     3321,
+     740
+    ],
+    [
+     3096,
+     3321,
+     770
+    ],
+    [
+     3086,
+     3326,
+     785
+    ],
+    [
+     3086,
+     3336,
+     800
+    ],
+    [
+     3076,
+     3346,
+     815
+    ],
+    [
+     3076,
+     3351,
+     830
+    ],
+    [
+     3776,
+     4256,
+     660
+    ],
+    [
+     5431,
+     5471,
+     975
+    ],
+    [
+     5396,
+     5496,
+     990
+    ],
+    [
+     5386,
+     5526,
+     1005
+    ],
+    [
+     5376,
+     5536,
+     1020
+    ],
+    [
+     5831,
+     5871,
+     975
+    ],
+    [
+     5796,
+     5896,
+     990
+    ],
+    [
+     5786,
+     5926,
+     1005
+    ],
+    [
+     5776,
+     5936,
+     1020
+    ],
+    [
+     6476,
+     7276,
+     820
+    ],
+    [
+     7861,
+     7951,
+     590
+    ],
+    [
+     7861,
+     7966,
+     605
+    ],
+    [
+     7851,
+     7971,
+     620
+    ],
+    [
+     7841,
+     7981,
+     635
+    ],
+    [
+     7841,
+     7991,
+     650
+    ],
+    [
+     7821,
+     8001,
+     665
+    ],
+    [
+     7811,
+     8011,
+     680
+    ],
+    [
+     7811,
+     8021,
+     710
+    ],
+    [
+     7801,
+     8021,
+     740
+    ],
+    [
+     7796,
+     8021,
+     770
+    ],
+    [
+     7786,
+     8026,
+     785
+    ],
+    [
+     7786,
+     8036,
+     800
+    ],
+    [
+     7776,
+     8046,
+     815
+    ],
+    [
+     7776,
+     8051,
+     830
+    ],
+    [
+     8931,
+     8971,
+     975
+    ],
+    [
+     8896,
+     8996,
+     990
+    ],
+    [
+     8886,
+     9026,
+     1005
+    ],
+    [
+     8876,
+     9036,
+     1020
+    ],
+    [
+     9476,
+     9956,
+     740
+    ],
+    [
+     11061,
+     11151,
+     590
+    ],
+    [
+     11061,
+     11166,
+     605
+    ],
+    [
+     11051,
+     11171,
+     620
+    ],
+    [
+     11041,
+     11181,
+     635
+    ],
+    [
+     11041,
+     11191,
+     650
+    ],
+    [
+     11021,
+     11201,
+     665
+    ],
+    [
+     11011,
+     11211,
+     680
+    ],
+    [
+     11011,
+     11221,
+     710
+    ],
+    [
+     11001,
+     11221,
+     740
+    ],
+    [
+     10996,
+     11221,
+     770
+    ],
+    [
+     10986,
+     11226,
+     785
+    ],
+    [
+     10986,
+     11236,
+     800
+    ],
+    [
+     10976,
+     11246,
+     815
+    ],
+    [
+     10976,
+     11251,
+     830
+    ],
+    [
+     11631,
+     11671,
+     975
+    ],
+    [
+     11596,
+     11696,
+     990
+    ],
+    [
+     11586,
+     11726,
+     1005
+    ],
+    [
+     11576,
+     11736,
+     1020
+    ],
+    [
+     11976,
+     12616,
+     620
+    ],
+    [
+     14031,
+     14071,
+     975
+    ],
+    [
+     13996,
+     14096,
+     990
+    ],
+    [
+     13986,
+     14126,
+     1005
+    ],
+    [
+     13976,
+     14136,
+     1020
+    ],
+    [
+     14976,
+     15936,
+     780
+    ],
+    [
+     16461,
+     16551,
+     590
+    ],
+    [
+     16461,
+     16566,
+     605
+    ],
+    [
+     16451,
+     16571,
+     620
+    ],
+    [
+     16441,
+     16581,
+     635
+    ],
+    [
+     16441,
+     16591,
+     650
+    ],
+    [
+     16421,
+     16601,
+     665
+    ],
+    [
+     16411,
+     16611,
+     680
+    ],
+    [
+     16411,
+     16621,
+     710
+    ],
+    [
+     16401,
+     16621,
+     740
+    ],
+    [
+     16396,
+     16621,
+     770
+    ],
+    [
+     16386,
+     16626,
+     785
+    ],
+    [
+     16386,
+     16636,
+     800
+    ],
+    [
+     16376,
+     16646,
+     815
+    ],
+    [
+     16376,
+     16651,
+     830
+    ],
+    [
+     17576,
+     18056,
+     660
+    ],
+    [
+     18531,
+     18571,
+     975
+    ],
+    [
+     18496,
+     18596,
+     990
+    ],
+    [
+     18486,
+     18626,
+     1005
+    ],
+    [
+     18476,
+     18636,
+     1020
+    ]
+   ]
+  },
+  {
+   "id": "mist_forest",
+   "name": "Misty Woods",
+   "sub": "Beasts of the fog",
+   "layers": [
+    {
+     "file": "res://assets/levels/mist_forest/mist.png",
+     "scroll": 0.05,
+     "y": -40,
+     "z": -40,
+     "period": 2560,
+     "w": 2560,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/mist_forest/back_trees.png",
+     "scroll": 0.25,
+     "y": -40,
+     "z": -35,
+     "period": 800,
+     "w": 800,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/mist_forest/trees.png",
+     "scroll": 0.55,
+     "y": -40,
+     "z": -30,
+     "period": 0,
+     "w": 12620,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/mist_forest/rocks.png",
+     "scroll": 0.8,
+     "y": 0,
+     "z": -25,
+     "period": 0,
+     "w": 17420,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/mist_forest/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 21260,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    150,
+    190,
+    190
+   ],
+   "music": "res://assets/music/mist.ogg"
+  },
+  {
+   "id": "night_town",
+   "name": "Moonlit Town",
+   "sub": "Ghosts and the walking dead",
+   "layers": [
+    {
+     "file": "res://assets/levels/night_town/sky.png",
+     "scroll": 0.0,
+     "y": -40,
+     "z": -40,
+     "period": 480,
+     "w": 480,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/night_town/clouds.png",
+     "scroll": 0.06,
+     "y": -40,
+     "z": -38,
+     "period": 1440,
+     "w": 1440,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/night_town/mountains.png",
+     "scroll": 0.15,
+     "y": -40,
+     "z": -36,
+     "period": 960,
+     "w": 960,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/night_town/far_buildings.png",
+     "scroll": 0.3,
+     "y": 510,
+     "z": -34,
+     "period": 1600,
+     "w": 1600,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/night_town/forest.png",
+     "scroll": 0.5,
+     "y": 550,
+     "z": -32,
+     "period": 640,
+     "w": 640,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/night_town/street.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 21260,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    10,
+    22,
+    26
+   ],
+   "music": "res://assets/music/town.ogg"
+  },
+  {
+   "id": "cemetery",
+   "name": "Moonlit Cemetery",
+   "sub": "Fire Knight and his Blue Knights",
+   "layers": [
+    {
+     "file": "res://assets/levels/cemetery/sky.png",
+     "scroll": 0.0,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/cemetery/mountains.png",
+     "scroll": 0.3,
+     "y": 0,
+     "z": -35,
+     "period": 0,
+     "w": 7820,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/cemetery/graves_far.png",
+     "scroll": 0.7,
+     "y": 525,
+     "z": -30,
+     "period": 3840,
+     "w": 3840,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/cemetery/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 21260,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    0,
+    0,
+    34
+   ],
+   "music": "res://assets/music/cemetery.ogg"
+  },
+  {
+   "id": "lava_caverns",
+   "name": "Infernal Caverns",
+   "sub": "Demons and hounds",
+   "layers": [
+    {
+     "file": "res://assets/levels/lava_caverns/cavern.png",
+     "scroll": 0.2,
+     "y": -120,
+     "z": -40,
+     "period": 2160,
+     "w": 2160,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/lava_caverns/pillars.png",
+     "scroll": 0.6,
+     "y": -120,
+     "z": -30,
+     "period": 0,
+     "w": 13580,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/lava_caverns/lava_floor.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 21260,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    40,
+    16,
+    30
+   ],
+   "music": "res://assets/music/caverns.ogg"
+  },
+  {
+   "id": "dragon_lair",
+   "name": "Dragon's Lair",
+   "sub": "The infernal dragon",
+   "map_w": 7200,
+   "layers": [
+    {
+     "file": "res://assets/levels/lava_caverns/cavern.png",
+     "scroll": 0.2,
+     "y": -120,
+     "z": -40,
+     "period": 2160,
+     "w": 2160,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/lava_caverns/pillars.png",
+     "scroll": 0.6,
+     "y": -120,
+     "z": -30,
+     "period": 0,
+     "w": 13580,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/lava_caverns/lava_floor.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 21260,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    40,
+    16,
+    30
+   ],
+   "music": "res://assets/music/caverns.ogg"
+  }
+ ]
+}

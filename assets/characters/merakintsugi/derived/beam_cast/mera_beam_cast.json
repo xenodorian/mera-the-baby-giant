@@ -1,0 +1,43 @@
+{
+ "file": "mera_beam_cast_strip17.png",
+ "cell": [
+  160,
+  64
+ ],
+ "frames": 17,
+ "pivot": [
+  139,
+  63
+ ],
+ "faces": "left (wand points right in the held pose)",
+ "durations_ms": [
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40,
+  40
+ ],
+ "hold_frame": 5,
+ "wand_tip": [
+  149,
+  39
+ ],
+ "beam_origin_rel_pivot": [
+  11,
+  -24
+ ],
+ "idle_alignment_iou": 0.76,
+ "source": "assets/characters/merakintsugi/platformer-character-pack/atk/1x atk/1x atk_c.aseprite layers 1x atk + to idle (1x atk_fx slash layer dropped)"
+}

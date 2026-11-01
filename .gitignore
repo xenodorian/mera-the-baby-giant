@@ -31,3 +31,10 @@ __pycache__/
 build/
 *.keystore
 *.jks
+
+# never public: the Android signing key (lives only in the private xenodorian/mera-assets repo) and the rejected,
+# unused Sprite Kitchen pack (its licence forbids redistribution)
+assets/_keys/
+assets/_source/spritekitchen/
+assets/characters/spritekitchen/
+assets/_previews/spritekitchen/

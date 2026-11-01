@@ -1,0 +1,70 @@
+{
+ "gif": "previews/beam/cast_sequences/pick3_v4_bolt_cast.gif",
+ "size": [
+  1680,
+  272
+ ],
+ "frames": 50,
+ "ms": 2160,
+ "colours": 35,
+ "bytes": 207932,
+ "t_fire": 520,
+ "t_hit": 1387.5,
+ "t_explosion_end": 1387.5,
+ "t_idle": 960,
+ "tip_world": [
+  -11,
+  25
+ ],
+ "impact_world": [
+  -358.0,
+  25
+ ],
+ "explosion_ms": [],
+ "palette": {
+  "core": [
+   255,
+   248,
+   230
+  ],
+  "hot": [
+   250,
+   169,
+   83
+  ],
+  "mid": [
+   207,
+   86,
+   56
+  ],
+  "outer": [
+   163,
+   33,
+   33
+  ],
+  "dark": [
+   105,
+   27,
+   43
+  ],
+  "deep": [
+   74,
+   20,
+   39
+  ],
+  "smoke": [
+   130,
+   88,
+   97
+  ]
+ },
+ "canvas_origin": [
+  -342,
+  3
+ ],
+ "idle_end": {
+  "frame": 7,
+  "dx": 5,
+  "iou": 0.873
+ }
+}
