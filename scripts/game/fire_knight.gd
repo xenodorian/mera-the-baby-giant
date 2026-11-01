@@ -176,7 +176,10 @@ func _anim(s: String, a: String = "") -> void:
 			_play("jump_up")
 		"land":                         # 03_jump f17-19: landing
 			_play("jump")
-			sprite.frame = 17
+			var n := 1
+			if sprite.sprite_frames and sprite.sprite_frames.has_animation("jump"):
+				n = maxi(sprite.sprite_frames.get_frame_count("jump"), 1)
+			sprite.frame = mini(17, n - 1)
 		"defend":
 			_play("defend")
 		_:

@@ -7,12 +7,13 @@ const AL := preload("res://scripts/game/allies.gd")
 var game: Node = null
 var overlay := false
 var pause_sel := 0
+var pause_controls := false
 var ui := Control.new()
 var font: Font
 var _flash := ""
 var _flash_t := 0.0
 
-const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "QUIT GAME"]
+const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "CONTROLS", "QUIT GAME"]
 
 ## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does]
 const CONTROLS := [
@@ -27,7 +28,7 @@ const CONTROLS := [
 	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 mana"],
 	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 mana, Up = double jump"],
 	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 mana)"],
-	["L1", "Q", "heal: drink a green potion, +1 size (max 6x), plays at 4x"],
+	["L1", "Q", "heal: drink a green potion, +1 size, up to the size cap. One drawing per frame"],
 	["L2", "1", "full bubble while held (3 mana + 4/s). L1 drinks without dropping it"],
 	["L2 + R2 (100 rage)", "1 + 2", "lightning from the sky (AOE). Costs 100 rage"],
 	["R2 (100 rage)", "2", "Fury for 12 s. Costs 100 rage. In Fury, R2 takes off / lands"],
@@ -38,7 +39,7 @@ const CONTROLS := [
 	["L1+R1+L2+R2 (100 rage)", "Q+W+1+2", "freeze slash: mark up to 9 enemies, cut each for 3. Costs 100 rage"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
-	["Start", "Enter / F1", "pause menu: continue, restart, title, or quit. B or Start continues"],
+	["Start", "Enter / F1", "pause: continue, restart, title, controls, or quit. B or Start continues"],
 	["-", "F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
 	["Menus", "arrows, Z ok, X back", "level select, ally picker, level clear / Game Over (Esc quits, F11 fullscreen)"],
 ]
@@ -49,6 +50,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	font = ThemeDB.fallback_font
 	ui.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ui.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui.draw.connect(_draw_ui)
 	add_child(ui)
@@ -71,6 +73,14 @@ func _process(delta: float) -> void:
 ## v0.10.6: while the game is paused the rest of the tree is frozen, so the pause menu lives here
 func _unhandled_input(event: InputEvent) -> void:
 	if game == null or not game.paused_play or event.is_echo():
+		return
+	if pause_controls:
+		if event.is_action_pressed("btn_a") or event.is_action_pressed("btn_b") or event.is_action_pressed("ui_accept") \
+				or event.is_action_pressed("start") or (event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE) \
+				or (event is InputEventMouseButton and event.pressed):
+			pause_controls = false
+			overlay = false
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("up"):
 		pause_sel = posmod(pause_sel - 1, PAUSE_ITEMS.size())
@@ -108,6 +118,9 @@ func _pause_confirm() -> void:
 			game.toggle_pause()
 			game.to_menu()
 		3:
+			pause_controls = true
+			overlay = true
+		4:
 			game.get_tree().quit()
 
 
@@ -117,7 +130,7 @@ func _origin() -> Vector2:
 
 func _pause_item(i: int) -> Rect2:
 	var o := _origin()
-	return Rect2(o.x + 620.0, o.y + 400.0 + float(i) * 78.0, 680.0, 64.0)
+	return Rect2(o.x + 620.0, o.y + 390.0 + float(i) * 68.0, 680.0, 58.0)
 
 
 func _txt(p: Vector2, t: String, sz: int = 28, c: Color = Color(0.95, 0.92, 0.88)) -> void:
@@ -291,14 +304,32 @@ func _card_portrait(aid: String, box: Rect2) -> void:
 func _draw_pause() -> void:
 	var o := _origin()
 	ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.0, 0.0, 0.02, 0.72))
-	var panel := Rect2(o.x + 520.0, o.y + 250.0, 880.0, 560.0)
+	if pause_controls:
+		ui.draw_set_transform(o, 0.0, Vector2.ONE)
+		ui.draw_rect(Rect2(140, 80, 1640, 920), Color(0.03, 0.02, 0.06, 0.96))
+		ui.draw_rect(Rect2(140, 80, 1640, 920), Color(1.0, 0.8, 0.45), false, 4.0)
+		_txt(Vector2(180, 130), "CONTROLS", 48, Color(1.0, 0.82, 0.45))
+		_txt(Vector2(180, 180), "GAMEPAD", 20, Color(1, 0.75, 0.45))
+		_txt(Vector2(530, 180), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
+		for i in CONTROLS.size():
+			var y := 214 + i * 30
+			var pad_name := String(CONTROLS[i][0])
+			if pad_name == "Start" and OS.get_name() == "Android":
+				pad_name = "Volume up / down"
+			_txt(Vector2(180, y), pad_name, 18, Color(1, 0.75, 0.45))
+			_txt(Vector2(530, y), String(CONTROLS[i][1]), 18, Color(0.55, 0.85, 1.0))
+			_txt(Vector2(760, y), String(CONTROLS[i][2]), 18)
+		_center(o.y + 980, "A / B / Start: back to pause", 26, Color(0.85, 0.85, 0.9))
+		ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
+	var panel := Rect2(o.x + 520.0, o.y + 220.0, 880.0, 640.0)
 	ui.draw_rect(panel, Color(0.06, 0.03, 0.09, 0.96))
 	ui.draw_rect(panel, Color(1.0, 0.8, 0.45), false, 4.0)
-	_center(o.y + 330, "PAUSED", 72, Color(1.0, 0.82, 0.45))
+	_center(o.y + 300, "PAUSED", 72, Color(1.0, 0.82, 0.45))
 	for i in PAUSE_ITEMS.size():
 		var r := _pause_item(i)
 		var on := i == pause_sel
 		ui.draw_rect(r, Color(0.28, 0.14, 0.05, 0.95) if on else Color(0.1, 0.06, 0.14, 0.9))
 		ui.draw_rect(r, Color(1.0, 0.82, 0.4) if on else Color(0.45, 0.4, 0.55), false, 3.0)
-		ui.draw_string(font, Vector2(r.position.x, r.position.y + 42), PAUSE_ITEMS[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 32, Color(1, 0.92, 0.65) if on else Color(0.88, 0.88, 0.92))
-	_center(o.y + 760, "Up / Down: choose     A: confirm     B / Start: continue", 26, Color(0.85, 0.85, 0.9))
+		ui.draw_string(font, Vector2(r.position.x, r.position.y + 40), PAUSE_ITEMS[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28, Color(1, 0.92, 0.65) if on else Color(0.88, 0.88, 0.92))
+	_center(o.y + 800, "Up / Down: choose     A: confirm     B / Start: continue", 26, Color(0.85, 0.85, 0.9))

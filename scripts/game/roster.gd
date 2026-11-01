@@ -163,14 +163,16 @@ static var _faces: Dictionary = {}
 static func face(id: String) -> Texture2D:
 	if _faces.has(id):
 		return _faces[id]
-	var path := "res://assets/ui/faces/%s.png" % id
-	if FileAccess.file_exists(path):
-		var baked: Texture2D = load(path)
-		if baked != null:
-			_faces[id] = baked
-			return baked
+	var baked: Texture2D = load("res://assets/ui/faces/%s.png" % id)
+	if baked != null:
+		_faces[id] = baked
+		return baked
 	var pic := frame_art(id)
 	var tex: Texture2D = pic["tex"]
-	if tex != null:
-		_faces[id] = tex
-	return tex
+	if tex == null:
+		return null
+	var atlas := AtlasTexture.new()
+	atlas.atlas = tex
+	atlas.region = pic["src"]
+	_faces[id] = atlas
+	return atlas

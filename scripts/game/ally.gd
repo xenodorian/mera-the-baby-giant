@@ -119,11 +119,18 @@ static func _frames(aid: String) -> SpriteFrames:
 
 # ---------------------------------------------------------------- helpers
 func _play(a: String, from: int = 0) -> void:
+	if sprite == null or sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(a):
+		return
+	if not art["anims"].has(a):
+		return
+	var n := sprite.sprite_frames.get_frame_count(a)
+	if n <= 0:
+		return
 	played[a] = true
 	var e: Dictionary = art["anims"][a]
 	sprite.offset = Vector2(-float(e["pivot"][0]), -float(e["pivot"][1]))
 	sprite.play(a)
-	sprite.frame = from
+	sprite.frame = clampi(from, 0, n - 1)
 	sprite.speed_scale = 1.0
 
 
@@ -173,6 +180,8 @@ func _box(b: Array) -> Rect2:
 
 
 func hurt_rect() -> Rect2:
+	if id == "dancer":
+		return Rect2()
 	var b: Array = art["body"]
 	var w := float(b[2]) - float(b[0])
 	return _box([float(b[0]) + w * 0.15, b[1], float(b[2]) - w * 0.15, b[3]])
@@ -333,7 +342,7 @@ func _on_anim_done() -> void:
 func _idle() -> void:
 	vx = 0.0
 	mv = ""
-	_go("idle", "idle")
+	_go("idle", "hips" if id == "dancer" else "idle")
 
 
 func _physics_process(delta: float) -> void:
