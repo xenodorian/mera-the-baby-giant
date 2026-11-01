@@ -2,11 +2,10 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
-## v0.12.1-playable (2026-11-01)
-Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
-- Windows: Mera_Playable_v0.12.1_Windows.exe
-- Android: Mera_Playable_v0.12.1_Android.apk
-
+## v0.12.2-playable (2026-11-01)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. (Version 0.12.1 was built but never published; its changes are in this release.)
+- Windows: Mera_Playable_v0.12.2_Windows.exe
+- Android: Mera_Playable_v0.12.2_Android.apk
 - **Keys and locked chests.** Some enemy deaths drop a key on their fury orb, with a 25 % chance. Only one key exists at a time, and a new one drops only after the last is used. Keys drop only on levels with chests. Touching a chest with the key uses it: a floating key plays, then 3 to 5 coins and 1 to 3 other items pop out. Chests cannot be broken without a key. The key shows as KEY in the HUD while held.
 - **Level clear gold.** The first clear of a level pays 15 gold, and each clear after that pays 5.
 - **Dragon victory.** Killing the Lair dragon clears the stage (unlock and clear gold), shows "You Defeated the Cavern Dragon!", then returns to the title screen.
@@ -17,7 +16,12 @@ Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - **Summons stay 30 s** by default.
 - **The dancer runs back.** When she is about to leave the view she runs to Mera and dances again.
 - **The dragon pays 100 gold** on top of the clear gold.
-
+- **Wave cap.** A stage spawns every wave it has. The old limit of five alive anywhere is gone.
+- **Cemetery knights.** Three Fire Knights stand at 25, 50 and 75 % of the map. A death refills that point until five have spawned.
+- **Super earthquake needs the earthquake.** The shop refuses it without the earthquake and takes no gold.
+- **Homing fireballs.** Rear-explosion fireballs steer like the bolts do, and a homing shot's hit box follows its heading.
+- **Victory card text** uses the game's pixel font, and the dragon kill marks the stage cleared once.
+- **No summon cards on the maps.** Cards come only from breaking objects and chests.
 - **Cemetery.** The far graves layer is lowered to the ground. The near gravestones still sit about 4 native px above the grass; fixing them needs the level art rebuilt in `mera-assets`.
 
 ## v0.12.0-playable (2026-11-01)

@@ -20,16 +20,16 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 |---|---|
 | 1x, 2x | 1 |
 | 2x-1, 2x-2, 3x | 2 |
-| Beam (beam combo) | 1 per tick (every 5 frames while the beam is on) |
+| Beam (beam combo, shop page 2) | 1 per tick (every 5 frames while the beam is on) |
 | Dodge attack (B, X) | 1 |
 | Rising slash (B+Y) / slam (Y after it) | 1 / 2 |
 | Jump attack 1 / 2 | 1 / 2 |
 | Slide | 1 |
 | Quick-fire bolt | 1 |
-| Rear explosion (slash 1, explosion AOE 3) | 1 + 3 |
+| Rear explosion (slash 1, explosion AOE 3; shop page 2) | 1 + 3 |
 | L2-tap lightning (AOE) | 3 |
-| Earthquake (Down+Y) | 0 (5 s stun) |
-| **Super earthquake** (Down+Y at 100 % rage, v0.8) | flat 2 to every enemy (7 s stun) |
+| Earthquake (Down+Y, shop page 2) | 0 (5 s stun) |
+| **Super earthquake** (Down+Y at 100 % rage, v0.8, shop page 2) | flat 2 to every enemy (7 s stun) |
 | **Marked slash** (L1+R1+L2+R2, costs 100 rage) | flat 3 to each marked enemy |
 
 ## Potions
@@ -44,7 +44,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 ## Rage and Fury
 - **Three rage attacks, each costs 100.** A meter raised past 100 keeps the rest.
   - **R2 alone: lightning.** One bolt per enemy on screen, left to right, 0.08 s apart. Costs 100 rage. With nobody on screen, one bolt lands in front of her.
-  - **L2+R2: Fury** for 12 s. The red bar during Fury is the timer, not the leftover rage. She cannot be hit while it lasts.
+  - **L2+R2: Fury** (bought in the shop, page 2) for 12 s. The red bar during Fury is the timer, not the leftover rage. She cannot be hit while it lasts.
   - **L1+R1+L2+R2: freeze slash.** Needs 100 rage (even during Fury). Costs 100. It does not start Fury. Up to 9 nearest enemies are marked; cut each for a flat 3.
 - **Fury aura (v0.4: particles):**
   - Two CPU particle layers of pixel flame tongues (`CPUParticles2D`, world space, so emitted flames stay where they were born):
@@ -56,7 +56,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - Flame size, speed and the emission area scale with her size.
   - Quality cap `aura_quality` (`--aura-quality=0..2`): 2 = 160 + 70 + 60 embers, 1 = 90 back flames + 30 embers, 0 = outline + 20 embers. The CPU particles are the deliberate choice, since GPU particles are unreliable on the Compatibility renderer.
 - **Fury flight faces the flight direction:** her head leads along the 8-way input (+90° flying right, −45° up-left, 180° diving), with left/right flips. The rotation pivots on her body centre and eases in at 12/s; in the idle hover she eases back upright. The raised-arms pose plays while moving and the tucked hover while idle. The hurtbox follows the tilt.
-- A defeated enemy drops a **red sphere**. It flies to Mera and adds rage based on the enemy's difficulty.
+- A defeated enemy drops a **fury orb** (the red sphere). It flies to Mera and adds rage based on the enemy's difficulty.
   The Fire Knight's sphere gives **+10 %**.
 - Each hit Mera lands also adds **+1 %**. Spheres are the main source; the small per-hit bonus keeps "dealing damage builds Fury".
 - At **100 rage or more**, **L2+R2** starts **Fury** for 12 s and spends **100 rage**. She cannot be hit until it ends.
@@ -107,10 +107,11 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **3x** scale, **5 HP**, **3x faster** (576 px/s run, 1728 px/s chase dash), animations at 1.5x, a 0.3 s tell.
 - Every hit does **1** size. He **can't block** and has **no special**. Everything else is the same: chase dash, bolt jumping, air chase jump attacks, and the full attack set (atk1/2/3, air).
 - **Attacks from behind:** he circles to Mera's back before he swings (he gives up after 2.5 s if she keeps turning).
-- **Spawning:** one comes in from off-screen behind Mera when the Fire Knight **first loses HP**, and one more when the Fire Knight **first drops below 10 HP**. So that is at most 2 per Fire Knight. Blues left more than 2880 px behind are removed.
+- **Spawning:** one comes in from off-screen behind Mera when the Fire Knight **first loses HP**, and one more when the Fire Knight **first drops below 10 HP**. So that is at most 2 per Fire Knight. Blues are never removed for distance; they stay until beaten.
 - **Drops**, as two independent rolls: **35 %** a blue +30 stamina potion, **10 %** a blue-and-white +5 max stamina potion. Plus a red sphere for **+4 % rage** (my choice: he is easier than the Fire Knight's +10 %).
 
 ## Beam and lightning reach
+- The combo beam is locked until bought in the shop (page 2). Lightning is always available.
 - The combo beam (X X X Y, normal and Fury red) and the lightning always reach **off-screen**, at any size, from any position, in either facing, and while the camera scrolls.
 - **Combo input:** the beam needs X X X Y. The Y may come at any time during the third hit (2x-1 or 2x-2) or up to 250 ms after it.
   - X X Y is always 1x → 2x → 3x. A second Y after it (X X Y Y) is swallowed, never the beam.
@@ -123,9 +124,8 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - The lightning lands on the nearest enemy within 1100 px, otherwise in front of Mera, and is kept on screen.
 
 ## Spawning
-- **Only one Fire Knight at a time** (plus the Blue Knights he calls). A new one appears just off-screen ahead of Mera:
-  - 2 s after the previous one is defeated, or
-  - when Mera has moved too far away (he is off-screen and more than 2400 px behind). He is then removed and replaced ahead of her.
+- **Three Fire Knights stand at 25 %, 50 % and 75 % of the Moonlit Cemetery map** (plus the Blue Knights they call). A death refills that same point about 2 s later, until five have spawned in total.
+- **Nothing despawns for distance:** enemies, Blue Knights and Fire Knights stay until beaten.
 - **The cemetery ends (v0.9.5).** After **5** Fire Knights, no more spawn. The exit stays shut ("SLAY THE KNIGHT") until that last knight and his Blue Knights are dead. Then the gate opens.
 - **Camera (v0.3.1):** hard-locked horizontally on Mera's feet pivot, so she is always at the exact screen centre.
   - There is no look-ahead and no smoothing. Turning around never shifts the view, and dashes never drift.
@@ -150,7 +150,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - distant layers either tile seamlessly by design, or are mirrored pairs (seamless by construction, no blur);
   - each layer has its own parallax factor.
 - **Invisible walls** stop Mera and the enemies 120 px from each end. The camera stays locked on her, and the art continues past the walls.
-- The **exit gate** (a pillar of light) stands near the right end of every level. It stays shut until that level's fight is over, then reaching it means **LEVEL CLEAR**. A / Start goes to the next level (on the last level, back to the level select). B always goes to the level select. **The run is never wiped.** Potions, ally cards, mana, rage, max mana and max rage stay across levels, deaths, the level select, and quitting the game. Size stays when you clear a level. **A death puts her back at 2x.**
+- The **exit gate** (a pillar of light) stands near the right end of every level. It stays shut until that level's fight is over, then reaching it means **LEVEL CLEAR**. A / Start goes to the next level (after the last level, the Dragon's Lair, back to the title screen). B always goes to the level select. **The run is never wiped.** Potions, ally cards, mana, rage, max mana and max rage stay across levels, deaths, the level select, and quitting the game. Size stays when you clear a level. **A death puts her back at 2x.**
   - **Moonlit Cemetery:** shut until 5 Fire Knights (and the Blue Knights still with the last one) are dead.
   - **Misty Woods and Moonlit Town:** shut until every scheduled wave has spawned and no roster enemy is left alive ("CLEAR THE ROAD"). Standing still no longer calls in enemies forever.
   - **Infernal Caverns:** shut until the waves are dead ("CLEAR THE ROAD"). The dragon is not on this map.
@@ -158,19 +158,21 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **Stage 1 is open.** Every later stage, including ones added after this, starts locked. It opens when the stage before it is cleared, or when a **200 gold stage key** is bought in the title shop. The key opens the next locked stage. Reset locks them again.
 
 ## Earthquake (v0.5)
+- Locked until bought in the shop (page 2).
 - **Down + Y** (keyboard **Down + S**), including pressing them together, for 20 stamina. She does not have to already be in the crouch pose.
 - Mera stomps (`roll_land` pose). The ground shakes for **1 s**: a 34 px camera shake re-randomised every frame (very fast, violent, the whole map) and dust bursting out of the ground across the screen.
 - Every enemy **touching the ground** at any moment of the quake is **stunned until 5 s after the quake started**. Enemies in the air when it starts are caught if they land before it ends.
 - A stunned enemy wobbles in a dazed yellow tint. It can't act, block or flinch out of it, and takes damage normally.
 
 ## Super earthquake (v0.8)
+- Locked until bought in the shop (page 2). It needs the earthquake bought first.
 - The same input (**Down + Y while crouching**, keyboard **Down + S**) with the **rage meter at 100 %** and **not in Fury**.
 - **Cost:** the usual **20 stamina** plus **the whole rage meter** (it drains to 0 like a lightning spend). Without 20 stamina nothing happens, as for the normal quake.
 - **Impact frame:** the game freezes for **0.16 s** (`IMPACT_FRAME_S`) while the screen turns into a hard black/white silhouette: inverted first (white screen, black shapes), plain black/white for the last 40 %. It is a `HitStop.impact()` freeze (not capped at 120 ms) plus `shaders/impact_frame.gdshader` on a full-screen layer. It is skipped if hit-stop is off, but the overlay still shows.
 - **Then a 2 s quake** (`SUPER_QUAKE_S`) with a **70 px** shake (twice the normal) and twice the dust:
   - every enemy touching the ground during it is **stunned until 7 s after the quake started** (`SUPER_QUAKE_STUN_S`; flyers are not, as with the normal quake);
   - **every enemy** on the map takes **a flat 2 damage** (`SUPER_QUAKE_DMG`, never multiplied by Mera's size). It pierces the Fire Knight's guard. For the Infernal Dragon it is 2 toward its size pool;
-  - **every destructible ground object within 1920 px of the screen centre** is destroyed: candles, urns, crates, chests, cracked walls, and barrels, which explode and chain. Chandeliers on screen fall. Levers, planks and doors aren't destructible and stay.
+  - **every destructible ground object within 1920 px of the screen centre** is destroyed: candles, urns, crates, cracked walls, and barrels (chests need a key), which explode and chain. Chandeliers on screen fall. Levers, planks and doors aren't destructible and stay.
 - **Fury:** during Fury the meter is the Fury timer, so it is never "full rage" and Down+Y is the **normal** quake; Fury keeps going. While the meter is still draining after a spend, it's the normal quake too.
 - Below 100 % rage nothing changes: the normal 1 s quake, rage kept.
 
@@ -195,7 +197,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 ## Enemy roster (v0.6)
 - Sixteen enemies on levels 2-4, built from the ansimuz and chierit packs. **Every one of their animations is used.**
 - Enemies never scale with Mera (fixed size).
-- Each defeated enemy drops **one** thing (v0.9.4): a rage sphere (30%), a green size potion (28%), a blue +30 mana potion (28%), a +5 max mana potion (7%, cap 200), or a +5 max rage sphere (7%, cap 200). A rage sphere still grants that enemy's rage value.
+- Each defeated enemy drops **one** thing (v0.9.4; a key may come on top, see Shop unlocks): a rage sphere (30%), a green size potion (28%), a blue +30 mana potion (28%), a +5 max mana potion (7%, cap 200), or a +5 max rage sphere (7%, cap 200). A rage sphere still grants that enemy's rage value.
 - Damage dealt by Mera = base × her size, as for the knights.
 
 | Level | Enemy | HP | Hits cost | Animations and what they do |
@@ -221,15 +223,15 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 
 ### Spawning on levels 2-4
 - **Waves:** the first wave triggers at x 2200, then one every 1500 px. Wave sizes run 1, 2, 2, 3, ... and each wave cycles through the level's list, so every type shows up.
-- At most 5 enemies are alive at once.
+- No cap of five alive: the spawner places every wave of the stage (the cap is the stage's whole wave total).
 - **Spawn points:** off-screen ahead of Mera. Risers (skeleton, Death) instead climb out of the ground on screen, ahead of her.
 - **Trickle:** an empty screen for 8 s brings one more.
-- Enemies left 1.6 screens behind are removed.
+- Enemies are never removed for distance; they stay until beaten.
 - Level 1 keeps the Fire Knight and Blue Knights.
 
 
 ## Allies (v0.7)
-- **Cards:** levels 2-4 each have one colour-coded ally card per ally (4 per level, at fixed spots). Touch a card to collect it; the HUD shows the cards held.
+- **Cards:** no cards lie on the maps. They come from broken objects (see the drop roll under Breakables), from chests, and from the cracked walls (see Secrets). Touch a card to collect it; the HUD shows the cards held.
 - **Summoning:** **R1** summons. One card type held → that ally comes at once. Several types → a **picker** opens and the game pauses:
   - Left/Right to choose;
   - R1 or A to summon;
@@ -237,7 +239,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 - **Rules:**
   - A summon uses one card.
   - At most 2 allies at once, one of each type.
-  - Allies stay **60 s**, then leave. The dancer dances for **5 s** of that.
+  - Allies stay **30 s** by default, then leave. The shop sells longer times: 60 s, 90 s and 120 s, bought in that order. The dancer still dances **5 s** of that time.
   - Enemy attacks hurt allies too, and allies can be beaten.
 
 | Ally | Colour | What she does (every animation is used) |
@@ -245,7 +247,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 | **Water Priestess** (chierit) | blue | Surfs in and **heals Mera back up to 6x** as soon as she arrives, then once more just before she leaves. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
 | **Brawler Girl** (ansimuz, skin recolour) | orange | Chases the nearest enemy at a run (the walk cycle sped up; the pack has no run). With nobody to fight she goes to the right side of the screen and waits between 200 and 400 px from the edge. She does not walk off it. Enemies stay on Mera |
-| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others at 60 s |
+| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others when the ally's time runs out. If she is about to leave the view she runs back to Mera and dances again |
 
 ## Impact (v0.8)
 - **Hit-stop:** a landed hit freezes the whole game for a moment (real time): **45 ms** normal, **80 ms** heavy (2+ base damage, launchers, explosions, lightning, counter hits), **100 ms** a kill, **120 ms** a parry; never more than 120 ms (overlaps extend, never stack). Beam ticks only stop on a kill. `scripts/game/hit_stop.gd` (autoload `HitStop`) drops `Engine.time_scale` and restores it per physics tick; Mera's input clock keeps real time through it, so combo windows don't change.
@@ -257,15 +259,16 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 
 | Prop | Hits | Drops |
 |---|---|---|
-| Candle (2 looks) | 1 | small: 70 % chance of one item (rarely a size potion; small stamina +12, small sphere +4 %) |
-| Urn | 1 | medium: 90 %, one item |
-| Crate | 1 | medium |
-| Chest | 1 | big: always two different items, 15 % a +5 max-stamina potion |
-| Explosive barrel | 1 | none: explodes |
+| Candle (2 looks) | 1 | the drop roll below |
+| Urn | 1 | the drop roll below |
+| Crate | 1 | the drop roll below |
+| Chest | key only | 3 to 5 coins and 1 to 3 other items (see Shop unlocks) |
+| Explosive barrel | 1 | the drop roll below; explodes |
 | Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
 
-- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. Every destructible except the cracked wall breaks in one hit. A wall loses one hit per blow. A dragon bolt's blast breaks everything in the burst.
-- **Slide (Down+A):** her body breaks every destructible she passes through except a cracked wall, and she **takes the drop immediately** instead of leaving it behind. Walls still block her and still take one hit per kick.
+- **Drop roll** (candle, urn, crate and barrel): 40 % coin, 25 % health potion, 25 % mana potion, 10 % summon card. Chests: see Shop unlocks.
+- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. Every destructible except the cracked wall and the chest breaks in one hit. A chest opens only with a key. A wall loses one hit per blow. A dragon bolt's blast breaks everything in the burst.
+- **Slide (Down+A):** her body breaks every destructible she passes through except a cracked wall and a chest, and she **takes the drop immediately** instead of leaving it behind. Walls still block her and still take one hit per kick.
 - **Explosive barrel:** **8 damage** (fixed, never × size) and a launch to every enemy within **300 px**; it pierces the Fire Knight's block (kind "explosion"); other barrels in the blast go off 0.14 s later (chains); chandeliers in range (1.8 × radius) drop; breakables in range break. Mera is not hurt.
 - **Chandelier:** hit it, blast it, or **earthquake** (Down+Y shakes loose every chandelier on screen). It falls and crushes enemies under it: **6 damage + 2.5 s stun**.
 - Destroyed props **shatter** into textured shards (`scripts/game/debris.gd`, pure GDScript, one draw call); crates also throw their 4 plank pieces.
@@ -286,10 +289,10 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 - A later L2 is just the barrier as before (blocks while held, costs stamina).
 
 ## Secrets (v0.8)
-Each of levels 2-4 hides **3 of its 4 ally cards**:
+Summon cards are **not lying on the maps**. Each of the four stage maps (Sunlit Country, Misty Woods, Moonlit Town, Infernal Caverns) has **two cracked walls**, each hiding one summon card:
 - **Cracked wall:** the card is behind it; **4 hits** (or one explosion) break it.
-- **Lever + door:** hit the lever (620 px before the door) and the door slides up.
-- **Ledge:** the card floats on a ledge **300 px** up, reached from a **crumbling plank** 150 px up (double jump at 1x). The plank shakes 0.45 s after Mera stands on it, breaks 0.3 s later, and grows back after 6 s. A big Mera or flight also reaches the ledge.
+- **Lever + door:** hit the lever (620 px before the door) and the door slides up. No card is behind it now.
+- **Ledge:** a ledge **300 px** up (no card on it now), reached from a **crumbling plank** 150 px up (double jump at 1x). The plank shakes 0.45 s after Mera stands on it, breaks 0.3 s later, and grows back after 6 s. A big Mera or flight also reaches the ledge.
 - A found secret shows "secret found!".
 
 ## Allies scale with Mera (v0.8)
@@ -313,3 +316,16 @@ Each of levels 2-4 hides **3 of its 4 ally cards**:
 - The barrier blocks bolts; a parry (L2 in the window) pops one harmlessly. The earthquake can't stun him while he flies. The Dancing Girl pulls him over to hop with everyone else.
 - His **ground fire breath** attack is unchanged: it still plays the original breath frames with the plume (a separate code path, the roster attack).
 - **Boss bar:** "INFERNAL DRAGON 12x" plus a bar with one notch per size.
+
+## Shop unlocks, keys and clear gold
+- **Shop page 2** (Left/Right switches between the two shop pages) sells these moves. They start **locked**:
+  - the beam finisher (X X X then Y);
+  - the earthquake (Down+Y);
+  - the super earthquake (Down+Y at full rage; the earthquake must be bought first);
+  - the rear explosion (X+Y);
+  - Fury mode (L2+R2).
+- **Homing shots** are a sixth unlock: once bought, quick-fire bolts and rear-explosion fireballs steer toward the nearest enemy.
+- A locked move does nothing: the input falls back to the normal move.
+- **Keys:** some enemy deaths drop a key on top of their fury orb (25 % chance). Only one key exists at a time, on the floor or held; a new one drops only after the last is used. Keys only drop on levels that have chests.
+- **Chests** cannot be broken without a key. Touching a locked chest with a key uses it automatically: the key floats up, then 3 to 5 coins and 1 to 3 other items (health potion, mana potion or a summon card) pop out. The HUD shows KEY while one is held.
+- **Level clear gold:** the first clear of a level pays 15 gold, each later clear 5 gold. Killing the Infernal Dragon at the end clears its stage, pays that clear gold plus 100, shows "You Defeated the Cavern Dragon!" and returns to the title screen.

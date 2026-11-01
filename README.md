@@ -5,18 +5,13 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
 
 ## Current release: **v0.12.0-playable**
 - Download: GitHub → Releases → [`v0.12.0-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.12.0-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.12.0-playable/Mera_Playable_v0.12.0_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.12.0-playable/Mera_Playable_v0.12.0_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
-- Branches:
-  - `main` = the current playable game (v0.8).
-  - `playable-level` = the playable-level development branch.
-  - `beam-attack` = the canon beam/projectile cast work (already in `playable-level`/`main`).
-  - `mera-scale-test` = v0.1.
 - Controls: see `docs/CONTROLS.md` for the full table. In short (Xbox names, PS4 in brackets):
   - D-pad / left stick: move. Up: jump (in Fury: fly). Down: crouch.
   - A [✕] hold: run. **X [□]: attack**. **Y [△]: special**.
   - B [○]: back dodge (B then X: dodge attack, B then Y: fast quick fire). **B+Y: rising slash** (Y again: slam). A+Y: ground dash. In the air, X: jump attack, Y: aerial dash.
-  - L1: health potion (size, cap starts at 3x). **E** or left-stick click: mana potion. **L2 hold: full bubble**. **L2+R2: lightning** (100 rage, spends the bar). **R2 alone: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.** Title: Down to Shop, Reset, Updates, Credits.
-  - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **stamina** (60, +1/s).
-  - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (Fury = 2, lightning = 1+2), Enter/F1 = Start.
+  - L1: health potion (size, cap starts at 3x). **E** or left-stick click: mana potion. **L2 hold: full bubble**. **R2 alone: lightning** (100 rage, spends the bar). **L2+R2: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.** Title: Down to Shop, Reset, Updates, Credits.
+  - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **mana** (60, +1/s).
+  - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (lightning = 2, Fury = 1+2), Enter/F1 = Start.
 
 ### Clone and open
 The code, scenes, tests, tools and docs are public. **The art, audio and source packs are not**: they live in the private repo `xenodorian/mera-assets`, mounted as a git submodule at `assets/`. That includes the main character, a purchased pack with a custom licence that may not be redistributed.
@@ -59,14 +54,14 @@ Headless check:
 ```
 
 ## Playable test level (current; releases v0.2-playable, v0.3-playable, v0.3.1-playable, v0.4-playable)
-`scenes/game.tscn` (main scene): an endless looping cemetery where Mera fights Fire Knights one at a time; each one calls in up to two small Blue Knights. It uses all of her pack animations and the canon moves (quick fire, rear explosion, beam combo), plus potions, rage/Fury and flight.
+`scenes/game.tscn` (main scene): six levels, from Sunlit Country to the Dragon's Lair. On the Moonlit Cemetery, three Fire Knights stand at fixed points (five spawn in total), and each calls in up to two small Blue Knights. It uses all of her pack animations and the canon moves (quick fire, rear explosion, beam combo), plus potions, rage/Fury and flight.
 Controls: `docs/CONTROLS.md`. Rules: `docs/GAME_RULES.md`. Mera's frames are baked by `tools/export_game_anims.py`.
 ```bash
 G=/workspace/tools/Godot_v4.7.2-stable_linux.x86_64
 $G --headless --path . -s tests/run_tests.gd                       # headless gameplay tests (v0.4: human-timing input replays, knights, stamina, aura)
 $G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe
 $G --headless --path . --export-release "Linux" build/linux/Mera_Playable.x86_64
-source /home/box/.android-keys/release.env && $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk   # see docs/AI_HANDOFF.md
+source <mera-assets>/_keys/android/release.env && $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk   # see docs/AI_HANDOFF.md
 ```
 Test/capture args (after `--`): `--size=N --rage=N --potions=N --fury --no-knight --debug --overlay --gallery=ANIM --demo --shots=PREFIX --at=F1,F2 --quit=F`.
 The export list in `export_presets.cfg` is explicit (textures are loaded by path), plus the include filter for `anims.json`. Add new assets there.

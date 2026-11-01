@@ -3384,7 +3384,7 @@ func _unlock_tests() -> void:
 	await process_frame
 
 
-# ================================================================ TASKS.md: spawn cap, super quake order, homing, victory font, no map cards
+# ================================================================ spawn cap, super quake order, homing, victory font, no map cards
 func _task_tests() -> void:
 	var C = load("res://scripts/game/carry.gd")
 	# 1. spawn cap: a stage spawns every wave enemy, so the cap is far above the old five

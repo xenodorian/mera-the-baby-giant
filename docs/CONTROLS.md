@@ -44,6 +44,8 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. Volume keys do this on Android. Restart after Game Over |
 | Back (Share) | nothing. The animation gallery is not bound to any key or button |
 
+**Locked moves.** The beam finisher (X X X then Y), the earthquake (Down+Y), the super earthquake (Down+Y at full rage, after the earthquake is bought), the rear explosion (X+Y) and Fury (L2+R2) start locked. They are bought on shop page 2 (Left/Right switches the pages). A locked input does nothing special: it falls back to the normal move.
+
 ## Keyboard (v0.8 PC layout, user request t86u)
 Every key is just another binding of the same action, so combos, chords (67 ms window), L2 tap vs hold and the parry window behave exactly as on a pad. No key is shared between two actions (test "input map: no key is shared").
 

@@ -1,141 +1,18 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-11-01, v0.12.0. Level order is Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns, Dragon's Lair. Country is index 0. Cemetery is index 3 (knights). Caverns are index 4 and have no boss. The dragon is `BOSSES[5]` on a 7200 px arena that reuses the lava art. Down+Y earthquakes whenever Down is held, including the same frame. R2 alone is the lightning chain. L2+R2 is Fury, and she is invulnerable while it lasts. Stages after the first stay locked until the previous one is cleared or a 200 gold key is bought.
+_Last updated: 2026-11-01, v0.12.2. Level order is Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns, Dragon's Lair. Country is index 0. Cemetery is index 3 (three Fire Knights on fixed points at 25, 50 and 75 % of the map, five in total). Caverns are index 4 and have no boss. The dragon is `BOSSES[5]` on a 7200 px arena: killing it clears the stage, pays the clear gold plus 100, shows the title card and returns to the title screen. Nothing despawns for distance. The beam finisher, earthquake, super earthquake (needs the earthquake), rear explosion, Fury and homing shots are bought in the shop (page 2) and start locked. Stages after the first stay locked until the previous one is cleared or a 200 gold key is bought. Summon cards come only from breaking objects._
 
 
-## TASKS FOR THE NEXT AGENT (do these, then stop)
-
-You are implementing a short list. Do not invent extra features. Do not add branch or tag rulesets. Do not create a branch. Commit straight to `main` and push. Moves that start locked (beam, earthquake, super earthquake, rear explosion, Fury, homing) are intentional. Do not unlock them. Do not change shop prices.
-
-Work from current `origin/main`. Read the function before you edit it. After each task, update the matching test in `tests/run_tests.gd` if one fails. Do not delete unrelated tests.
-
-### 1. Spawn cap
-
-`scripts/game/roster.gd` has `MAX_ALIVE := 5`. `scripts/game/game.gd` `_manage_roster` does `if alive >= Roster.MAX_ALIVE: break`, so a stage stops spawning once five enemies are alive anywhere, including ones left behind. That is the bug.
-
-Replace the check with a per-stage cap equal to every wave enemy that stage will place. Add this on `game.gd` and call it instead of `Roster.MAX_ALIVE`:
-
-```
-func _stage_cap() -> int:
-    var n := 0
-    var i := 0
-    var wx := Roster.WAVE_FIRST
-    while wx < map_w - Roster.BOSS_AT:
-        n += int(Roster.WAVE_SIZES[i % Roster.WAVE_SIZES.size()])
-        i += 1
-        wx = Roster.WAVE_FIRST + float(i) * Roster.WAVE_EVERY
-    return maxi(n, 1)
-```
-
-In the wave loop, `break` only when `alive >= _stage_cap()`. Do not bring back distance despawn. Leave the line that only erases invalid mobs.
-
-### 2. Cemetery knights at three fixed points
-
-Level index 3 is the cemetery. It is not in `Roster.LEVELS`. Knights are spawned by `_spawn_knight` and `_manage_knight` in `game.gd`. Today there is one `var knight`, placed next to the camera, and a new call frees the previous knight.
-
-Change it so three Fire Knights can exist at once, at fixed fractions of the walkable map, and later kills refill those same points until `Roster.KNIGHT_CAP` (5) have been spawned. The exit stays locked until that quota is met and none are alive (`exit_locked` already checks `knights_spawned < Roster.KNIGHT_CAP or _knight_fight_live()`).
-
-Do this:
-
-1. Add `var knights: Array = []` next to `var knight`.
-2. Add:
-
-```
-func _knight_points() -> Array:
-    var lo := Levels.EDGE
-    var hi := map_w - Levels.EDGE
-    var span := hi - lo
-    return [lo + span * 0.25, lo + span * 0.50, lo + span * 0.75]
-```
-
-3. Replace `_spawn_knight` with `_spawn_knight_at(x: float, spot: int)`:
-   - Do not `queue_free` any existing knight.
-   - `FireKnight.new()`, `setup(self, "fire")`, `position = Vector2(x, GROUND_Y)`, `facing = -1 if x > mera.global_position.x else 1`.
-   - `k.set_meta("spot", spot)`.
-   - `world.add_child(k)`, `knights.append(k)`, `knights_spawned += 1`.
-   - Set `knight = k` so old code that reads the single variable still sees one of them.
-4. Rewrite `_manage_knight`:
-   - Drop dead entries from `knights` (`not is_instance_valid` or `not alive()`).
-   - If `knights_spawned == 0`, call `_spawn_knight_at` once for each of the three points, spots 0, 1 and 2.
-   - If `knights_spawned < Roster.KNIGHT_CAP`, find any spot in 0, 1, 2 that has no living knight and spawn the replacement at `_knight_points()[spot]`.
-   - Never place a knight from `cam_x`.
-5. `_knight_fight_live` returns true if any entry in `knights` is alive, or any blue knight is alive.
-6. `finish_endpoint` must `queue_free` every knight in `knights`, then `knights.clear()` and `knight = null`.
-7. Search `game.gd` for other `knight.queue_free()` that assume there is only one. Point them at the array.
-8. Do not despawn knights or blues for being far away.
-
-### 3. Super earthquake requires the normal earthquake
-
-In `scripts/game/carry.gd` `_buy_move`, before taking gold, if `id == "super_quake"` and not `owns("earthquake")`, `return "order"`.
-
-In `scripts/menu.gd` `_shop_buy`, the `"order"` note currently always says to buy the shorter summon time. If `what == "move:super_quake"`, set the note to `Buy the earthquake first.` Keep the summon-time note for `summon:` rows.
-
-In `_shop_stat`, when the row is `move:super_quake` and not `Carry.owns("earthquake")`, return `needs earthquake` instead of `locked`.
-
-### 4. Homing
-
-`Carry.owns("homing")` is the unlock. It must steer every player projectile that flies.
-
-Already set in `game.gd`: `spawn_bolt` and `spawn_bolt_up`. Also set `sh.homing = Carry.owns("homing")` in `spawn_fireball`.
-
-In `scripts/game/shot.gd`:
-
-- Bolt movement already uses `_home` when `homing` is true. Keep that.
-- The hit box is still flat. In the bolt branch of `_physics_process`, when `homing` is true, replace the rect with one that covers the bolt along `heading`:
-
-```
-var vis := size * bulk
-var reach := 5.0 * vis
-var half := Vector2(absf(heading.x) * reach + 3.0 * vis, absf(heading.y) * reach + 3.0 * vis)
-var r := Rect2(position - half, half * 2.0)
-```
-
-  When `homing` is false, keep the old `up` / horizontal rect.
-- Fireballs (`kind == "fireball"`) currently follow a parabola and ignore `homing`. If `homing` is true, do not use that parabola. Move the fireball with the same `_home(delta) * speed()` step the bolt uses, and test the same expanded rect against enemies. Still explode when it hits an enemy or a prop, or when it leaves the screen (`absf(position.x - game.camera_x()) > 2200`). If `homing` is false, leave the parabola exactly as it is.
-
-Do not set `homing` on enemy shots (`enemy_shot.gd`) or dragon bolts (`dragon_bolt.gd`). Do not home the pulse wave or the vertical beam. Those are not flying projectiles.
-
-### 5. Dragon victory marks the stage cleared, in the pixel font
-
-In `game.gd` `_start_dragon_victory`, set `cleared = true` and `over_t = 0.0` before `Carry.record_clear`. `_clamp_to_map` only pays clear gold when `not cleared`, so this stops a second payment if Mera is already on the exit. Keep the existing `record_clear` and the extra `DRAGON_GOLD`. Do not call `record_clear` anywhere else in the victory path.
-
-Delete the `Label` in `_show_victory_card`. A `Label` uses Godot's default font. The game's pixel text is `ThemeDB.fallback_font`, drawn by `scripts/game/hud.gd` (`font = ThemeDB.fallback_font` in `_ready`, drawn in `_draw_ui`). The HUD node is `PROCESS_MODE_ALWAYS`, so it still draws while the tree is paused.
-
-Add a flag `var victory_card := false` on `game.gd`. Set it true at the start of `_show_victory_card`. In `hud.gd` `_draw_ui`, if `game.victory_card`, draw `You Defeated the Cavern Dragon!` centered with `ui.draw_string(font, ...)`, size 64, color `Color(1.0, 0.82, 0.35)`, and the same black shadow the other HUD strings use (draw the string again 4 px down and right in black first). Center it in the 1920x1080 HUD, around y = 500. Keep the dim `ColorRect` and the timer that calls `_to_title`.
-
-### 6. No summon cards lying in the level
-
-Cards come only from destroying an object. `game.gd` `break_drop` is already 40% coin, 25% health potion, 25% mana potion, 10% card (`roll >= 0.90`). Do not change those numbers. Do not drop cards from enemies. Enemy loot stays the fury orb.
-
-`_place_cards` already begins with `return`, so map cards are not spawned. Keep that. Delete the unreachable lines under that `return` so a later edit cannot place `Allies.CARDS` again. Search for `CARD.new` and `card_nodes.append`. Nothing in a level may spawn a card node.
-
-Walls, doors and ledges stay. Do not make breaking one spawn a card. `reveal_secret` may keep clearing `hidden_by` if a card exists, but `_place_props` will not find one. Do not add a new card spawn there.
-
-The test name `country, woods, town and caverns each hold one card per ally` only checks the `Allies.CARDS` table. Leave the table. Do not start calling `_place_cards` to satisfy it.
-
-### Done when
-
-- A wave still spawns while more than five enemies are alive, until `_stage_cap()` is reached.
-- Cemetery starts with three Fire Knights at 25%, 50% and 75% of the walkable width, and a death respawns on that same point until five have spawned in total.
-- Buying super earthquake with no earthquake returns `order` and does not take gold.
-- With homing owned, bolts and fireballs turn toward an enemy and their hit box covers that turned shape. Without it, fireballs still arc.
-- Killing the dragon sets `cleared` and the victory words use `ThemeDB.fallback_font` through the HUD.
-- No card node is placed on a map. A broken crate can still roll a card at 10%.
-
-
-
-## v0.9.6 status (2026-10-31)
-All four allies stay `Allies.STAY_S` 60 s. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the 60 s. `dancing()` is only that 5 s, which is what `game.dancer()` reports, so the lure ends with the dance.
+## Ally, bubble and Fury notes
+Summoned allies stay `Carry.summon_s()` seconds: 30 s by default, or 60, 90 or 120 s once bought in the shop. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the time is up. If she is about to leave the view she runs back to Mera and dances again. `dancing()` is only the dance, which is what `game.dancer()` reports, so the lure ends with the dance.
 The brawler chases the nearest enemy at a run (`_brawler_run`: walk frames at 2.2×, she has no run sheet). With no enemies she holds the right side of the screen, 200–400 px from the edge (`_brawler_hold`), and does not walk off it. `game.brawler()` is her while she is alive and not leaving. Enemies still chase Mera.
 The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`), then leaves. No repeating heal cooldown.
 L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.
 The standing drink (`_start_move("heal")`) and every other heal-pose move play one authored frame per rendered frame (`frame_for_frame` in `layered_anim.gd`). The size still lands on heal frame 7, about 0.12 s after the press.
 Any projectile damages breakables through `game.prop_at`: player bolts and fireballs, ranger arrows, enemy shots, dragon bolts (the blast is an explosion).
-L2 alone starts the barrier (`no_tap`, a short press is not lightning). L2+R2 calls `_try_lightning`. R2 alone, after `CHORD_MS`, calls `_try_fury`. `start_fury` subtracts `FURY_COST` (100) and does not clear the rest; `_fury_tick` no longer overwrites `rage`. The HUD bar during Fury is `fury_left / FURY_TIME`.
+L2 alone starts the barrier (`no_tap`, a short press is not lightning). R2 alone is lightning (`_try_lightning`). L2+R2 is Fury (`_try_fury`), which needs the Fury unlock. `start_fury` subtracts `FURY_COST` (100) and does not clear the rest; `_fury_tick` no longer overwrites `rage`. The HUD bar during Fury is `fury_left / FURY_TIME`.
 The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) pose cropped to the body box. That does not call `get_image()`, which is null in an export and used to fall back to the full sheet (a blank square). The HUD held-card icons use the same crop. Start no longer opens the controls list; it opens the pause menu in `hud.gd` (`pause_sel`). The controls list is only `--overlay`. Full-screen panels are drawn in a centered 1920×1080 design; the background and the dim cover `ui.size` / the menu control, so aspect `expand` does not leave a bare strip. The in-game bars stay at the top left so they do not sit on the touch pad.
-**Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
-There are no branch or tag rulesets. Do not add any. Push to `main`. Do not create branches.
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).
@@ -172,37 +49,21 @@ There are no branch or tag rulesets. Do not add any. Push to `main`. Do not crea
 - Mera's animation frames are baked by `tools/export_game_anims.py`. Spell segments: `tools/tess_spells.py`. Barrier fit: `tools/fit_barrier.py`.
 - Docs: `docs/CONTROLS.md` (inputs and timing windows), `docs/GAME_RULES.md`, `docs/CREDITS.md`, `docs/WORKFLOW.md` (staged plan), and `CHANGELOG.md`.
 
-## Done
-| Release | Content |
-|---|---|
-| v0.1-scale-test | Mera scale test |
-| v0.2-playable | First playable cemetery level |
-| v0.3 | 6x Fire Knight, off-screen tessellated beam/lightning, Fury flight tilt, bubble fit |
-| v0.3.1 | Camera hard lock |
-| **v0.9.0-playable** | First public-repo release. In-game updater (`scripts/app/updater.gd`, `docs/UPDATER.md`: GitHub releases API, size + SHA-256 from `SHA256SUMS.txt`, Windows/Linux swap-and-relaunch helper, Android system installer via the template's FileProvider), Credits screen + version on the title menu, marked slash (other agent's PR #2) (360 tests + `tools/updater_e2e.sh`) |
-| **v0.8.2-playable** | Dragon bolts: fireball art mirrored so the blunt head leads (art faces left), horizontal launch from the measured mouth, gravity-only arc solve, lob spots keep Mera in front of the mouth (336 tests) |
-| **v0.8.1-playable** | Dragon flight: user-picked 4-frame `fly` wing loop (breath 1,5,4,5 without fire, 11 fps), flies to 5 lob spots per phase (short/mid/long, both sides, on screen), arcs solved per distance; volley `spit` frames without the breath plume (331 tests) |
-| **v0.8-playable** (S4) | Hit-stop/sparks/SFX variance, shatter + gore, breakables with smart drops, barrels + chandeliers, juggles + corpse launch, parry (timed L2), secrets (wall, lever door, ledge + crumbling plank), allies scale with Mera, dragon rework (19x size = health, 12/9/6/3 flight phases with lobbed bolts, +3 on a hit), Fire Knight 1/2 damage, dancer skin recolour, Android L2 fix, **Android APK builds**, PC keyboard layout, super earthquake (Down+Y at 100 % rage: impact frame, 2 s quake, 7 s stun, flat 2 to all, ground props destroyed) (323 tests) |
-| **v0.7-playable** (S3) | Ally cards on levels 2-4, R1 summon + picker, Water Priestess (heal to 6x, 30 s cooldown), Leaf Ranger, Brawler Girl, Dancing Girl (non-boss enemies gather and hop), all ally animations used |
-| **v0.6-playable** (S2) | 16-enemy roster on levels 2-4 with all animations, Infernal Dragon boss + locked exit, telegraph standard (knights too), Y-in-bubble lightning, demo on current controls |
-| **v0.5-playable** (S1) | Level select + 4 large native maps (Cemetery, Misty Woods, Moonlit Town, Infernal Caverns; 19,200 px each, walls + exit gate), remap (L2 tap = lightning, L2 hold = barrier, L2+R2 = Fury, R1 = allies), Down+Y earthquake (1 s shake, 5 s ground stun) |
-| **v0.4-playable** | Responsive combos (instant commit + retroactive chords), B+Y rising slash / B then Y fast quick fire, stamina, Fire Knight overhaul (all 14 anims, chase dash, block, bolt jumps, air chase), Blue Knights, particle Fury aura, human-timing input-replay tests (197 tests) |
-
-## Left (see `docs/WORKFLOW.md`)
-- v0.9.2 crouch bubble (free, 75% damage reduction, parries like L2 in the first 150 ms) is the current change. v0.9.1 gameplay is on `main` and in the Windows release `v0.9.1-playable`. Linux and Android builds are still outstanding. Ideas not yet requested: more props on level 1 (the user said leave it as is), a real-device check of the Android build with a gamepad (no ARM emulator on the box), touch controls (none yet: the APK needs a gamepad or keyboard).
-- **Every new version must ship a Windows exe AND an Android ARM APK** (user rule since t80u).
-- **Every release must also attach `SHA256SUMS.txt`** (`sha256sum` over all binaries); the in-game updater refuses a release without it. Before exporting:
-  - bump `application/config/version` in `project.godot`;
-  - bump the Android `version/code` (must increase, or Android refuses the update) and `version/name` in `export_presets.cfg`;
-  - sign the APK with the same release keystore.
-- Updater: `docs/UPDATER.md`. Test with `tools/updater_e2e.sh` (real Linux export against a fake API) and `MERA_UPDATE_API=<json url> <game> -- --update-selftest`.
+## Releasing
+- Every release ships a Windows exe **and** an Android ARM APK, plus `SHA256SUMS.txt` (plain file names, `sha256sum` over both binaries). The in-game updater refuses a release without it.
+- Before exporting, bump `application/config/version` in `project.godot`, and `version/code` (it must increase) and `version/name` in `export_presets.cfg`. Add the entry to `CHANGELOG.md`.
+- Windows: `$G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe`.
+- Android: load the signing values, point the keystore path at the real file (the path inside `release.env` is stale), then export:
+  `set -a; . <mera-assets>/_keys/android/release.env; set +a; export GODOT_ANDROID_KEYSTORE_RELEASE_PATH=<mera-assets>/_keys/android/mera-release.keystore; $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk`
+  Check the result with `aapt2 dump badging` and `apksigner verify`.
+- Name the files `Mera_Playable_vX.Y.Z_Windows.exe` and `Mera_Playable_vX.Y.Z_Android.apk`, tag `vX.Y.Z-playable`, and attach both plus `SHA256SUMS.txt` to the GitHub release. Updater details: `docs/UPDATER.md` and `tools/updater_e2e.sh`.
+- The keystore (alias `mera`) lives only in the private `mera-assets` repo under `_keys/android/`. Never commit it to the public repo. A v0.9.0 install must be uninstalled once; later APKs signed with this key update in place.
 
 ## Repo split (2026-10-31): public code, private assets
 - The game repo is public. `assets/` is the **private submodule** `xenodorian/mera-assets` (LFS). Clone with `--recurse-submodules`, then run `git submodule foreach git lfs pull`.
-- History was rewritten (`git filter-repo --invert-paths --path assets/ --path icon.png --path icon.png.import --path previews/{merakintsugi,spritekitchen,chierit,ansimuz,beam,compat}/`). **Old clones and worktrees must be discarded and re-cloned.** A pre-rewrite mirror (all refs and LFS objects) is kept on the build box at `/workspace/backups/mera-pre-public-2026-10-31/`. Never delete it.
+- History was rewritten (`git filter-repo --invert-paths --path assets/ --path icon.png --path icon.png.import --path previews/{merakintsugi,spritekitchen,chierit,ansimuz,beam,compat}/`). **Old clones and worktrees must be discarded and re-cloned.**
 - The app icon moved to `res://assets/_project/icon.png` (project.godot and all three export presets).
 - Asset edits: commit and push in `assets/` first, then commit the submodule bump. Tools that write into `assets/` (build_roster, build_props, recolor scripts) write into the submodule.
-- `git-filter-repo` is installed on the box at `/workspace/tools/bin/git-filter-repo`.
 
 ## Pitfalls (learned the hard way)
 - **Don't name a method `_set`** on a Node: it overrides `Object._set()` (the property setter hook) and breaks every property assignment. The updater uses `_state()`.
@@ -210,11 +71,7 @@ There are no branch or tag rulesets. Do not add any. Push to `main`. Do not crea
 - **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **all three** presets (Windows, Linux, Android), or the exported game silently misses it.
   - Never `grep` the file with broad patterns: the list is one enormous line.
   - Add entries with `sed`/python right after `"res://scripts/game/cam_rig.gd", `.
-- **Git LFS:** PNG/GIF/WAV/ZIP/etc. go through LFS. After pushing, also run `git lfs push origin <branch>`. Commit `*.import` and `*.uid` files, but never `.godot/`.
-- **Parallel workers** share `/workspace/mera-play`. One has committed and published from this working tree before.
-  - Always `git fetch`, then check `git status`, `gh pr list --state all` and `gh release list` before publishing.
-  - Never publish a release that already exists. Never force-push.
-- **Local `main` is checked out in another worktree** (`/workspace/sorcery-brawler`; don't touch it). Branch with `git switch -c name origin/main`.
+- **Git LFS:** PNG/GIF/WAV/ZIP/etc. go through LFS. After pushing, also run `git lfs push origin main`. Commit `*.import` and `*.uid` files, but never `.godot/`.
 - **Run headless tests with `--fixed-fps 60`.** The whole suite then takes about 10 s instead of about 15 min, because the game clock is game-time based (`Mera.now`).
   - Command: `$G --headless --fixed-fps 60 --path . -s tests/run_tests.gd`.
   - Without the flag, headless Godot runs physics in real time.
@@ -257,7 +114,6 @@ There are no branch or tag rulesets. Do not add any. Push to `main`. Do not crea
 - **Roster frame lists:** `tools/build_roster.py` accepts an explicit list of frame paths (repeats allowed) as well as a folder. The dragon `fly` loop uses this. The preview tool for the flight is `tests/shots_v081.gd`; pass `--gif=/abs/dir` to dump 960×540 frames at 20 fps, then assemble them with PIL. Run it with `--fixed-fps 60` so one rendered frame is one physics tick.
 
 - **Check every sprite's native facing before rotating it to a velocity.** The ansimuz hell-beast fireball faces LEFT (blunt head at −x). `rotation = vel.angle()` alone flies it backwards. See `dragon_bolt.gd` `NATIVE_HEAD` / `_orient()`. The dragon also faces left natively (`native = -1`); world offsets measured on his art go through `facing == native` (see `mouth_pos()`).
-- **Concurrent agents:** others may push to this repo. Before branching and again before merging, run `git fetch` and check `gh pr list` and the recent branches, merge `origin/main` into your branch if it moved, and rerun the full suite on the merged result.
 - **Previews:** the Read tool can show a stale image for a reused path. Write review images to new file names.
 
 ## Tips
@@ -267,22 +123,8 @@ There are no branch or tag rulesets. Do not add any. Push to `main`. Do not crea
 - Credit every new asset in `docs/CREDITS.md`. chierit is CC-BY 4.0 (credit "chierit"); ansimuz is CC0 but credited anyway.
 - `MERA_TRACE=<frame>` env prints Mera animation changes. Game args after `--`: `--size=N --rage=N --potions=N --fury --no-knight --debug --overlay --gallery=ANIM --demo --shots=PREFIX --at=F1,F2 --quit=F`.
 
-## Tools on the box (verified 2026-10-31)
-| Tool | Version / path |
-|---|---|
-| Godot | **4.7.2-stable** Linux binary at `/workspace/tools/Godot_v4.7.2-stable_linux.x86_64` (download: `/workspace/tools/godot.zip`) |
-| git-filter-repo | a40bce548d2c (v2.47.0 script) at `/workspace/tools/bin/git-filter-repo` (used for the 2026-10-31 public split) |
-| Godot export templates | `~/.local/share/godot/export_templates/4.7.2.stable/` (from `/workspace/tools/templates.tpz`) |
-| git | system `/usr/bin/git` |
-| git-lfs | 3.8.1, `/usr/local/bin/git-lfs` |
-| gh (GitHub CLI) | 2.103.0, `/usr/local/bin/gh`, authenticated as `xenodorian` |
-| Python | 3.13.5, with Pillow 13.0.0, numpy 2.5.4, scipy 1.18.1, imageio 2.38.1 |
-| Xvfb / xvfb-run | 21.1.16 (screenshots and smoke tests) |
-| ffmpeg | 7.1.5 (videos/GIFs, no longer required) |
-| unzip | 6.0 |
-| Aseprite | not installed; `tools/ase_info.py` and `tools/ase_render.py` read `.aseprite` files in Python |
-| **OpenJDK 17** (Android export) | Eclipse Temurin 17 at `/workspace/tools/jdk17` (tarball `/workspace/tools/jdk17.tar.gz`, from api.adoptium.net). Debian trixie has no openjdk-17 package; don't use the system 21 |
-| **Android SDK** (Android export) | `/workspace/tools/android`: cmdline-tools `latest` (commandlinetools-linux-13114758, zip `/workspace/tools/cmdtools.zip`), `platform-tools`, `build-tools;35.0.1` and `36.0.0`, `platforms;android-35` and `android-36` (Godot 4.7.2 targets SDK 36). Licences accepted. Install more with `JAVA_HOME=/workspace/tools/jdk17 /workspace/tools/android/cmdline-tools/latest/bin/sdkmanager --sdk_root=/workspace/tools/android "<pkg>"` |
-| Godot Android templates | already in the 4.7.2 templates dir (`android_debug.apk`, `android_release.apk`, `android_source.zip`); the preset uses the prebuilt template (`gradle_build/use_gradle_build=false`), so no Gradle build is needed |
-| Godot editor settings | `~/.config/godot/editor_settings-4.7.tres`: `export/android/java_sdk_path`, `android_sdk_path`, `debug_keystore` (+ user/pass) point at the paths here |
-| **Keystores** (never commit to the public repo) | The v0.9.0 release keystore was not in this checkout. v0.10.0 is signed with a new key, alias `mera`, kept in the private `mera-assets` repo at `_keys/android/` (`mera-release.keystore` and `release.env`). Use those `GODOT_ANDROID_KEYSTORE_RELEASE_*` values for `--export-release "Android"`. A v0.9.0 install must be uninstalled once; later APKs signed with this key update in place. |
+## Build tools
+- Godot 4.7.2-stable (Linux binary) and the matching export templates in `~/.local/share/godot/export_templates/4.7.2.stable/` (from the official `Godot_v4.7.2-stable_export_templates.tpz`).
+- Android export: OpenJDK 21 (the system Java works) and the Android SDK at `~/Android/Sdk` (`cmdline-tools/latest`, `platform-tools`, `build-tools;35.0.1` and `36.0.0`, `platforms;android-35` and `android-36`). `~/.config/godot/editor_settings-4.7.tres` points at both (`export/android/java_sdk_path`, `export/android/android_sdk_path`). The preset uses the prebuilt template (`gradle_build/use_gradle_build=false`), so no Gradle build is needed.
+- The art is the private submodule `assets/`: clone `xenodorian/mera-assets`, run `git lfs pull` inside it, then `--headless --import`.
+- Screenshots need `xvfb-run` and the OpenGL driver (see Pitfalls). Python 3 with Pillow and numpy runs the `tools/` scripts.

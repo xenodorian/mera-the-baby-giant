@@ -1,18 +1,3 @@
-# Working on this repo (humans and agents)
+# Contributing
 
-Multiple agents share this repo. Keep it safe and mergeable.
-
-1. **Never delete, move or overwrite the user's files.** Work on copies. Originals stay in `assets/_source/`
-   and `assets/_incoming/`; recolors/edits go in a sibling folder (e.g. `brawler-girl/skin-recolor/`).
-2. **Branch per task**: `git switch -c <agent-or-topic>/<short-task>` off up-to-date `main`. Open a PR, or
-   fast-forward merge small doc/asset-only changes. Don't commit straight to `main` for code changes.
-3. **Pull before you push**: `git pull --rebase origin main` on your branch before pushing.
-4. **Small, logical commits** with clear messages (`assets: add X`, `combat: input buffer`, `docs: ...`).
-5. **Never rewrite shared history**: no `push --force` to `main`, no rebasing pushed commits, no `reset --hard` on shared branches.
-6. **Never commit secrets** (tokens, `.env`, keys, passwords, purchase receipts). `.gitignore` blocks common ones.
-7. **Git LFS** is required (`git lfs install`). PNG/GIF/ZIP/audio/aseprite/PSD/PDF go through LFS automatically (`.gitattributes`).
-8. **Godot**: 4.7.2, Compatibility renderer. Commit `*.import` and `*.uid` files; never commit `.godot/`.
-   Run `--headless --import` after adding assets and check for errors.
-9. **New assets**: check the license first, add a row to `docs/CREDITS.md` and `docs/ASSET_DECISIONS.md`,
-   keep the original zip in `assets/_source/<author>/`. Paid assets: never buy or sign up without the user's OK.
-10. Keep assets at native 1:1 scale; scale the whole game by integers only.
+The rules for humans and agents are in [AGENTS.md](AGENTS.md).
