@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.1-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.1-playable/Mera_Playable_v0.11.1_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.1-playable/Mera_Playable_v0.11.1_Android.apk
+- **Ogre damage is back to the old hits** (2 with the club, 1 unarmed). HP is 20. He still draws at 10x. Each attack is two swings back to back, then 5 seconds before the next pair. Same signing key as v0.10.0. Android `versionCode` 30.
+
 ## v0.11.0-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.0-playable/Mera_Playable_v0.11.0_Windows.exe

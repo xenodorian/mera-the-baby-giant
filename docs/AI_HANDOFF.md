@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.0. Title shop and reset use `Carry` (`user://mera_carry.json`): gold, potion caps (5), mana-potion caps (5), card cap (3), size cap (3, shop to 9), bar maxes, and the inventory. Enemies drop only fury orbs (`ENEMY_LOOT`). `break_drop` is the only destructible loot (40/25/25/10, or 100% gold when both potion stacks are full). No loose map potions or cards (`_place_cards` and `_manage_potions` return immediately). Allies do not despawn off-camera; the brawler chases `_nearest` with no camera filter. Ogre is k 10, hp 36, dmg 4. `Roster.face` loads baked `assets/ui/faces/*.png` (no `get_image()`). Walls and closed doors block via `_block_body`. Gallery action `select` stays unbound. Android versionCode 29._
+_Last updated: 2026-10-31, v0.11.1. Ogre stays k 10, HP 20, damage 2 (1 unarmed). `chain: 2` on both of his attacks: the follow-up starts the instant the first swing ends (`_finish_attack`), then `cd` 5. Android versionCode 30._
 
 
 ## v0.9.6 status (2026-10-31)
