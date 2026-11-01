@@ -1125,20 +1125,20 @@ func _sync_carry() -> void:
 	})
 
 
-## one item from a broken prop. Fury orbs never come from these.
+## one item from a broken prop. Always 40% gold, 25% health potion, 25% mana potion, 10% card,
+## even when the bar and the potion slots are already full. Fury orbs never come from these.
 func break_drop(p: Vector2) -> void:
 	Carry.ensure()
+	var roll := drop_rng.randf()
 	var kind := "coin"
-	if not Carry.both_potions_full():
-		var roll := drop_rng.randf()
-		if roll < 0.40:
-			kind = "coin"
-		elif roll < 0.65:
-			kind = "potion" if Carry.room_for_potion() else "coin"
-		elif roll < 0.90:
-			kind = "mana" if Carry.room_for_mana() else "coin"
-		else:
-			kind = "card" if Carry.room_for_card() else "coin"
+	if roll < 0.40:
+		kind = "coin"
+	elif roll < 0.65:
+		kind = "potion"
+	elif roll < 0.90:
+		kind = "mana"
+	else:
+		kind = "card"
 	var po: Pickup = Pickup.new()
 	po.setup(self, kind, Vector2(p.x, GROUND_Y - 10.0))
 	world.add_child.call_deferred(po)
@@ -1147,17 +1147,26 @@ func break_drop(p: Vector2) -> void:
 func collect(p: Pickup) -> void:
 	Carry.ensure()
 	if p.kind == "potion":
-		if Carry.give_potion():
+		if mera.size < mera.scale_cap():
+			mera.set_size(mera.size + 1)
+			Sfx.play("heal")
+			hud.flash("pickup:+1 size")
+		elif Carry.give_potion():
 			mera.potions = Carry.potions
 			Sfx.play("potion")
+			hud.flash("pickup:health potion stored  %d" % mera.potions)
 		else:
 			Carry.add_gold(1)
 			hud.flash("pickup:potion slots full  +1 gold")
 	elif p.kind == "mana":
-		if Carry.give_mana():
+		if mera.stamina < mera.stamina_max - 0.5:
+			mera.add_stamina(Tuning.STAMINA_POTION)
+			Sfx.play("heal", 1.15)
+			hud.flash("pickup:+%d mana" % int(Tuning.STAMINA_POTION))
+		elif Carry.give_mana():
 			mera.mana_pots = Carry.mana_pots
 			Sfx.play("potion", 1.3)
-			hud.flash("pickup:mana potion  %d" % mera.mana_pots)
+			hud.flash("pickup:mana potion stored  %d" % mera.mana_pots)
 		else:
 			Carry.add_gold(1)
 			hud.flash("pickup:mana slots full  +1 gold")

@@ -17,8 +17,8 @@ const BLURB := {
 	"brawler": "chases the nearest enemy and fights them",
 	"dancer": "dances: every enemy on screen rushes over and jumps",
 }
-const STAY_S := {"priestess": 20.0, "ranger": 20.0, "brawler": 20.0, "dancer": 20.0}
-const DANCE_S := 5.0          # she walks ahead, then dances this long (the lure), then waits out the rest of the 20 s
+const STAY_S := {"priestess": 60.0, "ranger": 60.0, "brawler": 60.0, "dancer": 60.0}
+const DANCE_S := 5.0          # she walks ahead, then dances this long (the lure), then waits out the rest of the 60 s
 const K := {"priestess": 4.0, "ranger": 4.0, "brawler": 4.0, "dancer": 4.0}
 const HP := {"priestess": 10, "ranger": 10, "brawler": 12, "dancer": 1}
 const SPEED := {"priestess": 240.0, "ranger": 330.0, "brawler": 300.0, "dancer": 260.0}
