@@ -50,6 +50,9 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 - Docs: `docs/CONTROLS.md` (inputs and timing windows), `docs/GAME_RULES.md`, `docs/CREDITS.md`, `docs/WORKFLOW.md` (staged plan), and `CHANGELOG.md`.
 
 ## Releasing
+- **GitHub builds and publishes the release.** `.github/workflows/build-release.yml` installs Godot 4.7.2, the export templates and the Android SDK, imports the project, exports the Windows exe and the Android APK, signs the APK with `assets/_keys/android/`, checks the APK version and signature, writes `SHA256SUMS.txt`, and creates the `vX.Y.Z-playable` release from the matching `CHANGELOG.md` section. It skips publishing when that release already exists. It runs on a push to `main` that changes `project.godot`, or by hand: Actions, build-release, Run workflow (untick `publish` to only build and keep the files as a 14-day artifact).
+- To release: bump `application/config/version` in `project.godot`, and `version/code` (it must increase) and `version/name` in `export_presets.cfg` (the workflow fails if the two versions differ), add the `## vX.Y.Z-playable (date)` section to `CHANGELOG.md`, and push to `main`.
+- The steps below are the same build done by hand, for a machine without GitHub Actions.
 - Every release ships a Windows exe **and** an Android ARM APK, plus `SHA256SUMS.txt` (plain file names, `sha256sum` over both binaries). The in-game updater refuses a release without it.
 - Before exporting, bump `application/config/version` in `project.godot`, and `version/code` (it must increase) and `version/name` in `export_presets.cfg`. Add the entry to `CHANGELOG.md`.
 - Windows: `$G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe`.

@@ -14,7 +14,7 @@ The rules for humans and agents are in `AGENTS.md`. This file is the process for
 7. Commit in small logical steps, then `git push origin main` (and `git lfs push origin main` when LFS files changed). Do not leave work only on the machine.
 
 ## Releasing
-The steps (version bump, Windows exe, Android APK, `SHA256SUMS.txt`, tag and GitHub release) are in the "Releasing" section of `docs/AI_HANDOFF.md`. A build is not finished until its GitHub release exists and the download links are in `CHANGELOG.md`.
+GitHub Actions builds and publishes releases (`.github/workflows/build-release.yml`): bump the version in `project.godot` and `export_presets.cfg`, add the `CHANGELOG.md` entry, and push to `main`. The details, and the manual build steps, are in the "Releasing" section of `docs/AI_HANDOFF.md`. A build is not finished until its GitHub release exists.
 
 ## Technical constraints (from the research)
 - Effects use `CPUParticles2D`, not GPU particles, on the Compatibility renderer, with nearest-neighbour filtering.
