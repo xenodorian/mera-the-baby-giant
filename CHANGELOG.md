@@ -2,7 +2,10 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
-## Unreleased (after v0.12.3)
+## v0.12.4-playable (2026-11-01)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.12.4_Windows.exe
+- Android: Mera_Playable_v0.12.4_Android.apk
 - **The Dragon's Lair exit opens when the dragon dies.** The exit rule asked "is this level in the wave list?" before "does it have a boss?", so the boss-only Lair was treated like the knight stage and stayed locked. The boss check now comes first.
 - **The flying eye (`lm_eye`) can hit Mera.** Its melee box reached about 67 px while it parked 220 px away and 260 px up, so it never touched her. Both attacks are now swoops, like the other flyers.
 - **No more negative hit boxes.** `lm_goblin`'s second attack has frames that lie wholly behind its pivot; they now give an empty box instead of an inverted one (60 engine errors per test run).
