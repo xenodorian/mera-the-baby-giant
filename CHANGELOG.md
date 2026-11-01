@@ -2,7 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
-## Unreleased (after v0.12.2)
+## v0.12.3-playable (2026-11-01)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.12.3_Windows.exe
+- Android: Mera_Playable_v0.12.3_Android.apk
+- **GitHub builds the releases.** `.github/workflows/build-release.yml` builds the exe and the signed APK and publishes the release.
+- **Everything is in the repo.** All art, audio and source packs, and the Android signing key, are ordinary files in this repo (Git LFS). Nothing is private.
 - **Cemetery ground objects.** The near gravestones, bushes and trees now stand on Mera's feet line (`tools/build_levels.py`, baseline row 212) instead of floating about 55 px above it.
 
 ## v0.12.2-playable (2026-11-01)
