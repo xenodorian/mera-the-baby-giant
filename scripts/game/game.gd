@@ -1552,9 +1552,12 @@ func restart() -> void:
 	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
-	if get_tree().current_scene == null:      # headless tests add the game under root by hand: nothing to reload
+	paused_play = false
+	var tree := get_tree()
+	if tree == null or tree.current_scene == null:      # headless tests add the game under root by hand: nothing to reload
 		return
-	get_tree().reload_current_scene()
+	tree.paused = false
+	tree.reload_current_scene.call_deferred()
 
 
 func to_menu() -> void:
@@ -1565,7 +1568,12 @@ func to_menu() -> void:
 	HitStop.clear()
 	AnimLib.set_fury(false)
 	Sfx.fury = false
-	get_tree().change_scene_to_file("res://scenes/menu.tscn")
+	paused_play = false
+	var tree := get_tree()
+	if tree == null:
+		return
+	tree.paused = false
+	tree.change_scene_to_file.call_deferred("res://scenes/menu.tscn")
 
 
 func next_level() -> void:

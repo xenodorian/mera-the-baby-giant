@@ -92,7 +92,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				break
 	else:
 		return
-	get_viewport().set_input_as_handled()
+	var vp := get_viewport()
+	if vp:
+		vp.set_input_as_handled()
 
 
 func _pause_confirm() -> void:

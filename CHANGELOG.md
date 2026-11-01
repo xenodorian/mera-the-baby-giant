@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.3-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.3-playable/Mera_Playable_v0.11.3_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.3-playable/Mera_Playable_v0.11.3_Android.apk
+- **Back to title returns to the title screen.** It was closing the game: the scene changed immediately, then the pause menu used the viewport it had just left. Restart level is deferred the same way. Same signing key as v0.10.0. Android `versionCode` 32.
+
 ## v0.11.2-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.2-playable/Mera_Playable_v0.11.2_Windows.exe

@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.2. Every move that plays the heal sheet (potion, lightning, barrier, Up+Y, pulse, vertical beam) sets `anim.frame_for_frame`. Each authored frame stays up for one physics frame, then the clip holds its last frame. Up+Y bolts still leave on heal frame 6 (~100 ms). The potion still lands on frame 7 (~0.12 s). Android versionCode 31._
+_Last updated: 2026-10-31, v0.11.3. Pause "Back to title" calls `to_menu()`, which unpauses and `change_scene_to_file.call_deferred` to `scenes/menu.tscn`. An immediate change removed the pause menu before `get_viewport()`, which closed the game. Restart uses `reload_current_scene.call_deferred` for the same reason. Android versionCode 32._
 
 
 ## v0.9.6 status (2026-10-31)
