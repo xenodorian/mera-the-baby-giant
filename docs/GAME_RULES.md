@@ -43,8 +43,8 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 
 ## Rage and Fury
 - **Three rage attacks, each costs 100.** A meter raised past 100 keeps the rest.
-  - **R2 alone: Fury** for 12 s. The red bar during Fury is the timer, not the leftover rage.
-  - **L2+R2: lightning.** Needs 100 rage and you must not already be in Fury. Costs 100, not the whole bar.
+  - **R2 alone: lightning.** One bolt per enemy on screen, left to right, 0.08 s apart. Costs 100 rage. With nobody on screen, one bolt lands in front of her.
+  - **L2+R2: Fury** for 12 s. The red bar during Fury is the timer, not the leftover rage. She cannot be hit while it lasts.
   - **L1+R1+L2+R2: freeze slash.** Needs 100 rage (even during Fury). Costs 100. It does not start Fury. Up to 9 nearest enemies are marked; cut each for a flat 3.
 - **Fury aura (v0.4: particles):**
   - Two CPU particle layers of pixel flame tongues (`CPUParticles2D`, world space, so emitted flames stay where they were born):
@@ -59,10 +59,10 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - A defeated enemy drops a **red sphere**. It flies to Mera and adds rage based on the enemy's difficulty.
   The Fire Knight's sphere gives **+10 %**.
 - Each hit Mera lands also adds **+1 %**. Spheres are the main source; the small per-hit bonus keeps "dealing damage builds Fury".
-- At **100 rage or more**, R2 alone starts **Fury** for 12 s and spends **100 rage**.
+- At **100 rage or more**, **L2+R2** starts **Fury** for 12 s and spends **100 rage**. She cannot be hit until it ends.
   - Red aura; all spell fx, beams, explosions and lightning turn deep red.
   - Sfx are pitched down (×0.72) through a low-pass + overdrive bus.
-  - Flight: Up in the air takes off; R2 or Down at ground level lands.
+  - Flight: Up in the air takes off; R2 or Down at ground level lands. **R2 alone is lightning**, not Fury.
 - **Freeze slash:** L1+R1+L2+R2 together (keyboard Q+W+1+2, within 150 ms, all held) at **100 rage or more**. It costs **100 rage** and does **not** start Fury. Mera and the whole world stop for up to 8 s. Up to 9 nearest living enemies each get one unique mark from 1 to 9. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. It ends when every mark is cut or the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
 
 ## Mana (v0.4, renamed v0.9.4)
@@ -142,9 +142,10 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 | 2 | **Misty Woods** | ansimuz Mist Forest | wolf, werewolf, ogre, minotaur, mutant toad, flying eye |
 | 3 | **Moonlit Town** | ansimuz Night Town | ghosts, skeletons, death, nightmare, hell gato |
 | 4 | **Moonlit Cemetery** | ansimuz Gothicvania Cemetery | Fire Knight + Blue Knights |
-| 5 | **Infernal Caverns** | ansimuz Lava background | demons, hell hounds, hell beast, fire skulls, the boss dragon |
+| 5 | **Infernal Caverns** | ansimuz Lava background | demons, hell hounds, hell beast, fire skulls |
+| 6 | **Dragon's Lair** | the same lava cavern, a short arena | the boss dragon, alone |
 
-- Every map is **19,200 px wide (10 screens)** and built natively by `tools/build_levels.py`. Nothing loops as a single strip any more:
+- The first five maps are **19,200 px wide (10 screens)**. **Dragon's Lair is 7,200 px**, the same cavern art cut short so the fight starts immediately. Built natively by `tools/build_levels.py`. Nothing loops as a single strip any more:
   - the playable layer is one long unique strip: ground tiles, plus graves, trees, houses, rocks and pillars placed by a seeded RNG with random spacing and flips;
   - distant layers either tile seamlessly by design, or are mirrored pairs (seamless by construction, no blur);
   - each layer has its own parallax factor.
@@ -152,10 +153,12 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - The **exit gate** (a pillar of light) stands near the right end of every level. It stays shut until that level's fight is over, then reaching it means **LEVEL CLEAR**. A / Start goes to the next level (on the last level, back to the level select). B always goes to the level select. **The run is never wiped.** Potions, ally cards, mana, rage, max mana and max rage stay across levels, deaths, the level select, and quitting the game. Size stays when you clear a level. **A death puts her back at 2x.**
   - **Moonlit Cemetery:** shut until 5 Fire Knights (and the Blue Knights still with the last one) are dead.
   - **Misty Woods and Moonlit Town:** shut until every scheduled wave has spawned and no roster enemy is left alive ("CLEAR THE ROAD"). Standing still no longer calls in enemies forever.
-  - **Infernal Caverns:** shut until the dragon falls ("SLAY THE DRAGON").
+  - **Infernal Caverns:** shut until the waves are dead ("CLEAR THE ROAD"). The dragon is not on this map.
+  - **Dragon's Lair:** a short arena. The dragon is waiting in front of the gate ("SLAY THE DRAGON"). No other enemies.
+- **Stage 1 is open.** Every later stage, including ones added after this, starts locked. It opens when the stage before it is cleared, or when a **200 gold stage key** is bought in the title shop. The key opens the next locked stage. Reset locks them again.
 
 ## Earthquake (v0.5)
-- **Down + Y while crouching**, for 20 stamina.
+- **Down + Y** (keyboard **Down + S**), including pressing them together, for 20 stamina. She does not have to already be in the crouch pose.
 - Mera stomps (`roll_land` pose). The ground shakes for **1 s**: a 34 px camera shake re-randomised every frame (very fast, violent, the whole map) and dust bursting out of the ground across the screen.
 - Every enemy **touching the ground** at any moment of the quake is **stunned until 5 s after the quake started**. Enemies in the air when it starts are caught if they land before it ends.
 - A stunned enemy wobbles in a dazed yellow tint. It can't act, block or flinch out of it, and takes damage normally.
@@ -208,11 +211,11 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 | | Ghost | 5 | 1 | drifts half-transparent (no-particles), turns solid with particles to haunt-swoop (rush) |
 | | Death | 9 | 1 | rises with his lamp, lamp walk, reaping glide (rush). **Loses the lamp on the first hit:** lamp-less walk, faster |
 | | Nightmare | 14 | 2 | idle, then a full-screen gallop (run, rush) |
-| 4 Infernal Caverns | Hell Hound | 7 | 1 | idle, walks when far, runs when near, jump pounce (rush) |
+| 5 Infernal Caverns | Hell Hound | 7 | 1 | idle, walks when far, runs when near, jump pounce (rush) |
 | | Fire Skull | 6 | 1 | burning flight and swoop (rush). **Doused by any hit:** the no-fire skull drifts slowly for 3 s, then re-ignites |
 | | Hell Beast | 14 | 1 / 2 | idle; breath spits fireballs (ranged, 1; the fireball sprite); burn = a pillar of fire when close (heavy, 2) |
 | | Demon | 22 | 2 | hovering idle; claw attack (heavy) up close, blue fire breath (ranged) at mid range |
-| | **Infernal Dragon (boss)** | 19 sizes × 8 (v0.8, see below) | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). Appears in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
+| 6 Dragon's Lair | **Infernal Dragon (boss)** | 19 sizes × 8 (v0.8, see below) | 3 / 2 | idle crawl, tail sweep (heavy, 3), fire breath (ranged, 2). His own stage: he stands in front of the exit; **the exit is locked ("SLAY THE DRAGON") until he falls**. Boss HP bar at the bottom of the screen; he never flinches |
 
 - Every enemy dies in the ansimuz enemy-death fire puff.
 
@@ -236,13 +239,12 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
   - At most 2 allies at once, one of each type.
   - Allies stay **60 s**, then leave. The dancer dances for **5 s** of that.
   - Enemy attacks hurt allies too, and allies can be beaten.
-- **Level 1** has no cards.
 
 | Ally | Colour | What she does (every animation is used) |
 |---|---|---|
 | **Water Priestess** (chierit) | blue | Surfs in and **heals Mera back up to 6x** as soon as she arrives, then once more just before she leaves. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
-| **Brawler Girl** (ansimuz, skin recolour) | orange | Lands in front of Mera and **runs right** until her time is up. She stops only to fight something in reach, or when a wall or a closed door is in the way. Enemies do **not** chase her; they stay on Mera |
+| **Brawler Girl** (ansimuz, skin recolour) | orange | Chases the nearest enemy at a run (the walk cycle sped up; the pack has no run). With nobody to fight she goes to the right side of the screen and waits between 200 and 400 px from the edge. She does not walk off it. Enemies stay on Mera |
 | **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others at 60 s |
 
 ## Impact (v0.8)

@@ -1,9 +1,9 @@
 extends Control
-## Title / level select: four built levels. Left/Right choose, A / Start plays.
+## Title / level select. Left/Right choose, A / Start plays.
 ## Down goes to SHOP, RESET, CHECK FOR UPDATES, and CREDITS.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
-const SHOP_N := 7
+const SHOP_N := 8
 
 var sel := 0
 var thumbs: Array = []
@@ -169,6 +169,8 @@ func _shop_what(i: int) -> String:
 			return "mana_bar"
 		6:
 			return "scale"
+		7:
+			return "key"
 		_:
 			return ""
 
@@ -190,6 +192,8 @@ func _shop_name(i: int) -> String:
 			return "Mana bar +%d" % int(Carry.STAMINA_STEP)
 		6:
 			return "Size cap +1 (max %dx)" % Carry.SCALE_CAP_MAX
+		7:
+			return "Stage key"
 		_:
 			return ""
 
@@ -211,6 +215,10 @@ func _shop_stat(i: int) -> String:
 			return str(int(Carry.stamina_max))
 		6:
 			return str(Carry.scale_cap)
+		7:
+			if Carry.unlocked >= Carry.stage_count() - 1:
+				return "all open"
+			return "opens stage %d" % (Carry.unlocked + 2)
 		_:
 			return ""
 
@@ -231,12 +239,14 @@ func _shop_price(i: int) -> int:
 			return Carry.PRICE_MANA_BAR
 		6:
 			return Carry.PRICE_SCALE
+		7:
+			return Carry.PRICE_KEY
 		_:
 			return 0
 
 
 func _shop_row_rect(i: int) -> Rect2:
-	return Rect2(160, 264 + i * 74, 1600, 68)
+	return Rect2(160, 248 + i * 68, 1600, 62)
 
 
 func _shop_buy() -> void:
@@ -298,6 +308,12 @@ func _move(d: int) -> void:
 
 
 func _start() -> void:
+	Carry.ensure()
+	if not Carry.stage_open(sel):
+		note = "Locked. Beat the previous stage, or buy a 200 gold key."
+		note_t = 4.0
+		Sfx.play("swipe", 0.7, -8.0)
+		return
 	Levels.current = sel
 	Sfx.play("potion", 1.0)
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
@@ -383,9 +399,14 @@ func _draw() -> void:
 		draw_texture_rect(thumbs[i], r, false, Color(1, 1, 1) if on else Color(0.55, 0.55, 0.6))
 		draw_rect(r, Color(0, 0, 0), false, 3.0)
 		var lv: Dictionary = ls[i]
+		var open := Carry.stage_open(i)
+		if not open:
+			draw_rect(r, Color(0.02, 0.0, 0.04, 0.72))
 		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
-		draw_string(font, Vector2(r.position.x, r.end.y + 86), String(lv["sub"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18, Color(0.8, 0.8, 0.85))
+		var sub := "LOCKED" if not open else String(lv["sub"])
+		draw_string(font, Vector2(r.position.x, r.end.y + 86), sub, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18,
+			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
 	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: Shop / Reset / updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
 	if mode == "menu":
 		_draw_note_at(930)

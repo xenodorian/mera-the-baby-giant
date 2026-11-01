@@ -1,7 +1,7 @@
 class_name Levels
 extends RefCounted
 ## v0.5 level list (built by tools/build_levels.py into assets/levels/levels.json) and the level being played.
-## 1 Sunlit Country, 2 Misty Woods, 3 Moonlit Town, 4 Moonlit Cemetery, 5 Infernal Caverns.
+## 1 Sunlit Country, 2 Misty Woods, 3 Moonlit Town, 4 Moonlit Cemetery, 5 Infernal Caverns, 6 Dragon's Lair.
 ## with invisible walls at both ends and an exit gate at the right end.
 
 const JSON_PATH := "res://assets/levels/levels.json"
@@ -29,6 +29,9 @@ static func level(i: int = -1) -> Dictionary:
 
 
 static func map_w() -> float:
+	var lv := level()
+	if lv.has("map_w"):
+		return float(lv["map_w"])
 	return float(data()["map_w"])
 
 

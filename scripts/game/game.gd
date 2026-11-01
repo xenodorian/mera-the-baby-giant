@@ -71,6 +71,8 @@ var _clear_saved := false
 var cleared_stage := 0
 var cleared := false
 var quake_t := 0.0           # v0.5 earthquake: time left of the 1 s quake
+var chain: Array = []        # R2 lightning: enemies still waiting for their bolt
+var chain_t := 0.0
 var quake_age := 0.0
 var quaked := {}             # enemies already stunned by the current quake
 var exit_gate: Node2D
@@ -319,7 +321,7 @@ func _physics_process(delta: float) -> void:
 	if not test_mode and not mark_lock:
 		if run_mode:
 			_manage_run()
-		elif Roster.LEVELS.has(Levels.current):
+		elif Roster.LEVELS.has(Levels.current) or Roster.BOSSES.has(Levels.current):
 			_manage_roster(delta)
 		else:
 			_manage_knight(delta)
@@ -327,6 +329,7 @@ func _physics_process(delta: float) -> void:
 	if over or cleared:
 		over_t += delta
 	_quake_tick(delta)
+	_lightning_tick(delta)
 	debug_draw.queue_redraw()
 
 
@@ -625,7 +628,8 @@ func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
 
 
 ## waves every WAVE_EVERY px, cycling through the level's list so every enemy type shows up; a trickle when the
-## screen stays empty; the boss (Infernal Caverns: the dragon) in front of the exit
+## screen stays empty. A boss-only stage (the Dragon's Lair) spawns its boss at the gate and nothing else.
+## A boss that shares a stage waits until Mera is near the exit.
 func _manage_roster(delta: float) -> void:
 	for e in mobs.duplicate():
 		if not is_instance_valid(e):
@@ -638,13 +642,13 @@ func _manage_roster(delta: float) -> void:
 	if spawn_arg != "":
 		spawn_enemy(spawn_arg, mera.global_position.x + mera.facing * 700.0)
 		spawn_arg = ""
-	var list: Array = Roster.LEVELS[Levels.current]
+	var list: Array = Roster.LEVELS.get(Levels.current, [])
 	var alive := 0
 	for e in mobs:
 		if is_instance_valid(e) and e.alive():
 			alive += 1
 	var wx := Roster.WAVE_FIRST + wave_i * Roster.WAVE_EVERY
-	if wx < map_w - Roster.BOSS_AT and mera.global_position.x > wx - 900.0:
+	if not list.is_empty() and wx < map_w - Roster.BOSS_AT and mera.global_position.x > wx - 900.0:
 		var n: int = Roster.WAVE_SIZES[wave_i % Roster.WAVE_SIZES.size()]
 		var behind: bool = wave_i in Roster.BEHIND_WAVES.get(Levels.current, [])
 		wave_i += 1
@@ -658,19 +662,24 @@ func _manage_roster(delta: float) -> void:
 				jf += 1
 			alive += 1
 	trickle_t -= delta
-	if not _waves_done() and alive == 0 and trickle_t <= 0.0:
+	if not list.is_empty() and not _waves_done() and alive == 0 and trickle_t <= 0.0:
 		_spawn_next(list, 0)
 		trickle_t = 8.0
 	elif alive > 0:
 		trickle_t = maxf(trickle_t, 5.0)
-	if Roster.BOSSES.has(Levels.current) and not boss_spawned and mera.global_position.x > map_w - Roster.BOSS_AT:
-		spawn_enemy(Roster.BOSSES[Levels.current], map_w - Roster.BOSS_X)
-		Sfx.play("boom_big", 0.6)
+	if Roster.BOSSES.has(Levels.current) and not boss_spawned:
+		var boss_only := not Roster.LEVELS.has(Levels.current)
+		if boss_only or mera.global_position.x > map_w - Roster.BOSS_AT:
+			var bx := map_w - Roster.BOSS_X
+			if boss_only:
+				bx = minf(mera.global_position.x + 2200.0, bx)
+			spawn_enemy(Roster.BOSSES[Levels.current], bx)
+			Sfx.play("boom_big", 0.6)
 
 
 ## the current level's roster list (tests)
 func Roster_list() -> Array:
-	return Roster.LEVELS[Levels.current]
+	return Roster.LEVELS.get(Levels.current, [])
 
 
 ## returns true when this one came from behind Mera (v0.9.1: `behind` asks for it; risers never do)
@@ -948,6 +957,8 @@ func _clamp_to_map() -> void:
 		cleared = true
 		over_t = 0.0
 		Sfx.play("potion", 0.7)
+		if not run_mode:
+			Carry.unlock_through(Levels.current + 1)
 		if run_mode and not _clear_saved:
 			cleared_stage = stage_n
 			lives += 1
@@ -1307,13 +1318,42 @@ func explode(p: Vector2, s: float, dmg: bool) -> void:
 
 
 func call_lightning(m: Mera) -> void:
-	var s := m.shown
-	var x := m.global_position.x + m.facing * 160.0 * s
+	var view := Rect2(cam_x - 960.0, cam.position.y - 540.0, 1920.0, 1080.0)
+	var list: Array = []
 	for e in enemies():
-		if absf(e.global_position.x - m.global_position.x) < 1100.0:
-			x = e.global_position.x
-	x = clampf(x, cam_x - 900.0, cam_x + 900.0)  # keep the strike on screen at big sizes
-	var b := Strike.new()                    # tessellated: ground impact + segments up past the screen top
+		if e.has_method("hurt_rect") and e.hurt_rect().intersects(view):
+			list.append(e)
+	list.sort_custom(func(a, b): return a.global_position.x < b.global_position.x)
+	chain = list
+	chain_t = 0.0
+	if chain.is_empty():
+		_bolt(m, m.global_position.x + m.facing * 160.0 * m.shown, null)
+		return
+	_bolt_next(m)
+
+
+func _lightning_tick(delta: float) -> void:
+	if chain.is_empty():
+		return
+	chain_t -= delta
+	if chain_t <= 0.0:
+		_bolt_next(mera)
+
+
+func _bolt_next(m: Mera) -> void:
+	while not chain.is_empty():
+		var e = chain.pop_front()
+		if is_instance_valid(e) and e.alive() and e.has_method("hurt_rect"):
+			_bolt(m, e.global_position.x, e)
+			chain_t = Tuning.LIGHTNING_CHAIN_S
+			return
+	chain_t = 0.0
+
+
+func _bolt(m: Mera, x: float, victim: Node) -> void:
+	var s := m.shown
+	x = clampf(x, cam_x - 900.0, cam_x + 900.0)
+	var b := Strike.new()
 	world.add_child(b)
 	b.setup(self, Vector2(x, GROUND_Y), s)
 	last_strike = b
@@ -1322,6 +1362,9 @@ func call_lightning(m: Mera) -> void:
 	world.add_child(e2)
 	shake(8.0 + 2.0 * s, 0.3)
 	Sfx.play("thunder")
+	if victim != null:
+		m.deal(victim, 3, x, "lightning")
+		return
 	var top := cam.position.y - 540.0 - Strike.MARGIN
 	var r := Rect2(x - 40.0 * s, top, 80.0 * s, GROUND_Y + 10.0 - top)
 	for e in targets():

@@ -97,6 +97,7 @@ const SUPER_QUAKE_DMG := 2       # ... every enemy takes this, flat (never x Mer
 const SUPER_QUAKE_REACH := 1920.0  # ... and every ground breakable within this of the camera centre is destroyed
 # ---------------------------------------------------------------- v0.5 L2 / R2 remap
 const L2_TAP_FRAMES := 5        # L2 released before the bubble forms (heal frame 5, one rendered frame each, ~83 ms) drops the pose
+const LIGHTNING_CHAIN_S := 0.08  # R2: one bolt per on-screen enemy, this far apart
 
 # ---------------------------------------------------------------- v0.8 (S4) impact pass (scripts/game/hit_stop.gd)
 const HITSTOP_LIGHT_MS := 45.0    # a normal hit freezes the game this long (real time) ...

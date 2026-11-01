@@ -710,6 +710,11 @@ func _try_ground_actions() -> bool:
 	var y := _find("btn_y")
 	var b := _find("btn_b")
 	var up := _find("up")
+	# Down+Y is the earthquake. Crouch used to be applied only after this function returned, so pressing
+	# Down and Y together (or Y on the first frame of Down) was a quick fire. Down held is enough.
+	if not y.is_empty() and pressed("down"):
+		_use(y)
+		return _stamina_move("earthquake")
 	if not combo_after.is_empty():
 		if now > float(combo_after["until"]):
 			combo_after = {}
@@ -717,9 +722,6 @@ func _try_ground_actions() -> bool:
 			return true
 	# v0.4: X and Y commit on the frame they are pressed (no waiting to see whether a chord follows). A chord partner
 	# that lands within CHORD_MS converts the just-started move in its first frames (see _chord_convert).
-	if not y.is_empty() and pressed("down") and _neutral == "crouch":   # v0.5 Down+Y crouching -> earthquake
-		_use(y)
-		return _stamina_move("earthquake")
 	if not y.is_empty():
 		var uu := _find("up", float(y["t"]) - CHORD_MS)
 		if not uu.is_empty():                                        # v0.9.1 Up+Y (same frame) -> vertical quick fire
@@ -1046,6 +1048,9 @@ func _chord_convert(k: String) -> bool:
 			e = _find("btn_a", since)
 			if not e.is_empty():
 				into = "gdash"
+			elif pressed("down") or not _find("down", since).is_empty():   # Y then Down -> earthquake
+				e = _find("down", since)
+				into = "earthquake"
 	if into == "":
 		return false
 	_use(e)
@@ -1089,22 +1094,20 @@ func _special_buttons() -> bool:
 	var r1 := _find("r1")
 	var l2 := _find("l2")
 	var r2 := _find("r2")
-	# L2 alone raises the bubble. L2+R2 (either order, or R2 while the bubble is held) drops lightning.
-	# R2 alone, after the chord window, starts Fury. In Fury, R2 takes off or lands.
+	# R2 alone is lightning. L2+R2 (either order, or R2 while the bubble is held) is Fury.
+	# In Fury, R2 still takes off or lands.
 	if not r2.is_empty():
 		if fury:
 			_use(r2)
 			if not flying:
 				_take_off()
-				return true
-		else:
-			var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
-			if not l2c.is_empty() or held["l2"]:
-				_use(r2); _use(l2c)
-				return _try_lightning()
-			if now - float(r2["t"]) > CHORD_MS:
-				_use(r2)
-				return _try_fury()
+			return true
+		var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
+		if not l2c.is_empty() or held["l2"]:
+			_use(r2); _use(l2c)
+			return _try_fury()
+		_use(r2)
+		return _try_lightning()
 	if not l1.is_empty():
 		_use(l1)
 		if potions > 0 and size < scale_cap():
@@ -1126,7 +1129,7 @@ func _special_buttons() -> bool:
 		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
 		if not fury and (not r2c.is_empty() or held["r2"]):
 			_use(r2c)
-			return _try_lightning()
+			return _try_fury()
 		_start_move("barrier")
 		mv["no_tap"] = true
 		return true
@@ -1243,17 +1246,16 @@ func _special_air() -> bool:
 		var l2c := _find("l2", float(r2["t"]) - CHORD_MS)
 		if not l2c.is_empty() or held["l2"]:
 			_use(r2); _use(l2c)
-			_try_lightning()
-			return true
-		if now - float(r2["t"]) > CHORD_MS:
-			_use(r2)
 			_try_fury()
 			return true
+		_use(r2)
+		_try_lightning()
+		return true
 	elif not l2.is_empty():
 		var r2c := _find("r2", float(l2["t"]) - CHORD_MS)
 		if not fury and (not r2c.is_empty() or held["r2"]):
 			_use(l2); _use(r2c)
-			_try_lightning()
+			_try_fury()
 			return true
 		elif not flying:
 			_use(l2)
@@ -1817,16 +1819,16 @@ func _move_tick(delta: float) -> void:
 					_go_neutral()
 					_ground_tick(delta)
 					return
-			# R2 with L2, or R2 while the bubble is up: lightning. The bubble stays if it is already up.
+			# R2 while the bubble is up is Fury (L2 is still held). The bubble drops if it starts.
 			var r2b := _find("r2", float(mv["t0"]) - CHORD_MS)
 			if not r2b.is_empty() and not fury:
 				_use(r2b)
-				if pay_rage():
-					if barrier_on:
-						if game:
-							game.call_lightning(self)
-					else:
-						mv["key"] = "lightning"
+				_try_fury()
+				if fury:
+					barrier_on = false
+					barrier.visible = false
+					_root_from_body()
+					_go_neutral()
 				else:
 					Sfx.play("fail", 1.4, -6.0)
 					if game:
@@ -1870,6 +1872,17 @@ func _move_tick(delta: float) -> void:
 		"datk2_fall":
 			pass
 		_:
+			if k == "lightning" and not mv.get("fired", false):
+				var l2b := _find("l2", float(mv["t0"]) - CHORD_MS)
+				if not l2b.is_empty() or held["l2"]:
+					_use(l2b)
+					add_rage(FURY_COST)
+					if not move_keys.is_empty() and String(move_keys[move_keys.size() - 1]) == "lightning":
+						move_keys.pop_back()
+					_root_from_body()
+					_go_neutral()
+					_try_fury()
+					return
 			if k in ["quick_fire", "rear_blast", "heal", "lightning", "atk2_1", "atk2_2", "atk3", "djump_v", "djump_f"]:
 				if on_ground:
 					vel.x = 0.0
@@ -2230,7 +2243,7 @@ func dodging() -> bool:
 
 
 func take_hit(dmg: int, from_x: float, src: Node = null) -> void:
-	if state == "dead" or state == "gallery" or invuln > 0.0:
+	if state == "dead" or state == "gallery" or invuln > 0.0 or fury:
 		return
 	if parry_ready():                  # v0.8 parry (before dodge / barrier: the timing is what counts)
 		_parry(src, from_x)
