@@ -133,15 +133,16 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - Vertical is fixed (the level is one screen tall), apart from screen shake.
   - Beam and lightning lengths are computed against this camera every frame.
 
-## Levels (v0.5)
-- The game opens on a **level select** with four levels:
+## Levels
+- The level select, and a clear, go in this order:
 
 | # | Level | Art | Enemies |
 |---|---|---|---|
-| 1 | **Moonlit Cemetery** | ansimuz Gothicvania Cemetery | Fire Knight + Blue Knights, no ally cards |
-| 2 | **Misty Woods** | ansimuz Mist Forest | wolf, werewolf, ogre, minotaur (from v0.6; (v0.6: the roster below)) |
-| 3 | **Moonlit Town** | ansimuz Night Town + a procedural cobbled street | ghosts, skeletons, death, nightmare (v0.6) |
-| 4 | **Infernal Caverns** | ansimuz Lava background | demons, hell hounds, hell beast, fire skulls, the boss dragon (v0.6) |
+| 1 | **Sunlit Country** | ansimuz day platform | wolf, goblin, mushroom, mutant toad, flying eye, werewolf |
+| 2 | **Misty Woods** | ansimuz Mist Forest | wolf, werewolf, ogre, minotaur, mutant toad, flying eye |
+| 3 | **Moonlit Town** | ansimuz Night Town | ghosts, skeletons, death, nightmare, hell gato |
+| 4 | **Moonlit Cemetery** | ansimuz Gothicvania Cemetery | Fire Knight + Blue Knights |
+| 5 | **Infernal Caverns** | ansimuz Lava background | demons, hell hounds, hell beast, fire skulls, the boss dragon |
 
 - Every map is **19,200 px wide (10 screens)** and built natively by `tools/build_levels.py`. Nothing loops as a single strip any more:
   - the playable layer is one long unique strip: ground tiles, plus graves, trees, houses, rocks and pillars placed by a seeded RNG with random spacing and flips;
@@ -256,12 +257,13 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 |---|---|---|
 | Candle (2 looks) | 1 | small: 70 % chance of one item (rarely a size potion; small stamina +12, small sphere +4 %) |
 | Urn | 1 | medium: 90 %, one item |
-| Crate | 2 | medium |
-| Chest | 3 | big: always two different items, 15 % a +5 max-stamina potion |
+| Crate | 1 | medium |
+| Chest | 1 | big: always two different items, 15 % a +5 max-stamina potion |
 | Explosive barrel | 1 | none: explodes |
 | Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
 
-- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. A candle, urn or barrel goes in one hit. A crate, chest or wall loses one hit, the same as a swing. A dragon bolt's blast breaks everything in the burst.
+- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. Every destructible except the cracked wall breaks in one hit. A wall loses one hit per blow. A dragon bolt's blast breaks everything in the burst.
+- **Slide (Down+A):** her body breaks every destructible she passes through except a cracked wall, and she **takes the drop immediately** instead of leaving it behind. Walls still block her and still take one hit per kick.
 - **Explosive barrel:** **8 damage** (fixed, never × size) and a launch to every enemy within **300 px**; it pierces the Fire Knight's block (kind "explosion"); other barrels in the blast go off 0.14 s later (chains); chandeliers in range (1.8 × radius) drop; breakables in range break. Mera is not hurt.
 - **Chandelier:** hit it, blast it, or **earthquake** (Down+Y shakes loose every chandelier on screen). It falls and crushes enemies under it: **6 damage + 2.5 s stun**.
 - Destroyed props **shatter** into textured shards (`scripts/game/debris.gd`, pure GDScript, one draw call); crates also throw their 4 plank pieces.
@@ -274,8 +276,8 @@ Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
 
 ## Parry (v0.8)
 - **Press L2 at most 150 ms before a hit lands** = parry: no damage, 0.25 s i-frames, the attacker is **staggered 2 s** (bosses are not) and **slid back 400 px** (v0.9.3; bosses stay put), and Mera gets a **0.9 s counter window: her hits do ×2** (she glows gold). A 120 ms hit-stop and a clang sell it.
-- **Crouch bubble (v0.9.4):** holding Down raises a small bubble for free (radius 32 art px). A dial around it empties over **3 seconds**, then the bubble drops even if she stays crouched. Crouching again starts a new one. Starting the crouch within 150 ms **parries** (200 px, 1 s stun). After that window the bubble **subtracts 1** from the hit and does not knock her down, so a hit of 1 is stopped and a hit of 3 costs 2 size. Any button except L1 drops it and does that move. **L1 drinks a potion and the bubble stays.**
-- **Full bubble (L2 hold):** stops **all** damage. Any button except L1 and the L2 hold itself drops it immediately and does that move. **L1 drinks a potion and the bubble stays.** Holding it, with no parry window, still slides the attacker 200 px with no stun.
+- **Crouch bubble (v0.9.4):** holding Down raises a small bubble for free (radius 32 art px). A dial around it empties over **3 seconds**, then the bubble drops even if she stays crouched. Crouching again starts a new one. Starting the crouch within 150 ms **parries** (200 px, 1 s stun). After that window the bubble **subtracts 1** from the hit and does not knock her down, so a hit of 1 is stopped and a hit of 3 costs 2 size. Any button except L1 drops it and does that move. **L1 drinks a potion and the bubble stays.** While it is up, **every item on screen is pulled to her**.
+- **Full bubble (L2 hold):** stops **all** damage. Any button except L1 and the L2 hold itself drops it immediately and does that move. **L1 drinks a potion and the bubble stays.** Holding it, with no parry window, still slides the attacker 200 px with no stun. While it is up, **every item on screen is pulled to her** (same as the small bubble).
 - **Projectiles** (the hell beast's fireball, and a dragon bolt) parried with L2 in the window fly back 1.6× faster and hit the first enemy for 3. A dragon bolt popped by L2 still bursts harmlessly.
 - **Swing parry (v0.9.1):** X (`atk1` or the air `jatk1`) reflects a projectile when the hitbox meets it within **150 ms of the hitbox going live**. It flies at its shooter, or the nearest living enemy, and damages them. No counter window.
 - A player shot that touches an enemy shot: **both explode** (the blast does not also hurt Mera). The combo beam and the vertical beam **destroy** enemy projectiles.

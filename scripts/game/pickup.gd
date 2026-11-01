@@ -61,14 +61,34 @@ func _physics_process(delta: float) -> void:
 	if m.state == "dead":
 		return
 	var body: Rect2 = m.hurt_rect()
+	var pull := _bubble_pull(m)
+	var mv: Dictionary = m.get("mv") if m.get("mv") is Dictionary else {}
+	var sliding: bool = String(m.get("state")) == "move" and String(mv.get("key", "")) == "slide"
 	if kind == "sphere" or kind == "rage_max":
 		spr.position.y = -30.0 - sin(t * 3.0) * 8.0
-		var to: Vector2 = body.get_center() - global_position
-		if t > 0.5 and to.length() < 420.0 + 30.0 * m.shown:
-			position += to.normalized() * minf(to.length(), 900.0 * delta)
+		if not pull:
+			var to: Vector2 = body.get_center() - global_position
+			if t > 0.5 and to.length() < 420.0 + 30.0 * m.shown:
+				position += to.normalized() * minf(to.length(), 900.0 * delta)
 	else:
 		spr.position.y = -sin(t * 2.5) * 4.0
+	if pull and absf(global_position.x - m.global_position.x) <= 960.0:
+		var dest := body.get_center()
+		var to_m := dest - global_position
+		var step := Tuning.BUBBLE_PULL * delta
+		if to_m.length() <= step:
+			global_position = dest
+		else:
+			global_position += to_m.normalized() * step
 	var r := Rect2(global_position + Vector2(-28, -80), Vector2(56, 80))
-	if t > 0.4 and r.intersects(body):
+	var touch := body.grow(28.0) if sliding else body
+	if (t > 0.4 or pull or sliding) and r.intersects(touch):
 		game.collect(self)
 		queue_free()
+
+
+## full L2 bubble and the small crouch bubble both vacuum every item on screen
+func _bubble_pull(m: Node2D) -> bool:
+	if m.get("barrier_on") == true:
+		return true
+	return m.has_method("crouch_bubble_on") and m.crouch_bubble_on()

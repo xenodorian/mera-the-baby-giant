@@ -1,7 +1,7 @@
 class_name Levels
 extends RefCounted
 ## v0.5 level list (built by tools/build_levels.py into assets/levels/levels.json) and the level being played.
-## 1 Moonlit Cemetery, 2 Misty Woods, 3 Moonlit Town, 4 Infernal Caverns. Each is MAP_W game px wide (10 screens),
+## 1 Sunlit Country, 2 Misty Woods, 3 Moonlit Town, 4 Moonlit Cemetery, 5 Infernal Caverns.
 ## with invisible walls at both ends and an exit gate at the right end.
 
 const JSON_PATH := "res://assets/levels/levels.json"

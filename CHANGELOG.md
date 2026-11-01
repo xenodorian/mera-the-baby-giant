@@ -2,6 +2,17 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.7-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.7-playable/Mera_Playable_v0.11.7_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.7-playable/Mera_Playable_v0.11.7_Android.apk
+- **Sunlit Country has a new song.** Flowerbed Fields, a CC0 chiptune by Zane Little Music, replaces "I am not clumsy".
+- **Map order:** Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns. Each map keeps its own enemies. The cemetery is still the knight fight, and the dragon is still the last map.
+- **The size pips match the cap.** The default cap is 3. Buying size in the shop adds pips, up to 9. It no longer draws six empty boxes.
+- **One hit breaks a destructible**, except the cracked wall, which still takes a hit per blow.
+- **A slide takes the loot.** Down+A breaks every destructible she passes through, except a cracked wall, and the coin, potion, mana, or card is collected as she goes through it.
+- **Both bubbles vacuum the screen.** The full bubble and the small crouch bubble pull every item on screen into her. Same signing key as v0.10.0. Android `versionCode` 36.
+
 ## v0.11.5-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.5-playable/Mera_Playable_v0.11.5_Windows.exe

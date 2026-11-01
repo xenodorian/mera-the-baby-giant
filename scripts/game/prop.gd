@@ -133,8 +133,8 @@ func take_damage(amount: int, from_x: float, kind_: String = "melee") -> bool:
 	if kind == "lever":
 		_pull()
 		return true
-	# candles, urns and barrels break at once; crates, chests and walls take one hit per blow (a blast breaks all)
-	hp -= hp if (kind_ == "explosion" or kind in ["candle", "candle_b", "urn", "barrel"]) else 1
+	# everything but the cracked wall breaks on one hit. A blast still clears a wall.
+	hp -= hp if (kind_ == "explosion" or kind != "wall") else 1
 	if kind in ["crate"] and hp > 0:
 		spr.texture = load(P.DIR + "crate_hit.png")
 		get_tree().create_timer(0.12).timeout.connect(func(): if is_instance_valid(self) and hp > 0: spr.texture = P.tex(kind))

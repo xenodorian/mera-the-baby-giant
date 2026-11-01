@@ -114,7 +114,7 @@ func _ready() -> void:
 	var forced_level := false
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--level="):
-			Levels.current = clampi(int(a.get_slice("=", 1)) - 1, 0, 3)
+			Levels.current = clampi(int(a.get_slice("=", 1)) - 1, 0, maxi(Levels.list().size() - 1, 0))
 			forced_level = true
 	if not test_mode and not forced_level:
 		if carry.is_empty():
@@ -723,7 +723,8 @@ func on_enemy_defeated(e: Node2D) -> void:
 # ---------------------------------------------------------------- v0.7 allies
 func _layout_level() -> int:
 	if run_mode:
-		return 1 + posmod(stage_n - 1, 3)
+		var cycle := [0, 1, 2, 4]
+		return cycle[posmod(stage_n - 1, cycle.size())]
 	return Levels.current
 
 
@@ -1141,7 +1142,15 @@ func break_drop(p: Vector2) -> void:
 		kind = "card"
 	var po: Pickup = Pickup.new()
 	po.setup(self, kind, Vector2(p.x, GROUND_Y - 10.0))
+	if _sliding():
+		collect(po)
+		po.free()
+		return
 	world.add_child.call_deferred(po)
+
+
+func _sliding() -> bool:
+	return mera != null and is_instance_valid(mera) and mera.state == "move" and String(mera.mv.get("key", "")) == "slide"
 
 
 func collect(p: Pickup) -> void:
