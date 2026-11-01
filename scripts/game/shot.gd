@@ -19,6 +19,7 @@ var tex_discs: Texture2D
 var done := false
 var speed_mult := 1.0          # v0.4: B, Y fast quick fire = 2.0
 var up := false                # v0.9.1 Up+Y: the same bolt flies straight up (sprite rotated head-up)
+var aim := Vector2.ZERO        # set: fly this way (up, and the two upward diagonals)
 
 
 func hit_rect() -> Rect2:
@@ -66,9 +67,10 @@ func _ready() -> void:
 		spr.scale = Vector2(-dir * size, size)       # sprite flies LEFT natively
 		spr.material = lib.fx_mat
 		add_child(spr)
-		if up:
-			spr.scale = Vector2(size, size)          # head left ...
-			spr.rotation = PI / 2.0                  # ... turned 90 deg clockwise: head up
+		if up or aim != Vector2.ZERO:
+			spr.scale = Vector2(size, size)
+			var dir_v := aim if aim != Vector2.ZERO else Vector2(0, -1)
+			spr.rotation = dir_v.angle() - PI
 	else:
 		tex_discs = lib.spell_tex("discs")
 
@@ -78,7 +80,9 @@ func _physics_process(delta: float) -> void:
 		return
 	t += delta
 	if kind == "bolt":
-		if up:
+		if aim != Vector2.ZERO:
+			position += aim.normalized() * speed() * delta
+		elif up:
 			position.y -= speed() * delta
 		else:
 			position.x += dir * speed() * delta
@@ -97,7 +101,7 @@ func _physics_process(delta: float) -> void:
 				game.hit_spark(position, size)
 				queue_free()
 				return
-		if absf(position.x - game.camera_x()) > 1920.0 or (up and position.y < game.cam.position.y - 700.0):
+		if absf(position.x - game.camera_x()) > 2200.0 or position.y < game.cam.position.y - 800.0:
 			queue_free()
 		return
 	# fireball

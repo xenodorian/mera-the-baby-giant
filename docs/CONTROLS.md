@@ -25,6 +25,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | X X Y | 1x → 2x → 3x (with slash). X X Y Y is still 3x, never the beam |
 | X X X Y (Y any time during the 3rd hit, or up to 250 ms after it) | 1x → 2x → **beam combo**, 20 stamina: the beam always runs off-screen; big recoil pushes Mera back and shakes the screen. Without 20 stamina the 3rd hit just plays out (fail cue) |
 | **Y** | quick fire, 5 stamina (bolt flies forward at 400 px/s × size, damage × size) |
+| **Up + Y** (within 67 ms, either order) | three bolts, 15 mana (three times a quick fire): straight up and both upward diagonals. The orb in the raised hand is the bolt's red-orange, and larger than the old cyan one. Up alone still jumps. A Y in the air more than 67 ms after the jump is still the aerial dash |
 | **X + Y** together (within 67 ms, either order) | rear explosion, 12 stamina: the fireball lands behind her and the screen shakes when it detonates |
 | **A + Y** together, or Y while A is held | ground dash, 6 stamina: 2x the v0.2 distance in half the time (1600 px/s, aerial-dash animation at 2x, afterimage trail) |
 | X + A | plain 1x attack (no longer a dash) |
@@ -95,13 +96,13 @@ Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, 
 - A **MANA** bar on the HUD, under rage. It starts at 60 / 60 and regenerates 1 per second.
 - Not enough mana: the fail cue plays, the MANA bar flashes, and the move doesn't start.
 - Blue potions: +30 mana. Blue-and-white potions: +5 max mana, up to 200. A gold sphere: +5 max rage, up to 200.
-- Costs: quick fire 5 (the fast quick fire too), ground dash 6, aerial dash 6, rear explosion 12, beam combo 20, bubble 3 to raise + 4 / s held.
+- Costs: quick fire 5 (the fast quick fire too), Up + Y triple bolt 15, ground dash 6, aerial dash 6, rear explosion 12, beam combo 20, bubble 3 to raise + 4 / s held.
 - Free: attacks, back dodge, dodge attack, rising slash, slam, jumps, heal and lightning (rage), Fury.
 
 ## Interpretations
 - "X modifies the jump into a jump attack" and "Y modifies the jump into an aerial dash": jump with Up, then press X or Y in the air.
 - "A+Y dashes normally": a ground dash that reuses the aerial-dash animation and moves 1600 px/s × size. X+A was the old dash input and is now just a 1x attack.
-- Up + X is not a separate move. Up jumps and X then does the jump attack. Up + Y is not a ground move either: Up jumps at once, and Y in the air is the aerial dash.
+- Up + X is not a separate move. Up jumps and X then does the jump attack. **Up + Y** (within 67 ms) is the triple bolt above, not a jump. Up alone still jumps at once, and Y in the air after that is the aerial dash.
 - v0.4 dodge chain (final steering): the rising slash is the **B + Y chord**, Y again gives the slam. **B, then Y** is the fast quick fire. **B, then X** is the dodge attack. The split between the two B + Y forms is the 67 ms chord window: within it you get the rising slash, after it the dodge plays and Y gives the fast quick fire.
 - Ladder, ledge and wall-jump animations only appear in the gallery, because the test level has no ladders or walls.
 
