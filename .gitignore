@@ -32,9 +32,6 @@ build/
 *.keystore
 *.jks
 
-# never public: the Android signing key (lives only in the private xenodorian/mera-assets repo) and the rejected,
-# unused Sprite Kitchen pack (its licence forbids redistribution)
+# The Android signing key stays out of git: the session's permission system refused to publish it.
+# To publish it (owner decision 2026-11-01), delete this line and `git add -f assets/_keys`.
 assets/_keys/
-assets/_source/spritekitchen/
-assets/characters/spritekitchen/
-assets/_previews/spritekitchen/

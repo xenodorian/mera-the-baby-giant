@@ -43,7 +43,7 @@ The v0.7 allies are copies of chierit's **Water Priestess** and **Leaf Ranger** 
 > Sound effects: Kenney (kenney.nl), CC0.
 
 ## Repo note
-This repo is **public** and contains `assets/`, including the original source packs. Owner decision (2026-11-01): the owner states they hold full distribution rights to the purchased Merakintsugi Platformer Character Pack and instructs that all assets are published here. The credit table above still applies. Two things are deliberately not published: the Android signing key (`assets/_keys/`, gitignored, kept in the private `xenodorian/mera-assets` repo) and the rejected, unused Sprite Kitchen pack (its licence forbids redistribution; gitignored).
+This repo is **public** and contains `assets/`, including the original source packs. Owner decision (2026-11-01): the owner states they hold full distribution rights to the purchased Merakintsugi Platformer Character Pack and instructs that all assets are published here. The credit table above still applies. The rejected, unused Sprite Kitchen pack is published too (its licence forbids redistribution; the owner decided to publish regardless). The Android signing key (`assets/_keys/`) is the one thing not committed so far: it is gitignored and kept in the private `xenodorian/mera-assets` repo.
 
 ## Tools
 - Godot Engine 4.7.2 — MIT license (https://godotengine.org/license).

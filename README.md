@@ -59,7 +59,7 @@ G=/workspace/tools/Godot_v4.7.2-stable_linux.x86_64
 $G --headless --path . -s tests/run_tests.gd                       # headless gameplay tests (v0.4: human-timing input replays, knights, stamina, aura)
 $G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe
 $G --headless --path . --export-release "Linux" build/linux/Mera_Playable.x86_64
-source <mera-assets>/_keys/android/release.env && $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk   # see docs/AI_HANDOFF.md
+source assets/_keys/android/release.env && export GODOT_ANDROID_KEYSTORE_RELEASE_PATH=$PWD/assets/_keys/android/mera-release.keystore && $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk   # see docs/AI_HANDOFF.md
 ```
 Test/capture args (after `--`): `--size=N --rage=N --potions=N --fury --no-knight --debug --overlay --gallery=ANIM --demo --shots=PREFIX --at=F1,F2 --quit=F`.
 The export list in `export_presets.cfg` is explicit (textures are loaded by path), plus the include filter for `anims.json`. Add new assets there.

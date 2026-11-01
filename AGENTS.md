@@ -8,7 +8,7 @@ Multiple agents share this repo. Keep it safe and mergeable.
 3. **Pull before you push**: `git pull --rebase origin main`, then `git push origin main`.
 4. **Small, logical commits** with clear messages (`assets: add X`, `combat: input buffer`, `docs: ...`).
 5. **Never rewrite shared history**: no `push --force` to `main`, no rebasing pushed commits, no `reset --hard` on shared branches.
-6. **Never commit secrets** (tokens, `.env`, keys, passwords, purchase receipts). `.gitignore` blocks common ones.
+6. **Nothing is private** (owner decision, 2026-11-01): assets, purchased packs and receipts are committed. The one exception for now is the Android signing key in `assets/_keys/`: it is gitignored and kept in the private `xenodorian/mera-assets` repo (`_keys/android/`), because the agent session's permission system refused to publish it. Never commit GitHub or other service access tokens, or payment card details.
 7. **Git LFS** is required (`git lfs install`). PNG/GIF/ZIP/audio/aseprite/PSD/PDF go through LFS automatically (`.gitattributes`).
 8. **Godot**: 4.7.2, Compatibility renderer. Commit `*.import` and `*.uid` files; never commit `.godot/`.
    Run `--headless --import` after adding assets and check for errors.

@@ -33,7 +33,6 @@ The steps (version bump, Windows exe, Android APK, `SHA256SUMS.txt`, tag and Git
 - The Windows exe and the Android APK are the deliverables.
 
 ## Repository layout
-- `xenodorian/mera-the-baby-giant` is **public** and holds everything: code, scenes, shaders, tests, tools, docs, gameplay screenshots, and all art, audio and source packs under `assets/` (binary files in Git LFS).
-- `xenodorian/mera-assets` is **private** and holds only the Android release keystore and its env file (`_keys/android/`). Never commit those, or any key, password or receipt, to this repo (`assets/_keys/` is gitignored).
-- Do not add the rejected Sprite Kitchen pack (gitignored; its licence forbids redistribution).
-- Changing an asset is a normal commit in this repo. Run `--headless --import` afterwards.
+- `xenodorian/mera-the-baby-giant` is **public** and holds everything except the Android signing key: code, scenes, shaders, tests, tools, docs, screenshots, and all art, audio and source packs under `assets/` (binary files in Git LFS). Nothing else is private (owner decision, 2026-11-01).
+- `xenodorian/mera-assets` (private) holds only the Android signing key (`_keys/android/`). `assets/_keys/` is gitignored.
+- Changing an asset is a normal commit in this repo. Run `git lfs pull` first, then `--headless --import`.
