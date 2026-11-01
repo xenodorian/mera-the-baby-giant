@@ -227,10 +227,10 @@ func _enemies() -> Array:
 
 func _nearest() -> Node2D:
 	var best: Node2D = null
-	var bd := 1100.0
+	var bd := INF
 	for e in _enemies():
 		var dd: float = absf(e.global_position.x - global_position.x)
-		if dd < bd and absf(e.global_position.x - game.cam_x) < 1050.0:
+		if dd < bd:
 			bd = dd
 			best = e
 	return best
@@ -272,7 +272,7 @@ func leave() -> void:
 			_go("leave", "walk")
 		"dancer":
 			_go("leave", "skip")
-	vx = away * 700.0
+	vx = 0.0
 	on_ground = true
 	position.y = gy
 
@@ -346,12 +346,15 @@ func _physics_process(delta: float) -> void:
 		return
 	_fit_size(delta)
 	_gravity(delta)
+	if state == "leave":
+		vx = 0.0
 	position.x += vx * delta
 	match state:
 		"dead":
 			return
 		"leave":
-			if absf(global_position.x - game.cam_x) > 1300.0 or t_state > 3.0:
+			modulate.a = clampf(1.0 - t_state / 0.6, 0.0, 1.0)
+			if t_state >= 0.6:
 				queue_free()
 			return
 		"arrive":
@@ -457,7 +460,7 @@ func _ai(_delta: float) -> void:
 		if state != "idle":
 			_idle()
 		return
-	# a nearby wind-up: the priestess and ranger block or dodge. The brawler keeps running.
+	# a nearby wind-up: the priestess and ranger block or dodge. The brawler keeps chasing.
 	if id != "brawler":
 		var th := _threat()
 		if th != null:
@@ -471,16 +474,11 @@ func _ai(_delta: float) -> void:
 				_dodge(-facing)
 				return
 	var e: Node2D = _nearest()
-	if id == "brawler":
-		if _wall_ahead() and (e == null or _gap(e) > MELEE_REACH[id] + 30.0):
+	if e == null:
+		if id == "brawler":
 			vx = 0.0
 			if state != "idle":
 				_idle()
-			return
-		e = e if e != null and _gap(e) <= MELEE_REACH[id] + 30.0 else _ahead()
-	if e == null:
-		if id == "brawler":
-			_march()
 		else:
 			_follow(m)
 		return
@@ -521,9 +519,6 @@ func _ai(_delta: float) -> void:
 		_jump_attack()
 		vx = face * 450.0
 		return
-	if id == "brawler":
-		_march()
-		return
 	# 7) walk / run over (the priestess surfs long distances)
 	_travel(face, gap)
 
@@ -563,11 +558,7 @@ func _wall_ahead() -> bool:
 		return false
 	var probe := Rect2(global_position + Vector2(10.0, -100.0), Vector2(36.0, 96.0))
 	for p in game.props:
-		if not is_instance_valid(p) or not p.alive():
-			continue
-		if String(p.kind) not in ["wall", "door"]:
-			continue
-		if String(p.state) == "open":
+		if not is_instance_valid(p) or not p.has_method("blocks_path") or not p.blocks_path():
 			continue
 		if p.hurt_rect().intersects(probe):
 			return true
@@ -581,7 +572,7 @@ func _ahead() -> Node2D:
 		var dx: float = (e.global_position.x - global_position.x) * float(march)
 		if dx < -40.0:
 			continue
-		if dx < bd and absf(e.global_position.x - game.cam_x) < 1200.0:
+		if dx < bd:
 			bd = dx
 			best = e
 	return best

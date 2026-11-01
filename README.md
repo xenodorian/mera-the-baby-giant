@@ -3,8 +3,8 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.10.6-playable**
-- Download: GitHub → Releases → [`v0.10.6-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.10.6-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.11.0-playable**
+- Download: GitHub → Releases → [`v0.11.0-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.11.0-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.0-playable/Mera_Playable_v0.11.0_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.0-playable/Mera_Playable_v0.11.0_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
   - `main` = the current playable game (v0.8).
   - `playable-level` = the playable-level development branch.
@@ -14,7 +14,7 @@ an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly 
   - D-pad / left stick: move. Up: jump (in Fury: fly). Down: crouch.
   - A [✕] hold: run. **X [□]: attack**. **Y [△]: special**.
   - B [○]: back dodge (B then X: dodge attack, B then Y: fast quick fire). **B+Y: rising slash** (Y again: slam). A+Y: ground dash. In the air, X: jump attack, Y: aerial dash.
-  - L1: potion. **L2 hold: full bubble**. **L2+R2: lightning** (100 rage, spends the bar). **R2 alone: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.**
+  - L1: health potion (size, cap starts at 3x). **E** or left-stick click: mana potion. **L2 hold: full bubble**. **L2+R2: lightning** (100 rage, spends the bar). **R2 alone: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.** Title: Down to Shop, Reset, Updates, Credits.
   - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **stamina** (60, +1/s).
   - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (Fury = 2, lightning = 1+2), Enter/F1 = Start.
 

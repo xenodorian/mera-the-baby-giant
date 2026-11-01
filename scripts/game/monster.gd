@@ -221,10 +221,11 @@ func attack_rect() -> Rect2:
 		"contact":
 			return hurt_rect()
 		"frames":
-			var f := sprite.frame
-			if _window_of(f) < 0:
+			var boxes: Array = art["anims"][atk["anim"]]["boxes"]
+			var f := mini(sprite.frame, boxes.size() - 1)
+			if f < 0 or _window_of(sprite.frame) < 0:
 				return Rect2()
-			var b: Array = art["anims"][atk["anim"]]["boxes"][f]
+			var b: Array = boxes[f]
 			var body: Array = art["body"]
 			var tall := (float(b[3]) - float(b[1])) > 1.4 * (float(body[3]) - float(body[1]))
 			var c := b.duplicate()

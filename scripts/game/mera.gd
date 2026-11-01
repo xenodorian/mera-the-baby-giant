@@ -29,7 +29,7 @@ const R1_COST := 100.0      # the lightning strike needs a full meter and spends
 const DODGE_KEYS := ["bdodge", "gdash", "adash"]
 const FURY_TIME := 12.0
 const FURY_COST := 100.0     # a bigger rage meter still pays only this much
-const TRACK := ["btn_x", "btn_y", "btn_a", "btn_b", "up", "down", "l1", "r1", "l2", "r2"]
+const TRACK := ["btn_x", "btn_y", "btn_a", "btn_b", "up", "down", "l1", "r1", "l2", "r2", "mana"]
 # base damage per move (x size); beam ticks every BEAM_TICK frames while it is lit
 const DMG := {"atk1": 1, "atk2": 1, "atk2_1": 2, "atk2_2": 2, "atk3": 2, "beam_ender": 1, "datk1": 1, "datk2": 1,
 	"datk3": 2, "jatk1": 1, "jatk2": 2, "slide": 1, "rear_blast": 1}
@@ -50,6 +50,7 @@ var held_since := {}
 var _pending := {}
 var invuln := 0.0
 var potions := 1
+var mana_pots := 0
 var rage := 0.0
 var super_quakes := 0         # v0.8 (tests)
 var rage_spending := false     # R1 drained the meter; it empties visibly first
@@ -246,8 +247,13 @@ func s() -> float:
 	return shown
 
 
+func scale_cap() -> int:
+	Carry.ensure()
+	return clampi(Carry.scale_cap, 2, Carry.SCALE_CAP_MAX)
+
+
 func set_size(n: int, instant: bool = false) -> void:
-	size = clampi(n, SIZE_MIN, SIZE_DEBUG_MAX)
+	size = clampi(n, SIZE_MIN, mini(SIZE_DEBUG_MAX, scale_cap()))
 	if instant:
 		shown = size
 		_apply_size()
@@ -696,6 +702,7 @@ func _go_neutral(start_idle: int = 0) -> void:
 func _try_ground_actions() -> bool:
 	if crouch_bubble_on():
 		_sip()
+		_drink_mana()
 	if crouch_bubble_on() and not _pressed_since(-1e9, ["btn_x", "btn_y", "btn_a", "btn_b", "up", "r1", "l2", "r2"]).is_empty():
 		crouch_bubble_left = 0.0
 	var x := _find("btn_x")
@@ -817,12 +824,32 @@ func add_rage_max(v: float) -> void:
 	add_rage(v)
 
 
+func _drink_mana() -> bool:
+	var e := _find("mana")
+	if e.is_empty():
+		return false
+	_use(e)
+	if mana_pots > 0 and stamina < stamina_max - 0.5:
+		mana_pots -= 1
+		add_stamina(Tuning.STAMINA_POTION)
+		Sfx.play("heal", 1.15)
+		if game:
+			game.on_potions_changed()
+			if game.has_method("_sync_carry"):
+				game._sync_carry()
+	else:
+		Sfx.play("fail")
+		if game:
+			game.flash_hud("potions" if mana_pots <= 0 else "max")
+	return true
+
+
 func _sip() -> bool:
 	var l1 := _find("l1")
 	if l1.is_empty():
 		return false
 	_use(l1)
-	if potions > 0 and size < SIZE_HEAL_MAX:
+	if potions > 0 and size < scale_cap():
 		potions -= 1
 		set_size(size + 1)
 		Sfx.play("heal")
@@ -1055,6 +1082,8 @@ func _try_mark() -> bool:
 
 
 func _special_buttons() -> bool:
+	if _drink_mana():
+		return true
 	var l1 := _find("l1")
 	var r1 := _find("r1")
 	var l2 := _find("l2")
@@ -1077,7 +1106,7 @@ func _special_buttons() -> bool:
 				return _try_fury()
 	if not l1.is_empty():
 		_use(l1)
-		if potions > 0 and size < SIZE_HEAL_MAX:
+		if potions > 0 and size < scale_cap():
 			_start_move("heal")
 			return true
 		Sfx.play("fail")
@@ -1815,6 +1844,7 @@ func _move_tick(delta: float) -> void:
 				anim.seek(9)
 			elif barrier_on:
 				_sip()
+				_drink_mana()
 				var act := _pressed_since(float(mv["t0"]), ["btn_x", "btn_y", "btn_a", "btn_b", "up", "r1"])
 				if not act.is_empty():
 					_root_from_body()
@@ -1949,7 +1979,7 @@ func _on_frame(i: int) -> void:
 	if anim.key == "heal" and i == 7 and state == "move":
 		match k:
 			"heal":
-				if potions > 0 and size < SIZE_HEAL_MAX:
+				if potions > 0 and size < scale_cap():
 					potions -= 1
 					set_size(size + 1)
 					Sfx.play("heal")

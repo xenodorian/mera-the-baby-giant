@@ -39,7 +39,6 @@ const CONTROLS := [
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
 	["Start", "Enter / F1", "pause menu: continue, restart, title, or quit. B or Start continues"],
-	["Back (Share)", "Tab / G", "animation gallery (Left/Right: previous/next, A: replay)"],
 	["-", "F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
 	["Menus", "arrows, Z ok, X back", "level select, ally picker, level clear / Game Over (Esc quits, F11 fullscreen)"],
 ]
@@ -166,11 +165,11 @@ func _draw_ui() -> void:
 	var pc := Color(0.45, 0.95, 0.45)
 	if _flash == "potions" and _flash_t > 0.0:
 		pc = Color(1, 0.3, 0.3)
-	_txt(Vector2(36 + hx, 146), "POTIONS  %d" % m.potions, 26, pc)
+	_txt(Vector2(36 + hx, 146), "HP %d   MANA %d" % [m.potions, m.mana_pots], 26, pc)
 	if game.run_mode:
 		_txt(Vector2(280 + hx, 146), "STAGE %d    LIVES %d    FOES %d" % [game.stage_n, game.lives, maxi(game.quota - game.defeated, 0)], 26, Color(1.0, 0.86, 0.55))
 	if _flash == "max" and _flash_t > 0.0:
-		_txt(Vector2(260 + hx, 146), "max size for potions is 6x", 22, Color(1, 0.6, 0.4))
+		_txt(Vector2(260 + hx, 146), "max size is %dx" % m.scale_cap(), 22, Color(1, 0.6, 0.4))
 	# stamina (v0.4): bar length grows with the max (60 -> 120)
 	var sw := minf(500.0, 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0)
 	var sc := Color(0.25, 0.6, 1.0)
@@ -216,9 +215,6 @@ func _draw_ui() -> void:
 			_txt(Vector2(470, 990), "INFERNAL DRAGON   %dx" % bs.size, 28, Color(1, 0.7, 0.5))
 		else:
 			_txt(Vector2(470, 990), "INFERNAL DRAGON", 28, Color(1, 0.7, 0.5))
-	if m.state == "gallery":
-		var ks: Array = AnimLib.keys()
-		_txt(Vector2(660, 150), "GALLERY  %d/%d  %s   (Left/Right, A replay, Back/Tab exit)" % [m.gallery_idx + 1, ks.size(), ks[m.gallery_idx]], 30, Color(1, 0.85, 0.5))
 	if m.debug:
 		_txt(Vector2(1300, 106), "DEBUG: boxes on, PageUp/PageDown size   x %d" % int(m.global_position.x), 22, Color(1, 1, 0.4))
 	if overlay:
@@ -279,15 +275,15 @@ func _center(y: float, t: String, sz: int, c: Color) -> void:
 
 
 func _card_portrait(aid: String, box: Rect2) -> void:
-	var pic: Dictionary = ROSTER.frame_art(aid)
-	var tex: Texture2D = pic["tex"]
+	var tex: Texture2D = ROSTER.face(aid)
 	if tex == null:
 		return
-	var src: Rect2 = pic["src"]
-	var fit := minf((box.size.x - 6.0) / src.size.x, (box.size.y - 6.0) / src.size.y)
-	var ds := src.size * fit
-	var dp := Vector2(box.position.x + (box.size.x - ds.x) * 0.5, box.position.y + box.size.y - ds.y - 3.0)
-	ui.draw_texture_rect_region(tex, Rect2(dp, ds), src)
+	var inner := Rect2(box.position.x + 3.0, box.position.y + 3.0, box.size.x - 6.0, box.size.y - 6.0)
+	var ts := tex.get_size()
+	var fit := minf(inner.size.x / maxf(ts.x, 1.0), inner.size.y / maxf(ts.y, 1.0))
+	var ds := ts * fit
+	var dp := Vector2(inner.position.x + (inner.size.x - ds.x) * 0.5, inner.end.y - ds.y)
+	ui.draw_texture_rect(tex, Rect2(dp, ds), false)
 
 
 func _draw_pause() -> void:

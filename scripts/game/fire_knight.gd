@@ -458,7 +458,9 @@ func _watch_dancer(_delta: float) -> bool:
 			_anim("run")
 	else:
 		vx = 0.0
-		if on_ground:
+		if on_ground and state != "takeoff" and state != "air":
+			on_ground = false
+			position.y -= 1.0
 			_jump(0.0, 680.0)
 	return true
 

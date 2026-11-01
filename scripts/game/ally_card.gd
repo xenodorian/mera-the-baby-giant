@@ -6,7 +6,7 @@ const ROSTER := preload("res://scripts/game/roster.gd")
 var game: Node
 var ally_id := ""
 var t := 0.0
-var portrait: Sprite2D
+var face: Texture2D
 var taken := false
 var base_y := -1.0             # v0.8: a card on a ledge floats above the ledge instead of the ground
 var hidden_by: Node2D = null   # v0.8: a secret wall / door in front of it; it can't be seen or taken until revealed
@@ -20,24 +20,7 @@ func setup(g: Node, aid: String, p: Vector2) -> void:
 
 func _ready() -> void:
 	z_index = 5
-	var pic: Dictionary = ROSTER.frame_art(ally_id)
-	portrait = Sprite2D.new()
-	portrait.texture = pic["tex"]
-	portrait.centered = false
-	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var src: Rect2 = pic["src"]
-	portrait.region_enabled = true
-	portrait.region_rect = src
-	var body: Array = ROSTER.art(ally_id)["body"]
-	var bw := float(body[2]) - float(body[0])
-	var bh := float(body[3]) - float(body[1])
-	var s := minf(70.0 / bw, 80.0 / bh)
-	portrait.scale = Vector2(s, s)
-	var piv: Vector2 = pic["pivot"]
-	portrait.offset = -(piv - src.position)
-	portrait.position = Vector2(0, 4)
-	add_child(portrait)
-	portrait.z_index = 1
+	face = ROSTER.face(ally_id)
 
 
 func rect() -> Rect2:
@@ -76,3 +59,10 @@ func _draw() -> void:
 	draw_rect(Rect2(-46, -106, 92, 132), c, false, 6.0)
 	draw_rect(Rect2(-38, -98, 76, 14), c)
 	draw_rect(Rect2(-38, 8, 76, 10), c)
+	if face != null:
+		var inner := Rect2(-36, -80, 72, 84)
+		var ts := face.get_size()
+		var fit := minf(inner.size.x / maxf(ts.x, 1.0), inner.size.y / maxf(ts.y, 1.0))
+		var ds := ts * fit
+		var dp := Vector2(inner.position.x + (inner.size.x - ds.x) * 0.5, inner.end.y - ds.y)
+		draw_texture_rect(face, Rect2(dp, ds), false)

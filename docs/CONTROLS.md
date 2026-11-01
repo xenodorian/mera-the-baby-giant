@@ -31,7 +31,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | X + A | plain 1x attack (no longer a dash) |
 | In the air: **X** | jump attack. X again: second hit |
 | In the air: **Y** (e.g. Up, then Y) | aerial dash (once per jump), 6 stamina, 1600 px/s, same timing as the ground dash. In Fury flight Y is a quick fire (5 stamina) |
-| **L1** | heal: drink one carried green potion, +1 size (max 6x). The drink plays at **4×** speed (the size lands in about 0.1 s, and she can move again in about 0.25 s). No potion = "fail" cue, nothing happens. **Inside either bubble, L1 drinks at once and the bubble stays up** |
+| **L1** | heal: drink one carried green potion, +1 size, up to the size cap (3x until the shop raises it, 9x at most). The drink plays at **4×** speed. No potion = "fail" cue. **Inside either bubble, L1 drinks at once and the bubble stays up.** **E** or **left-stick click** drinks a blue mana potion (+30 mana) without leaving the bubble |
 | **L2** | full bubble while held: 3 mana to raise, 4 / s. A press just before a hit still parries. Letting go before the bubble forms does nothing else (it is not lightning) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
 | **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (bosses stay), and for 0.9 s Mera's hits do ×2. Holding the full bubble after that window **stops all damage** and slides the attacker **200 px** with no stun. Any other button except L1 drops the bubble and does that move. **L1 drinks a potion and the bubble stays** |
@@ -42,7 +42,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
 | Fury flight | Up in the air takes off. 8-way movement; Mera tilts head-first toward where she flies and eases upright when hovering. Raised-arms pose while moving, tucked hover while idle. Down at ground level, or R2, lands |
 | Start | **pause menu** (v0.10.6): Continue, Restart level, Back to title, Quit game. Up/Down choose, A confirms, B or Start continues. Volume keys do this on Android. Restart after Game Over |
-| Back (Share) | animation gallery (every baked animation). Left/Right = previous/next, A = replay |
+| Back (Share) | nothing. The animation gallery is not bound to any key or button |
 
 ## Keyboard (v0.8 PC layout, user request t86u)
 Every key is just another binding of the same action, so combos, chords (67 ms window), L2 tap vs hold and the parry window behave exactly as on a pad. No key is shared between two actions (test "input map: no key is shared").
@@ -54,13 +54,14 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **X** | B | X = back dodge, X+S = rising slash |
 | **A** | X | A A A = 1x 2x 2x-2, A+S = rear explosion |
 | **S** | Y | S = quick fire |
-| **Q** | L1 | heal (potion) |
+| **Q** | L1 | health potion |
+| **E** | left-stick click | mana potion |
 | **W** | R1 | summon an ally |
 | **1** (top row only) | L2 | hold = full bubble, just before a hit = parry |
 | **2** (top row only) | R2 | alone = Fury (costs 100 rage). **1 + 2** = lightning. Numpad 1 and 2 are not these |
 | **Q+W+1+2** together (within 150 ms, all held) at 100 rage or more | L1+R1+L2+R2 | **freeze slash**: costs **100 rage**. Freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s. This does not start Fury |
 | Enter or F1 | Start | pause menu (continue, restart level, title, quit). B / Start / Esc continues. Restarts after Game Over |
-| Tab or G | Back (gallery) | |
+| Tab or G | (unbound; the gallery does not open) | |
 | F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
 | F11 / Esc | fullscreen / leave fullscreen, then quit | |
 
