@@ -55,6 +55,14 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+func _origin() -> Vector2:
+	return Vector2((size.x - 1920.0) * 0.5, (size.y - 1080.0) * 0.5)
+
+
+func _to_design(p: Vector2) -> Vector2:
+	return p - _origin()
+
+
 func _card(i: int) -> Rect2:
 	var n := maxi(thumbs.size(), 1)
 	var gap := 18.0
@@ -116,7 +124,7 @@ func _credits_input(e: InputEvent) -> void:
 		OS.shell_open(String(CREDITS.ENTRIES[credit_sel]["url"]))
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		for i in n:
-			if Rect2(160, 190 + i * 74 - 30, 1600, 70).has_point(e.position):
+			if Rect2(160, 190 + i * 74 - 30, 1600, 70).has_point(_to_design(e.position)):
 				credit_sel = i
 				OS.shell_open(String(CREDITS.ENTRIES[i]["url"]))
 
@@ -158,9 +166,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_ESCAPE:
 			get_tree().quit()
 		elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-			_click_buttons(e.position)
+			_click_buttons(_to_design(e.position))
 		return
-	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _click_buttons(e.position):
+	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _click_buttons(_to_design(e.position)):
 		return
 	if e.is_action_pressed("left"):
 		_move(-1)
@@ -170,7 +178,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		_start()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		for i in thumbs.size():
-			if _card(i).has_point(e.position):
+			if _card(i).has_point(_to_design(e.position)):
 				if sel == i:
 					_start()
 				sel = i
@@ -189,8 +197,10 @@ func _click_buttons(p: Vector2) -> bool:
 
 
 func _draw() -> void:
-	draw_texture_rect(thumbs[sel], Rect2(0, 0, 1920, 1080), false, Color(0.35, 0.3, 0.4))
-	draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.0, 0.05, 0.45))
+	var bg: Texture2D = thumbs[sel]
+	draw_texture_rect(bg, Rect2(Vector2.ZERO, size), false, Color(0.35, 0.3, 0.4))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.0, 0.05, 0.45))
+	draw_set_transform(_origin(), 0.0, Vector2.ONE)
 	draw_string(font, Vector2(0, 200), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
 	draw_string(font, Vector2(0, 280), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
 	draw_string(font, Vector2(0, 370), "SELECT A LEVEL", HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
@@ -204,9 +214,9 @@ func _draw() -> void:
 		draw_texture_rect(thumbs[i], r, false, Color(1, 1, 1) if on else Color(0.55, 0.55, 0.6))
 		draw_rect(r, Color(0, 0, 0), false, 3.0)
 		var lv: Dictionary = ls[i]
-		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 34,
+		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
-		draw_string(font, Vector2(r.position.x, r.end.y + 90), String(lv["sub"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24, Color(0.8, 0.8, 0.85))
+		draw_string(font, Vector2(r.position.x, r.end.y + 86), String(lv["sub"]), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18, Color(0.8, 0.8, 0.85))
 	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
 	for i in 2:
 		var r := _button(i)
@@ -222,6 +232,7 @@ func _draw() -> void:
 		_draw_credits()
 	elif mode == "update":
 		_draw_update()
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _saved_run() -> Dictionary:
@@ -244,7 +255,9 @@ func _draw_version() -> void:
 
 
 func _panel(r: Rect2) -> void:
-	draw_rect(Rect2(0, 0, 1920, 1080), Color(0, 0, 0, 0.65))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.72))
+	draw_set_transform(_origin(), 0.0, Vector2.ONE)
 	draw_rect(r, Color(0.06, 0.03, 0.09, 0.97))
 	draw_rect(r, Color(1.0, 0.8, 0.45), false, 3.0)
 

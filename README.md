@@ -3,8 +3,8 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.10.5-playable**
-- Download: GitHub → Releases → [`v0.10.5-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.10.5-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.5-playable/Mera_Playable_v0.10.5_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.5-playable/Mera_Playable_v0.10.5_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.10.6-playable**
+- Download: GitHub → Releases → [`v0.10.6-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.10.6-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Branches:
   - `main` = the current playable game (v0.8).
   - `playable-level` = the playable-level development branch.
