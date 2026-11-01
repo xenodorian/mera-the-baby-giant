@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.10.2. The Android pad uses the mockup's sizes and positions, in gray. Run maps are a solid floor that starts left of the camera, themed by `run_seed`._
+_Last updated: 2026-10-31, v0.10.3. Level select is the four authored maps again. `run_mode` is off, so `RunMaps` is not used._
 
 
 ## v0.9.6 status (2026-10-31)
