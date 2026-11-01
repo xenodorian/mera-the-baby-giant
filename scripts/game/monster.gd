@@ -32,6 +32,7 @@ var hits_done := {}
 var shot_done := false
 var cooldown := 0.8
 var hop_cd := 0.6
+var chain_left := 0
 var tell_t := 0.0
 var vx := 0.0
 var knock_left := 0.0          # signed px still to slide from a parry or a held barrier (v0.9.3)
@@ -526,6 +527,7 @@ func stun(t: float) -> void:
 func _to_idle(cd: float) -> void:
 	marker.visible = false
 	atk = {}
+	chain_left = 0
 	vx = 0.0
 	cooldown = maxf(cooldown, cd)
 	_set_state("idle")
@@ -547,7 +549,7 @@ func _on_anim_done() -> void:
 			_to_idle(0.5)
 		"atk":
 			if String(atk["mode"]) != "contact":
-				_to_idle(float(atk["cd"]))
+				_finish_attack()
 		"hop":
 			pass
 
@@ -744,6 +746,7 @@ func _may_attack() -> bool:
 
 func _start_tell(a: Dictionary, face: int) -> void:
 	atk = a
+	chain_left = int(a.get("chain", 1))
 	tell_t = 0.0
 	vx = 0.0
 	_face(face)
@@ -802,7 +805,7 @@ func _active_tick(m: Node2D, delta: float) -> void:
 		if done:
 			if flyer:
 				swoop_v = Vector2.ZERO
-			_to_idle(float(atk["cd"]))
+			_finish_attack()
 		return
 	if mode == "shot":
 		if not shot_done and sprite.frame >= int(atk["shot_frame"]):
@@ -828,6 +831,15 @@ func _hit_allies(r: Rect2, w: int) -> void:
 		if not hits_done.has(key) and r.intersects(a.hurt_rect()):
 			hits_done[key] = true
 			a.take_hit(int(atk["dmg"]), global_position.x)
+
+
+func _finish_attack() -> void:
+	if chain_left > 1 and hp > 0 and not atk.is_empty():
+		chain_left -= 1
+		_start_active(game.mera)
+		return
+	var cd := float(atk.get("cd", 1.0)) if not atk.is_empty() else 1.0
+	_to_idle(cd)
 
 
 func _fire(_m: Node2D) -> void:
