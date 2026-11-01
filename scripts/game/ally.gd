@@ -61,7 +61,7 @@ func setup(g: Node, ally_id: String) -> void:
 	k = fit_k()
 	hp_max = int(AL.HP[id])
 	hp = hp_max
-	stay = float(AL.STAY_S[id])
+	stay = Carry.summon_s()            # v0.12.2: 30 s, or the 60 / 90 / 120 s the shop unlocks
 	gy = float(g.GROUND_Y) if g else 1060.0
 	var m: Node2D = g.mera if g else null
 	var mf: int = m.facing if m else 1
@@ -358,8 +358,13 @@ func _physics_process(delta: float) -> void:
 	if state == "leave":
 		vx = 0.0
 	position.x += vx * delta
+	if id == "dancer" and game and state in ["idle", "dance"] and absf(position.x - game.cam_x) > DANCER_EDGE:
+		_go("run_back", "skip")          # v0.12.2: she is about to leave the view: run back to Mera
 	match state:
 		"dead":
+			return
+		"run_back":
+			_run_back_tick()
 			return
 		"leave":
 			modulate.a = clampf(1.0 - t_state / 0.6, 0.0, 1.0)
@@ -443,6 +448,24 @@ func _arrive_tick() -> void:
 	if on_ground and t_state > 0.1:
 		vx = 0.0
 		_idle()
+
+
+## v0.12.2 dancer: she runs (skip cycle, 2.2x her walk speed) to a spot in front of Mera, then dances again
+const DANCER_EDGE := 800.0          # px from the view centre (the view is 960 wide each way)
+
+func _run_back_tick() -> void:
+	if age >= stay:
+		leave()
+		return
+	var m: Node2D = game.mera
+	var goal := m.global_position.x + float(m.facing) * 200.0
+	var d := goal - position.x
+	if absf(d) < 24.0:
+		vx = 0.0
+		_go("dance", "hips")
+		return
+	_face(1 if d > 0.0 else -1)
+	vx = signf(d) * float(AL.SPEED["dancer"]) * 2.2
 
 
 func _dance_tick() -> void:

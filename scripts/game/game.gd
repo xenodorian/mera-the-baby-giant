@@ -641,10 +641,7 @@ func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
 func _manage_roster(delta: float) -> void:
 	for e in mobs.duplicate():
 		if not is_instance_valid(e):
-			mobs.erase(e)
-		elif e.alive() and not e.boss and absf(e.global_position.x - mera.global_position.x) > 1920.0 * 1.6:
-			mobs.erase(e)
-			e.queue_free()
+			mobs.erase(e)          # v0.12.2: nothing despawns for distance. Enemies stay until they are beaten.
 	if over:
 		return
 	if spawn_arg != "":
@@ -742,6 +739,7 @@ func on_enemy_defeated(e: Node2D) -> void:
 
 # ---------------------------------------------------------------- v0.12.2 dragon victory
 var victory := false
+const DRAGON_GOLD := 100           # v0.12.2: the reward for the dragon at the end of the game
 const VICTORY_DELAY_S := 2.0      # the corpse falls and bursts before the card shows
 const VICTORY_CARD_S := 3.5       # the card holds this long, then the title screen
 
@@ -754,7 +752,8 @@ func _start_dragon_victory() -> void:
 	if not run_mode:
 		Carry.unlock_through(Levels.current + 1)
 		var pay := Carry.record_clear(Levels.current)
-		hud.flash("pickup:level clear  +%d gold" % pay)
+		Carry.add_gold(DRAGON_GOLD)            # v0.12.2: the dragon ends the game
+		hud.flash("pickup:the dragon falls  +%d gold" % (pay + DRAGON_GOLD))
 	var tm := Timer.new()
 	tm.one_shot = true
 	tm.wait_time = VICTORY_DELAY_S
@@ -983,21 +982,9 @@ func _manage_knight(delta: float) -> void:
 		if knight_timer <= 0.0 and not over:
 			_spawn_knight()
 		return
-	for b in blues.duplicate():           # Blue Knights left far behind are removed
+	for b in blues.duplicate():           # v0.12.2: no despawn for distance (Blue Knights stay until beaten)
 		if not is_instance_valid(b):
 			blues.erase(b)
-		elif b.alive() and absf(b.global_position.x - mera.global_position.x) > 1920.0 * 1.5:
-			blues.erase(b)
-			b.queue_free()
-	# off-screen and left far behind -> replace him with a new one ahead of Mera
-	if knight.alive():
-		var off_screen := absf(knight.global_position.x - cam_x) > 960.0 + 120.0
-		if off_screen and absf(knight.global_position.x - mera.global_position.x) > 1920.0 * 1.25:
-			if knights_spawned >= Roster.KNIGHT_CAP:
-				return
-			knight.queue_free()
-			knight = null
-			knight_timer = 0.0
 
 
 ## a side of the screen that still lies inside the map (near an end, enemies come in from the other side)
@@ -1361,6 +1348,7 @@ func spawn_bolt(_m: Node, p: Vector2, d: int, s: float, dmg: bool, speed_mult: f
 	var sh := Shot.new()
 	sh.setup(self, "bolt", p, d, s, {}, dmg)
 	sh.speed_mult = speed_mult
+	sh.homing = Carry.owns("homing")
 	world.add_child(sh)
 
 
@@ -1372,6 +1360,7 @@ func spawn_bolt_up(_m: Node, p: Vector2, s: float, dmg: bool) -> Node2D:
 		sh.up = true
 		sh.aim = aim
 		sh.bulk = 2.0
+		sh.homing = Carry.owns("homing")
 		sh.setup(self, "bolt", p, 1, s, {}, dmg)
 		world.add_child(sh)
 		last = sh

@@ -712,7 +712,7 @@ func _try_ground_actions() -> bool:
 	var up := _find("up")
 	# Down+Y is the earthquake. Crouch used to be applied only after this function returned, so pressing
 	# Down and Y together (or Y on the first frame of Down) was a quick fire. Down held is enough.
-	if not y.is_empty() and pressed("down"):
+	if not y.is_empty() and pressed("down") and Carry.owns("earthquake"):     # v0.12.2: bought in the shop
 		_use(y)
 		return _stamina_move("earthquake")
 	if not combo_after.is_empty():
@@ -729,7 +729,7 @@ func _try_ground_actions() -> bool:
 			return _stamina_move("vfire")
 		var xx := _find("btn_x", float(y["t"]) - CHORD_MS)
 		var aa := _find("btn_a", float(y["t"]) - CHORD_MS)
-		if not xx.is_empty():                                        # X+Y -> rear explosion
+		if not xx.is_empty() and Carry.owns("rear"):                 # X+Y -> rear explosion (bought)
 			_use(xx); _use(y)
 			return _stamina_move("rear_blast")
 		if not aa.is_empty() or held["btn_a"]:                       # A+Y (or Y while A held) -> ground dash
@@ -912,7 +912,7 @@ func _combo_continue(x: Dictionary, y: Dictionary) -> bool:
 			elif not x.is_empty():
 				nxt = "atk2_1" if ((float(x["rel"]) if x.has("rel") else now) - float(x["t"])) >= HOLD_MS else "atk2_2"; use_x = true
 		"atk2_1", "atk2_2":
-			if not y.is_empty() and float(y["t"]) >= float(combo_after.get("x3_t", 0.0)):
+			if not y.is_empty() and float(y["t"]) >= float(combo_after.get("x3_t", 0.0)) and Carry.owns("beam"):
 				nxt = "beam_ender"; use_y = true
 	if nxt == "":
 		return false
@@ -956,7 +956,10 @@ func _ychain_next(n: int, since: float) -> bool:
 	var l2 := _find("l2", since)
 	var pick := ""
 	var best := 1e18
-	for c in [["y", y], ["x", x], ["l2", l2]]:
+	var cands := [["x", x], ["l2", l2]]
+	if Carry.owns("beam"):                       # v0.12.2: the beam finisher is bought in the shop
+		cands.insert(0, ["y", y])
+	for c in cands:
 		var e: Dictionary = c[1]
 		if not e.is_empty() and float(e["t"]) < best:
 			best = float(e["t"])
@@ -1032,11 +1035,11 @@ func _chord_convert(k: String) -> bool:
 	var e := {}
 	if k == "atk1":
 		e = _find("btn_y", since)
-		if not e.is_empty():
+		if not e.is_empty() and Carry.owns("rear"):
 			into = "rear_blast"
 	elif k == "quick_fire" and not mv.get("fast", false):
 		e = _find("btn_x", since)
-		if not e.is_empty():
+		if not e.is_empty() and Carry.owns("rear"):
 			into = "rear_blast"
 		elif not _find("up", since).is_empty():             # v0.9.1 Y then Up within CHORD_MS -> vertical quick fire
 			e = _find("up", since)
@@ -1048,7 +1051,7 @@ func _chord_convert(k: String) -> bool:
 			e = _find("btn_a", since)
 			if not e.is_empty():
 				into = "gdash"
-			elif pressed("down") or not _find("down", since).is_empty():   # Y then Down -> earthquake
+			elif Carry.owns("earthquake") and (pressed("down") or not _find("down", since).is_empty()):   # Y then Down -> earthquake
 				e = _find("down", since)
 				into = "earthquake"
 	if into == "":
@@ -1137,6 +1140,11 @@ func _special_buttons() -> bool:
 
 
 func _try_fury() -> bool:
+	if not Carry.owns("fury_mode"):                # v0.12.2: Fury is bought in the shop
+		Sfx.play("fail", 1.4, -6.0)
+		if game:
+			game.flash_hud("pickup:Fury is locked. Buy it in the shop (page 2)")
+		return false
 	if rage >= 100.0 and not rage_spending and not fury:
 		start_fury()
 		return false
@@ -1617,7 +1625,7 @@ func _start_move(k: String) -> void:
 		"earthquake":
 			vel = Vector2.ZERO
 			if game:
-				if can_lightning():          # v0.8 full meter, outside Fury: SUPER EARTHQUAKE (spends the whole meter)
+				if can_lightning() and Carry.owns("super_quake"):   # v0.8 full meter, outside Fury: SUPER EARTHQUAKE (bought)
 					spend_rage()
 					super_quakes += 1
 					game.super_earthquake()

@@ -3,7 +3,6 @@ extends Control
 ## Down goes to SHOP, RESET, CHECK FOR UPDATES, and CREDITS.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
-const SHOP_N := 8
 
 var sel := 0
 var thumbs: Array = []
@@ -15,6 +14,7 @@ var btn := 0                    # 0 shop, 1 reset, 2 updates, 3 credits
 var mode := "menu"              # menu | credits | update | shop
 var credit_sel := 0
 var shop_i := 0
+var shop_page := 0             # v0.12.2: 0 stats, 1 moves and summon times
 var shop_ally := 0
 var note := ""
 var note_t := 0.0
@@ -153,69 +153,91 @@ func _credits_input(e: InputEvent) -> void:
 				OS.shell_open(String(CREDITS.ENTRIES[i]["url"]))
 
 
+## v0.12.2: two shop pages. Left/Right switch page. Page 1 is the stats, page 2 the moves and summon times.
+const SHOP_PAGES := [
+	["potion_cap", "mana_cap", "card_cap", "card", "fury", "mana_bar", "scale", "key"],
+	["move:beam", "move:earthquake", "move:super_quake", "move:rear", "move:fury_mode", "move:homing", "summon:1", "summon:2", "summon:3"],
+]
+
+
+func _rows() -> Array:
+	return SHOP_PAGES[shop_page]
+
+
 func _shop_what(i: int) -> String:
-	match i:
-		0:
-			return "potion_cap"
-		1:
-			return "mana_cap"
-		2:
-			return "card_cap"
-		3:
-			return "card"
-		4:
-			return "fury"
-		5:
-			return "mana_bar"
-		6:
-			return "scale"
-		7:
-			return "key"
-		_:
-			return ""
+	var r := _rows()
+	return String(r[i]) if i >= 0 and i < r.size() else ""
+
+
+func _ally_id() -> String:
+	return String(Carry.ALLIES[posmod(shop_ally, Carry.ALLIES.size())])
 
 
 func _shop_name(i: int) -> String:
-	match i:
-		0:
+	match _shop_what(i):
+		"potion_cap":
 			return "Health potion slots"
-		1:
+		"mana_cap":
 			return "Mana potion slots"
-		2:
+		"card_cap":
 			return "Card slots"
-		3:
-			var id := String(Carry.ALLIES[posmod(shop_ally, Carry.ALLIES.size())])
-			return "Buy summon card   < %s >" % id.capitalize()
-		4:
+		"card":
+			return "Buy summon card   < %s >   (X / A: change)" % _ally_id().capitalize()
+		"fury":
 			return "Fury bar +%d" % int(Carry.RAGE_STEP)
-		5:
+		"mana_bar":
 			return "Mana bar +%d" % int(Carry.STAMINA_STEP)
-		6:
+		"scale":
 			return "Size cap +1 (max %dx)" % Carry.SCALE_CAP_MAX
-		7:
+		"key":
 			return "Stage key"
+		"move:beam":
+			return "Beam at the end of a combo (X X X, then Y)"
+		"move:earthquake":
+			return "Earthquake (Down + Y)"
+		"move:super_quake":
+			return "Super earthquake (Down + Y at full rage)"
+		"move:rear":
+			return "Rear explosion (X + Y)"
+		"move:fury_mode":
+			return "Fury mode (L2 + R2)"
+		"move:homing":
+			return "Homing shots (quick fire bolts seek enemies)"
+		"summon:1":
+			return "Summon time 60 s"
+		"summon:2":
+			return "Summon time 90 s"
+		"summon:3":
+			return "Summon time 120 s"
 		_:
 			return ""
 
 
 func _shop_stat(i: int) -> String:
-	match i:
-		0:
+	var w := _shop_what(i)
+	if w.begins_with("move:"):
+		return "owned" if Carry.owns(w.substr(5)) else "locked"
+	if w.begins_with("summon:"):
+		var t := int(w.substr(7))
+		if t <= Carry.summon_tier:
+			return "owned"
+		return "now %d s" % int(Carry.SUMMON_S[Carry.summon_tier])
+	match w:
+		"potion_cap":
 			return "%d / %d" % [Carry.potion_cap, Carry.POTION_CAP_MAX]
-		1:
+		"mana_cap":
 			return "%d / %d" % [Carry.mana_potion_cap, Carry.MANA_POTION_CAP_MAX]
-		2:
+		"card_cap":
 			return "%d / %d" % [Carry.card_cap, Carry.CARD_CAP_MAX]
-		3:
-			var id := String(Carry.ALLIES[posmod(shop_ally, Carry.ALLIES.size())])
-			return "x%d" % int(Carry.cards.get(id, 0))
-		4:
+		"card":
+			return "x%d" % int(Carry.cards.get(_ally_id(), 0))
+		"fury":
 			return str(int(Carry.rage_max))
-		5:
+		"mana_bar":
 			return str(int(Carry.stamina_max))
-		6:
+		"scale":
 			return str(Carry.scale_cap)
-		7:
+		"key":
 			if Carry.unlocked >= Carry.stage_count() - 1:
 				return "all open"
 			return "opens stage %d" % (Carry.unlocked + 2)
@@ -224,22 +246,27 @@ func _shop_stat(i: int) -> String:
 
 
 func _shop_price(i: int) -> int:
-	match i:
-		0:
+	var w := _shop_what(i)
+	if w.begins_with("move:"):
+		return int(Carry.PRICE_MOVE.get(w.substr(5), 0))
+	if w.begins_with("summon:"):
+		return int(Carry.PRICE_SUMMON[int(w.substr(7)) - 1])
+	match w:
+		"potion_cap":
 			return Carry.PRICE_POTION_CAP
-		1:
+		"mana_cap":
 			return Carry.PRICE_MANA_CAP
-		2:
+		"card_cap":
 			return Carry.PRICE_CARD_CAP
-		3:
+		"card":
 			return Carry.PRICE_CARD
-		4:
+		"fury":
 			return Carry.PRICE_FURY
-		5:
+		"mana_bar":
 			return Carry.PRICE_MANA_BAR
-		6:
+		"scale":
 			return Carry.PRICE_SCALE
-		7:
+		"key":
 			return Carry.PRICE_KEY
 		_:
 			return 0
@@ -253,7 +280,7 @@ func _shop_buy() -> void:
 	var what := _shop_what(shop_i)
 	var ally := ""
 	if what == "card" and not Carry.ALLIES.is_empty():
-		ally = String(Carry.ALLIES[posmod(shop_ally, Carry.ALLIES.size())])
+		ally = _ally_id()
 	var result := Carry.buy(what, ally)
 	if result == "":
 		note = "Bought."
@@ -264,6 +291,12 @@ func _shop_buy() -> void:
 	elif result == "max":
 		note = "Already maxed."
 		Sfx.play("swipe", 0.8, -10.0)
+	elif result == "owned":
+		note = "Already owned."
+		Sfx.play("swipe", 0.8, -10.0)
+	elif result == "order":
+		note = "Buy the shorter summon time first."
+		Sfx.play("swipe", 0.8, -10.0)
 	elif result == "full":
 		note = "Card slots full."
 		Sfx.play("swipe", 0.8, -10.0)
@@ -273,29 +306,30 @@ func _shop_buy() -> void:
 	note_t = 4.0
 
 
-## the shop: Up/Down a row, Left/Right the summon card, A buys, B closes
+## the shop: Up/Down a row, Left/Right the page, X (A) the summon card, A buys, B closes
 func _shop_input(e: InputEvent) -> void:
+	var n := _rows().size()
 	if e.is_action_pressed("btn_b") or (e is InputEventKey and e.pressed and e.physical_keycode == KEY_ESCAPE):
 		mode = "menu"
 	elif e.is_action_pressed("up"):
-		shop_i = (shop_i - 1 + SHOP_N) % SHOP_N
+		shop_i = (shop_i - 1 + n) % n
 		Sfx.play("swipe", 1.2, -8.0)
 	elif e.is_action_pressed("down"):
-		shop_i = (shop_i + 1) % SHOP_N
+		shop_i = (shop_i + 1) % n
 		Sfx.play("swipe", 1.2, -8.0)
-	elif e.is_action_pressed("left"):
-		if shop_i == 3 and not Carry.ALLIES.is_empty():
-			shop_ally = (shop_ally - 1 + Carry.ALLIES.size()) % Carry.ALLIES.size()
-			Sfx.play("swipe", 1.4, -8.0)
-	elif e.is_action_pressed("right"):
-		if shop_i == 3 and not Carry.ALLIES.is_empty():
+	elif e.is_action_pressed("left") or e.is_action_pressed("right"):
+		shop_page = 1 - shop_page
+		shop_i = mini(shop_i, _rows().size() - 1)
+		Sfx.play("swipe", 1.4, -8.0)
+	elif e.is_action_pressed("btn_x"):
+		if _shop_what(shop_i) == "card" and not Carry.ALLIES.is_empty():
 			shop_ally = (shop_ally + 1) % Carry.ALLIES.size()
 			Sfx.play("swipe", 1.4, -8.0)
 	elif e.is_action_pressed("btn_a") or e.is_action_pressed("ui_accept"):
 		_shop_buy()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		var p := _to_design(e.position)
-		for i in SHOP_N:
+		for i in n:
 			if _shop_row_rect(i).has_point(p):
 				shop_i = i
 				_shop_buy()
@@ -483,8 +517,9 @@ func _draw_shop() -> void:
 	Carry.ensure()
 	_panel(Rect2(120, 60, 1680, 960))
 	draw_string(font, Vector2(0, 150), "SHOP", HORIZONTAL_ALIGNMENT_CENTER, 1920, 50, Color(1.0, 0.8, 0.45))
-	draw_string(font, Vector2(0, 220), "Gold: %d" % Carry.gold, HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
-	for i in SHOP_N:
+	draw_string(font, Vector2(0, 220), "Gold: %d      page %d / 2  %s" % [Carry.gold, shop_page + 1, "stats" if shop_page == 0 else "moves and summon time"], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
+	var rows := _rows()
+	for i in rows.size():
 		var r := _shop_row_rect(i)
 		var on := i == shop_i
 		if on:
@@ -497,7 +532,7 @@ func _draw_shop() -> void:
 		var pc := Color(1.0, 0.8, 0.45) if Carry.gold >= price else Color(0.75, 0.45, 0.4)
 		draw_string(font, Vector2(r.position.x + 1240, y), "%d g" % price, HORIZONTAL_ALIGNMENT_RIGHT, 320, 28, pc)
 	_draw_note_at(900)
-	draw_string(font, Vector2(0, 970), "Up/Down row   Left/Right card   A buy   B back", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 970), "Up/Down row   Left/Right page   X (A) card   A buy   B back", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
 
 
 func _draw_update() -> void:

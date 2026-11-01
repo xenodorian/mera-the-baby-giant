@@ -32,6 +32,15 @@ const PRICE_KEY := 200
 
 const ALLIES := ["priestess", "ranger", "brawler", "dancer"]
 
+## v0.12.2 unlocks (shop page 2). Moves start locked; buy them in the shop.
+const MOVE_IDS := ["beam", "earthquake", "super_quake", "rear", "fury_mode", "homing"]
+const PRICE_MOVE := {"beam": 150, "earthquake": 120, "super_quake": 220, "rear": 100, "fury_mode": 250, "homing": 160}
+const SUMMON_S := [30.0, 60.0, 90.0, 120.0]     # how long a summoned ally stays: tier 0 is the base
+const PRICE_SUMMON := [90, 160, 240]            # the price of tier 1, 2, 3 (bought in order)
+static var moves: Dictionary = {}               # move id -> true once bought
+static var summon_tier := 0
+static var test_all := false                    # tests: every unlock counts as owned
+
 static var gold := 0
 static var potion_cap := POTION_CAP_0
 static var mana_potion_cap := MANA_POTION_CAP_0
@@ -66,8 +75,25 @@ static func ensure() -> void:
 		_read(data)
 
 
+## v0.12.2: a bought unlock (or every unlock, under test_all)
+static func owns(id: String) -> bool:
+	return test_all or bool(moves.get(id, false))
+
+
+## v0.12.2: how long a summoned ally stays on the map
+static func summon_s() -> float:
+	return SUMMON_S[clampi(summon_tier, 0, SUMMON_S.size() - 1)]
+
+
 static func _read(d: Dictionary) -> void:
 	gold = maxi(int(d.get("gold", 0)), 0)
+	moves = {}
+	var rm = d.get("moves", {})
+	if rm is Dictionary:
+		for k in rm:
+			if String(k) in MOVE_IDS and bool(rm[k]):
+				moves[String(k)] = true
+	summon_tier = clampi(int(d.get("summon_tier", 0)), 0, SUMMON_S.size() - 1)
 	potion_cap = clampi(int(d.get("potion_cap", POTION_CAP_0)), 1, POTION_CAP_MAX)
 	mana_potion_cap = clampi(int(d.get("mana_potion_cap", MANA_POTION_CAP_0)), 1, MANA_POTION_CAP_MAX)
 	card_cap = clampi(int(d.get("card_cap", CARD_CAP_0)), 1, CARD_CAP_MAX)
@@ -114,6 +140,8 @@ static func pack() -> Dictionary:
 		"size": size,
 		"unlocked": unlocked,
 		"clears": clears.duplicate(),
+		"moves": moves.duplicate(),
+		"summon_tier": summon_tier,
 	}
 
 
@@ -140,6 +168,8 @@ static func reset() -> void:
 	size = 2
 	unlocked = 0
 	clears = {}
+	moves = {}
+	summon_tier = 0
 	ready = true
 	save()
 	if FileAccess.file_exists(RUN_PATH):
@@ -279,9 +309,44 @@ static func push_play(d: Dictionary) -> void:
 	save()
 
 
+static func _buy_move(id: String) -> String:
+	if not PRICE_MOVE.has(id):
+		return "bad"
+	if owns(id):
+		return "owned"
+	var price := int(PRICE_MOVE[id])
+	if gold < price:
+		return "gold"
+	gold -= price
+	moves[id] = true
+	save()
+	return ""
+
+
+## tier 1 = 60 s, 2 = 90 s, 3 = 120 s. They must be bought in order.
+static func _buy_summon(tier: int) -> String:
+	if tier < 1 or tier > SUMMON_S.size() - 1:
+		return "bad"
+	if tier <= summon_tier:
+		return "owned"
+	if tier != summon_tier + 1:
+		return "order"
+	var price := int(PRICE_SUMMON[tier - 1])
+	if gold < price:
+		return "gold"
+	gold -= price
+	summon_tier = tier
+	save()
+	return ""
+
+
 ## "" on success, otherwise "gold", "max", "full", or "bad".
 static func buy(what: String, ally_id: String = "") -> String:
 	ensure()
+	if what.begins_with("move:"):
+		return _buy_move(what.substr(5))
+	if what.begins_with("summon:"):
+		return _buy_summon(int(what.substr(7)))
 	match what:
 		"potion_cap":
 			if potion_cap >= POTION_CAP_MAX:

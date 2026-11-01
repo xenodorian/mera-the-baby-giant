@@ -17,7 +17,7 @@ const BLURB := {
 	"brawler": "chases the nearest enemy and fights them",
 	"dancer": "dances: every enemy on screen rushes over and jumps",
 }
-const STAY_S := {"priestess": 60.0, "ranger": 60.0, "brawler": 60.0, "dancer": 60.0}
+const STAY_S := {"priestess": 30.0, "ranger": 30.0, "brawler": 30.0, "dancer": 30.0}      # v0.12.2 base; see Carry.summon_s()
 const DANCE_S := 5.0          # she walks ahead, then dances this long (the lure), then waits out the rest of the 60 s
 const K := {"priestess": 4.0, "ranger": 4.0, "brawler": 4.0, "dancer": 4.0}
 const HP := {"priestess": 10, "ranger": 10, "brawler": 12, "dancer": 1}

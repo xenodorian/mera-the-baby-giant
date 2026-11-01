@@ -6,6 +6,14 @@ All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant
 - **Keys and locked chests.** Some enemy deaths drop a key on their fury orb, with a 25 % chance. Only one key exists at a time, and a new one drops only after the last is used. Keys drop only on levels with chests. Touching a chest with the key uses it: a floating key plays, then 3 to 5 coins and 1 to 3 other items pop out. Chests cannot be broken without a key. The key shows as KEY in the HUD while held.
 - **Level clear gold.** The first clear of a level pays 15 gold, and each clear after that pays 5.
 - **Dragon victory.** Killing the Lair dragon clears the stage (unlock and clear gold), shows "You Defeated the Cavern Dragon!", then returns to the title screen.
+- **Nothing despawns for distance.** Enemies and Blue Knights stay until they are beaten, so running past them no longer clears a stage. The replacement knight is gone too.
+- **Two cracked walls per stage map**, each hiding a summon card.
+- **Shop page 2 (Left / Right to switch).** Beam at the end of a combo, earthquake, super earthquake (full rage), rear explosion (X+Y), Fury mode (L2+R2) and homing shots are bought there. They start locked. Summon time goes 30 s, then 60, 90 and 120 s, bought in order. Price values are placeholders to tune.
+- **Homing shots.** Quick fire bolts bend toward the nearest enemy in range once bought.
+- **Summons stay 30 s** by default.
+- **The dancer runs back.** When she is about to leave the view she runs to Mera and dances again.
+- **The dragon pays 100 gold** on top of the clear gold.
+
 - **Cemetery.** The far graves layer is lowered to the ground. The near gravestones still sit about 4 native px above the grass; fixing them needs the level art rebuilt in `mera-assets`.
 
 ## v0.12.0-playable (2026-11-01)

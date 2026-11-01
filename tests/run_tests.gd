@@ -343,6 +343,7 @@ func _keyboard_tests() -> void:
 
 
 func _run() -> void:
+	load("res://scripts/game/carry.gd").test_all = true   # v0.12.2: the existing cases run with every unlock owned
 	root.get_node("HitStop").enabled = false      # v0.8: legacy frame-counted cases run without hit-stop (S4 tests turn it on)
 	await _input_map_tests()
 	var s: Array
@@ -1563,7 +1564,7 @@ func _run() -> void:
 	_check("allies leave when their time is up (%d s)" % int(AL.STAY_S["brawler"]), bz.state == "leave", bz.state)
 	g.queue_free()
 	await process_frame
-	_check("every summon lasts 60 s and the dance is 5 s", AL.STAY_S["priestess"] == 60.0 and AL.STAY_S["ranger"] == 60.0 and AL.STAY_S["brawler"] == 60.0 and AL.STAY_S["dancer"] == 60.0 and AL.DANCE_S == 5.0, "")
+	_check("every summon base is 30 s and the dance is 5 s", AL.STAY_S["priestess"] == 30.0 and AL.STAY_S["ranger"] == 30.0 and AL.STAY_S["brawler"] == 30.0 and AL.STAY_S["dancer"] == 30.0 and AL.DANCE_S == 5.0, "")
 	g = await _new_game()
 	m = g.mera
 	m.position.x = 6000.0
@@ -1644,6 +1645,7 @@ func _run() -> void:
 	await process_frame
 	await _s4_tests()
 	await _key_tests()
+	await _unlock_tests()
 	await _mark_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
@@ -3279,3 +3281,83 @@ func _key_tests() -> void:
 	var pays := [C.record_clear(2), C.record_clear(2), C.record_clear(2), C.record_clear(0)]
 	_check("clear gold: 15 first, then 5 each repeat (per level)", pays == [15, 5, 5, 15] and C.gold == 40, "%s gold %d" % [pays, C.gold])
 	C.reset()
+
+
+# ================================================================ v0.12.2 unlocks, walls, despawn, dancer, homing
+func _unlock_tests() -> void:
+	var C = load("res://scripts/game/carry.gd")
+	var P = load("res://scripts/game/props.gd")
+	var AL2 = load("res://scripts/game/ally.gd")
+	C.test_all = false
+	C.reset()
+	_check("unlocks: moves start locked, summon is 30 s", not C.owns("beam") and not C.owns("fury_mode") and not C.owns("homing") and C.summon_s() == 30.0, "")
+	C.gold = 10
+	_check("unlocks: a move costs gold and is refused when short", C.buy("move:beam") == "gold" and not C.owns("beam"), "")
+	C.gold = 1000
+	_check("unlocks: buying a move owns it and takes the price", C.buy("move:beam") == "" and C.owns("beam") and C.gold == 850, "gold %d" % C.gold)
+	_check("unlocks: a bought move cannot be bought twice", C.buy("move:beam") == "owned", "")
+	_check("unlocks: summon times are bought in order", C.buy("summon:2") == "order" and C.buy("summon:1") == "" and C.summon_s() == 60.0, "")
+	_check("unlocks: 90 s then 120 s", C.buy("summon:2") == "" and C.summon_s() == 90.0 and C.buy("summon:3") == "" and C.summon_s() == 120.0, "")
+	C.reset()
+	C.test_all = true
+	# two destructible walls on every stage map, each hiding its own card
+	var wall_ok := true
+	var wall_info := ""
+	for lv in [0, 1, 2, 4]:
+		var walls := 0
+		var cards_seen := {}
+		for it in P.layout(lv, 19200.0):
+			if String(it[0]) == "wall":
+				walls += 1
+				cards_seen[int(it[2]["card"])] = true
+		wall_info += "L%d=%d " % [lv, walls]
+		if walls != 2 or cards_seen.size() != 2:
+			wall_ok = false
+	_check("walls: two cracked walls per stage map", wall_ok, wall_info)
+	# nothing despawns for distance: an enemy far behind stays on the map
+	var g: Node = await _s4_new(3)
+	g.mera.global_position.x = 9000.0
+	await _s4_frames(g, 2)
+	var far: Node2D = g.spawn_enemy("wolf", 2000.0)
+	await _s4_frames(g, 30)
+	_check("despawn: an enemy far behind is not removed", is_instance_valid(far) and far.alive() and far in g.mobs, "")
+	g.queue_free()
+	await process_frame
+	# the dancer runs back when she is about to leave the view, then dances again
+	g = await _s4_new(3)
+	g.mera.global_position.x = 6000.0
+	await _s4_frames(g, 2)
+	var dn: Node2D = AL2.new()
+	dn.setup(g, "dancer")
+	g.world.add_child(dn)
+	await _s4_frames(g, 2)
+	dn._go("dance", "hips")
+	g.mera.global_position.x = 12000.0
+	await _s4_frames(g, 3)
+	var ran_back: bool = dn.state == "run_back"
+	await _s4_frames(g, 900)
+	_check("dancer: runs back to Mera when she is about to leave the view, then dances", ran_back and dn.state in ["dance", "idle"] and absf(dn.position.x - g.mera.global_position.x) < 400.0, "%s %s" % [dn.state, dn.position.x])
+	g.queue_free()
+	await process_frame
+	# homing: a bolt bends toward an enemy below it
+	g = await _s4_new(3)
+	g.mera.global_position.x = 3000.0
+	await _s4_frames(g, 2)
+	var sh = load("res://scripts/game/shot.gd").new()
+	sh.homing = true
+	sh.setup(g, "bolt", Vector2(3000.0, 700.0), 1, 1.0, {}, false)
+	g.world.add_child(sh)
+	var tgt: Node2D = g.spawn_enemy("wolf", 3600.0)
+	await _s4_frames(g, 30)
+	_check("homing: the bolt bends toward the enemy", is_instance_valid(sh) and sh.heading.y > 0.05, "%s" % (sh.heading if is_instance_valid(sh) else Vector2.ZERO))
+	g.queue_free()
+	await process_frame
+	# gating: Fury needs the unlock
+	C.test_all = false
+	g = await _s4_new(3)
+	g.mera.rage = 100.0
+	g.mera._try_fury()
+	_check("gating: Fury does nothing without its unlock", not g.mera.fury, "")
+	C.test_all = true
+	g.queue_free()
+	await process_frame

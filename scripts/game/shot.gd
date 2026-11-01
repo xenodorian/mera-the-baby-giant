@@ -21,6 +21,10 @@ var speed_mult := 1.0          # v0.4: B, Y fast quick fire = 2.0
 var up := false                # v0.9.1 Up+Y: the same bolt flies straight up (sprite rotated head-up)
 var aim := Vector2.ZERO        # set: fly this way (up, and the two upward diagonals)
 var bulk := 1.0                # Up+Y bolts are drawn bigger. Speed stays the quick-fire speed.
+var homing := false            # v0.12.2 unlock: a bolt bends toward the nearest enemy in range
+var heading := Vector2.ZERO    # homing: the current flight direction (unit vector)
+const HOMING_TURN := 7.0       # rad/s the bolt can turn
+const HOMING_RANGE := 1400.0   # px: enemies farther than this are not chased
 
 
 func hit_rect() -> Rect2:
@@ -78,12 +82,45 @@ func _ready() -> void:
 		tex_discs = lib.spell_tex("discs")
 
 
+## v0.12.2: turn toward the nearest live enemy (centre of its hurt box) at HOMING_TURN, keep the speed, and point
+## the sprite along the new heading. With no enemy in range it flies straight on.
+func _home(delta: float) -> Vector2:
+	var vis := size * bulk
+	if heading == Vector2.ZERO:
+		var base := aim if aim != Vector2.ZERO else (Vector2.UP if up else Vector2(dir, 0))
+		heading = base.normalized()
+	var tgt := _homing_target()
+	if tgt != null:
+		var want: Vector2 = tgt.hurt_rect().get_center() - position
+		if want.length() > 1.0:
+			var ang := heading.angle_to(want.normalized())
+			heading = heading.rotated(clampf(ang, -HOMING_TURN * delta, HOMING_TURN * delta)).normalized()
+	if spr:
+		spr.scale = Vector2(vis, vis)
+		spr.rotation = heading.angle() - PI
+	return heading
+
+
+func _homing_target() -> Node2D:
+	var best: Node2D = null
+	var bd := HOMING_RANGE
+	for e in game.enemies():
+		if is_instance_valid(e) and e.alive():
+			var d := position.distance_to(e.hurt_rect().get_center())
+			if d < bd:
+				best = e
+				bd = d
+	return best
+
+
 func _physics_process(delta: float) -> void:
 	if done:
 		return
 	t += delta
 	if kind == "bolt":
-		if aim != Vector2.ZERO:
+		if homing:
+			position += _home(delta) * speed() * delta
+		elif aim != Vector2.ZERO:
 			position += aim.normalized() * speed() * delta
 		elif up:
 			position.y -= speed() * delta
