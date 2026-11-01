@@ -56,7 +56,11 @@ func _process(delta: float) -> void:
 
 
 func _card(i: int) -> Rect2:
-	return Rect2(90 + i * 445, 420, 400, 225)
+	var n := maxi(thumbs.size(), 1)
+	var gap := 18.0
+	var margin := 28.0
+	var w := (1920.0 - margin * 2.0 - gap * float(n - 1)) / float(n)
+	return Rect2(margin + float(i) * (w + gap), 400, w, 168)
 
 
 func _button(i: int) -> Rect2:

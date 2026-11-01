@@ -32,4 +32,5 @@ const CARDS := {
 	1: [[3400.0, "priestess"], [7600.0, "brawler"], [11800.0, "ranger"], [15600.0, "dancer"]],
 	2: [[3000.0, "dancer"], [7000.0, "ranger"], [10800.0, "priestess"], [14800.0, "brawler"]],
 	3: [[3200.0, "ranger"], [6800.0, "priestess"], [10400.0, "dancer"], [13600.0, "brawler"]],
+	4: [[2800.0, "ranger"], [7200.0, "dancer"], [11000.0, "priestess"], [15000.0, "brawler"]],
 }

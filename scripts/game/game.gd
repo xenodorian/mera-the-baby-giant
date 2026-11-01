@@ -52,7 +52,8 @@ var _trace_k := ""
 var defeated := 0
 var last_strike: Node2D = null
 var knight_calm_until := 0   # demo: frame before which the knight does not swing
-var layers: Array = []       # [Sprite2D, scroll, period] parallax layers of the level map
+var layers: Array = []             # [Sprite2D, scroll, period] parallax layers of the level map
+var tile_surfaces: Array = []      # one-way tops: [x0, x1, y]
 var map_w := 19200.0
 var run_mode := false
 var stage_n := 1
@@ -198,6 +199,23 @@ func _build_background() -> void:
 	exit_gate.set("game", self)
 	exit_gate.z_index = -5
 	add_child(exit_gate)
+	tile_surfaces = lv.get("surfaces", [])
+	_start_music(lv)
+
+
+func _start_music(lv: Dictionary) -> void:
+	if test_mode or not lv.has("music"):
+		return
+	var stream: AudioStream = load(String(lv["music"]))
+	if stream == null:
+		return
+	if stream is AudioStreamOggVorbis:
+		stream.loop = true
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	player.volume_db = -8.0
+	add_child(player)
+	player.play()
 
 
 ## parallax: every layer is placed from the (unshaken) camera X, so the whole map shakes together with the camera
@@ -440,6 +458,12 @@ func surface_under(p: Vector2, cur: float) -> float:
 		var s3: Vector3 = pr.surface()
 		if p.x >= s3.x and p.x <= s3.y and p.y <= s3.z + 2.0 and s3.z < best:
 			best = s3.z
+	for s in tile_surfaces:
+		var x0 := float(s[0])
+		var x1 := float(s[1])
+		var y := float(s[2])
+		if p.x >= x0 and p.x <= x1 and p.y <= y + 8.0 and y < best:
+			best = y
 	return best
 
 
@@ -1004,14 +1028,18 @@ func spawn_bolt(_m: Node, p: Vector2, d: int, s: float, dmg: bool, speed_mult: f
 	world.add_child(sh)
 
 
-## v0.9.1 Up+Y: the same quick-fire bolt (damage, speed, sprite), flying straight up
+## Up+Y: the same bolt, three of them. Straight up, and both upward diagonals.
 func spawn_bolt_up(_m: Node, p: Vector2, s: float, dmg: bool) -> Node2D:
-	var sh := Shot.new()
-	sh.up = true
-	sh.setup(self, "bolt", p, 1, s, {}, dmg)
-	world.add_child(sh)
-	last_up_bolt = sh
-	return sh
+	var last: Node2D = null
+	for aim in [Vector2(-0.7071, -0.7071), Vector2.UP, Vector2(0.7071, -0.7071)]:
+		var sh := Shot.new()
+		sh.up = true
+		sh.aim = aim
+		sh.setup(self, "bolt", p, 1, s, {}, dmg)
+		world.add_child(sh)
+		last = sh
+	last_up_bolt = last
+	return last
 
 
 ## v0.9.1 Y Y Y, L2: every enemy within reach is pushed away from Mera (bosses stay put). Knockback only: no damage,

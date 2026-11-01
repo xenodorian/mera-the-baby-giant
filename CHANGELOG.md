@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.4-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.4-playable/Mera_Playable_v0.10.4_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.4-playable/Mera_Playable_v0.10.4_Android.apk
+- **Up + Y** raises an orb in the bolt's colors, larger than the old cyan one, and fires three bolts: straight up and both upward diagonals. It costs 15 mana, three times a quick fire.
+- **Sunlit Country**, a fifth level painted from the day-platformer tileset: a solid grass floor, dirt platforms, trees and bushes. You can land on the platform tops, and on the tree canopies and bushes where the pixels actually are. Flowers are not platforms. Each of the five levels loops a CC0 chiptune from HydroGene's 8-bit pack. Same signing key as v0.10.0. Android `versionCode` 26.
+
 ## v0.10.3-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.3-playable/Mera_Playable_v0.10.3_Windows.exe

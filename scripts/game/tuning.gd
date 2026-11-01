@@ -47,7 +47,7 @@ const STAMINA_COST := {"earthquake": 20,
 	"adash": 6.0,
 	"rear_blast": 12.0,
 	"beam_ender": 20.0,
-	"vfire": 5.0,                 # v0.9.1 Up+Y vertical quick fire (same as quick fire)
+	"vfire": 15.0,                # Up+Y: three bolts, three times a quick fire
 	"pulse": 3.0,                 # v0.9.1 Y Y Y, L2 pulse wave
 	"vbeam": 12.0,                # v0.9.1 Y Y Y, X vertical beam
 	"barrier": 3.0,               # to raise the bubble ...

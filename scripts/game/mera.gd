@@ -90,6 +90,7 @@ var last_l2_t := -1e9          # Mera.now of the latest L2 press
 var crouch_t := -1e9           # Mera.now when this crouch started (the small bubble's parry window)
 var crouch_bubble_left := 0.0 # seconds left on the small bubble (0 = dropped, even if still crouched)
 var bubble_dial: Node2D
+var cast_orb: Sprite2D
 var counter_until := -1e9      # Mera.now until which her hits count as counters
 var parries := 0               # tests / stats
 var deflects := 0
@@ -115,6 +116,10 @@ func _ready() -> void:
 	anim.body.material = aura_mat
 	anim.finished.connect(_on_finished)
 	anim.frame_changed.connect(_on_frame)
+	cast_orb = _bolt_orb()
+	cast_orb.visible = false
+	cast_orb.z_index = 4
+	anim.add_child(cast_orb)
 	hurtbox = _box("Hurtbox", Color(0.2, 0.8, 1.0, 0.35))
 	hitbox = _box("Hitbox", Color(1.0, 0.2, 0.2, 0.4))
 	barrier = Sprite2D.new()
@@ -968,6 +973,8 @@ func _body_cx(f: Dictionary) -> float:
 ## the heal-pose moves (vertical fire, pulse, vertical beam) end at HEAL_POSE_END, before the heal burst frames
 func _end_pose() -> void:
 	anim.section(-1, -1)
+	if cast_orb:
+		cast_orb.visible = false
 	_root_from_body()
 	_go_neutral()
 
@@ -1606,6 +1613,10 @@ func _chain(next: String) -> void:
 func _move_tick(delta: float) -> void:
 	var k: String = mv.get("key", "")
 	var i := anim.idx
+	if cast_orb:
+		cast_orb.visible = k == "vfire" and i >= 3
+		if k == "vfire":
+			anim.fx.visible = false
 	if not flying and k not in ["adash", "gdash", "datk3"]:
 		_gravity(delta, 0.35 if k in ["jatk1", "jatk2"] else 1.0)
 	match k:
@@ -1879,6 +1890,29 @@ func _chain_window_2x(i: int) -> void:
 		_chain("atk2_2")
 		mv["may_upgrade"] = holding
 	mv["x3_t"] = t3
+
+
+func _bolt_orb() -> Sprite2D:
+	var img := Image.create(48, 48, false, Image.FORMAT_RGBA8)
+	var c := Vector2(23.5, 23.5)
+	var rings: Array = [
+		[22.0, Color8(163, 33, 33)],
+		[15.0, Color8(207, 86, 56)],
+		[9.0, Color8(250, 169, 83)],
+		[4.0, Color8(255, 248, 230)],
+	]
+	for y in 48:
+		for x in 48:
+			var d := Vector2(x, y).distance_to(c)
+			for ring in rings:
+				if d <= float(ring[0]):
+					img.set_pixel(x, y, ring[1])
+	var s := Sprite2D.new()
+	s.texture = ImageTexture.create_from_image(img)
+	s.centered = true
+	s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	s.position = Vector2(Tuning.VFIRE_SPAWN[0], Tuning.VFIRE_SPAWN[1])
+	return s
 
 
 ## time of the most recent press of `a` (used or not)
