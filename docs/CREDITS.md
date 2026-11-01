@@ -51,7 +51,9 @@ Do **not** make this repo public with `assets/` inside — move raw assets to a 
 
 ## Music
 - **High Quality 8-bit / Chiptune Musics** by HydroGene — CC0. https://hydrogene.itch.io/high-quality-8-bit-musics
-  One loop per level: cemetery `07 MonsterVania #1`, mist `17 The Quiet Spy`, town `15 Rush Point`, caverns `02 Perilous Dungeon`, country `13 I am not clumsy`. Converted from the pack's mp3s to ogg. Credit is optional under CC0; the credits screen lists it.
+  Cemetery `07 MonsterVania #1`, mist `17 The Quiet Spy`, town `15 Rush Point`, caverns `02 Perilous Dungeon`.
+- **Flowerbed Fields** by Zane Little Music — CC0. https://opengameart.org/content/flowerbed-fields-loop
+  Sunlit Country. Credit is optional under CC0; the credits screen lists both packs.
 
 **v0.8:** the urn, chest, lever and the cracks on the secret wall are drawn in this project (`tools/build_props.py`). The debris/shatter simulation (`scripts/game/debris.gd`) is written in this project (pure GDScript, no add-on). The **Dancing Girl** has a natural-skin recolour made in this project on copies (`tools/recolor_dancer_skin.py`: the exact 3-colour skin-ramp swap ansimuz used for the Brawler Girl skin-recolor version; the originals are untouched). The dragon's lobbed bolts reuse the ansimuz hell beast fireball (CC0), tinted. **v0.8.1:** the dragon's volley `spit` frames are copies of the ansimuz breath frames with the fire plume removed (`tools/build_dragon_spit.py`, `.../grotto-escape-2-boss-dragon/spit-nofire/`; the originals are untouched).
 

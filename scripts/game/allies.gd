@@ -27,10 +27,11 @@ const HEAL_TO := 6
 const DANCE_RANGE := 1100.0    # enemies within this distance of the dancer (on screen) come to watch
 const MAX_ACTIVE := 2          # allies on the field at once (one of each type)
 
-## where the cards lie: level index -> [[x, ally id], ...] (S4 hides some of them behind breakable walls)
+## where the cards lie: level index -> [[x, ally id], ...]
+## 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns. Cemetery (3) has none.
 const CARDS := {
+	0: [[2800.0, "ranger"], [7200.0, "dancer"], [11000.0, "priestess"], [15000.0, "brawler"]],
 	1: [[3400.0, "priestess"], [7600.0, "brawler"], [11800.0, "ranger"], [15600.0, "dancer"]],
 	2: [[3000.0, "dancer"], [7000.0, "ranger"], [10800.0, "priestess"], [14800.0, "brawler"]],
-	3: [[3200.0, "ranger"], [6800.0, "priestess"], [10400.0, "dancer"], [13600.0, "brawler"]],
-	4: [[2800.0, "ranger"], [7200.0, "dancer"], [11000.0, "priestess"], [15000.0, "brawler"]],
+	4: [[3200.0, "ranger"], [6800.0, "priestess"], [10400.0, "dancer"], [13600.0, "brawler"]],
 }

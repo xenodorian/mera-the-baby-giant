@@ -1305,8 +1305,8 @@ func _run() -> void:
 	placed.sort()
 	var all_ids: Array = RO.ids()
 	all_ids.sort()
-	_check("all 16 roster enemies are placed on levels 2-4, each once; level 1 has none", placed == all_ids and all_ids.size() == 16 and not dup and not RO.LEVELS.has(0) and not RO.BOSSES.has(0), "%s" % [placed])
-	var dragon_boss: bool = RO.def("dragon").get("boss", false) and RO.BOSSES.get(3, "") == "dragon"
+	_check("every roster enemy is placed once; the cemetery (index 3) has none", placed == all_ids and not dup and not RO.LEVELS.has(3) and not RO.BOSSES.has(3), "%s" % [placed])
+	var dragon_boss: bool = RO.def("dragon").get("boss", false) and RO.BOSSES.get(4, "") == "dragon"
 	_check("the dragon is the boss of Infernal Caverns", dragon_boss, "")
 	var tell_ok := true
 	var tell_info := ""
@@ -1386,8 +1386,8 @@ func _run() -> void:
 	_check("earthquake stuns a roster ground enemy (hell hound) but not a flyer (fire skull)", hh.state == "stun" and fs.state != "stun", "%s %s" % [hh.state, fs.state])
 	g.queue_free()
 	await process_frame
-	# the spawner: walking through Misty Woods meets every enemy on its list; the dragon guards Infernal Caverns' exit
-	for li in [1, 2, 3]:
+	# the spawner: walking a wave level meets every enemy on its list; the dragon guards Infernal Caverns' exit
+	for li in [0, 1, 2, 4]:
 		LV.current = li
 		g = await _new_game(true)
 		m = g.mera
@@ -1417,7 +1417,7 @@ func _run() -> void:
 	# ================================================================ v0.7 allies
 	var AL = load("res://scripts/game/allies.gd")
 	var cards_ok := true
-	for li in [1, 2, 3]:
+	for li in [0, 1, 2, 4]:
 		var ids: Array = []
 		for pr in AL.CARDS[li]:
 			ids.append(pr[1])
@@ -1429,10 +1429,10 @@ func _run() -> void:
 	var cols := {}
 	for aid in AL.IDS:
 		cols[str(AL.COLORS[aid])] = true
-	_check("levels 2-4 each hold one colour-coded card per ally (4 distinct colours); level 1 has none", cards_ok and cols.size() == 4 and not AL.CARDS.has(0), "")
-	LV.current = 0
+	_check("country, woods, town and caverns each hold one card per ally; the cemetery has none", cards_ok and cols.size() == 4 and not AL.CARDS.has(3), "")
+	LV.current = 3
 	g = await _new_game()
-	_check("level 1 (cemetery) is left as is: no ally cards on the map", g.card_nodes.is_empty(), "")
+	_check("cemetery has no ally cards on the map", g.card_nodes.is_empty(), "")
 	g.queue_free()
 	await process_frame
 	LV.current = 1

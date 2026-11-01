@@ -587,6 +587,7 @@ func _physics_process(delta: float) -> void:
 	_update_boxes()
 	if state == "move":
 		_do_hits()
+		_slide_scoop()
 		_track_swing()
 	if game != null:
 		game.resolve_projectiles()
@@ -2091,6 +2092,24 @@ func _do_hits() -> void:
 		if e.alive() and r.intersects(e.hurt_rect()):
 			mv["hits"][e.get_instance_id()] = true
 			deal(e, dmg, global_position.x, "beam" if is_beam else LAUNCH_KINDS.get(String(mv.get("key", "")), "melee"))
+
+
+## Down+A slide: her body breaks every destructible she passes through except a cracked wall.
+## The drop is taken immediately (game.break_drop). The kick still hits enemies and walls.
+func _slide_scoop() -> void:
+	if game == null or String(mv.get("key", "")) != "slide":
+		return
+	if not mv.has("hits"):
+		mv["hits"] = {}
+	var body := body_rect().grow(18.0)
+	for e in game.targets():
+		if not e.get("is_prop") or String(e.kind) == "wall":
+			continue
+		if mv["hits"].has(e.get_instance_id()):
+			continue
+		if e.alive() and body.intersects(e.hurt_rect()):
+			mv["hits"][e.get_instance_id()] = true
+			deal(e, maxi(int(mv.get("dmg", 1)), 1), global_position.x, "melee")
 
 
 ## kind: melee | bolt | beam | explosion | lightning (a blocking Fire Knight only takes explosions and Fury attacks),

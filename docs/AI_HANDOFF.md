@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.5. Summons stay `Allies.STAY_S` 60 s. The dancer dances for `DANCE_S` (5), then idles for the rest. Goblin `atk2` damage is 1, so the small bubble stops both of his hits. Breakables always roll 40% gold, 25% health potion, 25% mana potion, 10% card. A health potion grows Mera if she is under `scale_cap()`, otherwise it is stored. A mana potion fills the bar if it is short, otherwise it is stored. Gold only if that store is also full._
+_Last updated: 2026-10-31, v0.11.7. Level order is Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns. Country is index 0 (goblin pool). Cemetery is index 3 and is the only level missing from `Roster.LEVELS`, so it keeps the knights. The dragon is `BOSSES[4]`. Sunlit Country plays Flowerbed Fields (`assets/music/country.ogg`). The size pips are `mera.scale_cap()` (3 by default, 9 at the shop cap), not 6. Crates and chests, and every other destructible except the cracked wall, break in one hit. Down+A slide breaks those props with her body and collects the drop immediately (`game._sliding`). Both bubbles pull every on-screen pickup at `Tuning.BUBBLE_PULL`._
 
 
 ## v0.9.6 status (2026-10-31)

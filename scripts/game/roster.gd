@@ -80,14 +80,15 @@ const DEFS := {
 			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 40.0, "far": 160.0, "cd": 1.8, "mode": "contact", "vx": 180.0, "dur": 0.45}]},
 }
 
-## who appears where (level index 1-3 = Misty Woods, Moonlit Town, Infernal Caverns). Level 0 keeps the knights.
+## who appears where. 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns.
+## Index 3 is Moonlit Cemetery and is not listed: it keeps the Fire Knights.
 const LEVELS := {
+	0: ["wolf", "lm_goblin", "mutant_toad", "flying_eye", "werewolf", "lm_mushroom"],
 	1: ["wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur"],
 	2: ["skeleton", "hell_gato", "ghost", "death", "nightmare"],
-	3: ["hell_hound", "fire_skull", "hell_beast", "demon"],
-	4: ["wolf", "lm_goblin", "mutant_toad", "flying_eye", "werewolf", "lm_mushroom"],
+	4: ["hell_hound", "fire_skull", "hell_beast", "demon"],
 }
-const BOSSES := {3: "dragon"}
+const BOSSES := {4: "dragon"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
 const RUN_POOL := [
 	"wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur",
@@ -101,10 +102,8 @@ const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then 
 const WAVE_FIRST := 2200.0     # first wave trigger x
 const WAVE_EVERY := 1500.0     # then one wave every this many px
 const WAVE_SIZES := [1, 2, 2, 3]
-## v0.9.1 (owner t99u): on levels 2-4 (index 1-3) two monsters per level come from BEHIND Mera (off-screen behind
-## her, walking in) instead of ahead: the first walker of these waves (0-based; risers and turrets are skipped: risers
-## climb out on screen, turrets barely move).
-const BEHIND_WAVES := {1: [1, 3], 2: [1, 3], 3: [1, 3], 4: [1, 3]}
+## on every wave level, two monsters per level come from BEHIND Mera. Cemetery (index 3) is the knight fight.
+const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3]}
 const MAX_ALIVE := 5
 const BOSS_AT := 3400.0        # the boss appears when Mera gets this close to the map end ...
 const BOSS_X := 1300.0         # ... standing this far from the end, in front of the exit (locked until he falls)

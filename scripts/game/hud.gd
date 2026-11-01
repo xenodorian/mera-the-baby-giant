@@ -18,7 +18,7 @@ const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "CONTROLS", 
 ## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does]
 const CONTROLS := [
 	["D-pad / left stick", "arrows", "walk left / right, Up = jump, Down = crouch"],
-	["A (hold) + direction", "Z (hold) + arrow", "run      (Down + A = slide)"],
+	["A (hold) + direction", "Z (hold) + arrow", "run      (Down + A = slide: breaks loot props, takes the drop)"],
 	["B", "X", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire"],
 	["B+Y together", "X+S", "rising slash (fast windup), no dodge (free)    Y again during it = slam (free)"],
 	["X", "A", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
@@ -29,10 +29,10 @@ const CONTROLS := [
 	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 mana, Up = double jump"],
 	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 mana)"],
 	["L1", "Q", "heal: drink a green potion, +1 size, up to the size cap. One drawing per frame"],
-	["L2", "1", "full bubble while held (3 mana + 4/s). L1 drinks without dropping it"],
+	["L2", "1", "full bubble while held (3 mana + 4/s). Pulls every item on screen. L1 drinks and it stays"],
 	["L2 + R2 (100 rage)", "1 + 2", "lightning from the sky (AOE). Costs 100 rage"],
 	["R2 (100 rage)", "2", "Fury for 12 s. Costs 100 rage. In Fury, R2 takes off / lands"],
-	["Down hold", "Down hold", "small bubble, 3 s, subtracts 1 damage. L1 drinks without dropping it"],
+	["Down hold", "Down hold", "small bubble, 3 s, subtracts 1 damage, pulls every item on screen. L1 drinks and it stays"],
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
 	["Any button in a bubble", "", "drops that bubble and does the move. L1 drinks and the bubble stays"],
@@ -146,15 +146,19 @@ func _draw_ui() -> void:
 	if OS.get_name() == "Android":
 		hx = maxf(0.0, ui.size.x * 0.23 - 20.0)
 	# size = HP
-	ui.draw_rect(Rect2(20 + hx, 16, 560, 196), Color(0.04, 0.03, 0.07, 0.55))
+	var cap := maxi(m.scale_cap(), 1)
+	var step := 46.0 if cap <= 6 else 36.0
+	var pip_w := 40.0 if cap <= 6 else 30.0
+	var panel_w := maxf(560.0, 190.0 + float(cap) * step + 24.0)
+	ui.draw_rect(Rect2(20 + hx, 16, panel_w, 196), Color(0.04, 0.03, 0.07, 0.55))
 	_txt(Vector2(36 + hx, 52), "SIZE  %dx" % m.size, 34)
-	for i in 6:
+	for i in cap:
 		var on := i < m.size
-		var r := Rect2(210 + hx + i * 56, 26, 46, 30)
+		var r := Rect2(200 + hx + float(i) * step, 28, pip_w, 26)
 		ui.draw_rect(r, Color(0.98, 0.66, 0.33) if on else Color(0.2, 0.16, 0.22))
 		ui.draw_rect(r, Color(0.05, 0.03, 0.06), false, 3.0)
-	if m.size > 6:
-		_txt(Vector2(552 + hx, 52), "+%d" % (m.size - 6), 22)
+	if m.size > cap:
+		_txt(Vector2(200 + hx + float(cap) * step, 52), "+%d" % (m.size - cap), 22)
 	# rage / fury
 	_txt(Vector2(36 + hx, 100), "FURY" if m.fury else "RAGE", 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
 	var w := 330.0
