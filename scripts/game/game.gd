@@ -42,6 +42,8 @@ var potion_next_l := -POTION_EVERY
 var test_mode := false
 var frame_n := 0
 var shot_path := ""
+var open_picker_shot := false
+var pause_shot := false
 var shots_prefix := ""
 var shot_at: Array = []
 var wait_frames := 60
@@ -271,10 +273,18 @@ func _parse_args() -> void:
 		elif a.begins_with("--cards="):          # --cards=priestess,ranger (capture / testing)
 			for c in v.split(","):
 				cards[c] = int(cards.get(c, 0)) + 1
+		elif a == "--open-picker":
+			open_picker_shot = true
+		elif a == "--pause":
+			pause_shot = true
+		elif a.begins_with("--x="):
+			mera.position.x = float(v)
 		elif a.begins_with("--enemy="):
 			spawn_arg = v
 		elif a == "--demo":
 			demo = load("res://scripts/game/demo.gd").STEPS.duplicate()
+	if shot_path != "":
+		process_mode = Node.PROCESS_MODE_ALWAYS
 
 
 # ---------------------------------------------------------------- frame
@@ -302,6 +312,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
+	if open_picker_shot and frame_n >= 5 and picker != null and not picker.open:
+		open_picker_shot = false
+		summon_ally()
+	if pause_shot and frame_n >= 8 and not paused_play:
+		pause_shot = false
+		toggle_pause()
 	if shot_path != "" and frame_n >= wait_frames:
 		_save(shot_path)
 		get_tree().quit()
@@ -1425,7 +1441,7 @@ func toggle_pause() -> void:
 		return
 	paused_play = not paused_play
 	if hud:
-		hud.overlay = paused_play
+		hud.pause_sel = 0
 	get_tree().paused = paused_play
 
 

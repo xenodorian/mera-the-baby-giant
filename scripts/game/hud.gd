@@ -1,12 +1,18 @@
 extends CanvasLayer
-## HUD: size (= HP) pips, rage / Fury meter, potions, current move, Fury timer, controls overlay, Game Over.
+## HUD: size (= HP) pips, rage / Fury meter, potions, current move, Fury timer, pause menu, Game Over.
+
+const ROSTER := preload("res://scripts/game/roster.gd")
+const AL := preload("res://scripts/game/allies.gd")
 
 var game: Node = null
 var overlay := false
+var pause_sel := 0
 var ui := Control.new()
 var font: Font
 var _flash := ""
 var _flash_t := 0.0
+
+const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "QUIT GAME"]
 
 ## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does]
 const CONTROLS := [
@@ -32,7 +38,7 @@ const CONTROLS := [
 	["L1+R1+L2+R2 (100 rage)", "Q+W+1+2", "freeze slash: mark up to 9 enemies, cut each for 3. Costs 100 rage"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
-	["Start", "Enter / F1", "pause (game freezes) and this overlay; again to resume. Restarts after Game Over"],
+	["Start", "Enter / F1", "pause menu: continue, restart, title, or quit. B or Start continues"],
 	["Back (Share)", "Tab / G", "animation gallery (Left/Right: previous/next, A: replay)"],
 	["-", "F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
 	["Menus", "arrows, Z ok, X back", "level select, ally picker, level clear / Game Over (Esc quits, F11 fullscreen)"],
@@ -63,13 +69,54 @@ func _process(delta: float) -> void:
 	ui.queue_redraw()
 
 
-## v0.9.1: while the game is paused the rest of the tree is frozen, so Start comes through here
+## v0.10.6: while the game is paused the rest of the tree is frozen, so the pause menu lives here
 func _unhandled_input(event: InputEvent) -> void:
 	if game == null or not game.paused_play or event.is_echo():
 		return
-	if event.is_action_pressed("start"):
+	if event.is_action_pressed("up"):
+		pause_sel = posmod(pause_sel - 1, PAUSE_ITEMS.size())
+		Sfx.play("swipe", 1.3, -8.0)
+	elif event.is_action_pressed("down"):
+		pause_sel = posmod(pause_sel + 1, PAUSE_ITEMS.size())
+		Sfx.play("swipe", 1.3, -8.0)
+	elif event.is_action_pressed("btn_a") or event.is_action_pressed("ui_accept"):
+		_pause_confirm()
+	elif event.is_action_pressed("start") or event.is_action_pressed("btn_b"):
 		game.toggle_pause()
-		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE:
+		game.toggle_pause()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		for i in PAUSE_ITEMS.size():
+			if _pause_item(i).has_point(event.position):
+				pause_sel = i
+				_pause_confirm()
+				break
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+
+func _pause_confirm() -> void:
+	match pause_sel:
+		0:
+			game.toggle_pause()
+		1:
+			game.toggle_pause()
+			game.restart()
+		2:
+			game.toggle_pause()
+			game.to_menu()
+		3:
+			game.get_tree().quit()
+
+
+func _origin() -> Vector2:
+	return Vector2((ui.size.x - 1920.0) * 0.5, (ui.size.y - 1080.0) * 0.5)
+
+
+func _pause_item(i: int) -> Rect2:
+	var o := _origin()
+	return Rect2(o.x + 620.0, o.y + 400.0 + float(i) * 78.0, 680.0, 64.0)
 
 
 func _txt(p: Vector2, t: String, sz: int = 28, c: Color = Color(0.95, 0.92, 0.88)) -> void:
@@ -133,11 +180,13 @@ func _draw_ui() -> void:
 		var n := int(game.cards.get(aid, 0))
 		if n <= 0:
 			continue
-		var cc: Color = Allies.COLORS[aid]
-		ui.draw_rect(Rect2(cx, 250, 26, 36), Color(0.06, 0.05, 0.09))
-		ui.draw_rect(Rect2(cx, 250, 26, 36), cc, false, 4.0)
-		_txt(Vector2(cx + 32, 280), "%d" % n, 24, cc)
-		cx += 76.0
+		var cc: Color = AL.COLORS[aid]
+		var box := Rect2(cx, 248, 40, 54)
+		ui.draw_rect(box, Color(0.06, 0.05, 0.09))
+		_card_portrait(aid, box)
+		ui.draw_rect(box, cc, false, 3.0)
+		_txt(Vector2(cx + 46, 284), "%d" % n, 24, cc)
+		cx += 96.0
 	if cx > 36.0 + hx:
 		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
 	if _flash == "stamina" and _flash_t > 0.0:
@@ -154,7 +203,7 @@ func _draw_ui() -> void:
 	# state line
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
-	_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "volume: pause" if OS.get_name() == "Android" else "F1 / Start: controls"], 22, Color(0.8, 0.8, 0.85))
+	_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "volume: pause" if OS.get_name() == "Android" else "F1 / Start: pause"], 22, Color(0.8, 0.8, 0.85))
 	var bs = game.boss                                          # untyped: may be a freed instance
 	if bs != null and is_instance_valid(bs) and bs.alive():        # v0.6 boss bar
 		ui.draw_rect(Rect2(460, 1000, 1000, 34), Color(0.05, 0.02, 0.03, 0.85))
@@ -173,7 +222,9 @@ func _draw_ui() -> void:
 	if m.debug:
 		_txt(Vector2(1300, 106), "DEBUG: boxes on, PageUp/PageDown size   x %d" % int(m.global_position.x), 22, Color(1, 1, 0.4))
 	if overlay:
-		ui.draw_rect(Rect2(140, 130, 1640, 900), Color(0.03, 0.02, 0.06, 0.9))
+		var oo := _origin()
+		ui.draw_set_transform(oo, 0.0, Vector2.ONE)
+		ui.draw_rect(Rect2(140, 130, 1640, 900), Color(0.03, 0.02, 0.06, 0.92))
 		_txt(Vector2(180, 175), "CONTROLS  (pad: Xbox names; PS4: A = Cross, B = Circle, X = Square, Y = Triangle)", 26, Color(1, 0.8, 0.5))
 		_txt(Vector2(180, 215), "GAMEPAD", 20, Color(1, 0.75, 0.45))
 		_txt(Vector2(530, 215), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
@@ -185,32 +236,71 @@ func _draw_ui() -> void:
 			_txt(Vector2(180, y), pad_name, 20, Color(1, 0.75, 0.45))
 			_txt(Vector2(530, y), String(CONTROLS[i][1]), 20, Color(0.55, 0.85, 1.0))
 			_txt(Vector2(760, y), String(CONTROLS[i][2]), 20)
+		ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if game.over and game.over_t > 0.9:
-		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
-		_txt(Vector2(700, 520), "GAME OVER", 110, Color(0.95, 0.2, 0.2))
+		var o := _origin()
+		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
+		_center(o.y + 520, "GAME OVER", 110, Color(0.95, 0.2, 0.2))
 		if game.run_mode and game.run_wiped:
-			_txt(Vector2(430, 600), "No lives left. The save is gone.   A / Start: title    B: title", 28)
+			_center(o.y + 640, "No lives left. The save is gone.   A / Start: title    B: title", 28, Color(0.95, 0.92, 0.88))
 		elif game.run_mode:
-			_txt(Vector2(300, 600), "Back at 2x. One life spent (%d left). Items stay.   A: retry this map    B: title" % game.lives, 28)
+			_center(o.y + 640, "Back at 2x. One life spent (%d left). Items stay.   A: retry this map    B: title" % game.lives, 28, Color(0.95, 0.92, 0.88))
 		else:
-			_txt(Vector2(360, 600), "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28)
+			_center(o.y + 640, "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28, Color(0.95, 0.92, 0.88))
 	if game.cleared and game.over_t > 0.3:
-		ui.draw_rect(Rect2(0, 0, 1920, 1080), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
+		var o2 := _origin()
+		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
 		var last: bool = game.has_method("is_last_level") and game.is_last_level() and not game.run_mode
-		_txt(Vector2(640, 500), "JOURNEY COMPLETE" if last else ("STAGE CLEAR" if game.run_mode else "LEVEL CLEAR"), 90, Color(1.0, 0.85, 0.45))
+		_center(o2.y + 500, "JOURNEY COMPLETE" if last else ("STAGE CLEAR" if game.run_mode else "LEVEL CLEAR"), 90, Color(1.0, 0.85, 0.45))
 		if game.run_mode:
-			_txt(Vector2(280, 590), "Stage %d cleared. Saved. +1 life (%d). Next map has %d foes.   A: continue    B: title" % [game.cleared_stage, game.lives, game.quota], 30)
-			_txt(Vector2(420, 640), "Upgrades and items come with you. A death with no lives ends the run.", 28, Color(0.8, 0.9, 1.0))
+			_center(o2.y + 620, "Stage %d cleared. Saved. +1 life (%d). Next map has %d foes.   A: continue    B: title" % [game.cleared_stage, game.lives, game.quota], 28, Color(0.95, 0.92, 0.88))
+			_center(o2.y + 670, "Upgrades and items come with you. A death with no lives ends the run.", 26, Color(0.8, 0.9, 1.0))
 		else:
-			_txt(Vector2(470, 590), "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32)
+			_center(o2.y + 620, "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32, Color(0.95, 0.92, 0.88))
 			if not last:
-				_txt(Vector2(380, 640), "potions, cards, mana and rage come with you. A death returns her to 2x", 28, Color(0.8, 0.9, 1.0))
-	if game.frame_n < 150 and not game.test_mode:
+				_center(o2.y + 670, "potions, cards, mana and rage come with you. A death returns her to 2x", 26, Color(0.8, 0.9, 1.0))
+	if game.paused_play:
+		_draw_pause()
+	if game.frame_n < 150 and not game.test_mode and not game.paused_play:
 		var al := clampf((150 - game.frame_n) / 40.0, 0.0, 1.0)
 		if game.run_mode:
 			_txt(Vector2(560, 330), "STAGE %d   %s" % [game.stage_n, game.run_title], 54, Color(1, 0.85, 0.5, al))
 			_txt(Vector2(620, 380), "%d foes. Clear it for a life." % game.quota, 30, Color(0.9, 0.9, 0.95, al))
 		else:
 			var lv: Dictionary = Levels.level()
-			_txt(Vector2(700, 330), "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
-			_txt(Vector2(760, 380), String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
+			var o3 := _origin()
+			_center(o3.y + 330, "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
+			_center(o3.y + 400, String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
+
+
+func _center(y: float, t: String, sz: int, c: Color) -> void:
+	ui.draw_string(font, Vector2(2, y + 2), t, HORIZONTAL_ALIGNMENT_CENTER, ui.size.x, sz, Color(0, 0, 0, 0.55))
+	ui.draw_string(font, Vector2(0, y), t, HORIZONTAL_ALIGNMENT_CENTER, ui.size.x, sz, c)
+
+
+func _card_portrait(aid: String, box: Rect2) -> void:
+	var pic: Dictionary = ROSTER.frame_art(aid)
+	var tex: Texture2D = pic["tex"]
+	if tex == null:
+		return
+	var src: Rect2 = pic["src"]
+	var fit := minf((box.size.x - 6.0) / src.size.x, (box.size.y - 6.0) / src.size.y)
+	var ds := src.size * fit
+	var dp := Vector2(box.position.x + (box.size.x - ds.x) * 0.5, box.position.y + box.size.y - ds.y - 3.0)
+	ui.draw_texture_rect_region(tex, Rect2(dp, ds), src)
+
+
+func _draw_pause() -> void:
+	var o := _origin()
+	ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.0, 0.0, 0.02, 0.72))
+	var panel := Rect2(o.x + 520.0, o.y + 250.0, 880.0, 560.0)
+	ui.draw_rect(panel, Color(0.06, 0.03, 0.09, 0.96))
+	ui.draw_rect(panel, Color(1.0, 0.8, 0.45), false, 4.0)
+	_center(o.y + 330, "PAUSED", 72, Color(1.0, 0.82, 0.45))
+	for i in PAUSE_ITEMS.size():
+		var r := _pause_item(i)
+		var on := i == pause_sel
+		ui.draw_rect(r, Color(0.28, 0.14, 0.05, 0.95) if on else Color(0.1, 0.06, 0.14, 0.9))
+		ui.draw_rect(r, Color(1.0, 0.82, 0.4) if on else Color(0.45, 0.4, 0.55), false, 3.0)
+		ui.draw_string(font, Vector2(r.position.x, r.position.y + 42), PAUSE_ITEMS[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 32, Color(1, 0.92, 0.65) if on else Color(0.88, 0.88, 0.92))
+	_center(o.y + 760, "Up / Down: choose     A: confirm     B / Start: continue", 26, Color(0.85, 0.85, 0.9))

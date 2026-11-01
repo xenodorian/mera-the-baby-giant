@@ -127,3 +127,28 @@ static func def(id: String) -> Dictionary:
 
 static func art(id: String) -> Dictionary:
 	return data()[id]
+
+
+## The frame to draw on a card. Cropped to the body (the opaque pixels of the pose) so the
+## big empty canvas is not drawn. Does not call get_image(), which is null in an export.
+static func frame_art(id: String) -> Dictionary:
+	var a := art(id)
+	var anims: Dictionary = a["anims"]
+	var key := ""
+	for want in ["idle", "skip", "walk"]:
+		if anims.has(want):
+			key = want
+			break
+	if key == "":
+		key = String(anims.keys()[0])
+	var e: Dictionary = anims[key]
+	var piv := Vector2(float(e["pivot"][0]), float(e["pivot"][1]))
+	var b: Array = a["body"]
+	var src := Rect2(piv.x + float(b[0]) - 1.0, piv.y + float(b[1]) - 1.0, float(b[2]) - float(b[0]) + 2.0, float(b[3]) - float(b[1]) + 2.0)
+	var tex: Texture2D = load(String(e["frames"][0]))
+	if tex != null:
+		src.position.x = clampf(src.position.x, 0.0, tex.get_width() - 1.0)
+		src.position.y = clampf(src.position.y, 0.0, tex.get_height() - 1.0)
+		src.size.x = clampf(src.size.x, 1.0, tex.get_width() - src.position.x)
+		src.size.y = clampf(src.size.y, 1.0, tex.get_height() - src.position.y)
+	return {"tex": tex, "src": src, "pivot": piv}

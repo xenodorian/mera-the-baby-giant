@@ -20,20 +20,22 @@ func setup(g: Node, aid: String, p: Vector2) -> void:
 
 func _ready() -> void:
 	z_index = 5
-	var e: Dictionary = ROSTER.art(ally_id)["anims"]
-	var first: Dictionary = e[e.keys()[0]]
+	var pic: Dictionary = ROSTER.frame_art(ally_id)
 	portrait = Sprite2D.new()
-	portrait.texture = load(String(first["frames"][0]))
+	portrait.texture = pic["tex"]
 	portrait.centered = false
 	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var src: Rect2 = pic["src"]
+	portrait.region_enabled = true
+	portrait.region_rect = src
 	var body: Array = ROSTER.art(ally_id)["body"]
 	var bw := float(body[2]) - float(body[0])
 	var bh := float(body[3]) - float(body[1])
 	var s := minf(70.0 / bw, 80.0 / bh)
 	portrait.scale = Vector2(s, s)
-	portrait.offset = Vector2(-float(first["pivot"][0]), -float(first["pivot"][1]))
+	var piv: Vector2 = pic["pivot"]
+	portrait.offset = -(piv - src.position)
 	portrait.position = Vector2(0, 4)
-	portrait.region_enabled = false
 	add_child(portrait)
 	portrait.z_index = 1
 

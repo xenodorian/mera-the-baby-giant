@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.6-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Android.apk
+- **Menus sit in the middle of a wide screen.** Level select, the summon picker, pause, Game Over and level clear used a fixed 1920×1080, so a wider window left a black or undimmed strip on the right. The picture now fills the screen and those panels are centered.
+- **Pause is a menu.** Continue, Restart level, Back to title, Quit game. Up / Down to choose, A to confirm, B or Start to continue.
+- **Ally cards show the character.** The held-card icons, the summon cards and the cards on the ground are cropped to the body, so the big empty sheet is not drawn as a blank square. Same signing key as v0.10.0. Android `versionCode` 28.
+
 ## v0.10.5-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.5-playable/Mera_Playable_v0.10.5_Windows.exe

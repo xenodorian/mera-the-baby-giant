@@ -41,7 +41,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | **R2** alone | at **100 rage or more**, outside Fury: **Fury** for 12 s. It spends **100 rage** and leaves the rest. In Fury: take off / land |
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
 | Fury flight | Up in the air takes off. 8-way movement; Mera tilts head-first toward where she flies and eases upright when hovering. Raised-arms pose while moving, tucked hover while idle. Down at ground level, or R2, lands |
-| Start | **pause** (v0.9.1): gameplay freezes and the controls overlay opens. Start again resumes. Restart after Game Over |
+| Start | **pause menu** (v0.10.6): Continue, Restart level, Back to title, Quit game. Up/Down choose, A confirms, B or Start continues. Volume keys do this on Android. Restart after Game Over |
 | Back (Share) | animation gallery (every baked animation). Left/Right = previous/next, A = replay |
 
 ## Keyboard (v0.8 PC layout, user request t86u)
@@ -59,7 +59,7 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **1** (top row only) | L2 | hold = full bubble, just before a hit = parry |
 | **2** (top row only) | R2 | alone = Fury (costs 100 rage). **1 + 2** = lightning. Numpad 1 and 2 are not these |
 | **Q+W+1+2** together (within 150 ms, all held) at 100 rage or more | L1+R1+L2+R2 | **freeze slash**: costs **100 rage**. Freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s. This does not start Fury |
-| Enter or F1 | Start | pause and the controls overlay; Start again resumes. Restarts after Game Over |
+| Enter or F1 | Start | pause menu (continue, restart level, title, quit). B / Start / Esc continues. Restarts after Game Over |
 | Tab or G | Back (gallery) | |
 | F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
 | F11 / Esc | fullscreen / leave fullscreen, then quit | |
