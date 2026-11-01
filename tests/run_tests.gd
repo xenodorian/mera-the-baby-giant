@@ -1573,7 +1573,7 @@ func _run() -> void:
 	g.cards = {"brawler": 1}
 	var br: Node2D = g.summon_type("brawler")
 	await _drive(g, [], 180)
-	var right := g.cam_x + 960.0
+	var right: float = g.cam_x + 960.0
 	var held: bool = br.global_position.x >= right - 400.0 and br.global_position.x <= right - 190.0
 	var bx0: float = br.global_position.x
 	var tail: Node2D = g.spawn_enemy("wolf", br.global_position.x - 700.0)
@@ -1643,6 +1643,7 @@ func _run() -> void:
 	menu.queue_free()
 	await process_frame
 	await _s4_tests()
+	await _key_tests()
 	await _mark_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
@@ -3147,3 +3148,134 @@ func _queued_tests() -> void:
 	_check("L1 inside the small bubble drinks and the bubble stays", m.crouch_bubble_on() and m.size == 4 and m.potions == 0, "on=%s size=%d pot=%d" % [m.crouch_bubble_on(), m.size, m.potions])
 	g.queue_free()
 	await physics_frame
+
+
+# ================================================================ v0.12.1 keys and locked chests
+func _keys_on_floor(g: Node) -> int:
+	var n := 0
+	for c in g.world.get_children():
+		if c.get("kind") == "key":
+			n += 1
+	return n
+
+
+func _key_tests() -> void:
+	var KA = load("res://scripts/game/key_art.gd")
+	var kt: Texture2D = KA.texture()
+	_check("key art: 9x19 texture", kt != null and kt.get_width() == 9 and kt.get_height() == 19, "")
+	var g: Node = await _s4_new(1)
+	var ch: Node2D = _s4_prop(g, "chest")
+	_check("chest: Misty Woods places a chest", ch != null, "")
+	if ch == null:
+		g.queue_free()
+		await process_frame
+		return
+	_check("chest: starts locked, not a breakable target, not solid", ch.state == "locked" and not ch.alive() and not ch.blocks_path(), "%s %s" % [ch.state, ch.alive()])
+	var hit: bool = ch.take_damage(3, ch.global_position.x)
+	_check("chest: a hit does not break it", not hit and ch.state == "locked", "")
+	g.key_held = false
+	g.mera.global_position.x = ch.global_position.x
+	await _s4_frames(g, 3)
+	_check("chest: touching it without a key leaves it locked", ch.state == "locked", ch.state)
+
+	# one key at a time: the drop only happens on a level with chests, and never while a key is out
+	g.key_rng.seed = 7
+	g.key_out = false
+	g.chests_here = 0
+	for i in 40:
+		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
+	await _s4_frames(g, 2)
+	_check("key drop: none on a level without chests", _keys_on_floor(g) == 0 and not g.key_out, "%d" % _keys_on_floor(g))
+	g.chests_here = 1
+	for i in 40:
+		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
+	await _s4_frames(g, 2)
+	_check("key drop: exactly one key on the floor", _keys_on_floor(g) == 1 and g.key_out, "%d" % _keys_on_floor(g))
+	var kn: Node2D = null
+	for c in g.world.get_children():
+		if c.get("kind") == "key":
+			kn = c
+	if kn != null:
+		g.collect(kn)
+		kn.queue_free()
+	_check("key: picked up is held", g.key_held, "")
+	for i in 40:
+		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
+	await _s4_frames(g, 2)
+	_check("key drop: none while a key is held", _keys_on_floor(g) == 0 and g.key_out, "%d" % _keys_on_floor(g))
+	g.use_key()
+	_check("key used: the next enemy may drop one again", not g.key_held and not g.key_out, "")
+	g.key_rng.seed = 11
+	for i in 40:
+		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
+	await _s4_frames(g, 2)
+	_check("key drop: a new key after the last one is used", _keys_on_floor(g) == 1, "%d" % _keys_on_floor(g))
+	for c in g.world.get_children():
+		if c.get("kind") == "key":
+			c.queue_free()
+	g.key_out = false
+	g.key_held = false
+	await _s4_frames(g, 2)
+
+	# contents: 3-5 coins and 1-3 other items, each arcing out of the chest
+	var ranges_ok := true
+	var ranges_info := ""
+	for i in 6:
+		var cx := 15000.0 + float(i) * 300.0
+		g.chest_contents(Vector2(cx, g.GROUND_Y - 30.0))
+		await _s4_frames(g, 2)
+		var coins := 0
+		var items := 0
+		for c in g.world.get_children():
+			if not (c is Node2D) or absf(float(c.global_position.x) - cx) > 200.0:
+				continue
+			if c.get("kind") == "coin":
+				coins += 1
+			elif c.get("kind") in ["potion", "mana", "card"]:
+				items += 1
+		ranges_info += "[%d coins %d items] " % [coins, items]
+		if coins < 3 or coins > 5 or items < 1 or items > 3:
+			ranges_ok = false
+		for c in g.world.get_children():
+			if c is Node2D and absf(float(c.global_position.x) - cx) <= 200.0 and c.get("kind") in ["coin", "potion", "mana", "card"]:
+				c.queue_free()
+		await _s4_frames(g, 1)
+	_check("chest contents: 3-5 coins and 1-3 other items every time", ranges_ok, ranges_info)
+
+	# a held key opens the chest on contact, shows the floating key and releases the contents
+	g.key_held = true
+	g.key_out = true
+	g.mera.global_position.x = ch.global_position.x
+	await _s4_frames(g, 3)
+	_check("chest: a held key opens it on contact and is used up", ch.state == "open" and not g.key_held and not g.key_out, "%s %s" % [ch.state, g.key_held])
+	_check("chest: the floating key is shown on unlock", ch.get_child_count() >= 2, "%d" % ch.get_child_count())
+	var coins2 := 0
+	var items2 := 0
+	for c in g.world.get_children():
+		if not (c is Node2D) or absf(float(c.global_position.x) - ch.global_position.x) > 200.0:
+			continue
+		if c.get("kind") == "coin":
+			coins2 += 1
+		elif c.get("kind") in ["potion", "mana", "card"]:
+			items2 += 1
+	_check("chest: releases 3-5 coins and 1-3 items", coins2 >= 3 and coins2 <= 5 and items2 >= 1 and items2 <= 3, "%d coins %d items" % [coins2, items2])
+	await _s4_frames(g, 60)
+	g.queue_free()
+	await process_frame
+
+	# cemetery: the far graves layer sits on the ground (lowered by Tuning.LAYER_LOWER)
+	var gc: Node = await _s4_new(3)
+	var gf_y := -1.0
+	for c in gc.get_children():
+		if c is Sprite2D and c.texture != null and String(c.texture.resource_path).ends_with("graves_far.png"):
+			gf_y = c.position.y
+	_check("cemetery: graves_far lowered to the ground", absf(gf_y - (105.0 * 5.0 + 65.0)) < 0.5, "%s" % gf_y)
+	gc.queue_free()
+	await process_frame
+
+	# level clear gold: 15 the first time, 5 on every clear after that
+	var C = load("res://scripts/game/carry.gd")
+	C.reset()
+	var pays := [C.record_clear(2), C.record_clear(2), C.record_clear(2), C.record_clear(0)]
+	_check("clear gold: 15 first, then 5 each repeat (per level)", pays == [15, 5, 5, 15] and C.gold == 40, "%s gold %d" % [pays, C.gold])
+	C.reset()

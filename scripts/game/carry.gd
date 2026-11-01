@@ -47,6 +47,9 @@ static var rage := 0.0
 static var size := 2
 static var unlocked := 0       # highest stage index she may play. 0 = stage 1 only. Later stages stay locked.
 static var ready := false
+static var clears: Dictionary = {}   # level index (as a string key) -> times cleared. Pays gold on every clear.
+const CLEAR_GOLD_FIRST := 15         # first clear of a level
+const CLEAR_GOLD_REPEAT := 5         # each clear after that
 
 
 static func ensure() -> void:
@@ -77,6 +80,13 @@ static func _read(d: Dictionary) -> void:
 	rage = clampf(float(d.get("rage", 0.0)), 0.0, rage_max)
 	size = clampi(int(d.get("size", 2)), 1, scale_cap)
 	unlocked = maxi(int(d.get("unlocked", 0)), 0)
+	clears = {}
+	var rc = d.get("clears", {})
+	if rc is Dictionary:
+		for k in rc:
+			var n := maxi(int(rc[k]), 0)
+			if n > 0:
+				clears[String(k)] = n
 	cards = {}
 	var raw = d.get("cards", {})
 	if raw is Dictionary:
@@ -103,6 +113,7 @@ static func pack() -> Dictionary:
 		"rage": rage,
 		"size": size,
 		"unlocked": unlocked,
+		"clears": clears.duplicate(),
 	}
 
 
@@ -128,6 +139,7 @@ static func reset() -> void:
 	rage = 0.0
 	size = 2
 	unlocked = 0
+	clears = {}
 	ready = true
 	save()
 	if FileAccess.file_exists(RUN_PATH):
@@ -190,6 +202,17 @@ static func unlock_through(i: int) -> void:
 		return
 	unlocked = n
 	save()
+
+
+## v0.12.2: a level was cleared. 15 gold the first time, 5 gold on each clear after that. Returns the gold paid.
+static func record_clear(level: int) -> int:
+	ensure()
+	var key := str(level)
+	var before := int(clears.get(key, 0))
+	var pay := CLEAR_GOLD_FIRST if before == 0 else CLEAR_GOLD_REPEAT
+	clears[key] = before + 1
+	add_gold(pay)
+	return pay
 
 
 static func add_gold(n: int) -> void:

@@ -1,6 +1,9 @@
 class_name Pickup
 extends Node2D
 ## Green potion (+1 carried potion; L1 drinks one: +1 size up to 6x) or red rage sphere (+rage, 10 % per Fire Knight).
+## v0.12.1: "key" (opens a locked chest; drawn by key_art.gd) and chest contents, which pop out in an arc (pop()).
+const KEY_ART := preload("res://scripts/game/key_art.gd")
+const POP_S := 0.35
 
 var game: Node = null
 var kind := "potion"
@@ -8,6 +11,17 @@ var value := 10.0
 var t := 0.0
 var spr := Sprite2D.new()
 const SCALE := 4.0
+var pop_from := Vector2.ZERO
+var pop_to := Vector2.ZERO
+var pop_t := -1.0              # >= 0 while the item is arcing from pop_from to pop_to
+
+
+## v0.12.1: the item leaves `from` in a small arc and lands at `to` (call before it is added to the tree)
+func pop(from: Vector2, to: Vector2) -> void:
+	pop_from = from
+	pop_to = to
+	pop_t = 0.0
+	position = from
 
 
 ## v: rage for spheres, stamina for blue potions (v0.8 breakables drop smaller ones); < 0 = the standard amount
@@ -16,6 +30,15 @@ func setup(g: Node, k: String, p: Vector2, v: float = -1.0) -> void:
 	kind = k
 	value = v if v >= 0.0 or k != "sphere" else 10.0
 	position = p
+	if kind == "key":
+		var kt: Texture2D = KEY_ART.texture()
+		spr.texture = kt
+		spr.hframes = 1
+		spr.scale = Vector2(SCALE, SCALE)
+		spr.offset = Vector2(0, -float(kt.get_height()) / 2.0)
+		add_child(spr)
+		set_meta("art", "key")
+		return
 	if kind == "coin" and ResourceLoader.exists("res://assets/ui/coin.png"):
 		spr.texture = load("res://assets/ui/coin.png")
 		spr.hframes = 1
@@ -51,7 +74,14 @@ func setup(g: Node, k: String, p: Vector2, v: float = -1.0) -> void:
 
 func _physics_process(delta: float) -> void:
 	t += delta
-	if kind != "coin":
+	if pop_t >= 0.0:
+		pop_t += delta
+		var u := minf(pop_t / POP_S, 1.0)
+		position = pop_from.lerp(pop_to, u) + Vector2(0, -sin(u * PI) * 70.0)
+		if u >= 1.0:
+			pop_t = -1.0
+			position = pop_to
+	if kind != "coin" and kind != "key":
 		var art := "sphere" if kind == "rage_max" else kind
 		if kind == "mana" or kind == "card":
 			art = "stamina" if kind == "mana" else "potion"

@@ -185,6 +185,8 @@ func _draw_ui() -> void:
 	if _flash == "potions" and _flash_t > 0.0:
 		pc = Color(1, 0.3, 0.3)
 	_txt(Vector2(36 + hx, 146), "HP %d   MANA %d" % [m.potions, m.mana_pots], 26, pc)
+	if game.key_held:                                   # v0.12.1: the level's key (touch a locked chest)
+		_txt(Vector2(250 + hx, 146), "KEY", 26, Color(1.0, 0.82, 0.25))
 	if game.run_mode:
 		_txt(Vector2(280 + hx, 146), "STAGE %d    LIVES %d    FOES %d" % [game.stage_n, game.lives, maxi(game.quota - game.defeated, 0)], 26, Color(1.0, 0.86, 0.55))
 	if _flash == "max" and _flash_t > 0.0:

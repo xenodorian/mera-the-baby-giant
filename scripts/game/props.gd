@@ -11,7 +11,7 @@ const KINDS := {
 	"candle_b": ["candle_b.png", 4.0, 1, "small", "glass"],
 	"urn": ["urn.png", 5.0, 1, "medium", "glass"],
 	"crate": ["crate.png", 5.0, 1, "medium", "wood"],
-	"chest": ["chest.png", 5.0, 1, "big", "wood"],
+	"chest": ["chest.png", 5.0, 0, "", "wood"],      # locked: opened by a key (prop.gd), never broken
 	"barrel": ["barrel.png", 4.0, 1, "", "boom_big"],
 	"chandelier": ["chandelier.png", 3.0, 1, "", "glass"],
 	"wall": ["wall_cracked.png", 3.0, 4, "", "stone"],
@@ -20,7 +20,7 @@ const KINDS := {
 	"plank": ["plank.png", 2.5, 0, "", "plank"],
 	"ledge": ["plank.png", 2.5, 0, "", "plank"],
 }
-const HITTABLE := ["candle", "candle_b", "urn", "crate", "chest", "barrel", "chandelier", "wall", "lever"]
+const HITTABLE := ["candle", "candle_b", "urn", "crate", "barrel", "chandelier", "wall", "lever"]
 
 const BARREL_DMG := 8             # fixed (never x Mera's size); kind "explosion" -> pierces the Fire Knight's block
 const BARREL_R := 300.0           # blast radius (px)
@@ -34,6 +34,7 @@ const CRUMBLE_BACK_S := 6.0       # ... and grows back after this long
 const STEP_H := 150.0             # crumbling step height above the ground (1x Mera reaches it with a double jump)
 const LEDGE_H := 300.0            # card ledge height
 const DROP_P := {"small": 0.7, "medium": 0.9, "big": 1.0}
+const CHEST_ITEM_W := {"potion": 25.0, "mana": 25.0, "card": 10.0}   # what a chest holds besides coins
 
 ## secrets per level index: [card index into Allies.CARDS[level], how it's hidden]
 ## Cemetery (3) has none. Caverns are index 4.

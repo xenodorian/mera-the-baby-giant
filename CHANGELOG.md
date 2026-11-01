@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## Unreleased (after v0.12.0)
+- **Keys and locked chests.** Some enemy deaths drop a key on their fury orb, with a 25 % chance. Only one key exists at a time, and a new one drops only after the last is used. Keys drop only on levels with chests. Touching a chest with the key uses it: a floating key plays, then 3 to 5 coins and 1 to 3 other items pop out. Chests cannot be broken without a key. The key shows as KEY in the HUD while held.
+- **Level clear gold.** The first clear of a level pays 15 gold, and each clear after that pays 5.
+- **Dragon victory.** Killing the Lair dragon clears the stage (unlock and clear gold), shows "You Defeated the Cavern Dragon!", then returns to the title screen.
+- **Cemetery.** The far graves layer is lowered to the ground. The near gravestones still sit about 4 native px above the grass; fixing them needs the level art rebuilt in `mera-assets`.
+
 ## v0.12.0-playable (2026-11-01)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.12.0-playable/Mera_Playable_v0.12.0_Windows.exe

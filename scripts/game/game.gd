@@ -26,6 +26,10 @@ var knight: Node2D = null       # the Fire Knight (one at a time)
 var blues: Array = []           # v0.4 Blue Knights he calls in
 var blues_spawned := 0
 var drop_rng := RandomNumberGenerator.new()
+var key_rng := RandomNumberGenerator.new()   # v0.12.1 key drops (own stream: they never shift the other drops)
+var key_held := false                        # v0.12.1: Mera carries the level's key (one at a time)
+var key_out := false                         # a key is on the floor or held. No new key drops until it is used
+var chests_here := 0                         # locked chests on this level. Keys only drop where there is a chest
 var knight_timer := 1.2
 var knights_spawned := 0
 var shake_amt := 0.0
@@ -201,7 +205,7 @@ func _build_background() -> void:
 		sp.scale = Vector2(ART, ART)
 		sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		sp.z_index = int(L["z"])
-		sp.position.y = float(L["y"])
+		sp.position.y = float(L["y"]) + float(Tuning.LAYER_LOWER.get(String(L["file"]), 0.0))
 		var period := float(L["period"])
 		if period > 0.0:
 			sp.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
@@ -484,6 +488,10 @@ func _place_props() -> void:
 	for pr in props:
 		if pr.kind == "lever":
 			pr.door = doors.get(float(pr.extra["door_x"]), null)
+	chests_here = 0
+	for pr in props:
+		if pr.kind == "chest":
+			chests_here += 1
 
 
 ## a secret wall broke / a door opened: its card can be taken
@@ -725,8 +733,68 @@ func on_enemy_defeated(e: Node2D) -> void:
 		boss_dead = true
 		shake(24.0, 0.8)
 		Sfx.play("boom_big", 0.5)
+		if Roster.BOSSES.has(Levels.current):
+			_start_dragon_victory()
 	else:
+		_maybe_drop_key(p + Vector2(0, -10))
 		Sfx.play("boom", 1.8, -10.0)
+
+
+# ---------------------------------------------------------------- v0.12.2 dragon victory
+var victory := false
+const VICTORY_DELAY_S := 2.0      # the corpse falls and bursts before the card shows
+const VICTORY_CARD_S := 3.5       # the card holds this long, then the title screen
+
+
+## the boss is dead: the stage counts as cleared (unlock + clear gold), then the title card, then the title screen
+func _start_dragon_victory() -> void:
+	if victory:
+		return
+	victory = true
+	if not run_mode:
+		Carry.unlock_through(Levels.current + 1)
+		var pay := Carry.record_clear(Levels.current)
+		hud.flash("pickup:level clear  +%d gold" % pay)
+	var tm := Timer.new()
+	tm.one_shot = true
+	tm.wait_time = VICTORY_DELAY_S
+	tm.timeout.connect(_show_victory_card)
+	add_child(tm)
+	tm.start()
+
+
+func _show_victory_card() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(layer)
+	var dim := ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.72)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(dim)
+	var lbl := Label.new()
+	lbl.text = "You Defeated the Cavern Dragon!"
+	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 84)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.82, 0.35))
+	layer.add_child(lbl)
+	var tm := Timer.new()
+	tm.one_shot = true
+	tm.wait_time = VICTORY_CARD_S
+	tm.process_mode = Node.PROCESS_MODE_ALWAYS
+	tm.timeout.connect(_to_title)
+	layer.add_child(tm)
+	tm.start()
+	get_tree().paused = true
+
+
+func _to_title() -> void:
+	var tree := get_tree()
+	tree.paused = false
+	if not test_mode:
+		tree.change_scene_to_file.call_deferred("res://scenes/menu.tscn")
 
 
 # ---------------------------------------------------------------- v0.7 allies
@@ -959,6 +1027,8 @@ func _clamp_to_map() -> void:
 		Sfx.play("potion", 0.7)
 		if not run_mode:
 			Carry.unlock_through(Levels.current + 1)
+			var pay := Carry.record_clear(Levels.current)
+			hud.flash("pickup:level clear  +%d gold" % pay)
 		if run_mode and not _clear_saved:
 			cleared_stage = stage_n
 			lives += 1
@@ -1062,6 +1132,7 @@ func on_knight_defeated(k: Node2D) -> void:
 		return
 	defeated += 1
 	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), 10.0)
+	_maybe_drop_key(k.global_position + Vector2(0, -10))
 	knight = null
 	knight_timer = 2.0
 	Sfx.play("boom", 1.6, -8.0)
@@ -1082,7 +1153,54 @@ func _blue_defeated(k: Node2D) -> void:
 	defeated += 1
 	blues.erase(k)
 	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), float(Tuning.BLUE["rage"]))
+	_maybe_drop_key(k.global_position + Vector2(0, -10))
 	Sfx.play("boom", 2.0, -10.0)
+
+
+## v0.12.1: some enemies drop a key on their fury orb. One at a time: no new key until the last one is used on a chest.
+func _maybe_drop_key(p: Vector2) -> void:
+	if key_out or chests_here <= 0:
+		return
+	if key_rng.randf() >= Tuning.KEY_DROP_P:
+		return
+	key_out = true
+	var pk: Pickup = Pickup.new()
+	pk.setup(self, "key", p)
+	world.add_child.call_deferred(pk)
+
+
+## v0.12.1: a locked chest was opened with the held key (prop.gd _unlock)
+func use_key() -> void:
+	key_held = false
+	key_out = false
+
+
+## v0.12.1: 3-5 coins and 1-3 other items (potion, mana or card) pop out of an opened chest
+func chest_contents(p: Vector2) -> void:
+	var coins := Tuning.CHEST_COINS[0] + drop_rng.randi() % (Tuning.CHEST_COINS[1] - Tuning.CHEST_COINS[0] + 1)
+	var items := Tuning.CHEST_ITEMS[0] + drop_rng.randi() % (Tuning.CHEST_ITEMS[1] - Tuning.CHEST_ITEMS[0] + 1)
+	var kinds: Array = []
+	for i in coins:
+		kinds.append("coin")
+	var tot := 0.0
+	for kk in Props.CHEST_ITEM_W:
+		tot += float(Props.CHEST_ITEM_W[kk])
+	for i in items:
+		var r := drop_rng.randf() * tot
+		var pick := "potion"
+		for kk in Props.CHEST_ITEM_W:
+			r -= float(Props.CHEST_ITEM_W[kk])
+			if r <= 0.0:
+				pick = kk
+				break
+		kinds.append(pick)
+	var n := kinds.size()
+	for i in n:
+		var pk: Pickup = Pickup.new()
+		pk.setup(self, String(kinds[i]), p)
+		var dest := Vector2(p.x + (float(i) - float(n - 1) / 2.0) * 44.0, GROUND_Y - 10.0)
+		pk.pop(p, dest)
+		world.add_child.call_deferred(pk)
 
 
 func _manage_potions() -> void:
@@ -1190,6 +1308,10 @@ func collect(p: Pickup) -> void:
 		else:
 			Carry.add_gold(1)
 			hud.flash("pickup:mana slots full  +1 gold")
+	elif p.kind == "key":
+		key_held = true
+		Sfx.play("clang", 1.4, -4.0)
+		hud.flash("pickup:key found  (touch a chest to open it)")
 	elif p.kind == "coin":
 		Carry.add_gold(1)
 		Sfx.play("potion", 1.2)
