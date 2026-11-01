@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.1. Ogre stays k 10, HP 20, damage 2 (1 unarmed). `chain: 2` on both of his attacks: the follow-up starts the instant the first swing ends (`_finish_attack`), then `cd` 5. Android versionCode 30._
+_Last updated: 2026-10-31, v0.11.2. Every move that plays the heal sheet (potion, lightning, barrier, Up+Y, pulse, vertical beam) sets `anim.frame_for_frame`. Each authored frame stays up for one physics frame, then the clip holds its last frame. Up+Y bolts still leave on heal frame 6 (~100 ms). The potion still lands on frame 7 (~0.12 s). Android versionCode 31._
 
 
 ## v0.9.6 status (2026-10-31)
@@ -9,7 +9,7 @@ All four allies stay `Allies.STAY_S` 20 s. The dancer walks to a point in front 
 The brawler's `march` is always +1. She spawns at Mera's x + 40 and lands further right. `_march` runs right (walk at 1.8×, faster if she falls behind Mera). `_wall_ahead` stops her on a live wall or a closed door. She fights whoever is in melee reach, otherwise the nearest enemy to her right. She does not dodge. `game.brawler()` is her while she is alive and not leaving, and non-boss `monster._prey` chases her.
 The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`), then leaves. No repeating heal cooldown.
 L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.
-The standing drink (`_start_move("heal")`) plays at 4× via `FAST_ANIMS`. The size still lands on heal frame 7, about 0.1 s after the press. Lightning, the barrier and the other heal-pose moves are not sped up.
+The standing drink (`_start_move("heal")`) and every other heal-pose move play one authored frame per rendered frame (`frame_for_frame` in `layered_anim.gd`). The size still lands on heal frame 7, about 0.12 s after the press.
 Any projectile damages breakables through `game.prop_at`: player bolts and fireballs, ranger arrows, enemy shots, dragon bolts (the blast is an explosion).
 L2 alone starts the barrier (`no_tap`, a short press is not lightning). L2+R2 calls `_try_lightning`. R2 alone, after `CHORD_MS`, calls `_try_fury`. `start_fury` subtracts `FURY_COST` (100) and does not clear the rest; `_fury_tick` no longer overwrites `rage`. The HUD bar during Fury is `fury_left / FURY_TIME`.
 The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) pose cropped to the body box. That does not call `get_image()`, which is null in an export and used to fall back to the full sheet (a blank square). The HUD held-card icons use the same crop. Start no longer opens the controls list; it opens the pause menu in `hud.gd` (`pause_sel`). The controls list is only `--overlay`. Full-screen panels are drawn in a centered 1920×1080 design; the background and the dim cover `ui.size` / the menu control, so aspect `expand` does not leave a bare strip. The in-game bars stay at the top left so they do not sit on the touch pad.

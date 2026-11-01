@@ -31,7 +31,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | X + A | plain 1x attack (no longer a dash) |
 | In the air: **X** | jump attack. X again: second hit |
 | In the air: **Y** (e.g. Up, then Y) | aerial dash (once per jump), 6 stamina, 1600 px/s, same timing as the ground dash. In Fury flight Y is a quick fire (5 stamina) |
-| **L1** | heal: drink one carried green potion, +1 size, up to the size cap (3x until the shop raises it, 9x at most). The drink plays at **4×** speed. No potion = "fail" cue. **Inside either bubble, L1 drinks at once and the bubble stays up.** **E** or **left-stick click** drinks a blue mana potion (+30 mana) without leaving the bubble |
+| **L1** | heal: drink one carried green potion, +1 size, up to the size cap (3x until the shop raises it, 9x at most). Every heal-pose frame stays up for one rendered frame. The size lands on frame 7, about 0.12 s after the press. No potion = "fail" cue. **Inside either bubble, L1 drinks at once and the bubble stays up.** **E** or **left-stick click** drinks a blue mana potion (+30 mana) without leaving the bubble |
 | **L2** | full bubble while held: 3 mana to raise, 4 / s. A press just before a hit still parries. Letting go before the bubble forms does nothing else (it is not lightning) |
 | **L2 hold** | heal pose, then a spherical barrier that blocks every hit while held: 3 stamina to raise, 4 / s held. The bubble is fitted around the whole pose at every size and facing, and is her hurtbox while up |
 | **L2 just before a hit** (pressed at most 150 ms before it lands) | **parry**: no damage, the attacker is staggered **2 s** and slid **400 px** (bosses stay), and for 0.9 s Mera's hits do ×2. Holding the full bubble after that window **stops all damage** and slides the attacker **200 px** with no stun. Any other button except L1 drops the bubble and does that move. **L1 drinks a potion and the bubble stays** |
@@ -73,7 +73,7 @@ Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, 
 - The user asked for lightning on L2, Fury on R2+L2, and R1 freed for allies. The barrier also lived on L2, so **L2 now does both, split by press length**:
   - a **tap** gives the lightning (it needs the full meter);
   - a **hold** gives the barrier.
-- This works without any input delay, because both moves start with the same heal pose. L2 commits at once. If you let go before the bubble forms (heal frame 5, 300 ms), the pose carries on into the lightning. If you're still holding, the bubble forms.
+- This works without any input delay, because both moves start with the same heal pose. L2 commits at once. If you let go before the bubble forms (heal frame 5, about 83 ms, one rendered frame per drawing), the pose drops. If you're still holding, the bubble forms.
 - With less than 100 % rage a tap just drops the pose.
 - **Lightning from inside the bubble (the v0.3 R1-in-bubble) is back in v0.6, on Y.** v0.5 dropped it because L2 is already held and R1 is now for allies. **Y while the bubble is up** (100 % rage) is the strike.
   - It's unambiguous: Y never did anything inside the bubble, the earthquake needs a crouch, and quick fire can't start while shielded.
