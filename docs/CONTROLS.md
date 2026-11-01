@@ -57,7 +57,7 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **A** | X | A A A = 1x 2x 2x-2, A+S = rear explosion |
 | **S** | Y | S = quick fire |
 | **Q** | L1 | health potion |
-| **E** | left-stick click | mana potion |
+| **E** | left-stick click | mana potion. On Android the round **L3** button in the middle of the on-screen d-pad does the same |
 | **W** | R1 | summon an ally |
 | **1** (top row only) | L2 | hold = full bubble, just before a hit = parry |
 | **2** (top row only) | R2 | alone = lightning (costs 100 rage). **1 + 2** = Fury. Numpad 1 and 2 are not these |

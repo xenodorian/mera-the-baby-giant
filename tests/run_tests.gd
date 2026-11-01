@@ -1680,6 +1680,7 @@ func _run() -> void:
 	await _key_tests()
 	await _unlock_tests()
 	await _task_tests()
+	await _touch_tests()
 	await _mark_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
@@ -3304,6 +3305,21 @@ func _key_tests() -> void:
 		elif c.get("kind") in ["potion", "mana", "card"]:
 			items2 += 1
 	_check("chest: releases 3-5 coins and 1-3 items", coins2 >= 3 and coins2 <= 5 and items2 >= 1 and items2 <= 3, "%d coins %d items" % [coins2, items2])
+	var chest_coin: Node2D = null
+	for c in g.world.get_children():
+		if c is Node2D and c.get("kind") == "coin" and absf(float(c.global_position.x) - ch.global_position.x) <= 200.0:
+			chest_coin = c
+			break
+	var CYG = load("res://scripts/game/carry.gd")
+	var gold_before: int = CYG.gold
+	if chest_coin != null:
+		g.collect(chest_coin)
+	var gold_after_chest: int = CYG.gold
+	var plain_coin = load("res://scripts/game/pickup.gd").new()
+	plain_coin.setup(g, "coin", Vector2(3000.0, g.GROUND_Y))
+	g.collect(plain_coin)
+	plain_coin.free()
+	_check("chest coins are worth 3 gold each; a coin from a broken object is worth 1", chest_coin != null and gold_after_chest - gold_before == 3 and CYG.gold - gold_after_chest == 1, "chest +%d, plain +%d" % [gold_after_chest - gold_before, CYG.gold - gold_after_chest])
 	await _s4_frames(g, 60)
 	g.queue_free()
 	await process_frame
@@ -3505,3 +3521,27 @@ func _give_cards(g: Node, d: Dictionary) -> void:
 	CY.ensure()
 	CY.cards = d.duplicate(true)
 	g.cards = d.duplicate(true)
+
+
+# ================================================================ Android touch pad: L3 in the middle of the d-pad
+func _touch_tests() -> void:
+	var TP = load("res://scripts/game/touch_pad.gd")
+	var rects := {}
+	var mana_n := 0
+	for item in TP.LAYOUT:
+		rects[String(item[0])] = Rect2(float(item[1]), float(item[2]), float(item[3]), float(item[4]))
+		if String(item[0]) == "mana":
+			mana_n += 1
+	var mana: Rect2 = rects.get("mana", Rect2())
+	var cross_ok: bool = mana_n == 1 and mana.size.x > 0.0
+	if cross_ok:
+		cross_ok = mana.position.x >= rects["left"].end.x - 0.5 and mana.end.x <= rects["right"].position.x + 0.5 and mana.position.y >= rects["up"].end.y - 0.5 and mana.end.y <= rects["down"].position.y + 0.5
+	var overlaps := 0
+	for k in rects:
+		if k != "mana" and mana.intersects(rects[k]):
+			overlaps += 1
+	_check("touch pad: one L3 button sits in the empty middle of the d-pad and overlaps nothing", cross_ok and overlaps == 0, "n=%d rect=%s overlaps=%d" % [mana_n, mana, overlaps])
+	var tpn = TP.new()
+	var l3_label: String = tpn._label("mana")
+	tpn.free()
+	_check("touch pad: the L3 button sends the mana action (E / left-stick click)", InputMap.has_action("mana") and l3_label == "L3", "label=%s" % l3_label)

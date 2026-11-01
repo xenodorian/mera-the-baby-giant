@@ -1246,7 +1246,7 @@ func chest_contents(p: Vector2) -> void:
 	var n := kinds.size()
 	for i in n:
 		var pk: Pickup = Pickup.new()
-		pk.setup(self, String(kinds[i]), p)
+		pk.setup(self, String(kinds[i]), p, float(Tuning.CHEST_COIN_GOLD) if kinds[i] == "coin" else -1.0)
 		var dest := Vector2(p.x + (float(i) - float(n - 1) / 2.0) * 44.0, GROUND_Y - 10.0)
 		pk.pop(p, dest)
 		world.add_child.call_deferred(pk)
@@ -1362,9 +1362,10 @@ func collect(p: Pickup) -> void:
 		Sfx.play("clang", 1.4, -4.0)
 		hud.flash("pickup:key found  (touch a chest to open it)")
 	elif p.kind == "coin":
-		Carry.add_gold(1)
+		var worth := int(p.value) if p.value >= 1.0 else 1       # chest coins carry Tuning.CHEST_COIN_GOLD, others 1
+		Carry.add_gold(worth)
 		Sfx.play("potion", 1.2)
-		hud.flash("pickup:gold  %d" % Carry.gold)
+		hud.flash("pickup:gold +%d  (%d)" % [worth, Carry.gold])
 	elif p.kind == "card":
 		var id := String(Carry.ALLIES[drop_rng.randi() % Carry.ALLIES.size()])
 		if Carry.give_card(id):

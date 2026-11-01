@@ -2,6 +2,10 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## Unreleased (after v0.12.4)
+- **Chest coins are worth 3 gold each** (`Tuning.CHEST_COIN_GOLD`). A coin from a broken object is still worth 1.
+- **L3 on the Android pad.** A round L3 button sits in the middle of the on-screen d-pad and drinks a mana potion, so a player without a controller can use them.
+
 ## v0.12.4-playable (2026-11-01)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.12.4_Windows.exe

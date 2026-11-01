@@ -130,6 +130,7 @@ const ENEMY_LOOT := [["sphere", 100.0]]
 const KEY_DROP_P := 0.25          # an enemy death drops a key on its fury orb with this chance ...
                                   # ... but only while no key is out (on the floor or held). Keys are used on chests.
 const CHEST_COINS := [3, 5]       # a chest releases this many coins (inclusive) ...
+const CHEST_COIN_GOLD := 3        # ... and each of those coins is worth this much gold (a coin from a broken object is worth 1)
 const CHEST_ITEMS := [1, 3]       # ... and this many other items (potion, mana or card)
 const KEY_FX_S := 0.6             # the floating key shown when a chest unlocks
 const LOCKED_MSG_S := 1.5         # "a key opens it" is shown at most this often

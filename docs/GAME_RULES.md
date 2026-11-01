@@ -262,7 +262,7 @@ The four wave levels (1, 2, 3 and 5); the Moonlit Cemetery and the Dragon's Lair
 | Candle (2 looks) | 1 | the drop roll below |
 | Urn | 1 | the drop roll below |
 | Crate | 1 | the drop roll below |
-| Chest | key only | 3 to 5 coins and 1 to 3 other items (see Shop unlocks) |
+| Chest | key only | 3 to 5 coins (3 gold each) and 1 to 3 other items (see Shop unlocks) |
 | Explosive barrel | 1 | the drop roll below; explodes |
 | Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
 
@@ -327,5 +327,5 @@ Summon cards are **not lying on the maps**. Each of the four stage maps (Sunlit 
 - **Homing shots** are a sixth unlock: once bought, quick-fire bolts and rear-explosion fireballs steer toward the nearest enemy.
 - A locked move does nothing: the input falls back to the normal move.
 - **Keys:** some enemy deaths drop a key on top of their fury orb (25 % chance). Only one key exists at a time, on the floor or held; a new one drops only after the last is used. Keys only drop on levels that have chests.
-- **Chests** cannot be broken without a key. Touching a locked chest with a key uses it automatically: the key floats up, then 3 to 5 coins and 1 to 3 other items (health potion, mana potion or a summon card) pop out. The HUD shows KEY while one is held.
+- **Chests** cannot be broken without a key. Touching a locked chest with a key uses it automatically: the key floats up, then 3 to 5 coins (each worth 3 gold; a coin from a broken object is worth 1) and 1 to 3 other items (health potion, mana potion or a summon card) pop out. The HUD shows KEY while one is held.
 - **Level clear gold:** the first clear of a level pays 15 gold, each later clear 5 gold. Killing the Infernal Dragon at the end clears its stage, pays that clear gold plus 100, shows "You Defeated the Cavern Dragon!" and returns to the title screen.
