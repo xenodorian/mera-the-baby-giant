@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.5-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.5-playable/Mera_Playable_v0.10.5_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.5-playable/Mera_Playable_v0.10.5_Android.apk
+- **Up + Y bolts are twice as big** as a quick fire. The raised orb stays the bolt's red-orange, back at the old sphere's size. Same 15 mana, same three directions. Same signing key as v0.10.0. Android `versionCode` 27.
+
 ## v0.10.4-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.4-playable/Mera_Playable_v0.10.4_Windows.exe

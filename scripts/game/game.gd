@@ -1028,13 +1028,14 @@ func spawn_bolt(_m: Node, p: Vector2, d: int, s: float, dmg: bool, speed_mult: f
 	world.add_child(sh)
 
 
-## Up+Y: the same bolt, three of them. Straight up, and both upward diagonals.
+## Up+Y: the same bolt, three of them, drawn twice as big. Straight up, and both upward diagonals.
 func spawn_bolt_up(_m: Node, p: Vector2, s: float, dmg: bool) -> Node2D:
 	var last: Node2D = null
 	for aim in [Vector2(-0.7071, -0.7071), Vector2.UP, Vector2(0.7071, -0.7071)]:
 		var sh := Shot.new()
 		sh.up = true
 		sh.aim = aim
+		sh.bulk = 2.0
 		sh.setup(self, "bolt", p, 1, s, {}, dmg)
 		world.add_child(sh)
 		last = sh

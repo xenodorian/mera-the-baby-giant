@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.10.4. Five authored levels. Up+Y is a 15-mana triple bolt (orb matches the bolt). Sunlit Country one-way tops follow the painted pixels (platforms, tree canopies, bushes). Level music is CC0 chiptune in assets/music (HydroGene pack)._
+_Last updated: 2026-10-31, v0.10.5. Up+Y bolts are drawn at 2x (`Shot.bulk`); the raised orb matches the bolt color at the old ~11 px size. Five authored levels. Sunlit Country one-way tops follow the painted pixels. Level music is CC0 chiptune in assets/music (HydroGene pack)._
 
 
 ## v0.9.6 status (2026-10-31)

@@ -1893,16 +1893,17 @@ func _chain_window_2x(i: int) -> void:
 
 
 func _bolt_orb() -> Sprite2D:
-	var img := Image.create(48, 48, false, Image.FORMAT_RGBA8)
-	var c := Vector2(23.5, 23.5)
+	# Same colors as the bolt, same size as the old cyan sphere (~11 px). The bolts are what got bigger.
+	var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	var c := Vector2(7.5, 7.5)
 	var rings: Array = [
-		[22.0, Color8(163, 33, 33)],
-		[15.0, Color8(207, 86, 56)],
-		[9.0, Color8(250, 169, 83)],
-		[4.0, Color8(255, 248, 230)],
+		[5.5, Color8(163, 33, 33)],
+		[3.5, Color8(207, 86, 56)],
+		[2.0, Color8(250, 169, 83)],
+		[1.0, Color8(255, 248, 230)],
 	]
-	for y in 48:
-		for x in 48:
+	for y in 16:
+		for x in 16:
 			var d := Vector2(x, y).distance_to(c)
 			for ring in rings:
 				if d <= float(ring[0]):
