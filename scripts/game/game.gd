@@ -112,16 +112,8 @@ func _ready() -> void:
 			Levels.current = clampi(int(a.get_slice("=", 1)) - 1, 0, 3)
 			forced_level = true
 	if not test_mode and not forced_level:
-		run_mode = true
 		if carry.is_empty():
 			_load_run()
-		if not carry.is_empty():
-			stage_n = maxi(int(carry.get("stage", 1)), 1)
-			lives = maxi(int(carry.get("lives", 0)), 0)
-			quota = maxi(int(carry.get("quota", Roster.RUN_START)), Roster.RUN_START)
-			run_seed = int(carry.get("seed", 0))
-		if run_seed == 0:
-			run_seed = randi() % 100000 + 1
 	map_w = Levels.map_w()
 	_build_background()
 	world = Node2D.new()

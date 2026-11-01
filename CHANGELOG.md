@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.10.3-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.3-playable/Mera_Playable_v0.10.3_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.3-playable/Mera_Playable_v0.10.3_Android.apk
+- **The four built levels are back.** Level select again: Moonlit Cemetery, Misty Woods, Moonlit Town, Infernal Caverns. The generated tileset maps are not used. Potions, cards, mana, rage and size still carry between levels. A death still returns size to 2x. Same signing key as v0.10.0. Android `versionCode` 24.
+
 ## v0.10.2-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.2-playable/Mera_Playable_v0.10.2_Windows.exe
