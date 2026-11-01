@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.5-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.5-playable/Mera_Playable_v0.11.5_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.5-playable/Mera_Playable_v0.11.5_Android.apk
+- **Goblin hits for 1.** His heavy swing was 2, so the small bubble (which stops 1) still let a point through. Both swings are 1 now, and the small bubble stops them.
+- **Summons last 60 seconds.** The dancer still only dances for the first 5.
+- **Potions drink themselves when you need them.** A health potion grows Mera on pickup if she is under her size cap, otherwise it is stored. A mana potion fills the bar on pickup if it is short, otherwise it is stored. Breakables keep the 40% gold, 25% health, 25% mana, 10% card rolls even when the bar and the slots are full. Same signing key as v0.10.0. Android `versionCode` 34.
+
 ## v0.11.4-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.4-playable/Mera_Playable_v0.11.4_Windows.exe

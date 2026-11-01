@@ -61,7 +61,7 @@ const DEFS := {
 	# v0.10 itch.io CC0. Every one of these has 2 HP. A normal attack costs 1. Attack2 is the special and costs 2.
 	"lm_goblin": {"k": 4.0, "hp": 6, "speed": 150.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 3.0,
 		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 90.0, "cd": 1.2, "mode": "frames", "active": [2, 6]},
-			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 60.0, "far": 160.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},
+			{"anim": "atk2", "kind": "heavy", "dmg": 1, "tell": 0.55, "near": 60.0, "far": 160.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},
 	"lm_mushroom": {"k": 4.0, "hp": 7, "speed": 130.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 3.0,
 		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 90.0, "cd": 1.2, "mode": "frames", "active": [2, 6]},
 			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 60.0, "far": 160.0, "cd": 1.8, "mode": "frames", "active": [2, 6]}]},

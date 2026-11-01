@@ -1,11 +1,11 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.4. `Roster.face()` loads `assets/ui/faces/<id>.png` with `load()` (do not gate it on `FileAccess.file_exists`, which misses imported textures in an export and fell back to the whole sheet). If that load fails, the portrait is an `AtlasTexture` of the body crop. The dancer has no hurtbox and no `idle` clip: standing still plays `hips`. Ally and monster `_play` refuse a missing clip and clamp the frame. Pause item 3 opens the controls list (`hud.pause_controls`). Android versionCode 33._
+_Last updated: 2026-10-31, v0.11.5. Summons stay `Allies.STAY_S` 60 s. The dancer dances for `DANCE_S` (5), then idles for the rest. Goblin `atk2` damage is 1, so the small bubble stops both of his hits. Breakables always roll 40% gold, 25% health potion, 25% mana potion, 10% card. A health potion grows Mera if she is under `scale_cap()`, otherwise it is stored. A mana potion fills the bar if it is short, otherwise it is stored. Gold only if that store is also full._
 
 
 ## v0.9.6 status (2026-10-31)
-All four allies stay `Allies.STAY_S` 20 s. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the 20 s. `dancing()` is only that 5 s, which is what `game.dancer()` reports, so the lure ends with the dance.
+All four allies stay `Allies.STAY_S` 60 s. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the 60 s. `dancing()` is only that 5 s, which is what `game.dancer()` reports, so the lure ends with the dance.
 The brawler's `march` is always +1. She spawns at Mera's x + 40 and lands further right. `_march` runs right (walk at 1.8×, faster if she falls behind Mera). `_wall_ahead` stops her on a live wall or a closed door. She fights whoever is in melee reach, otherwise the nearest enemy to her right. She does not dodge. `game.brawler()` is her while she is alive and not leaving, and non-boss `monster._prey` chases her.
 The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`), then leaves. No repeating heal cooldown.
 L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.

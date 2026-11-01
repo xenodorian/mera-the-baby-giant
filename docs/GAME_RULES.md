@@ -233,7 +233,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 - **Rules:**
   - A summon uses one card.
   - At most 2 allies at once, one of each type.
-  - Allies stay **20 s**, then leave. The dancer dances for **5 s** of that.
+  - Allies stay **60 s**, then leave. The dancer dances for **5 s** of that.
   - Enemy attacks hurt allies too, and allies can be beaten.
 - **Level 1** has no cards.
 
@@ -242,7 +242,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 | **Water Priestess** (chierit) | blue | Surfs in and **heals Mera back up to 6x** as soon as she arrives, then once more just before she leaves. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
 | **Brawler Girl** (ansimuz, skin recolour) | orange | Lands in front of Mera and **runs right** until her time is up. She stops only to fight something in reach, or when a wall or a closed door is in the way. Enemies do **not** chase her; they stay on Mera |
-| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others at 20 s |
+| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others at 60 s |
 
 ## Impact (v0.8)
 - **Hit-stop:** a landed hit freezes the whole game for a moment (real time): **45 ms** normal, **80 ms** heavy (2+ base damage, launchers, explosions, lightning, counter hits), **100 ms** a kill, **120 ms** a parry; never more than 120 ms (overlaps extend, never stack). Beam ticks only stop on a kill. `scripts/game/hit_stop.gd` (autoload `HitStop`) drops `Engine.time_scale` and restores it per physics tick; Mera's input clock keeps real time through it, so combo windows don't change.

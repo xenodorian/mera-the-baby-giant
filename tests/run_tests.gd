@@ -1560,7 +1560,7 @@ func _run() -> void:
 	_check("allies leave when their time is up (%d s)" % int(AL.STAY_S["brawler"]), bz.state == "leave", bz.state)
 	g.queue_free()
 	await process_frame
-	_check("every summon lasts 20 s and the dance is 5 s", AL.STAY_S["priestess"] == 20.0 and AL.STAY_S["ranger"] == 20.0 and AL.STAY_S["brawler"] == 20.0 and AL.STAY_S["dancer"] == 20.0 and AL.DANCE_S == 5.0, "")
+	_check("every summon lasts 60 s and the dance is 5 s", AL.STAY_S["priestess"] == 60.0 and AL.STAY_S["ranger"] == 60.0 and AL.STAY_S["brawler"] == 60.0 and AL.STAY_S["dancer"] == 60.0 and AL.DANCE_S == 5.0, "")
 	g = await _new_game()
 	m = g.mera
 	m.position.x = 6000.0
