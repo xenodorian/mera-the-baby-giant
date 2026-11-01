@@ -112,6 +112,7 @@ const VBEAM := preload("res://scripts/game/vbeam.gd")
 var debris: Debris
 var props: Array = []
 var secrets_found := 0
+var strikes_made := 0               # lightning bolts created (tests: last_strike frees itself after about 1 s)
 var drops_made: Array = []           # [tier, kind] of every smart drop (tests)
 var mark_lock := false
 var marker: Node2D
@@ -1530,6 +1531,7 @@ func _bolt(m: Mera, x: float, victim: Node) -> void:
 	world.add_child(b)
 	b.setup(self, Vector2(x, GROUND_Y), s)
 	last_strike = b
+	strikes_made += 1
 	var e2 := Blast.new()
 	e2.setup("electro", Vector2(x, GROUND_Y), s)
 	world.add_child(e2)

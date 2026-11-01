@@ -249,6 +249,8 @@ func s() -> float:
 
 func scale_cap() -> int:
 	Carry.ensure()
+	if Carry.test_all:                       # tests: the shop's size cap is not what they exercise
+		return Carry.test_scale_cap
 	return clampi(Carry.scale_cap, 2, Carry.SCALE_CAP_MAX)
 
 

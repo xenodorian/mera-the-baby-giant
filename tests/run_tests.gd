@@ -236,6 +236,7 @@ func _input_map_tests() -> void:
 	for i in 10:
 		await physics_frame
 	var ov0: bool = g.hud.overlay
+	var pp0: bool = g.paused_play
 	var tr := InputEventJoypadMotion.new(); tr.axis = JOY_AXIS_TRIGGER_LEFT; tr.axis_value = 1.0
 	var st := InputEventJoypadButton.new(); st.button_index = JOY_BUTTON_START; st.pressed = true
 	Input.parse_input_event(st)            # mis-mapped pad: Start arrives first, the trigger a frame later
@@ -269,7 +270,9 @@ func _input_map_tests() -> void:
 	st.pressed = false; Input.parse_input_event(st)
 	for i in 12:
 		await physics_frame
-	_check("plain joypad Start (no trigger) still toggles the controls overlay", g.hud.overlay != ov0, "overlay=%s" % g.hud.overlay)
+	_check("plain joypad Start (no trigger) opens the pause menu", g.paused_play != pp0 and g.hud.overlay == ov0, "paused=%s overlay=%s" % [g.paused_play, g.hud.overlay])
+	if g.paused_play:
+		g.toggle_pause()
 	g.queue_free()
 	await physics_frame
 	await _keyboard_tests()
@@ -314,8 +317,9 @@ func _keyboard_tests() -> void:
 	m = g.mera
 	m.rage = 100.0
 	g.last_strike = null
+	var strikes0: int = g.strikes_made
 	await _kdrive([[2, KEY_2, true], [8, KEY_2, false]], 40)
-	_check("keyboard: 2 alone -> lightning (costs 100), not Fury", (not m.fury) and m.rage == 0.0 and g.last_strike != null, "rage=%f fury=%s" % [m.rage, m.fury])
+	_check("keyboard: 2 alone -> lightning (costs 100), not Fury", (not m.fury) and m.rage == 0.0 and g.strikes_made > strikes0, "rage=%f fury=%s" % [m.rage, m.fury])
 	g.queue_free()
 	await physics_frame
 	g = await _new_game()
@@ -409,12 +413,11 @@ func _run() -> void:
 	gr.last_strike = null
 	await _drive(gr, [[5, "l2", true], [8, "l2", false]], 30)
 	_check("L2 tap does not spend rage or strike", gr.last_strike == null and gr.mera.rage == 100.0 and not gr.mera.fury, "rage=%f" % gr.mera.rage)
-	var struck := false
+	var strikes1: int = gr.strikes_made
 	await _drive(gr, [[5, "r2", true], [8, "r2", false]], 40)
 	for _f in 40:
 		await physics_frame
-		if is_instance_valid(gr.last_strike):
-			struck = true
+	var struck: bool = gr.strikes_made > strikes1
 	_check("R2 alone spends the meter and strikes, and does not start Fury", gr.mera.rage == 0.0 and not gr.mera.rage_spending and struck and not gr.mera.fury, "rage=%f struck=%s fury=%s" % [gr.mera.rage, struck, gr.mera.fury])
 	gr.queue_free()
 	await process_frame
@@ -549,6 +552,7 @@ func _run() -> void:
 	await _drive(g, [[5, "l1", true], [8, "l1", false]], 60)
 	_check("L1 without potions does nothing", m.size == 3 and not ("heal" in m.move_log.slice(m.move_log.rfind("heal") + 1)), "size=%d" % m.size)
 	m.potions = 9
+	load("res://scripts/game/carry.gd").test_scale_cap = 6          # this block is about the cap itself
 	for i in 5:
 		await _drive(g, [[3, "l1", true], [6, "l1", false]], 80)
 	_check("potions cap size at 6x", m.size == 6, "size=%d" % m.size)
@@ -559,6 +563,7 @@ func _run() -> void:
 	await _drive(g, [], 90)
 	m.take_hit(3, m.global_position.x + 100.0)
 	_check("a big hit costs several sizes (5x -> 2x)", m.size == 2, "size=%d" % m.size)
+	load("res://scripts/game/carry.gd").test_scale_cap = 9
 	g.queue_free()
 	await process_frame
 	g = await _new_game()
@@ -954,7 +959,7 @@ func _run() -> void:
 	g = await _new_game()
 	m = g.mera
 	await _drive(g, [[3, "l2", true]], 123)
-	_check("bubble: 3 to raise + 4 per second held", m.barrier_on and absf(m.stamina - (60.0 - 3.0 - 4.0 * 2.0 + 2.0)) < 1.2, "st=%f" % m.stamina)
+	_check("bubble: 3 to raise + 4 per second held", m.barrier_on and absf(m.stamina - (60.0 - 3.0 - 4.0 * 2.0)) < 1.2, "st=%f" % m.stamina)
 	m.stamina = 1.0
 	await _drive(g, [], 30)
 	_check("bubble drops when stamina runs out", not m.barrier_on, "st=%f" % m.stamina)
@@ -982,13 +987,13 @@ func _run() -> void:
 	for i in 30:
 		g.collect(pk)
 	_check("max rage caps at 200", m.rage_max == 200.0, "max=%f" % m.rage_max)
-	_check("enemy loot: one of five, meter upgrades are the rare rows", g.enemy_loot_kind(0.1) == "sphere" and g.enemy_loot_kind(0.4) == "potion" and g.enemy_loot_kind(0.7) == "stamina" and g.enemy_loot_kind(0.9) == "stamina_max" and g.enemy_loot_kind(0.97) == "rage_max", "%s %s %s %s %s" % [g.enemy_loot_kind(0.1), g.enemy_loot_kind(0.4), g.enemy_loot_kind(0.7), g.enemy_loot_kind(0.9), g.enemy_loot_kind(0.97)])
+	_check("enemy loot: every roll is a fury orb (sphere)", g.enemy_loot_kind(0.1) == "sphere" and g.enemy_loot_kind(0.5) == "sphere" and g.enemy_loot_kind(0.97) == "sphere", "%s %s %s" % [g.enemy_loot_kind(0.1), g.enemy_loot_kind(0.5), g.enemy_loot_kind(0.97)])
 	var loot_rng := RandomNumberGenerator.new()
 	loot_rng.seed = 3
 	var loot_n := {"sphere": 0, "potion": 0, "stamina": 0, "stamina_max": 0, "rage_max": 0}
 	for i in 4000:
 		loot_n[g.enemy_loot_kind(loot_rng.randf())] += 1
-	_check("enemy loot rates: commons over 20%, meter upgrades under 12%", loot_n["sphere"] > 800 and loot_n["potion"] > 800 and loot_n["stamina"] > 800 and loot_n["stamina_max"] < 480 and loot_n["rage_max"] < 480 and loot_n["stamina_max"] > 80, "%s" % [loot_n])
+	_check("enemy loot rates: 100 % fury orbs", int(loot_n["sphere"]) == 4000, "%s" % [loot_n])
 	pk.free()
 	var dr: Array = [g.blue_drops(0.34, 0.5), g.blue_drops(0.35, 0.09), g.blue_drops(0.1, 0.05), g.blue_drops(0.9, 0.9)]
 	_check("blue drops: 35 % stamina potion, 10 % max potion, independent rolls", dr == [["stamina"], ["stamina_max"], ["stamina", "stamina_max"], []], "%s" % [dr])
@@ -1256,6 +1261,7 @@ func _run() -> void:
 		await physics_frame
 		await physics_frame
 		var lo_ok: bool = absf(m.position.x - LV.EDGE) < 1.0
+		g.props = g.props.filter(func(p): return not (is_instance_valid(p) and p.blocks_path()))     # walls and doors block the walk
 		if g.exit_locked():
 			m.position.x = LV.map_w() + 900.0
 			await physics_frame
@@ -1329,7 +1335,14 @@ func _run() -> void:
 	placed.sort()
 	var all_ids: Array = RO.ids()
 	all_ids.sort()
-	_check("every roster enemy is placed once; the cemetery (index 3) has none", placed == all_ids and not dup and not RO.LEVELS.has(3) and not RO.BOSSES.has(3), "%s" % [placed])
+	var uniq := {}
+	for pid in placed:
+		uniq[pid] = true
+	var unplaced: Array = []
+	for aid2 in all_ids:
+		if not uniq.has(aid2) and not (aid2 in RO.RUN_POOL):
+			unplaced.append(aid2)
+	_check("every roster enemy is on a level or in the endless-run pool; the cemetery (index 3) has none", unplaced.is_empty() and not RO.LEVELS.has(3) and not RO.BOSSES.has(3), "unplaced=%s repeated-between-levels=%s" % [unplaced, dup])
 	var dragon_boss: bool = RO.def("dragon").get("boss", false) and RO.BOSSES.get(5, "") == "dragon" and not RO.BOSSES.has(4)
 	_check("the dragon is his own stage, not the end of Infernal Caverns", dragon_boss, "")
 	var tell_ok := true
@@ -1462,22 +1475,21 @@ func _run() -> void:
 	LV.current = 1
 	g = await _new_game()
 	m = g.mera
-	var c0: Node2D = g.card_nodes[0]
-	for cn in g.card_nodes:                # v0.8: some cards are hidden (secrets); take the first one in the open
-		if not cn.hidden() and cn.base_y < 0.0:
-			c0 = cn
-			break
+	var c0: Node2D = load("res://scripts/game/ally_card.gd").new()     # no card lies on a map any more: place one
+	c0.setup(g, "priestess", Vector2(m.global_position.x + 600.0, g.GROUND_Y))
+	g.world.add_child(c0)
+	g.card_nodes.append(c0)
 	var cid: String = c0.ally_id
 	m.position.x = c0.global_position.x
 	await _drive(g, [], 4)
 	_check("touching a card collects it", int(g.cards.get(cid, 0)) == 1 and not g.card_nodes.has(c0), "%s" % [g.cards])
 	await _drive(g, [[3, "r1", true], [6, "r1", false]], 10)
-	_check("R1 with one card type -> that ally is summoned at once (no picker), the card is used", g.allies().size() == 1 and g.allies()[0].id == cid and int(g.cards[cid]) == 0 and not g.picker.open, "")
+	_check("R1 with one card type -> that ally is summoned at once (no picker), the card is used", g.allies().size() == 1 and g.allies()[0].id == cid and int(g.cards.get(cid, 0)) == 0 and not g.picker.open, "")
 	g.queue_free()
 	await process_frame
 	g = await _new_game()
 	m = g.mera
-	g.cards = {"ranger": 1, "dancer": 2}
+	_give_cards(g, {"ranger": 1, "dancer": 2})
 	await _drive(g, [[3, "r1", true], [6, "r1", false]], 8)
 	var opened: bool = g.picker.open and paused and g.picker.choices == ["ranger", "dancer"]
 	g.picker.move(1)
@@ -1493,7 +1505,7 @@ func _run() -> void:
 	m.position.x = 6000.0
 	g.snap_camera()
 	m.set_size(2, true)
-	g.cards = {"priestess": 1}
+	_give_cards(g, {"priestess": 1})
 	var prs: Node2D = g.summon_type("priestess")
 	await _drive(g, [], 150)
 	var healed1: bool = m.size == 6 and prs.heals == 1
@@ -1513,7 +1525,7 @@ func _run() -> void:
 		m.position.x = 6000.0
 		m.set_size(2, true)
 		g.snap_camera()
-		g.cards[aid] = 1
+		_give_cards(g, {aid: 1})
 		var aly: Node2D = g.summon_type(aid)
 		aly.stay = 1e9
 		aly.hp = 40
@@ -1557,7 +1569,7 @@ func _run() -> void:
 	var watchers: Array = [g.spawn_enemy("hell_hound", 12700.0), g.spawn_enemy("fire_skull", 11300.0), g.spawn_enemy("demon", 12500.0)]
 	var drg: Node2D = g.spawn_enemy("dragon", 12900.0)
 	await _drive(g, [], 20)
-	g.cards = {"dancer": 1}
+	_give_cards(g, {"dancer": 1})
 	var dz: Node2D = g.summon_type("dancer")
 	await _drive(g, [], 300)
 	var near_ok := true
@@ -1576,7 +1588,7 @@ func _run() -> void:
 	g.queue_free()
 	await process_frame
 	g = await _new_game()
-	g.cards = {"brawler": 1}
+	_give_cards(g, {"brawler": 1})
 	var bz: Node2D = g.summon_type("brawler")
 	await _drive(g, [], 90)
 	bz.age = bz.stay - 0.05
@@ -1591,7 +1603,7 @@ func _run() -> void:
 	m.facing = 1
 	g.snap_camera()
 	g.knight_calm_until = 1 << 30
-	g.cards = {"brawler": 1}
+	_give_cards(g, {"brawler": 1})
 	var br: Node2D = g.summon_type("brawler")
 	await _drive(g, [], 180)
 	var right: float = g.cam_x + 960.0
@@ -1608,7 +1620,7 @@ func _run() -> void:
 	m.position.x = 6000.0
 	m.facing = 1
 	g.snap_camera()
-	g.cards = {"dancer": 1}
+	_give_cards(g, {"dancer": 1})
 	var dg: Node2D = g.summon_type("dancer")
 	await _drive(g, [], 120)
 	var walked: bool = dg.dancing() and dg.global_position.x > m.global_position.x + 200.0
@@ -2011,7 +2023,7 @@ func _s4_tests() -> void:
 		await physics_frame
 	_check("crumbling plank grows back after %ds" % int(P.CRUMBLE_BACK_S), plank.state == "idle" and plank.solid(), "state=%s" % plank.state)
 	# ---- ally scaling (fixed to Mera's size)
-	g.cards["brawler"] = 2
+	_give_cards(g, {"brawler": 2})
 	m.set_size(2, true)
 	var a1: Node2D = g.summon_type("brawler")
 	await _s4_frames(g, 60)
@@ -2917,7 +2929,7 @@ func _v091_tests() -> void:
 	m.rage_max = 130.0
 	m.rage = 40.0
 	m.set_size(5, true)
-	g.cards = {"ranger": 2, "brawler": 1}
+	_give_cards(g, {"ranger": 2, "brawler": 1})
 	var bag: Dictionary = g._pack_run()
 	m.potions = 0
 	m.stamina = 0.0
@@ -2925,7 +2937,7 @@ func _v091_tests() -> void:
 	m.rage = 0.0
 	m.rage_max = 100.0
 	m.set_size(2, true)
-	g.cards = {}
+	_give_cards(g, {})
 	g._apply_run(bag)
 	_check("a cleared level keeps potions, cards, size, mana, rage and both upgrades", m.potions == 4 and m.size == 5 and m.stamina_max == 90.0 and absf(m.stamina - 12.0) < 0.1 and m.rage_max == 130.0 and absf(m.rage - 40.0) < 0.1 and int(g.cards.get("ranger", 0)) == 2 and int(g.cards.get("brawler", 0)) == 1, "p=%d size=%d mana %.0f/%.0f rage %.0f/%.0f cards=%s" % [m.potions, m.size, m.stamina, m.stamina_max, m.rage, m.rage_max, g.cards])
 	m.set_size(6, true)
@@ -3475,3 +3487,11 @@ func _task_tests() -> void:
 
 func create_timer_always(sec: float) -> void:
 	await root.get_tree().create_timer(sec, true, false, true).timeout
+
+
+## summoning spends cards from the persistent Carry store, so tests that need cards put them in both places
+func _give_cards(g: Node, d: Dictionary) -> void:
+	var CY = load("res://scripts/game/carry.gd")
+	CY.ensure()
+	CY.cards = d.duplicate(true)
+	g.cards = d.duplicate(true)

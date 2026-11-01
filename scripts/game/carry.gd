@@ -40,6 +40,7 @@ const PRICE_SUMMON := [90, 160, 240]            # the price of tier 1, 2, 3 (bou
 static var moves: Dictionary = {}               # move id -> true once bought
 static var summon_tier := 0
 static var test_all := false                    # tests: every unlock counts as owned
+static var test_scale_cap := 9                  # tests: the size cap while test_all is on (a test about the cap sets its own)
 static var test_homing := false                 # tests: homing shots on
 
 static var gold := 0
