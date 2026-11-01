@@ -1642,7 +1642,7 @@ func _run() -> void:
 	var cc: Vector2 = candle.hurt_rect().get_center()
 	g.spawn_bolt(m, cc + Vector2(-120.0, 0.0), 1, 2.0, true)
 	await _drive(g, [], 30)
-	_check("a quick-fire bolt breaks a candle", not candle.alive(), "hp=%d" % candle.hp)
+	_check("a quick-fire bolt breaks a candle", not is_instance_valid(candle) or not candle.alive(), "")      # a broken prop frees itself
 	var urn: Node2D = PROP.new()
 	urn.setup(g, "urn", 5600.0, {})
 	g.world.add_child(urn)
@@ -1652,7 +1652,7 @@ func _run() -> void:
 	es.setup(g, "hell_beast", "fireball", uc + Vector2(-160.0, 0.0), Vector2(700.0, 0.0), 1, 4.0)
 	g.world.add_child(es)
 	await _drive(g, [], 30)
-	_check("an enemy shot breaks an urn", not urn.alive(), "hp=%d" % urn.hp)
+	_check("an enemy shot breaks an urn", not is_instance_valid(urn) or not urn.alive(), "")
 	var crate: Node2D = PROP.new()
 	crate.setup(g, "crate", 5900.0, {})
 	g.world.add_child(crate)
@@ -1662,7 +1662,7 @@ func _run() -> void:
 	db.setup(g, null, dc + Vector2(-80.0, -200.0), dc, 0.4)
 	g.world.add_child(db)
 	await _drive(g, [], 40)
-	_check("a dragon bolt breaks a crate", not crate.alive(), "hp=%d state=%s" % [crate.hp, crate.state])
+	_check("a dragon bolt breaks a crate", not is_instance_valid(crate) or not crate.alive(), "")
 	g.queue_free()
 	await process_frame
 	LV.current = 0
