@@ -8,6 +8,6 @@ Licences and credits are in `docs/CREDITS.md` and `docs/ASSET_DECISIONS.md`. The
 - `_previews/`: raw sprite-sheet previews.
 - `_source/`: the original zips of each pack.
 
-Everything is published, including the rejected, unused Sprite Kitchen pack (owner decision, 2026-11-01). One exception for now: the Android signing key (`_keys/`) is gitignored and kept in the private `xenodorian/mera-assets` repo (`_keys/android/`).
+Everything is published, including the rejected, unused Sprite Kitchen pack and the Android signing key (`_keys/`). Nothing is private (owner decision, 2026-11-01).
 
 Clone: `git lfs install && git clone https://github.com/xenodorian/mera-the-baby-giant.git`

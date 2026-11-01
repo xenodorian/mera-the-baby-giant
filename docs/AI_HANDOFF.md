@@ -53,14 +53,14 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 - Every release ships a Windows exe **and** an Android ARM APK, plus `SHA256SUMS.txt` (plain file names, `sha256sum` over both binaries). The in-game updater refuses a release without it.
 - Before exporting, bump `application/config/version` in `project.godot`, and `version/code` (it must increase) and `version/name` in `export_presets.cfg`. Add the entry to `CHANGELOG.md`.
 - Windows: `$G --headless --path . --export-release "Windows Desktop" build/windows/Mera_Playable.exe`.
-- Android: load the signing values, point the keystore path at the key file (first copy `_keys/android/` from the private `xenodorian/mera-assets` repo to `assets/_keys/android/`) (the path inside `release.env` is stale), then export:
+- Android: load the signing values, point the keystore path at the key file in this repo (the path inside `release.env` is stale) (the path inside `release.env` is stale), then export:
   `set -a; . assets/_keys/android/release.env; set +a; export GODOT_ANDROID_KEYSTORE_RELEASE_PATH=$PWD/assets/_keys/android/mera-release.keystore; $G --headless --path . --export-release "Android" build/android/Mera_Playable.apk`
   Check the result with `aapt2 dump badging` and `apksigner verify`.
 - Name the files `Mera_Playable_vX.Y.Z_Windows.exe` and `Mera_Playable_vX.Y.Z_Android.apk`, tag `vX.Y.Z-playable`, and attach both plus `SHA256SUMS.txt` to the GitHub release. Updater details: `docs/UPDATER.md` and `tools/updater_e2e.sh`.
-- The keystore (alias `mera`) is the one file not in this repo: `assets/_keys/` is gitignored and the key lives in the private `xenodorian/mera-assets` repo under `_keys/android/`. A v0.9.0 install must be uninstalled once; later APKs signed with this key update in place.
+- The keystore (alias `mera`) is in this repo at `assets/_keys/android/`, by the owner's decision. A v0.9.0 install must be uninstalled once; later APKs signed with this key update in place.
 
 ## Repository layout (assets merged into this repo, 2026-11-01)
-- This repo is public and holds everything except the Android keystore (art, audio and source packs under `assets/`, Git LFS). The private repo `xenodorian/mera-assets` now holds only the keystore (`_keys/android/`).
+- This repo is public and holds everything: the art, audio and source packs under `assets/` (Git LFS) and the Android keystore (`assets/_keys/android/`). The former private repo `xenodorian/mera-assets` is no longer used.
 - History was rewritten once (2026-10-31) to strip `assets/` from old commits. Old clones and worktrees from before that date must be discarded and re-cloned.
 - The app icon is `res://assets/_project/icon.png`.
 - Tools that write into `assets/` (build_roster, build_props, recolor scripts) now write into this repo.
@@ -127,5 +127,5 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 ## Build tools
 - Godot 4.7.2-stable (Linux binary) and the matching export templates in `~/.local/share/godot/export_templates/4.7.2.stable/` (from the official `Godot_v4.7.2-stable_export_templates.tpz`).
 - Android export: OpenJDK 21 (the system Java works) and the Android SDK at `~/Android/Sdk` (`cmdline-tools/latest`, `platform-tools`, `build-tools;35.0.1` and `36.0.0`, `platforms;android-35` and `android-36`). `~/.config/godot/editor_settings-4.7.tres` points at both (`export/android/java_sdk_path`, `export/android/android_sdk_path`). The preset uses the prebuilt template (`gradle_build/use_gradle_build=false`), so no Gradle build is needed.
-- The art is in this repo under `assets/` (Git LFS): `git lfs install`, clone, then `--headless --import`. The Android signing key is not in git: copy `_keys/android/` from the private `xenodorian/mera-assets` repo to `assets/_keys/android/`.
+- The art is in this repo under `assets/` (Git LFS): `git lfs install`, clone, then `--headless --import`. The Android signing key is in `assets/_keys/android/`.
 - Screenshots need `xvfb-run` and the OpenGL driver (see Pitfalls). Python 3 with Pillow and numpy runs the `tools/` scripts.

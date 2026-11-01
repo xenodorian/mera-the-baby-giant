@@ -33,6 +33,6 @@ The steps (version bump, Windows exe, Android APK, `SHA256SUMS.txt`, tag and Git
 - The Windows exe and the Android APK are the deliverables.
 
 ## Repository layout
-- `xenodorian/mera-the-baby-giant` is **public** and holds everything except the Android signing key: code, scenes, shaders, tests, tools, docs, screenshots, and all art, audio and source packs under `assets/` (binary files in Git LFS). Nothing else is private (owner decision, 2026-11-01).
-- `xenodorian/mera-assets` (private) holds only the Android signing key (`_keys/android/`). `assets/_keys/` is gitignored.
+- `xenodorian/mera-the-baby-giant` is **public** and holds everything: code, scenes, shaders, tests, tools, docs, screenshots, all art, audio and source packs under `assets/` (binary files in Git LFS), and the Android signing key (`assets/_keys/android/`). Nothing is private (owner decision, 2026-11-01).
+- `xenodorian/mera-assets` is no longer used.
 - Changing an asset is a normal commit in this repo. Run `git lfs pull` first, then `--headless --import`.

@@ -32,6 +32,5 @@ build/
 *.keystore
 *.jks
 
-# The Android signing key stays out of git: the session's permission system refused to publish it.
-# To publish it (owner decision 2026-11-01), delete this line and `git add -f assets/_keys`.
-assets/_keys/
+# Owner decision (2026-11-01): nothing is private. The Android signing key is tracked on purpose.
+!assets/_keys/android/mera-release.keystore
