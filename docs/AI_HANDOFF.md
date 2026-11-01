@@ -1,12 +1,12 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.7. Level order is Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns. Country is index 0 (goblin pool). Cemetery is index 3 and is the only level missing from `Roster.LEVELS`, so it keeps the knights. The dragon is `BOSSES[4]`. Sunlit Country plays Flowerbed Fields (`assets/music/country.ogg`). The size pips are `mera.scale_cap()` (3 by default, 9 at the shop cap), not 6. Crates and chests, and every other destructible except the cracked wall, break in one hit. Down+A slide breaks those props with her body and collects the drop immediately (`game._sliding`). Both bubbles pull every on-screen pickup at `Tuning.BUBBLE_PULL`._
+_Last updated: 2026-11-01, v0.12.0. Level order is Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns, Dragon's Lair. Country is index 0. Cemetery is index 3 (knights). Caverns are index 4 and have no boss. The dragon is `BOSSES[5]` on a 7200 px arena that reuses the lava art. Down+Y earthquakes whenever Down is held, including the same frame. R2 alone is the lightning chain. L2+R2 is Fury, and she is invulnerable while it lasts. Stages after the first stay locked until the previous one is cleared or a 200 gold key is bought.
 
 
 ## v0.9.6 status (2026-10-31)
 All four allies stay `Allies.STAY_S` 60 s. The dancer walks to a point in front of Mera, dances for `DANCE_S` (5), then idles until the 60 s. `dancing()` is only that 5 s, which is what `game.dancer()` reports, so the lure ends with the dance.
-The brawler's `march` is always +1. She spawns at Mera's x + 40 and lands further right. `_march` runs right (walk at 1.8×, faster if she falls behind Mera). `_wall_ahead` stops her on a live wall or a closed door. She fights whoever is in melee reach, otherwise the nearest enemy to her right. She does not dodge. `game.brawler()` is her while she is alive and not leaving, and non-boss `monster._prey` chases her.
+The brawler chases the nearest enemy at a run (`_brawler_run`: walk frames at 2.2×, she has no run sheet). With no enemies she holds the right side of the screen, 200–400 px from the edge (`_brawler_hold`), and does not walk off it. `game.brawler()` is her while she is alive and not leaving. Enemies still chase Mera.
 The priestess heals on arrival and once more when `age >= stay` (`_begin_heal`), then leaves. No repeating heal cooldown.
 L1 while either bubble is up calls `_sip`: the potion is drunk and the bubble stays. Other buttons still drop it.
 The standing drink (`_start_move("heal")`) and every other heal-pose move play one authored frame per rendered frame (`frame_for_frame` in `layered_anim.gd`). The size still lands on heal frame 7, about 0.12 s after the press.

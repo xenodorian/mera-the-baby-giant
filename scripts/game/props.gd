@@ -53,7 +53,7 @@ static func layout(level: int, map_w: float) -> Array:
 	var id := ""
 	if level >= 0 and level < Levels.list().size():
 		id = String(Levels.list()[level].get("id", ""))
-	if id == "cemetery":
+	if id == "cemetery" or id == "dragon_lair":
 		return out
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7700 + level * 131

@@ -485,9 +485,7 @@ func _ai(_delta: float) -> void:
 	var e: Node2D = _nearest()
 	if e == null:
 		if id == "brawler":
-			vx = 0.0
-			if state != "idle":
-				_idle()
+			_brawler_hold()
 		else:
 			_follow(m)
 		return
@@ -533,6 +531,12 @@ func _ai(_delta: float) -> void:
 
 
 func _travel(face: int, gap: float) -> void:
+	if id == "brawler":
+		var spd := float(AL.SPEED["brawler"]) * 2.4
+		if gap > 180.0:
+			spd = clampf(gap * 1.8, spd, 1400.0)
+		_brawler_run(face, spd)
+		return
 	var a := "run" if id == "ranger" else "walk"
 	var spd := float(AL.SPEED[id])
 	if id == "priestess" and gap > 600.0:
@@ -547,6 +551,37 @@ func _travel(face: int, gap: float) -> void:
 			pass
 		else:
 			_go("move", a)
+
+
+## She has no run sheet. The walk cycle at 2.2x, moving well above walk speed, is the run.
+func _brawler_run(face: int, spd: float) -> void:
+	_face(face)
+	vx = face * spd
+	if state != "move" or sprite.animation != "walk":
+		_go("move", "walk")
+	sprite.speed_scale = 2.2
+
+
+## No enemies: stay on screen, on the right, between 200 and 400 px from the edge.
+func _brawler_hold() -> void:
+	var right := float(game.cam_x) + 960.0
+	var lo := right - 400.0
+	var hi := right - 200.0
+	var x := global_position.x
+	if x < lo:
+		var gap := lo - x
+		var spd := float(AL.SPEED["brawler"]) * 2.4
+		if gap > 120.0:
+			spd = clampf(gap * 2.5, spd, 1600.0)
+		_brawler_run(1, spd)
+		return
+	if x > hi:
+		_brawler_run(-1, clampf((x - hi) * 4.0, 420.0, 1400.0))
+		return
+	vx = 0.0
+	if state != "idle":
+		_idle()
+	_face(-1)
 
 
 func _march() -> void:

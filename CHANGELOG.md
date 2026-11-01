@@ -2,6 +2,16 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.12.0-playable (2026-11-01)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.12.0-playable/Mera_Playable_v0.12.0_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.12.0-playable/Mera_Playable_v0.12.0_Android.apk
+- **Down+Y is the earthquake.** Holding Down and pressing Y starts it, including pressing them on the same frame. It no longer requires the crouch pose to already be playing, which was turning the chord into a quick fire.
+- **The dragon has his own stage.** Infernal Caverns is the demon road and opens when it is clear. Dragon's Lair is stage 6, a short lava arena, and he is the only enemy. The gate stays shut until he falls.
+- **The brawler runs.** She closes on the nearest enemy at a run. The pack has no run sprites, so the walk cycle plays at 2.2×. With the screen empty she holds the right side, 200 to 400 px in from the edge, and does not leave.
+- **R2 is lightning.** It strikes every enemy on screen, one after another. **L2+R2 is Fury.** She cannot be hit during Fury. In Fury, R2 still takes off and lands.
+- **Stages 2 onward are locked.** Stage 1 is open. A stage opens when the one before it is cleared, or when a 200 gold stage key is bought. A new stage added later stays locked the same way. Reset locks them again. Same signing key as v0.10.0. Android `versionCode` 38.
+
 ## v0.11.7-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.7-playable/Mera_Playable_v0.11.7_Windows.exe

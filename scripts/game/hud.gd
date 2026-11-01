@@ -27,11 +27,11 @@ const CONTROLS := [
 	["Up + Y", "Up + S", "three large bolts: up and both diagonals, 15 mana"],
 	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 mana"],
 	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 mana, Up = double jump"],
-	["Down + Y (crouching)", "Down + S", "EARTHQUAKE: 1 s quake, grounded enemies stunned 5 s (20 mana)"],
+	["Down + Y", "Down + S", "EARTHQUAKE: hold Down and press Y, even together. 1 s quake, grounded enemies stunned 5 s (20 mana)"],
 	["L1", "Q", "heal: drink a green potion, +1 size, up to the size cap. One drawing per frame"],
 	["L2", "1", "full bubble while held (3 mana + 4/s). Pulls every item on screen. L1 drinks and it stays"],
-	["L2 + R2 (100 rage)", "1 + 2", "lightning from the sky (AOE). Costs 100 rage"],
-	["R2 (100 rage)", "2", "Fury for 12 s. Costs 100 rage. In Fury, R2 takes off / lands"],
+	["R2 (100 rage)", "2", "LIGHTNING: one bolt per enemy on screen, in a quick row. Costs 100 rage"],
+	["L2 + R2 (100 rage)", "1 + 2", "Fury for 12 s. Costs 100 rage. She cannot be hit. In Fury, R2 takes off / lands"],
 	["Down hold", "Down hold", "small bubble, 3 s, subtracts 1 damage, pulls every item on screen. L1 drinks and it stays"],
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
@@ -169,11 +169,11 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482 + hx, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
 	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140 + hx, 136), "R2 FURY   ·   L2+R2 LIGHTNING   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
+		_txt(Vector2(140 + hx, 136), "R2 LIGHTNING   ·   L2+R2 FURY   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
 		_txt(Vector2(200 + hx, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
 	if _flash == "fury_chord" and _flash_t > 0.0:
-		_txt(Vector2(260 + hx, 146), "Fury is L2 + R2 together", 22, Color(1, 0.6, 0.4))
+		_txt(Vector2(260 + hx, 146), "Fury is L2 + R2 together. She is invulnerable while it lasts", 22, Color(1, 0.6, 0.4))
 	if _flash == "parry" and _flash_t > 0.0:            # v0.8
 		_txt(Vector2(840, 300), "PARRY!", 64, Color(1.0, 0.92, 0.55, minf(_flash_t * 2.0, 1.0)))
 	if m.counter_active():

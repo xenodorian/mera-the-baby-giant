@@ -28,6 +28,7 @@ const PRICE_CARD := 25
 const PRICE_FURY := 50
 const PRICE_MANA_BAR := 50
 const PRICE_SCALE := 90
+const PRICE_KEY := 200
 
 const ALLIES := ["priestess", "ranger", "brawler", "dancer"]
 
@@ -44,6 +45,7 @@ static var cards: Dictionary = {}
 static var stamina := STAMINA_0
 static var rage := 0.0
 static var size := 2
+static var unlocked := 0       # highest stage index she may play. 0 = stage 1 only. Later stages stay locked.
 static var ready := false
 
 
@@ -74,6 +76,7 @@ static func _read(d: Dictionary) -> void:
 	stamina = clampf(float(d.get("stamina", stamina_max)), 0.0, stamina_max)
 	rage = clampf(float(d.get("rage", 0.0)), 0.0, rage_max)
 	size = clampi(int(d.get("size", 2)), 1, scale_cap)
+	unlocked = maxi(int(d.get("unlocked", 0)), 0)
 	cards = {}
 	var raw = d.get("cards", {})
 	if raw is Dictionary:
@@ -99,6 +102,7 @@ static func pack() -> Dictionary:
 		"stamina": stamina,
 		"rage": rage,
 		"size": size,
+		"unlocked": unlocked,
 	}
 
 
@@ -123,6 +127,7 @@ static func reset() -> void:
 	stamina = STAMINA_0
 	rage = 0.0
 	size = 2
+	unlocked = 0
 	ready = true
 	save()
 	if FileAccess.file_exists(RUN_PATH):
@@ -167,6 +172,24 @@ static func both_potions_full() -> bool:
 static func room_for_card() -> bool:
 	ensure()
 	return card_total() < card_cap
+
+
+static func stage_count() -> int:
+	return Levels.list().size()
+
+
+static func stage_open(i: int) -> bool:
+	ensure()
+	return i <= unlocked
+
+
+static func unlock_through(i: int) -> void:
+	ensure()
+	var n := maxi(i, unlocked)
+	if n == unlocked:
+		return
+	unlocked = n
+	save()
 
 
 static func add_gold(n: int) -> void:
@@ -290,6 +313,13 @@ static func buy(what: String, ally_id: String = "") -> String:
 				return "gold"
 			gold -= PRICE_SCALE
 			scale_cap += 1
+		"key":
+			if unlocked >= stage_count() - 1:
+				return "max"
+			if gold < PRICE_KEY:
+				return "gold"
+			gold -= PRICE_KEY
+			unlocked += 1
 		_:
 			return "bad"
 	save()
