@@ -20,10 +20,10 @@ static var _data: Dictionary = {}
 const DEFS := {
 	"minotaur": {"k": 4.0, "hp": 26, "speed": 110.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 10.0,
 		"attacks": [{"anim": "atk", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": -999.0, "far": 150.0, "cd": 1.6, "mode": "frames"}]},
-	"ogre": {"k": 5.0, "hp": 18, "speed": 120.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0,
+	"ogre": {"k": 10.0, "hp": 36, "speed": 120.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0,
 		"disarm": {"idle": "idle_unarmed", "move": "walk_unarmed", "speed": 170.0},
-		"attacks": [{"anim": "atk", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 110.0, "cd": 1.5, "mode": "frames"}],
-		"attacks_disarmed": [{"anim": "walk_unarmed", "kind": "rush", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 220.0, "cd": 1.3, "mode": "contact", "vx": 700.0, "dur": 0.45}]},
+		"attacks": [{"anim": "atk", "kind": "heavy", "dmg": 4, "tell": 0.5, "near": -999.0, "far": 110.0, "cd": 1.5, "mode": "frames"}],
+		"attacks_disarmed": [{"anim": "walk_unarmed", "kind": "rush", "dmg": 2, "tell": 0.4, "near": -999.0, "far": 220.0, "cd": 1.3, "mode": "contact", "vx": 700.0, "dur": 0.45}]},
 	"werewolf": {"k": 5.0, "hp": 10, "speed": 300.0, "ai": "charger", "idle": "idle", "move": "run", "rage": 6.0,
 		"attacks": [{"anim": "jump", "fall": "fall", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 60.0, "far": 520.0, "cd": 1.4, "mode": "contact", "vx": 700.0, "jump": 1250.0}]},
 	"wolf": {"k": 5.0, "hp": 4, "speed": 380.0, "ai": "charger", "idle": "run", "move": "run", "rage": 3.0, "skins": ["run", "run_skin"],
@@ -152,3 +152,25 @@ static func frame_art(id: String) -> Dictionary:
 		src.size.x = clampf(src.size.x, 1.0, tex.get_width() - src.position.x)
 		src.size.y = clampf(src.size.y, 1.0, tex.get_height() - src.position.y)
 	return {"tex": tex, "src": src, "pivot": piv}
+
+
+static var _faces: Dictionary = {}
+
+
+## A small opaque portrait. The big frame sheets are mostly empty, and on some devices those
+## empty pixels come out white. This bakes just the character onto the card colour, so the
+## picture itself has no blank canvas to turn into a white box.
+static func face(id: String) -> Texture2D:
+	if _faces.has(id):
+		return _faces[id]
+	var path := "res://assets/ui/faces/%s.png" % id
+	if FileAccess.file_exists(path):
+		var baked: Texture2D = load(path)
+		if baked != null:
+			_faces[id] = baked
+			return baked
+	var pic := frame_art(id)
+	var tex: Texture2D = pic["tex"]
+	if tex != null:
+		_faces[id] = tex
+	return tex

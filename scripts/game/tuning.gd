@@ -122,8 +122,8 @@ const SWING_PARRY_MS := 150.0     # v0.9.1: X (atk1 / jatk1) reflects a projecti
 # ---------------------------------------------------------------- v0.9.4 crouch bubble: free, 3 s, subtracts 1 damage. A fresh crouch still parries.
 const CROUCH_BUBBLE_R := 32.0
 const CROUCH_BUBBLE_S := 3.0
-## one defeated enemy drops exactly one of these. The two meter upgrades are the rare rows.
-const ENEMY_LOOT := [["sphere", 30.0], ["potion", 28.0], ["stamina", 28.0], ["stamina_max", 7.0], ["rage_max", 7.0]]
+## one defeated enemy drops a fury orb. Potions, coins, and cards come from breakables.
+const ENEMY_LOOT := [["sphere", 100.0]]
 # ---------------------------------------------------------------- v0.9.1 rising slash (datk2): windup 4x, rise 2x speed and 2x distance
 const RSLASH_WINDUP_SPEED := 4.0  # frames before the rise play at 4x (every frame is kept)
 const RSLASH_RISE_FROM := 7       # the upward burst is these frames ...

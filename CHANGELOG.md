@@ -2,6 +2,17 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.0-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.0-playable/Mera_Playable_v0.11.0_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.0-playable/Mera_Playable_v0.11.0_Android.apk
+- **Shop and reset** on the title screen. Gold buys more health-potion slots, mana-potion slots, card slots, a single summon card, a bigger fury bar, a bigger mana bar, and Mera's size cap (starts at 3x, up to 9x). Reset clears gold, items, and upgrades.
+- **Drops.** Enemies drop only fury orbs. Crates, urns, candles, chests, barrels, and cracked walls drop one item: 40% gold, 25% health potion, 25% mana potion, 10% summon card. Nothing is left lying on the map. If both potion stacks are full, the drop is always gold. You can hold 5 of each potion and 3 cards until the shop raises those caps.
+- **Summons stay** when they leave the screen. They fade out only when their time is up, or when they die. The brawler chases the nearest enemy instead of running right.
+- **The ogre is doubled**: drawn at 10x, 36 HP, hits for 4 (2 unarmed).
+- **Walls and closed doors block** Mera, enemies, and allies until the wall breaks or the door rises.
+- **Cards** are baked portraits, so the white box does not come back. The animation gallery is not bound to any key or button. Drink a mana potion with E or left-stick click. Same signing key as v0.10.0. Android `versionCode` 29.
+
 ## v0.10.6-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.10.6-playable/Mera_Playable_v0.10.6_Windows.exe

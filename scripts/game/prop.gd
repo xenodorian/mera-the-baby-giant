@@ -89,7 +89,7 @@ func alive() -> bool:
 
 
 func blocking() -> bool:
-	return false
+	return blocks_path()
 
 
 func hurt_rect() -> Rect2:
@@ -107,6 +107,19 @@ func surface() -> Vector3:
 
 func solid() -> bool:
 	return (kind == "plank" and state in ["idle", "crumble"]) or kind == "ledge"
+
+
+## Cracked walls and closed doors are solid. An opened door stops blocking once it has risen.
+func blocks_path() -> bool:
+	if kind == "wall":
+		return hp > 0 and state == "idle"
+	if kind == "door":
+		if state != "open":
+			return true
+		if spr == null or spr.texture == null:
+			return false
+		return spr.position.y > -spr.texture.get_height() * k * 0.55
+	return false
 
 
 func take_damage(amount: int, from_x: float, kind_: String = "melee") -> bool:
@@ -147,7 +160,7 @@ func _break(from_x: float, why: String) -> void:
 			Sfx.play("wood", 1.2)
 			Sfx.play("potion", 0.8, -4.0)
 			if game:
-				game.smart_drop(global_position + Vector2(0, -30), "big")
+				game.break_drop(global_position + Vector2(0, -30))
 				game.debris.spark(hurt_rect().get_center(), 3.0)
 			return
 	state = "broken"
@@ -158,8 +171,8 @@ func _break(from_x: float, why: String) -> void:
 		if kind == "crate":
 			_crate_pieces(from)
 		var tier: String = String(P.KINDS[kind][3])
-		if tier != "":
-			game.smart_drop(global_position + Vector2(0, -10), tier)
+		if tier != "" or kind == "wall":
+			game.break_drop(global_position + Vector2(0, -10))
 		if kind == "wall":
 			game.shake(10.0, 0.25)
 			HitStop.stop(Tuning.HITSTOP_HEAVY_MS)
@@ -185,6 +198,7 @@ func _explode() -> void:
 	var c := global_position + Vector2(0, -spr.texture.get_height() * k * 0.5)
 	if game:
 		game.barrel_blast(c, self)
+		game.break_drop(global_position)
 	var fx := AnimatedSprite2D.new()
 	var sf := SpriteFrames.new()
 	sf.set_animation_loop("default", false)

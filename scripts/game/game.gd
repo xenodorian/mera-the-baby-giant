@@ -48,6 +48,8 @@ var shots_prefix := ""
 var shot_at: Array = []
 var wait_frames := 60
 var quit_at := -1
+var picker_cycle := false
+var cli_cards := {}
 var demo: Array = []
 var _trace := OS.has_environment("MERA_TRACE")   # debug: print Mera's animation changes (demo tuning)
 var _trace_k := ""
@@ -160,11 +162,20 @@ func _ready() -> void:
 	_place_cards()
 	_place_props()
 	_parse_args()
+	var had_carry := FileAccess.file_exists(Carry.PATH)
+	Carry.ensure()
 	if not test_mode:
 		if carry.is_empty():
 			_load_run()
-		if not carry.is_empty():
+		if had_carry:
+			_apply_carry()
+		elif not carry.is_empty():
 			_apply_run(carry)
+			_sync_carry()
+		else:
+			_sync_carry()
+	for c in cli_cards:
+		cards[c] = int(cli_cards[c])
 	mera.set_size(mera.size, true)
 	explored_max = mera.position.x
 	explored_min = mera.position.x
@@ -254,6 +265,7 @@ func _parse_args() -> void:
 			hud.overlay = true
 		elif a.begins_with("--gallery="):
 			var ks: Array = AnimLib.keys()
+			mera.gallery_dev = true
 			mera.gallery_idx = maxi(ks.find(v), 0)
 			mera.gallery_toggle()
 		elif a.begins_with("--shot="):
@@ -272,9 +284,16 @@ func _parse_args() -> void:
 			summon_type.call_deferred(v)
 		elif a.begins_with("--cards="):          # --cards=priestess,ranger (capture / testing)
 			for c in v.split(","):
+				if c == "":
+					continue
 				cards[c] = int(cards.get(c, 0)) + 1
+				cli_cards[c] = cards[c]
 		elif a == "--open-picker":
 			open_picker_shot = true
+		elif a == "--picker-cycle":
+			picker_cycle = true
+		elif a == "--hold=right":
+			mera.forced["right"] = true
 		elif a == "--pause":
 			pause_shot = true
 		elif a.begins_with("--x="):
@@ -283,7 +302,7 @@ func _parse_args() -> void:
 			spawn_arg = v
 		elif a == "--demo":
 			demo = load("res://scripts/game/demo.gd").STEPS.duplicate()
-	if shot_path != "":
+	if shot_path != "" or picker_cycle or quit_at > 0:
 		process_mode = Node.PROCESS_MODE_ALWAYS
 
 
@@ -315,6 +334,14 @@ func _process(_delta: float) -> void:
 	if open_picker_shot and frame_n >= 5 and picker != null and not picker.open:
 		open_picker_shot = false
 		summon_ally()
+	if picker_cycle and picker != null:
+		if frame_n == 8 and not picker.open:
+			summon_ally()
+		if picker.open and frame_n > 30 and frame_n < 230 and frame_n % 45 == 0:
+			picker.move(1)
+		if frame_n == 240 and picker.open:
+			picker.close()
+			_line_up_cards()
 	if pause_shot and frame_n >= 8 and not paused_play:
 		pause_shot = false
 		toggle_pause()
@@ -701,6 +728,7 @@ func _layout_level() -> int:
 
 
 func _place_cards() -> void:
+	return
 	var idx := _layout_level()
 	for pair in Allies.CARDS.get(idx, []):
 		var c: Node2D = CARD.new()
@@ -710,10 +738,15 @@ func _place_cards() -> void:
 
 
 func collect_card(c: Node2D) -> void:
-	cards[c.ally_id] = int(cards.get(c.ally_id, 0)) + 1
+	Carry.ensure()
+	if Carry.give_card(c.ally_id):
+		cards = Carry.cards.duplicate(true)
+		Sfx.play("sphere", 0.8)
+		hud.flash("pickup:%s card  (R1: summon)" % Allies.NAMES[c.ally_id])
+	else:
+		Carry.add_gold(1)
+		hud.flash("pickup:card slots full  +1 gold")
 	card_nodes.erase(c)
-	Sfx.play("sphere", 0.8)
-	hud.flash("pickup:%s card  (R1: summon)" % Allies.NAMES[c.ally_id])
 	if not run_mode:
 		_bank(false)
 
@@ -726,10 +759,10 @@ func allies() -> Array:
 	return out
 
 
-## the dancing girl while she dances (monster.gd: non-boss enemies on screen come to watch)
+## the dancing girl while she is out (not leaving). Enemies come watch instead of swinging into her.
 func dancer() -> Node2D:
 	for a in allies():
-		if a.dancing():
+		if a.id == "dancer" and a.state != "leave" and a.state != "dead":
 			return a
 	return null
 
@@ -772,9 +805,10 @@ func summon_ally() -> bool:
 
 
 func summon_type(aid: String) -> Node2D:
-	if int(cards.get(aid, 0)) <= 0:
+	Carry.ensure()
+	if not Carry.take_card(aid):
 		return null
-	cards[aid] = int(cards[aid]) - 1
+	cards = Carry.cards.duplicate(true)
 	var a: Node2D = ALLY.new()
 	a.setup(self, aid)
 	world.add_child(a)
@@ -896,13 +930,19 @@ func _spawn_side(side: int, dist: float) -> int:
 	return side
 
 
-## invisible walls at both map ends; reaching the exit gate clears the level
+## invisible walls at both map ends, and cracked walls / closed doors in the level
 func _clamp_to_map() -> void:
 	var lo := Levels.EDGE
 	var hi := map_w - Levels.EDGE
 	mera.position.x = clampf(mera.position.x, lo, hi)
+	_block_body(mera)
 	for e in enemies():
 		e.position.x = clampf(e.position.x, lo, hi)
+		_block_body(e)
+	for a in allies_on:
+		if is_instance_valid(a):
+			a.position.x = clampf(a.position.x, lo, hi)
+			_block_body(a)
 	if not cleared and not over and not test_mode_no_exit and not exit_locked() and mera.position.x >= map_w - Levels.EXIT_PAD - 40.0:
 		cleared = true
 		over_t = 0.0
@@ -914,6 +954,63 @@ func _clamp_to_map() -> void:
 			quota += 1
 			_clear_saved = true
 			_bank(false, true)
+
+
+func _line_up_cards() -> void:
+	var i := 0
+	for c in card_nodes:
+		if not is_instance_valid(c):
+			continue
+		c.hidden_by = null
+		c.global_position = Vector2(cam_x - 420.0 + float(i) * 220.0, GROUND_Y - 40.0)
+		c.base_y = GROUND_Y - 40.0
+		i += 1
+
+
+func _block_body(body: Node2D) -> void:
+	if body == null or not is_instance_valid(body) or not body.has_method("hurt_rect"):
+		return
+	var prev := float(body.get_meta("_bx", body.global_position.x))
+	var hr: Rect2 = body.hurt_rect()
+	for pr in props:
+		if not is_instance_valid(pr) or not pr.has_method("blocks_path") or not pr.blocks_path():
+			continue
+		var r: Rect2 = pr.hurt_rect()
+		if hr.size.x < 1.0 or hr.size.y < 1.0 or hr.end.y <= r.position.y + 6.0 or hr.position.y >= r.end.y:
+			continue
+		var to_x := body.global_position.x
+		var overlap := hr.intersects(r)
+		var sweep_l := minf(hr.position.x, hr.position.x - (to_x - prev))
+		var sweep_r := maxf(hr.end.x, hr.end.x - (to_x - prev))
+		var crossed := sweep_r >= r.position.x and sweep_l <= r.end.x and absf(to_x - prev) > 0.25
+		if not overlap and not crossed:
+			continue
+		var from_left := prev <= r.get_center().x
+		var lead_r := hr.end.x - to_x
+		var lead_l := to_x - hr.position.x
+		if from_left:
+			var nx := r.position.x - lead_r - 0.5
+			if to_x > nx:
+				body.position.x += nx - to_x
+				_kill_x(body, 1)
+		else:
+			var nx2 := r.end.x + lead_l + 0.5
+			if to_x < nx2:
+				body.position.x += nx2 - to_x
+				_kill_x(body, -1)
+		hr = body.hurt_rect()
+	body.set_meta("_bx", body.global_position.x)
+
+
+func _kill_x(body: Node2D, dir: int) -> void:
+	if body == mera:
+		if (dir > 0 and mera.vel.x > 0.0) or (dir < 0 and mera.vel.x < 0.0):
+			mera.vel.x = 0.0
+		return
+	if body.get("vx") != null:
+		var vx := float(body.vx)
+		if (dir > 0 and vx > 0.0) or (dir < 0 and vx < 0.0):
+			body.vx = 0.0
 
 
 func _manage_run() -> void:
@@ -977,6 +1074,7 @@ func _blue_defeated(k: Node2D) -> void:
 
 
 func _manage_potions() -> void:
+	return
 	var x := mera.global_position.x
 	if x > potion_next_r:
 		potion_next_r += POTION_EVERY
@@ -1000,10 +1098,82 @@ func _drop_potion(x: float) -> void:
 	world.add_child(po)
 
 
+func _apply_carry() -> void:
+	mera.potions = Carry.potions
+	mera.mana_pots = Carry.mana_pots
+	mera.stamina_max = Carry.stamina_max
+	mera.stamina = clampf(Carry.stamina, 0.0, mera.stamina_max)
+	mera.rage_max = Carry.rage_max
+	mera.rage = clampf(Carry.rage, 0.0, mera.rage_max)
+	cards = Carry.cards.duplicate(true)
+	mera.set_size(mini(Carry.size, Carry.scale_cap), true)
+	on_potions_changed()
+
+
+func _sync_carry() -> void:
+	if mera == null:
+		return
+	Carry.push_play({
+		"potions": mera.potions,
+		"mana_pots": mera.mana_pots,
+		"cards": cards,
+		"stamina": mera.stamina,
+		"stamina_max": mera.stamina_max,
+		"rage": mera.rage,
+		"rage_max": mera.rage_max,
+		"size": mera.size,
+	})
+
+
+## one item from a broken prop. Fury orbs never come from these.
+func break_drop(p: Vector2) -> void:
+	Carry.ensure()
+	var kind := "coin"
+	if not Carry.both_potions_full():
+		var roll := drop_rng.randf()
+		if roll < 0.40:
+			kind = "coin"
+		elif roll < 0.65:
+			kind = "potion" if Carry.room_for_potion() else "coin"
+		elif roll < 0.90:
+			kind = "mana" if Carry.room_for_mana() else "coin"
+		else:
+			kind = "card" if Carry.room_for_card() else "coin"
+	var po: Pickup = Pickup.new()
+	po.setup(self, kind, Vector2(p.x, GROUND_Y - 10.0))
+	world.add_child.call_deferred(po)
+
+
 func collect(p: Pickup) -> void:
+	Carry.ensure()
 	if p.kind == "potion":
-		mera.potions += 1
-		Sfx.play("potion")
+		if Carry.give_potion():
+			mera.potions = Carry.potions
+			Sfx.play("potion")
+		else:
+			Carry.add_gold(1)
+			hud.flash("pickup:potion slots full  +1 gold")
+	elif p.kind == "mana":
+		if Carry.give_mana():
+			mera.mana_pots = Carry.mana_pots
+			Sfx.play("potion", 1.3)
+			hud.flash("pickup:mana potion  %d" % mera.mana_pots)
+		else:
+			Carry.add_gold(1)
+			hud.flash("pickup:mana slots full  +1 gold")
+	elif p.kind == "coin":
+		Carry.add_gold(1)
+		Sfx.play("potion", 1.2)
+		hud.flash("pickup:gold  %d" % Carry.gold)
+	elif p.kind == "card":
+		var id := String(Carry.ALLIES[drop_rng.randi() % Carry.ALLIES.size()])
+		if Carry.give_card(id):
+			cards = Carry.cards.duplicate(true)
+			Sfx.play("sphere", 0.8)
+			hud.flash("pickup:%s card" % Allies.NAMES[id])
+		else:
+			Carry.add_gold(1)
+			hud.flash("pickup:card slots full  +1 gold")
 	elif p.kind == "stamina":
 		var amt := p.value if p.value > 0.0 else Tuning.STAMINA_POTION
 		mera.add_stamina(amt)
@@ -1023,8 +1193,7 @@ func collect(p: Pickup) -> void:
 		mera.add_rage(p.value)
 		Sfx.play("sphere")
 	on_potions_changed()
-	if not run_mode:
-		_bank(false)
+	_sync_carry()
 
 
 func on_potions_changed() -> void:
@@ -1332,10 +1501,12 @@ func _bank(reset_size: bool, checkpoint := false) -> void:
 	var bag := _pack_run()
 	if reset_size:
 		bag["size"] = 2
+		mera.size = 2
 	carry = bag
 	var f := FileAccess.open(RUN_PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(bag))
+	_sync_carry()
 
 
 func _load_run() -> void:
@@ -1452,7 +1623,7 @@ func _menu_action(a: String) -> void:
 		else:
 			toggle_pause()
 	elif a == "select" and not over:
-		mera.gallery_toggle()
+		pass
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -1477,8 +1648,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			restart()
 		else:
 			toggle_pause()
-	elif event.is_action_pressed("select") and not event.is_echo() and not over:
-		mera.gallery_toggle()
 	elif event.is_action_pressed("debug") and not event.is_echo():
 		mera.debug = not mera.debug
 	elif event.is_action_pressed("size_up") and mera.debug and not event.is_echo():

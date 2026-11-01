@@ -89,16 +89,14 @@ func _draw_ui() -> void:
 			ui.draw_rect(r.grow(14), Color(c.r, c.g, c.b, 0.5))
 		ui.draw_rect(r, Color(0.07, 0.05, 0.1))
 		_border(r, c, 8.0)
-		var pic: Dictionary = ROSTER.frame_art(aid)
-		var tx: Texture2D = pic["tex"]
-		var src: Rect2 = pic["src"]
-		var piv: Vector2 = pic["pivot"]
+		var tx: Texture2D = ROSTER.face(aid)
 		if tx != null:
-			var fit := minf(220.0 / src.size.x, 250.0 / src.size.y)
-			var feet := Vector2(r.position.x + w / 2.0, r.position.y + 280.0)
-			ui.draw_set_transform(o + feet - piv * fit, 0.0, Vector2(fit, fit))
-			ui.draw_texture_rect_region(tx, Rect2(src.position, src.size), src)
-			ui.draw_set_transform(o, 0.0, Vector2.ONE)
+			var inner := Rect2(r.position.x + 24.0, r.position.y + 16.0, w - 48.0, 250.0)
+			var ts := tx.get_size()
+			var fit := minf(inner.size.x / maxf(ts.x, 1.0), inner.size.y / maxf(ts.y, 1.0))
+			var ds := ts * fit
+			var dp := Vector2(inner.position.x + (inner.size.x - ds.x) * 0.5, inner.end.y - ds.y)
+			ui.draw_texture_rect(tx, Rect2(dp, ds), false)
 		ui.draw_string(f, Vector2(r.position.x, r.position.y + 320), AL.NAMES[aid], HORIZONTAL_ALIGNMENT_CENTER, w, 28, c)
 		ui.draw_multiline_string(f, Vector2(r.position.x + 14, r.position.y + 352), AL.BLURB[aid], HORIZONTAL_ALIGNMENT_CENTER, w - 28, 18, 3, Color(0.9, 0.9, 0.95))
 		ui.draw_string(f, Vector2(r.position.x, r.position.y + 405), "x%d" % int(game.cards.get(aid, 0)), HORIZONTAL_ALIGNMENT_CENTER, w, 30, Color(1, 1, 1))

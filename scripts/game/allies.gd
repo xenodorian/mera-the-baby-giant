@@ -12,9 +12,9 @@ const COLORS := {
 	"dancer": Color(1.0, 0.4, 0.85),
 }
 const BLURB := {
-	"priestess": "heals Mera to 6x (30 s cooldown), water magic",
+	"priestess": "heals Mera up to her size cap, water magic",
 	"ranger": "arrows, kicks and a leaf beam",
-	"brawler": "runs right, ahead of Mera, and fights what she reaches",
+	"brawler": "chases the nearest enemy and fights them",
 	"dancer": "dances: every enemy on screen rushes over and jumps",
 }
 const STAY_S := {"priestess": 20.0, "ranger": 20.0, "brawler": 20.0, "dancer": 20.0}
