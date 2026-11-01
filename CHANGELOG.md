@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.11.4-playable (2026-10-31)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
+- Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.4-playable/Mera_Playable_v0.11.4_Windows.exe
+- Android: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.4-playable/Mera_Playable_v0.11.4_Android.apk
+- **Summon cards show the character, large.** The priestess and the ranger were the whole sprite sheet, so they drew as a speck in the middle of the card. The portrait is the character only.
+- **Enemies can touch the dancing girl.** Reaching her no longer plays a missing animation or a frame past the end of the clip, which was closing the game. She has no hurtbox, so a swing cannot land on her.
+- **Pause has Controls.** It lists the pad and the keyboard. A, B, or Start goes back to the pause menu. Same signing key as v0.10.0. Android `versionCode` 33.
+
 ## v0.11.3-playable (2026-10-31)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files.
 - Windows: https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.11.3-playable/Mera_Playable_v0.11.3_Windows.exe

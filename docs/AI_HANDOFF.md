@@ -1,7 +1,7 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
-_Last updated: 2026-10-31, v0.11.3. Pause "Back to title" calls `to_menu()`, which unpauses and `change_scene_to_file.call_deferred` to `scenes/menu.tscn`. An immediate change removed the pause menu before `get_viewport()`, which closed the game. Restart uses `reload_current_scene.call_deferred` for the same reason. Android versionCode 32._
+_Last updated: 2026-10-31, v0.11.4. `Roster.face()` loads `assets/ui/faces/<id>.png` with `load()` (do not gate it on `FileAccess.file_exists`, which misses imported textures in an export and fell back to the whole sheet). If that load fails, the portrait is an `AtlasTexture` of the body crop. The dancer has no hurtbox and no `idle` clip: standing still plays `hips`. Ally and monster `_play` refuse a missing clip and clamp the frame. Pause item 3 opens the controls list (`hud.pause_controls`). Android versionCode 33._
 
 
 ## v0.9.6 status (2026-10-31)

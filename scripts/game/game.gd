@@ -1621,6 +1621,9 @@ func toggle_pause() -> void:
 	paused_play = not paused_play
 	if hud:
 		hud.pause_sel = 0
+		if hud.pause_controls:
+			hud.pause_controls = false
+			hud.overlay = false
 	get_tree().paused = paused_play
 
 

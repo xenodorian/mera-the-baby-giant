@@ -157,11 +157,18 @@ static func _frames(eid: String) -> SpriteFrames:
 
 # ---------------------------------------------------------------- helpers
 func _play(a: String, from: int = 0) -> void:
+	if sprite == null or sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(a):
+		return
+	if not art["anims"].has(a):
+		return
+	var n := sprite.sprite_frames.get_frame_count(a)
+	if n <= 0:
+		return
 	played[a] = true
 	var e: Dictionary = art["anims"][a]
 	sprite.offset = Vector2(-float(e["pivot"][0]), -float(e["pivot"][1]))
 	sprite.play(a)
-	sprite.frame = from
+	sprite.frame = clampi(from, 0, n - 1)
 	sprite.speed_scale = 1.0
 
 
@@ -643,6 +650,7 @@ func _distracted(delta: float) -> bool:
 	vx = 0.0
 	_face(face)
 	if state != "cheer":
+		atk = {}
 		_set_state("cheer")
 		_play(_cur_idle())
 	if flyer:
@@ -790,6 +798,9 @@ func _start_active(m: Node2D) -> void:
 
 
 func _active_tick(m: Node2D, delta: float) -> void:
+	if atk.is_empty() or not atk.has("mode"):
+		_to_idle(0.2)
+		return
 	var mode := String(atk["mode"])
 	if mode == "contact":
 		if not hits_done.has(0) and m.state != "dead" and hurt_rect().intersects(m.hurt_rect()):
@@ -828,7 +839,7 @@ func _hit_allies(r: Rect2, w: int) -> void:
 		return
 	for a in game.allies():
 		var key := "a%d:%d" % [w, a.get_instance_id()]
-		if not hits_done.has(key) and r.intersects(a.hurt_rect()):
+		if not hits_done.has(key) and a.get("id") != "dancer" and r.intersects(a.hurt_rect()):
 			hits_done[key] = true
 			a.take_hit(int(atk["dmg"]), global_position.x)
 
