@@ -582,12 +582,24 @@ func _run() -> void:
 		_check("1x attack at %dx deals %d damage" % [sz, sz], g.knight.hp == 20 - sz, "hp=%d" % g.knight.hp)
 		g.queue_free()
 		await process_frame
-	# knight: 10 HP, sphere +10 % rage, only one at a time, respawn after death
+	# cemetery: three Fire Knights on fixed points (25 / 50 / 75 % of the walkable map), 10 HP each, sphere +10 % rage,
+	# a death refills the same point until KNIGHT_CAP have been spawned, and nobody despawns for distance
+	LVS.current = 3                       # Moonlit Cemetery is the knight fight
 	g = await _new_game(true)
 	m = g.mera
-	await _drive(g, [], 90)
-	_check("a Fire Knight spawns off-screen ahead", g.knight != null and absf(g.knight.global_position.x - g.cam_x) > 960.0, "")
-	var k1: Node = g.knight
+	await _drive(g, [], 30)
+	var kpts: Array = g._knight_points()
+	var span: float = (g.map_w - LVS.EDGE) - LVS.EDGE
+	var pts_ok: bool = absf(float(kpts[0]) - (LVS.EDGE + span * 0.25)) < 1.0 and absf(float(kpts[1]) - (LVS.EDGE + span * 0.5)) < 1.0 and absf(float(kpts[2]) - (LVS.EDGE + span * 0.75)) < 1.0
+	_check("cemetery knight points are 25, 50 and 75 % of the walkable width", pts_ok, "%s" % [kpts])
+	var spots := {}
+	for kk in g.knights:
+		spots[int(kk.get_meta("spot", -1))] = true
+	_check("cemetery starts with three Fire Knights, one per point", g.knights.size() == 3 and g.knights_spawned == 3 and spots.size() == 3 and g.knight != null, "n=%d spawned=%d spots=%s" % [g.knights.size(), g.knights_spawned, spots])
+	var k1: Node = null
+	for kk in g.knights:
+		if int(kk.get_meta("spot", -1)) == 1:
+			k1 = kk
 	var seed_ok := 1
 	for seed_i in 400:
 		var rng := RandomNumberGenerator.new()
@@ -608,21 +620,29 @@ func _run() -> void:
 		sphere.position = m.global_position + Vector2(0, -40)
 		await _drive(g, [], 40)
 	_check("that rage sphere gives +10 rage", is_equal_approx(m.rage, 10.0), "rage=%f" % m.rage)
-	_check("no second knight while one is dying", g.knight == null or g.knight == k1, "")
 	await _drive(g, [], 200)
-	_check("a new knight spawns after the previous one is defeated", g.knight != null and g.knight != k1 and g.knights_spawned == 2, "spawned=%d" % g.knights_spawned)
-	var k2: Node = g.knight
+	var refilled: Node = null
+	for kk in g.knights:
+		if int(kk.get_meta("spot", -1)) == 1 and kk != k1:
+			refilled = kk
+	_check("a death refills the same point", refilled != null and g.knights.size() == 3 and g.knights_spawned == 4, "n=%d spawned=%d" % [g.knights.size(), g.knights_spawned])
+	var before_far: Array = g.knights.duplicate()
 	m.position.x += 6000.0
 	await _drive(g, [], 30)
-	_check("leaving the knight far behind replaces him ahead", g.knight != k2 and g.knight != null and g.knights_spawned >= 3, "spawned=%d" % g.knights_spawned)
+	var still := 0
+	for kk in before_far:
+		if is_instance_valid(kk) and kk.alive():
+			still += 1
+	_check("leaving the knights far behind does not remove them", still == 3 and g.knights_spawned == 4, "alive=%d spawned=%d" % [still, g.knights_spawned])
 	g.knights_spawned = Roster.KNIGHT_CAP
-	var last: Node = g.knight
-	last.take_damage(99, m.global_position.x)
+	for kk in g.knights.duplicate():
+		if is_instance_valid(kk) and kk.alive():
+			kk.take_damage(99, m.global_position.x)
 	for b in g.blues.duplicate():
 		if is_instance_valid(b) and b.alive():
 			b.take_damage(99, m.global_position.x)
 	await _drive(g, [], 200)
-	_check("cemetery ends after %d knights: no further knight, and the exit opens" % Roster.KNIGHT_CAP, not g._knight_fight_live() and g.knights_spawned == Roster.KNIGHT_CAP and not g.exit_locked(), "spawned=%d locked=%s knight=%s" % [g.knights_spawned, g.exit_locked(), g.knight])
+	_check("cemetery ends after %d knights: no further knight, and the exit opens" % Roster.KNIGHT_CAP, not g._knight_fight_live() and g.knights_spawned == Roster.KNIGHT_CAP and not g.exit_locked(), "spawned=%d locked=%s knights=%d" % [g.knights_spawned, g.exit_locked(), g.knights.size()])
 	g.queue_free()
 	await process_frame
 	# fury
@@ -1646,6 +1666,7 @@ func _run() -> void:
 	await _s4_tests()
 	await _key_tests()
 	await _unlock_tests()
+	await _task_tests()
 	await _mark_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
@@ -3361,3 +3382,96 @@ func _unlock_tests() -> void:
 	C.test_all = true
 	g.queue_free()
 	await process_frame
+
+
+# ================================================================ TASKS.md: spawn cap, super quake order, homing, victory font, no map cards
+func _task_tests() -> void:
+	var C = load("res://scripts/game/carry.gd")
+	# 1. spawn cap: a stage spawns every wave enemy, so the cap is far above the old five
+	for lv in [0, 1, 2, 4]:
+		var gc: Node = await _s4_new(lv)
+		var cap: int = gc._stage_cap()
+		_check("spawn cap: level %d allows more than %d alive (cap %d)" % [lv + 1, Roster.MAX_ALIVE, cap], cap > Roster.MAX_ALIVE, "%d" % cap)
+		gc.queue_free()
+		await process_frame
+	# 3. super earthquake needs the normal earthquake and takes no gold without it
+	C.test_all = false
+	C.reset()
+	C.gold = 1000
+	var r1: String = C.buy("move:super_quake")
+	_check("super earthquake: refused with 'order' and no gold taken without the earthquake", r1 == "order" and C.gold == 1000 and not C.owns("super_quake"), "%s gold %d" % [r1, C.gold])
+	var menu: Node = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	menu.shop_page = 1
+	menu.shop_i = 2
+	var stat1: String = menu._shop_stat(2)
+	menu._shop_buy()
+	_check("shop: super earthquake row says 'needs earthquake', and the note says to buy it first", stat1 == "needs earthquake" and menu.note == "Buy the earthquake first.", "%s / %s" % [stat1, menu.note])
+	_check("shop: buying the earthquake works, then the super earthquake", C.buy("move:earthquake") == "" and C.buy("move:super_quake") == "" and C.owns("super_quake"), "")
+	menu.shop_i = 6
+	menu._shop_buy()
+	_check("shop: the summon-time note is unchanged for summon rows", menu.note != "Buy the earthquake first.", menu.note)
+	menu.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+	# 4. homing fireballs and the turned hit box
+	var g: Node = await _s4_new(3)
+	g.mera.global_position.x = 3000.0
+	await _s4_frames(g, 2)
+	var fb_shot := {"ang": 11.0, "speed_px_s": 300.0, "dist": 130.0, "ground_dy": 40.0}
+	var hf = load("res://scripts/game/shot.gd").new()
+	hf.homing = true
+	hf.setup(g, "fireball", Vector2(3000.0, 600.0), 1, 1.0, fb_shot, false)
+	g.world.add_child(hf)
+	g.spawn_enemy("wolf", 3600.0)
+	await _s4_frames(g, 20)
+	_check("homing fireball: turns toward the enemy instead of the parabola", is_instance_valid(hf) and hf.heading.y > 0.1, "%s" % (hf.heading if is_instance_valid(hf) else Vector2.ZERO))
+	var pf = load("res://scripts/game/shot.gd").new()
+	pf.setup(g, "fireball", Vector2(3000.0, 600.0), 1, 1.0, fb_shot, false)
+	g.world.add_child(pf)
+	await _s4_frames(g, 5)
+	_check("plain fireball: still the parabola (no heading)", is_instance_valid(pf) and pf.heading == Vector2.ZERO, "")
+	var hb = load("res://scripts/game/shot.gd").new()
+	hb.homing = true
+	hb.setup(g, "bolt", Vector2(3000.0, 700.0), 1, 1.0, {}, false)
+	hb.heading = Vector2.UP
+	var up_r: Rect2 = hb._flight_rect()
+	hb.heading = Vector2.RIGHT
+	var rt_r: Rect2 = hb._flight_rect()
+	_check("homing hit box follows the heading (tall going up, wide going right)", up_r.size.y > up_r.size.x and rt_r.size.x > rt_r.size.y, "%s %s" % [up_r.size, rt_r.size])
+	hb.free()
+	g.queue_free()
+	await process_frame
+	# 5. dragon victory: cleared once, 15 + 100 gold, card text is drawn by the HUD (no Label)
+	C.reset()
+	g = await _s4_new(5)
+	var dr: Node2D = g.spawn_enemy("dragon", g.mera.global_position.x + 600.0)
+	await process_frame
+	g.on_enemy_defeated(dr)
+	_check("dragon victory: sets cleared and pays clear gold plus 100, once", g.cleared and g.victory and C.gold == 115 and int(C.clears.get("5", 0)) == 1, "gold %d" % C.gold)
+	var t0 := Time.get_ticks_msec()
+	while not g.victory_card and Time.get_ticks_msec() - t0 < 8000:
+		await create_timer_always(0.1)
+	var labels := 0
+	for ch in g.get_children():
+		if ch is CanvasLayer and ch != g.hud:
+			for n in ch.get_children():
+				if n is Label:
+					labels += 1
+	_check("dragon victory: the card is drawn by the HUD, with no Label in the victory layer", g.victory_card and labels == 0, "card=%s labels=%d" % [g.victory_card, labels])
+	root.get_tree().paused = false
+	g.queue_free()
+	await process_frame
+	C.reset()
+	# 6. no summon card lies in any level
+	for lv in [0, 1, 2, 3, 4]:
+		var gk: Node = await _s4_new(lv)
+		_check("no card node on level %d" % (lv + 1), gk.card_nodes.is_empty(), "%d" % gk.card_nodes.size())
+		gk.queue_free()
+		await process_frame
+
+
+func create_timer_always(sec: float) -> void:
+	await root.get_tree().create_timer(sec, true, false, true).timeout

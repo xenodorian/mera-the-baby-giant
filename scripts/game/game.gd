@@ -22,7 +22,8 @@ const POTION_EVERY := 2600.0  # a potion appears on the ground ahead for every 2
 var mera: Mera
 var cam: Camera2D
 var cam_x := 960.0
-var knight: Node2D = null       # the Fire Knight (one at a time)
+var knight: Node2D = null       # one of the Fire Knights (the last spawned, or any living one)
+var knights: Array = []         # v0.12.2: up to three Fire Knights at once, on fixed points (see _knight_points)
 var blues: Array = []           # v0.4 Blue Knights he calls in
 var blues_spawned := 0
 var drop_rng := RandomNumberGenerator.new()
@@ -433,7 +434,10 @@ func shake(amount: float, t: float) -> void:
 # ---------------------------------------------------------------- enemies
 func enemies() -> Array:
 	var out: Array = []
-	if knight != null and is_instance_valid(knight) and knight.alive():
+	for k in knights:
+		if is_instance_valid(k) and k.alive():
+			out.append(k)
+	if knight != null and is_instance_valid(knight) and knight.alive() and not out.has(knight):
 		out.append(knight)
 	for b in blues:
 		if is_instance_valid(b) and b.alive():
@@ -635,6 +639,18 @@ func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
 	return e
 
 
+## the most enemies alive at once on this stage: the sum of every wave size between the first wave and the boss
+func _stage_cap() -> int:
+	var n := 0
+	var i := 0
+	var wx := Roster.WAVE_FIRST
+	while wx < map_w - Roster.BOSS_AT:
+		n += int(Roster.WAVE_SIZES[i % Roster.WAVE_SIZES.size()])
+		i += 1
+		wx = Roster.WAVE_FIRST + float(i) * Roster.WAVE_EVERY
+	return maxi(n, 1)
+
+
 ## waves every WAVE_EVERY px, cycling through the level's list so every enemy type shows up; a trickle when the
 ## screen stays empty. A boss-only stage (the Dragon's Lair) spawns its boss at the gate and nothing else.
 ## A boss that shares a stage waits until Mera is near the exit.
@@ -659,7 +675,7 @@ func _manage_roster(delta: float) -> void:
 		wave_i += 1
 		var jf := 0                                   # slots ahead / behind are numbered separately
 		for j in n:
-			if alive >= Roster.MAX_ALIVE:
+			if alive >= _stage_cap():
 				break
 			if _spawn_next(list, jf, behind):
 				behind = false                         # one walker per listed wave comes from behind
@@ -739,6 +755,7 @@ func on_enemy_defeated(e: Node2D) -> void:
 
 # ---------------------------------------------------------------- v0.12.2 dragon victory
 var victory := false
+var victory_card := false           # set when the dragon card is on screen (hud.gd draws its text)
 const DRAGON_GOLD := 100           # v0.12.2: the reward for the dragon at the end of the game
 const VICTORY_DELAY_S := 2.0      # the corpse falls and bursts before the card shows
 const VICTORY_CARD_S := 3.5       # the card holds this long, then the title screen
@@ -750,6 +767,8 @@ func _start_dragon_victory() -> void:
 		return
 	victory = true
 	if not run_mode:
+		cleared = true                          # the stage counts as cleared (also stops a second payment at the exit)
+		over_t = 0.0
 		Carry.unlock_through(Levels.current + 1)
 		var pay := Carry.record_clear(Levels.current)
 		Carry.add_gold(DRAGON_GOLD)            # v0.12.2: the dragon ends the game
@@ -763,22 +782,15 @@ func _start_dragon_victory() -> void:
 
 
 func _show_victory_card() -> void:
+	victory_card = true
 	var layer := CanvasLayer.new()
-	layer.layer = 100
+	layer.layer = 10                               # under the HUD (layer 20), which draws the card text on top
 	layer.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(layer)
 	var dim := ColorRect.new()
 	dim.color = Color(0.0, 0.0, 0.0, 0.72)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(dim)
-	var lbl := Label.new()
-	lbl.text = "You Defeated the Cavern Dragon!"
-	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
-	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 84)
-	lbl.add_theme_color_override("font_color", Color(1.0, 0.82, 0.35))
-	layer.add_child(lbl)
 	var tm := Timer.new()
 	tm.one_shot = true
 	tm.wait_time = VICTORY_CARD_S
@@ -806,12 +818,6 @@ func _layout_level() -> int:
 
 func _place_cards() -> void:
 	return
-	var idx := _layout_level()
-	for pair in Allies.CARDS.get(idx, []):
-		var c: Node2D = CARD.new()
-		c.setup(self, String(pair[1]), Vector2(float(pair[0]), GROUND_Y - 40.0))
-		world.add_child(c)
-		card_nodes.append(c)
 
 
 func collect_card(c: Node2D) -> void:
@@ -918,6 +924,9 @@ func _roster_threat() -> bool:
 
 
 func _knight_fight_live() -> bool:
+	for k in knights:
+		if is_instance_valid(k) and k.alive():
+			return true
 	if knight != null and is_instance_valid(knight) and knight.alive():
 		return true
 	for b in blues:
@@ -933,8 +942,12 @@ func finish_endpoint() -> void:
 		return
 	if not Roster.LEVELS.has(Levels.current):
 		knights_spawned = Roster.KNIGHT_CAP
+		for k in knights:
+			if is_instance_valid(k):
+				k.queue_free()
 		if knight != null and is_instance_valid(knight):
 			knight.queue_free()
+		knights.clear()
 		knight = null
 		blues.clear()
 		return
@@ -957,34 +970,81 @@ func is_last_level() -> bool:
 	return Levels.current >= Levels.list().size() - 1
 
 
-func _spawn_knight(side: int = 0) -> void:
-	if side == 0:
-		side = mera.facing
-	if knight != null and is_instance_valid(knight):
-		knight.queue_free()
+## v0.12.2: the three fixed spots of the cemetery fight, at 25 %, 50 % and 75 % of the walkable map
+func _knight_points() -> Array:
+	var lo := Levels.EDGE
+	var hi := map_w - Levels.EDGE
+	var span := hi - lo
+	return [lo + span * 0.25, lo + span * 0.50, lo + span * 0.75]
+
+
+## a Fire Knight at x on a numbered spot. Nothing is freed: up to three knights stand at once.
+func _spawn_knight_at(x: float, spot: int) -> void:
 	var k: FireKnight = FireKnight.new()
 	k.setup(self, "fire")
-	side = _spawn_side(side, 960.0 + KNIGHT_GAP)
-	k.position = Vector2(clampf(cam_x + side * (960.0 + KNIGHT_GAP), Levels.EDGE, map_w - Levels.EDGE), GROUND_Y)
-	k.facing = -side
+	k.position = Vector2(x, GROUND_Y)
+	k.facing = -1 if x > mera.global_position.x else 1
+	k.set_meta("spot", spot)
 	world.add_child(k)
+	knights.append(k)
 	knight = k
 	knights_spawned += 1
 
 
+## demo and tests only (the fight itself never places a knight from the camera): one knight just past the screen edge,
+## replacing the previous one
+func _spawn_knight(side: int = 0) -> void:
+	if side == 0:
+		side = mera.facing
+	if knight != null and is_instance_valid(knight):
+		knights.erase(knight)
+		knight.queue_free()
+	side = _spawn_side(side, 960.0 + KNIGHT_GAP)
+	_spawn_knight_at(clampf(cam_x + side * (960.0 + KNIGHT_GAP), Levels.EDGE, map_w - Levels.EDGE), -1)
+	knight.facing = -side
+
+
+func _spot_has_knight(spot: int) -> bool:
+	for k in knights:
+		if is_instance_valid(k) and k.alive() and int(k.get_meta("spot", -1)) == spot:
+			return true
+	return false
+
+
+## v0.12.2: three knights start on the fixed points. A death refills that same point (after knight_timer) until
+## Roster.KNIGHT_CAP have been spawned in total. Nobody despawns for distance.
 func _manage_knight(delta: float) -> void:
-	if knight != null and not is_instance_valid(knight):
-		knight = null
-	if knight == null:
-		if knights_spawned >= Roster.KNIGHT_CAP:
-			return
-		knight_timer -= delta
-		if knight_timer <= 0.0 and not over:
-			_spawn_knight()
-		return
-	for b in blues.duplicate():           # v0.12.2: no despawn for distance (Blue Knights stay until beaten)
+	for k in knights.duplicate():
+		if not is_instance_valid(k) or not k.alive():
+			knights.erase(k)
+	if knight != null and (not is_instance_valid(knight) or not knight.alive()):
+		knight = knights[0] if not knights.is_empty() else null
+	for b in blues.duplicate():           # no despawn for distance (Blue Knights stay until beaten)
 		if not is_instance_valid(b):
 			blues.erase(b)
+	if over:
+		return
+	var pts := _knight_points()
+	if knights_spawned == 0:
+		for spot in 3:
+			_spawn_knight_at(pts[spot], spot)
+		return
+	if knights_spawned >= Roster.KNIGHT_CAP:
+		return
+	var open := false
+	for spot in 3:
+		if not _spot_has_knight(spot):
+			open = true
+	if not open:
+		return
+	knight_timer -= delta
+	if knight_timer > 0.0:
+		return
+	for spot in 3:
+		if knights_spawned >= Roster.KNIGHT_CAP:
+			break
+		if not _spot_has_knight(spot):
+			_spawn_knight_at(pts[spot], spot)
 
 
 ## a side of the screen that still lies inside the map (near an end, enemies come in from the other side)
@@ -1120,7 +1180,8 @@ func on_knight_defeated(k: Node2D) -> void:
 	defeated += 1
 	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), 10.0)
 	_maybe_drop_key(k.global_position + Vector2(0, -10))
-	knight = null
+	knights.erase(k)
+	knight = knights[0] if not knights.is_empty() else null
 	knight_timer = 2.0
 	Sfx.play("boom", 1.6, -8.0)
 
@@ -1410,6 +1471,7 @@ func vertical_beam(m: Mera, p: Vector2) -> Node2D:
 
 func spawn_fireball(_m: Node, p: Vector2, d: int, s: float, shot: Dictionary, dmg: bool) -> void:
 	var sh := Shot.new()
+	sh.homing = Carry.owns("homing")
 	sh.setup(self, "fireball", p, d, s, shot, dmg)
 	world.add_child(sh)
 
@@ -1817,6 +1879,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			menu_guard_drops += 1
 		return
+	if victory:
+		return                                      # the dragon card runs by itself and returns to the title
 	if (over or cleared) and over_t > 1.0 and event.is_action_pressed("btn_b") and not event.is_echo():
 		to_menu()
 		return

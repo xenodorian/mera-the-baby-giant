@@ -216,7 +216,11 @@ func _shop_name(i: int) -> String:
 func _shop_stat(i: int) -> String:
 	var w := _shop_what(i)
 	if w.begins_with("move:"):
-		return "owned" if Carry.owns(w.substr(5)) else "locked"
+		if Carry.owns(w.substr(5)):
+			return "owned"
+		if w == "move:super_quake" and not Carry.owns("earthquake"):
+			return "needs earthquake"
+		return "locked"
 	if w.begins_with("summon:"):
 		var t := int(w.substr(7))
 		if t <= Carry.summon_tier:
@@ -295,7 +299,7 @@ func _shop_buy() -> void:
 		note = "Already owned."
 		Sfx.play("swipe", 0.8, -10.0)
 	elif result == "order":
-		note = "Buy the shorter summon time first."
+		note = "Buy the earthquake first." if what == "move:super_quake" else "Buy the shorter summon time first."
 		Sfx.play("swipe", 0.8, -10.0)
 	elif result == "full":
 		note = "Card slots full."

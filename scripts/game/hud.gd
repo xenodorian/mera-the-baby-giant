@@ -264,7 +264,7 @@ func _draw_ui() -> void:
 			_center(o.y + 640, "Back at 2x. One life spent (%d left). Items stay.   A: retry this map    B: title" % game.lives, 28, Color(0.95, 0.92, 0.88))
 		else:
 			_center(o.y + 640, "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28, Color(0.95, 0.92, 0.88))
-	if game.cleared and game.over_t > 0.3:
+	if game.cleared and game.over_t > 0.3 and not game.victory:
 		var o2 := _origin()
 		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
 		var last: bool = game.has_method("is_last_level") and game.is_last_level() and not game.run_mode
@@ -288,6 +288,10 @@ func _draw_ui() -> void:
 			var o3 := _origin()
 			_center(o3.y + 330, "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
 			_center(o3.y + 400, String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
+	if game.victory_card:
+		var vt := "You Defeated the Cavern Dragon!"
+		ui.draw_string(font, Vector2(4, 504), vt, HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(0, 0, 0, 0.55))
+		ui.draw_string(font, Vector2(0, 500), vt, HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(1.0, 0.82, 0.35))
 
 
 func _center(y: float, t: String, sz: int, c: Color) -> void:

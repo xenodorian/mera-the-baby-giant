@@ -40,6 +40,7 @@ const PRICE_SUMMON := [90, 160, 240]            # the price of tier 1, 2, 3 (bou
 static var moves: Dictionary = {}               # move id -> true once bought
 static var summon_tier := 0
 static var test_all := false                    # tests: every unlock counts as owned
+static var test_homing := false                 # tests: homing shots on
 
 static var gold := 0
 static var potion_cap := POTION_CAP_0
@@ -77,6 +78,8 @@ static func ensure() -> void:
 
 ## v0.12.2: a bought unlock (or every unlock, under test_all)
 static func owns(id: String) -> bool:
+	if id == "homing":
+		return test_homing or bool(moves.get(id, false))      # test_all leaves homing off so the old bolt tests keep their aim
 	return test_all or bool(moves.get(id, false))
 
 
@@ -314,6 +317,8 @@ static func _buy_move(id: String) -> String:
 		return "bad"
 	if owns(id):
 		return "owned"
+	if id == "super_quake" and not owns("earthquake"):
+		return "order"
 	var price := int(PRICE_MOVE[id])
 	if gold < price:
 		return "gold"

@@ -101,6 +101,40 @@ func _home(delta: float) -> Vector2:
 	return heading
 
 
+## v0.12.2: the hit box of a homing projectile covers the bolt along its heading (not the flat horizontal rect)
+func _flight_rect() -> Rect2:
+	var vis := size * bulk
+	var reach := 5.0 * vis
+	var half := Vector2(absf(heading.x) * reach + 3.0 * vis, absf(heading.y) * reach + 3.0 * vis)
+	return Rect2(position - half, half * 2.0)
+
+
+## v0.12.2: a homing fireball does not follow the parabola. It flies like a homing bolt (same _home step and speed),
+## explodes on an enemy or a prop, on the ground, or when it leaves the screen.
+func _fireball_homing(delta: float) -> void:
+	if heading == Vector2.ZERO:
+		heading = Vector2(dir, tan(deg_to_rad(float(shot["ang"])))).normalized()     # leaves along the wand, 11 deg down
+	position += _home(delta) * speed() * delta
+	trail.push_front(position)
+	if trail.size() > 7:
+		trail.pop_back()
+	queue_redraw()
+	var hit := false
+	if damaging:
+		var r := _flight_rect()
+		for e in game.enemies():
+			if e.alive() and r.intersects(e.hurt_rect()):
+				hit = true
+		if not hit and game.prop_at(r) != null:
+			hit = true
+	if position.y >= game.GROUND_Y - 10.0 or absf(position.x - game.camera_x()) > 2200.0:
+		hit = true
+	if hit:
+		done = true
+		game.explode(Vector2(position.x, game.GROUND_Y), size, damaging)
+		queue_free()
+
+
 func _homing_target() -> Node2D:
 	var best: Node2D = null
 	var bd := HOMING_RANGE
@@ -128,7 +162,7 @@ func _physics_process(delta: float) -> void:
 			position.x += dir * speed() * delta
 		spr.frame = int(t * 1000.0 / 40.0) % spr.hframes
 		var vis := size * bulk
-		var r := Rect2(position - Vector2(3, 5) * vis, Vector2(6, 10) * vis) if up else Rect2(position - Vector2(5, 3) * vis, Vector2(10, 6) * vis)
+		var r := _flight_rect() if homing else (Rect2(position - Vector2(3, 5) * vis, Vector2(6, 10) * vis) if up else Rect2(position - Vector2(5, 3) * vis, Vector2(10, 6) * vis))
 		if damaging:
 			for e in game.enemies():
 				if e.alive() and r.intersects(e.hurt_rect()):
@@ -146,6 +180,9 @@ func _physics_process(delta: float) -> void:
 			queue_free()
 		return
 	# fireball
+	if homing:
+		_fireball_homing(delta)
+		return
 	var sp := float(shot["speed_px_s"])
 	var dist := float(shot["dist"])
 	var tana := tan(deg_to_rad(float(shot["ang"])))
