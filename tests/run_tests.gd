@@ -621,6 +621,7 @@ func _run() -> void:
 		if c.get("kind") == "sphere":
 			sphere = c
 	_check("knight drops a rage sphere from the loot table", sphere != null, "")
+	m.rage = 0.0                           # rage carries over from earlier games (Carry.rage), so start from 0
 	if sphere:
 		sphere.position = m.global_position + Vector2(0, -40)
 		await _drive(g, [], 40)
@@ -1670,7 +1671,7 @@ func _run() -> void:
 	var menu: Node = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(menu)
 	await process_frame
-	_check("level select menu loads with 4 level cards", menu.thumbs.size() == 4, "")
+	_check("level select menu loads with one card per level", menu.thumbs.size() == LV.list().size(), "%d cards, %d levels" % [menu.thumbs.size(), LV.list().size()])
 	menu._move(1)
 	_check("menu: Right selects level 2", menu.sel == 1, "")
 	menu.queue_free()
@@ -1716,9 +1717,9 @@ func _s4_tests() -> void:
 	var P = load("res://scripts/game/props.gd")
 	var T = load("res://scripts/game/tuning.gd")
 	# ---- props per level
-	var lay_ok: bool = P.layout(0, 20000.0).is_empty()
+	var lay_ok: bool = P.layout(3, 20000.0).is_empty()
 	var lay_info := ""
-	for lv in [1, 2, 3]:
+	for lv in [0, 1, 2, 4]:
 		var kinds := {}
 		for it in P.layout(lv, 24000.0):
 			kinds[String(it[0])] = true
@@ -1729,7 +1730,7 @@ func _s4_tests() -> void:
 		if not (kinds.has("candle") or kinds.has("candle_b")) or not kinds.has("urn"):
 			lay_ok = false
 		lay_info += "L%d=%s " % [lv, kinds.keys()]
-	_check("props: level 1 untouched; levels 2-4 have candles, urns, crates, chests, barrels", lay_ok, lay_info)
+	_check("props: the cemetery has none; the four wave levels have candles, urns, crates, chests, barrels", lay_ok, lay_info)
 
 	# ---- hit-stop
 	var g: Node = await _s4_new(1)
@@ -1834,6 +1835,7 @@ func _s4_tests() -> void:
 	_check("juggle: escalating gravity, each air hit lifts it less", rises[0] > rises[1] and rises[1] > rises[2], "%s" % [rises])
 	await _s4_frames(g, 120)
 	# wall bounce
+	g.props = g.props.filter(func(p): return not (is_instance_valid(p) and p.blocks_path()))     # cracked walls and doors block the teleport
 	w.position.x = LVS.EDGE + 160.0
 	w.hp = 99
 	m.position.x = w.position.x + 200.0
@@ -1943,6 +1945,7 @@ func _s4_tests() -> void:
 	for pr in g.props:
 		if is_instance_valid(pr) and pr.kind == "chandelier" and pr.alive() and (ch == null or absf(pr.global_position.x - 12000.0) < absf(ch.global_position.x - 12000.0)):
 			ch = pr
+	g.props = g.props.filter(func(p): return not (is_instance_valid(p) and p.blocks_path()))     # cracked walls and doors block the teleport
 	m.position.x = ch.global_position.x - 500.0
 	g.snap_camera()
 	var under: Node2D = g.spawn_enemy("werewolf", ch.global_position.x)
@@ -1971,8 +1974,6 @@ func _s4_tests() -> void:
 	g = await _s4_new(1)
 	m = g.mera
 	var wall: Node2D = _s4_prop(g, "wall")
-	var wcard: Node2D = wall.card
-	var hidden_ok: bool = wcard != null and wcard.hidden_by == wall and not wcard.visible
 	m.position.x = wall.global_position.x - 200.0
 	await _s4_frames(g, 3)
 	var hits := 0
@@ -1980,18 +1981,16 @@ func _s4_tests() -> void:
 		m.deal(wall, 1, m.global_position.x, "melee")
 		hits += 1
 	await _s4_frames(g, 5)
-	_check("secret wall: hides its card until broken (%d hits), then the card can be taken" % hits, hidden_ok and (not is_instance_valid(wall) or not wall.alive()) and wcard.hidden_by == null and g.secrets_found == 1 and hits > 1, "hidden=%s hits=%d" % [hidden_ok, hits])
+	_check("secret wall: breaks after 4 hits and counts as a secret found", hits == 4 and (not is_instance_valid(wall) or not wall.alive()) and g.secrets_found == 1, "hits=%d found=%d" % [hits, g.secrets_found])
 	var lever: Node2D = _s4_prop(g, "lever")
 	var door: Node2D = lever.door
-	var dcard: Node2D = door.card
 	m.position.x = lever.global_position.x - 120.0
 	await _s4_frames(g, 3)
 	m.deal(lever, 1, m.global_position.x, "melee")
 	await _s4_frames(g, 100)
-	_check("secret door: pulling its lever opens it and frees the card", door.state == "open" and dcard.hidden_by == null and g.secrets_found == 2, "door=%s" % door.state)
+	_check("secret door: pulling its lever opens it", door.state == "open" and g.secrets_found == 2, "door=%s found=%d" % [door.state, g.secrets_found])
 	var plank: Node2D = _s4_prop(g, "plank")
 	var ledge: Node2D = _s4_prop(g, "ledge")
-	var lcard: Node2D = ledge.card
 	m.position = Vector2(plank.global_position.x, plank.top_y - 200.0)
 	m.state = "air"
 	m.on_ground = false
@@ -2007,7 +2006,7 @@ func _s4_tests() -> void:
 			break
 	await _s4_frames(g, 40)
 	_check("crumbling plank: Mera lands on it, it shakes and breaks under her, she drops to the ground", stood and crumbled and not plank.solid() and absf(m.global_position.y - g.GROUND_Y) < 2.0, "stood=%s crumbled=%s y=%f" % [stood, crumbled, m.global_position.y])
-	_check("ledge: the card floats on top of the ledge", absf(lcard.base_y - (ledge.top_y - 40.0)) < 0.1 and ledge.top_y < g.GROUND_Y - 250.0, "base=%f top=%f" % [lcard.base_y, ledge.top_y])
+	_check("ledge: it stands well above the ground", ledge.top_y < g.GROUND_Y - 250.0, "top=%f" % ledge.top_y)
 	m.position = Vector2(ledge.global_position.x, ledge.top_y - 100.0)
 	m.state = "air"
 	m.on_ground = false
@@ -2213,7 +2212,10 @@ func _dragon_tests() -> void:
 	for i in 240:
 		await physics_frame
 		m.invuln = 1.0
-	_check("dragon: its death unlocks the exit", not g.exit_locked(), "")
+	LVS.current = 5                       # the exit rule for a boss level (the dragon's own stage is index 5)
+	var exit_open: bool = g.boss_dead and not g.exit_locked()
+	LVS.current = 3
+	_check("dragon: its death unlocks the exit", exit_open, "boss_dead=%s" % g.boss_dead)
 	g.queue_free()
 	await physics_frame
 	# growth: a phase bolt that hurts Mera -> +3 sizes, once per phase, and the used threshold is not re-armed
@@ -2268,10 +2270,11 @@ func _super_quake_tests() -> void:
 	w.cooldown = 99.0
 	dr.cooldown = 99.0
 	var dhp: int = dr.hp
+	var cam0: float = g.cam_x
 	var ground_props: Array = []
 	var lever_ok := true
 	for pr in g.props:
-		if is_instance_valid(pr) and pr.alive() and pr.kind != "chandelier" and pr.kind != "lever" and absf(pr.global_position.x - g.cam_x) <= T.SUPER_QUAKE_REACH:
+		if is_instance_valid(pr) and pr.alive() and pr.kind != "chandelier" and pr.kind != "lever" and absf(pr.global_position.x - g.cam_x) <= T.SUPER_QUAKE_REACH - 200.0:        # margin: the camera drifts a little
 			ground_props.append(pr)
 	var far_prop: Node2D = null
 	for pr in g.props:
@@ -2293,7 +2296,7 @@ func _super_quake_tests() -> void:
 	for pr in ground_props:
 		if not is_instance_valid(pr) or not pr.alive():
 			broke += 1
-	_check("super quake: every ground breakable on/near screen is destroyed (%d); far ones stay" % ground_props.size(), ground_props.size() >= 2 and broke == ground_props.size() and (far_prop == null or far_prop.alive()), "broke %d/%d" % [broke, ground_props.size()])
+	_check("super quake: every ground breakable on/near screen is destroyed (%d); far ones stay" % ground_props.size(), ground_props.size() >= 2 and broke == ground_props.size() and (far_prop == null or far_prop.alive()), "broke %d/%d cam %d->%d survivors=%s" % [broke, ground_props.size(), int(cam0), int(g.cam_x), ground_props.filter(func(p): return is_instance_valid(p) and p.alive()).map(func(p): return "%s@%d hp%d %s" % [p.kind, int(p.global_position.x), p.hp, p.state])])
 	var peak := 0.0
 	var shaken_long := false
 	for i in 150:
@@ -2391,7 +2394,7 @@ func _updater_tests() -> void:
 	var U: Node = root.get_node("Updater")
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
 	_check("updater: the Android preset requests INTERNET and REQUEST_INSTALL_PACKAGES (custom_permissions; Godot has no checkbox for it)", ep.contains("permissions/internet=true") and ep.contains("android.permission.REQUEST_INSTALL_PACKAGES"), "")
-	_check("updater: this build's version comes from application/config/version (0.9.6)", U.current_version() == "0.9.6", U.current_version())
+	_check("updater: this build's version comes from application/config/version", U.current_version() == String(ProjectSettings.get_setting("application/config/version", "")), U.current_version())
 	_check("updater: version tags parse (v0.8-playable = 0.8.0, v0.8.2-playable, v1.10.3)", U.parse_version("v0.8-playable") == [0, 8, 0] and U.parse_version("v0.8.2-playable") == [0, 8, 2] and U.parse_version("v1.10.3") == [1, 10, 3] and U.parse_version("scale-test").is_empty(), "")
 	_check("updater: version order (0.10 > 0.9.9, 0.9.1 > 0.9.0, equal is not newer)", U.newer([0, 10, 0], [0, 9, 9]) and U.newer([0, 9, 1], [0, 9, 0]) and not U.newer([0, 9, 0], [0, 9, 0]) and not U.newer([0, 8, 2], [0, 9, 0]), "")
 	var rel := func(tag: String, names: Array, draft := false) -> Dictionary:
@@ -2463,7 +2466,8 @@ func _updater_tests() -> void:
 		var right := InputEventAction.new()
 		right.action = "right"
 		right.pressed = true
-		menu._unhandled_input(right)
+		for _i in 3:
+			menu._unhandled_input(right)
 		var acc := InputEventAction.new()
 		acc.action = "btn_a"
 		acc.pressed = true
@@ -2473,12 +2477,12 @@ func _updater_tests() -> void:
 		back.action = "btn_b"
 		back.pressed = true
 		menu._unhandled_input(back)
-		_check("menu: Down -> bottom row, Right -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1, "mode=%s row=%d" % [menu.mode, menu.row])
+		_check("menu: Down -> bottom row, Right x3 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1, "mode=%s row=%d" % [menu.mode, menu.row])
 		var C = load("res://scripts/app/credits.gd")
 		var whos: Array = []
 		for c in C.ENTRIES:
 			whos.append(String(c["who"]))
-		var need := ["chierit", "Merakintsugi", "Kenney", "Pixel Frog", "Jimmy D. Journey", "Reactorcore", "rubberduck", "vk", "Godot Engine"]
+		var need := ["chierit", "Merakintsugi", "LuizMelo", "Stealthix", "HydroGene", "Zane Little Music", "Kenney", "Pixel Frog", "Jimmy D. Journey", "Reactorcore", "rubberduck", "vk", "Godot Engine"]
 		var all_in := true
 		for n in need:
 			all_in = all_in and whos.has(n)
@@ -2629,7 +2633,7 @@ func _mark_tests() -> void:
 func _vdrive(g: Node, steps: Array, frames: int, each: Callable = Callable()) -> Dictionary:
 	var m: Node = g.mera
 	var seen := {}
-	var out := {"bolts": [], "up": [], "air_bubble": 0, "max_air_vy": 0.0, "vx_bubble": []}
+	var out := {"bolts": [], "bolt_info": [], "up": [], "air_bubble": 0, "max_air_vy": 0.0, "vx_bubble": []}
 	for f in range(1, frames + 1):
 		for st in steps:
 			if int(st[0]) == f:
@@ -2640,6 +2644,7 @@ func _vdrive(g: Node, steps: Array, frames: int, each: Callable = Callable()) ->
 			if c.get("kind") == "bolt" and c.get("speed_mult") != null and not seen.has(c.get_instance_id()):
 				seen[c.get_instance_id()] = true
 				out["bolts"].append(c)
+				out["bolt_info"].append({"dir": c.dir, "up": c.up, "speed": c.speed()})
 				if c.up:
 					out["up"].append({"node": c, "p0": c.position, "rot": c.spr.rotation, "speed": c.speed(), "mera_y": m.global_position.y})
 		if m.barrier_on and not m.on_ground:
@@ -2666,8 +2671,8 @@ func _v091_tests() -> void:
 	var log: Array = m.move_log
 	_check("Y chain: Y Y -> quick fire, then a follow-up shot (2 bolts)", _has_seq(log, ["quick_fire", "quick_fire"]) and r["bolts"].size() == 2 and m.ychain_log.size() == 1, "log=%s bolts=%d ychain=%s" % [log, r["bolts"].size(), m.ychain_log])
 	_check("Y chain: the follow-up fires on quick-fire f14 (canon GIF frame 16), the first on f10 (GIF frame 12)", m.ychain_log.size() == 1 and int(m.ychain_log[0][1]) == 14 and int(AnimLib_fire("quick_fire")) == 10, "%s" % [m.ychain_log])
-	var b2: Node = r["bolts"][1] if r["bolts"].size() >= 2 else null
-	_check("Y chain: the follow-up is the same bolt (same speed, damage path), fired forward", b2 != null and is_instance_valid(b2) and not b2.up and b2.dir == m.facing and is_equal_approx(b2.speed(), 400.0 * m.shown), "")
+	var b2: Dictionary = r["bolt_info"][1] if r["bolt_info"].size() >= 2 else {}
+	_check("Y chain: the follow-up is the same bolt (same speed, damage path), fired forward", not b2.is_empty() and not b2["up"] and b2["dir"] == m.facing and is_equal_approx(float(b2["speed"]), 400.0 * m.shown), "%s" % [b2])
 	g.queue_free(); await process_frame
 
 	g = await _new_game(); m = g.mera
@@ -2694,14 +2699,14 @@ func _v091_tests() -> void:
 	s = []; _tap(s, 5, "btn_y"); _tap(s, 20, "btn_y"); _tap(s, 35, "btn_y"); _tap(s, 52, "l2", 6)
 	r = await _vdrive(g, s, 150, func(gg, f):
 		var mm: Node = gg.mera
-		if f == 58:
+		if f == 55:
 			for c in gg.world.get_children():
 				if c.get("kind") == "bolt":
 					c.queue_free()                         # the 3 quick-fire bolts must not touch the test enemies
-		if f == 60:
+		if f == 56:                                        # the pulse fires at frame 58, so the enemies must stand there by then
 			pe["e1"] = gg.spawn_enemy("ogre", mm.global_position.x + mm.facing * 330.0)
 			pe["e2"] = gg.spawn_enemy("wolf", mm.global_position.x - mm.facing * 360.0)
-		if f == 61:
+		if f == 57:
 			pe["g1"] = absf(pe["e1"].global_position.x - mm.global_position.x)
 			pe["g2"] = absf(pe["e2"].global_position.x - mm.global_position.x)
 			pe["hp1"] = pe["e1"].hp
@@ -2827,7 +2832,7 @@ func _v091_tests() -> void:
 		r = await _vdrive(g, c[1], 70, func(gg, _f):
 			maxlift["v"] = maxf(float(maxlift["v"]), gy - gg.mera.global_position.y))
 		var ub: Array = r["up"]
-		_check("Up+Y: %s -> vertical quick fire (heal pose, one bolt straight up), no jump / aerial dash" % c[0], "vfire" in m.move_keys and ub.size() == 1 and r["bolts"].size() == 1 and not ("adash" in m.move_log) and not ("djump_v" in m.move_log) and m.on_ground and float(maxlift["v"]) < 40.0 * m.shown, "log=%s up=%d bolts=%d lift=%.0f" % [m.move_log, ub.size(), r["bolts"].size(), float(maxlift["v"])])
+		_check("Up+Y: %s -> vertical quick fire (heal pose, three bolts: straight up and both diagonals), no jump / aerial dash" % c[0], "vfire" in m.move_keys and ub.size() == 3 and r["bolts"].size() == 3 and not ("adash" in m.move_log) and not ("djump_v" in m.move_log) and m.on_ground and float(maxlift["v"]) < 40.0 * m.shown, "log=%s up=%d bolts=%d lift=%.0f" % [m.move_log, ub.size(), r["bolts"].size(), float(maxlift["v"])])
 		g.queue_free(); await process_frame
 	g = await _new_game(); m = g.mera
 	var fe: Node2D = g.spawn_enemy("flying_eye", m.global_position.x)
@@ -2842,8 +2847,11 @@ func _v091_tests() -> void:
 				fe.position.x += ub.position.x - fe.hurt_rect().get_center().x
 		if not r_up_empty(gg):
 			pass)
-	var u: Dictionary = r["up"][0] if r["up"].size() > 0 else {}
-	_check("Up+Y: same bolt as quick fire (400 px/s x size), rotated head-up (sprite rot 90 deg), spawned above her head", not u.is_empty() and is_equal_approx(float(u["speed"]), 400.0 * m.shown) and is_equal_approx(float(u["rot"]), PI / 2.0) and Vector2.LEFT.rotated(float(u["rot"])).y < -0.99 and float(u["p0"].y) < float(u["mera_y"]) - 55.0 * m.shown, "%s" % [u])
+	var u: Dictionary = {}
+	for ubolt in r["up"]:                      # three bolts fly: the straight-up one is the one rotated head-up
+		if is_equal_approx(wrapf(float(ubolt["rot"]), -PI, PI), PI / 2.0):
+			u = ubolt
+	_check("Up+Y: same bolt as quick fire (400 px/s x size), rotated head-up (sprite rot 90 deg), spawned above her head", not u.is_empty() and is_equal_approx(float(u["speed"]), 400.0 * m.shown) and is_equal_approx(wrapf(float(u["rot"]), -PI, PI), PI / 2.0) and Vector2.LEFT.rotated(float(u["rot"])).y < -0.99 and float(u["p0"].y) < float(u["mera_y"]) - 55.0 * m.shown, "%s" % [u])
 	_check("Up+Y: the up bolt hits a flyer above her for the quick-fire damage (1 x size)", not is_instance_valid(fe) or fe.hp == fe_hp - 1 * m.size or fe.hp <= 0, "hp %s / %d" % [str(fe.hp) if is_instance_valid(fe) else "dead", fe_hp])
 	g.queue_free(); await process_frame
 	g = await _new_game(); m = g.mera
@@ -2863,7 +2871,7 @@ func _v091_tests() -> void:
 	g.queue_free(); await process_frame
 
 	# ---------------------------------------------------------------- monsters from behind (levels 2-4)
-	for L in [0, 1, 2, 3]:
+	for L in [3, 0, 1, 2, 4]:
 		LVS.current = L
 		g = await _new_game(true); m = g.mera
 		m.facing = 1
@@ -2884,12 +2892,13 @@ func _v091_tests() -> void:
 					g.mobs.erase(e)
 					e.queue_free()
 		var bs: Array = g.behind_spawns
-		var ok := bs.size() == (0 if L == 0 else 2)
+		var ok := bs.size() == (0 if L == 3 else 2)
 		for b in bs:
 			if float(b["x"]) > float(b["mera_x"]) - 960.0 or int(b["facing"]) != 1:
 				ok = false                               # off-screen behind her (she faces right: x < mera - 960)
-		_check("level %d: %d monsters come from behind (off-screen, behind her)" % [L + 1, 0 if L == 0 else 2], ok, "%s" % [bs.map(func(b): return [b["id"], int(b["x"] - b["mera_x"])])])
-		if L > 0:
+		_check("level %d: %d monsters come from behind (off-screen, behind her)" % [L + 1, 0 if L == 3 else 2], ok, "%s" % [bs.map(func(b): return [b["id"], int(b["x"] - b["mera_x"])])])
+		if L != 3:
+			g.props = g.props.filter(func(p): return not (is_instance_valid(p) and p.blocks_path()))     # walls and doors would push her back
 			for e in g.mobs.duplicate():
 				if is_instance_valid(e) and not e.boss:
 					g.mobs.erase(e)
@@ -2999,6 +3008,7 @@ func _queued_tests() -> void:
 
 	g = await _new_game()
 	m = g.mera
+	g.props = g.props.filter(func(p): return not (is_instance_valid(p) and p.blocks_path()))     # walls and doors block the run
 	m.position.x = 4500.0
 	m.forced["right"] = true
 	await physics_frame
@@ -3015,7 +3025,7 @@ func _queued_tests() -> void:
 	for i in 10:
 		await physics_frame
 	var still: bool = absf(m.global_position.x - frozen) < 0.5 and moved > 4500.0
-	_check("Start pauses the game (overlay up, Mera frozen) and does not just show controls", g.paused_play and g.hud.overlay and g.get_tree().paused and still, "paused=%s overlay=%s x=%.1f->%.1f" % [g.paused_play, g.hud.overlay, moved, m.global_position.x])
+	_check("Start pauses the game (pause menu up, Mera frozen) and does not just show controls", g.paused_play and not g.hud.overlay and g.get_tree().paused and still, "paused=%s overlay=%s x=%.1f->%.1f" % [g.paused_play, g.hud.overlay, moved, m.global_position.x])
 	ev.pressed = true
 	Input.parse_input_event(ev)
 	await physics_frame

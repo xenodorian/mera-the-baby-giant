@@ -242,6 +242,8 @@ func attack_rect() -> Rect2:
 					c[2] = minf(float(c[2]), 0.0)
 				else:
 					c[0] = maxf(float(c[0]), 0.0)
+				if float(c[2]) < float(c[0]):      # the box lies wholly behind the pivot: nothing hurts (it used to be an inverted rect)
+					return Rect2()
 			return _box(c)
 	return Rect2()
 

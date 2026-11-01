@@ -905,10 +905,10 @@ func summon_type(aid: String) -> Node2D:
 func exit_locked() -> bool:
 	if run_mode:
 		return defeated < quota or _roster_threat()
+	if Roster.BOSSES.has(Levels.current):        # a boss level (the Dragon's Lair has no waves, so it must be checked first)
+		return not boss_dead
 	if not Roster.LEVELS.has(Levels.current):
 		return knights_spawned < Roster.KNIGHT_CAP or _knight_fight_live()
-	if Roster.BOSSES.has(Levels.current):
-		return not boss_dead
 	return not _waves_done() or _roster_threat()
 
 

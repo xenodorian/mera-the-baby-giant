@@ -8,6 +8,7 @@ const ENTRIES := [
 	{"who": "Stealthix", "what": "Animated Monsters: zombie, skeleton, witch", "lic": "CC0", "url": "https://stealthix.itch.io/animated-monsters"},
 	{"who": "Merakintsugi", "what": "Mera: Platformer Character Pack (main character, licensed)", "lic": "Licensed", "url": "https://merakintsugi.itch.io/platformer-character-pack"},
 	{"who": "HydroGene", "what": "High Quality 8-bit / Chiptune Musics (cemetery, woods, town, caverns)", "lic": "CC0", "url": "https://hydrogene.itch.io/high-quality-8-bit-musics"},
+	{"who": "Kenney", "what": "Sound effects: RPG Audio, Sci-fi Sounds, Impact Sounds", "lic": "CC0", "url": "https://kenney.nl"},
 	{"who": "Zane Little Music", "what": "Flowerbed Fields (Sunlit Country)", "lic": "CC0", "url": "https://opengameart.org/content/flowerbed-fields-loop"},
 	{"who": "Pixel Frog", "what": "Kings and Pigs (crate)", "lic": "CC0", "url": "https://pixelfrog-assets.itch.io/kings-and-pigs"},
 	{"who": "Jimmy D. Journey", "what": "Oil Barrel and Explosive Oil Barrel", "lic": "CC0", "url": "https://jimmydjourney.itch.io/oil-barrel-and-explosive-oil-barrel"},

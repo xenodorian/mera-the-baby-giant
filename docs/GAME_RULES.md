@@ -195,7 +195,7 @@ A tell never lasts less than **0.35 s**. A hit during a tell (or during a ground
 The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scripts/game/telegraph.gd`.
 
 ## Enemy roster (v0.6)
-- Sixteen enemies on levels 2-4, built from the ansimuz and chierit packs. **Every one of their animations is used.**
+- Sixteen enemies on the four wave levels (Sunlit Country, Misty Woods, Moonlit Town, Infernal Caverns), built from the ansimuz and chierit packs. **Every one of their animations is used.**
 - Enemies never scale with Mera (fixed size).
 - Each defeated enemy drops **one** thing (v0.9.4; a key may come on top, see Shop unlocks): a rage sphere (30%), a green size potion (28%), a blue +30 mana potion (28%), a +5 max mana potion (7%, cap 200), or a +5 max rage sphere (7%, cap 200). A rage sphere still grants that enemy's rage value.
 - Damage dealt by Mera = base × her size, as for the knights.
@@ -221,13 +221,13 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 
 - Every enemy dies in the ansimuz enemy-death fire puff.
 
-### Spawning on levels 2-4
+### Spawning on the wave levels (1, 2, 3 and 5)
 - **Waves:** the first wave triggers at x 2200, then one every 1500 px. Wave sizes run 1, 2, 2, 3, ... and each wave cycles through the level's list, so every type shows up.
 - No cap of five alive: the spawner places every wave of the stage (the cap is the stage's whole wave total).
 - **Spawn points:** off-screen ahead of Mera. Risers (skeleton, Death) instead climb out of the ground on screen, ahead of her.
 - **Trickle:** an empty screen for 8 s brings one more.
 - Enemies are never removed for distance; they stay until beaten.
-- Level 1 keeps the Fire Knight and Blue Knights.
+- The Moonlit Cemetery (level 4) keeps the Fire Knights and Blue Knights, and the Dragon's Lair has the dragon alone.
 
 
 ## Allies (v0.7)
@@ -255,7 +255,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 - Damage to Mera's targets is unchanged.
 
 ## Breakables, barrels, chandeliers (v0.8)
-Levels 2-4 only (level 1 is untouched). Free CC0 art, see `docs/CREDITS.md`.
+The four wave levels (1, 2, 3 and 5); the Moonlit Cemetery and the Dragon's Lair have none. Free CC0 art, see `docs/CREDITS.md`.
 
 | Prop | Hits | Drops |
 |---|---|---|

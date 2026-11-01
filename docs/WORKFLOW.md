@@ -8,7 +8,7 @@ The rules for humans and agents are in `AGENTS.md`. This file is the process for
 3. Add or adjust tests in `tests/run_tests.gd`. The human-timing combo replays must stay green.
 4. Run the tests in the background and poll the log, because the full suite is long:
    `(timeout 1800 $G --headless --fixed-fps 60 --path . -s tests/run_tests.gd > /tmp/t.log 2>&1 &)`
-   The suite passes every check that runs (292 as of 2026-11-01) and then crashes Godot (signal 11, headless) in the "any projectile damages a breakable" block, where a damaging bolt hits a candle added in the same frame. The crash predates 0.12.x and is being tracked down; the checks after it have not run yet. Run the sections you touched on their own, and compare with a clean checkout before blaming your change.
+   The whole suite is clean: 489 checks pass, 0 fail (2026-11-01). Run it in the background and expect about 10 minutes. A prop that breaks frees itself, so tests must check `is_instance_valid()` before touching one (calling a method on a freed object segfaults this Godot build). Cracked walls and doors are solid, so tests that teleport Mera or an enemy across the map first remove them from `g.props`. `Carry.test_all` turns on every unlock except homing, with a size cap of `Carry.test_scale_cap` (9).
 5. Screenshots, when a change is visual: run under `xvfb-run` and save into `previews/playable/vX.Y/` (see `tests/shots_v04.gd`).
 6. Update `CHANGELOG.md`, `README.md` (when the current release changes), `docs/CONTROLS.md`, `docs/GAME_RULES.md`, `docs/CREDITS.md` (new assets) and `docs/AI_HANDOFF.md`.
 7. Commit in small logical steps, then `git push origin main` (and `git lfs push origin main` when LFS files changed). Do not leave work only on the machine.
