@@ -14,7 +14,7 @@ Any projectile damages breakables through `game.prop_at`: player bolts and fireb
 L2 alone starts the barrier (`no_tap`, a short press is not lightning). L2+R2 calls `_try_lightning`. R2 alone, after `CHORD_MS`, calls `_try_fury`. `start_fury` subtracts `FURY_COST` (100) and does not clear the rest; `_fury_tick` no longer overwrites `rage`. The HUD bar during Fury is `fury_left / FURY_TIME`.
 The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) pose cropped to the body box. That does not call `get_image()`, which is null in an export and used to fall back to the full sheet (a blank square). The HUD held-card icons use the same crop. Start no longer opens the controls list; it opens the pause menu in `hud.gd` (`pause_sel`). The controls list is only `--overlay`. Full-screen panels are drawn in a centered 1920×1080 design; the background and the dim cover `ui.size` / the menu control, so aspect `expand` does not leave a bare strip. The in-game bars stay at the top left so they do not sit on the touch pad.
 **Between updates:** notate (`CHANGELOG.md`, this file, `README.md` if the current release changed) and push before the next change.
-Branch ruleset blocks creating branches. Push to the existing `wip/v0.9.1-ychain` branch. Tag ruleset blocks moving or deleting tags, not creating a new one.
+There are no branch or tag rulesets. Do not add any. Push to `main`. Do not create branches.
 
 ## The project
 - A Godot **4.7.2** 2D action game (Compatibility renderer, 1920×1080 native, nearest-neighbour pixel art). Repo: `xenodorian/mera-the-baby-giant` (private, Git LFS).

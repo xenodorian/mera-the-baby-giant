@@ -43,7 +43,7 @@ PR #4 merged the Y-chain branch onto `main`. PR #5 merged the combat queue. The 
 - Player shot vs foe shot: both `explode` with damage off. Combo beam (`beam_world_rect`) and vertical beam destroy foe shots.
 - Still not done: screenshots, Linux binary, Android APK. Android `version/code` is already 12. The release keystore is not in this checkout, so do not publish an APK signed with a different key.
 - Y-chain (t99u / t101u) is on `main` via PR #4, including the `mark_slash.gd` export fix. Docs for those moves are in CONTROLS / GAME_RULES / CHANGELOG as of v0.9.1. Screenshots of the Y chain are still outstanding.
-- Repo rulesets 26282516 (branches: creation, non-fast-forward, deletion) and 26282517 (tags: non-fast-forward, deletion, update) are active. Pushing to an existing branch is allowed. Creating a **new** tag is allowed. Do not move or delete a tag. Disabling a ruleset needs the owner's approval; re-enable it right after.
+- There are no branch or tag rulesets. Do not add any. The owner deletes branches themselves. Push releases to `main`. Do not create branches.
 
 ## Stages
 | Stage | Content | Release |
