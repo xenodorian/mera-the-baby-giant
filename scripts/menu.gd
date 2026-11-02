@@ -381,7 +381,7 @@ func _shop_input(e: InputEvent) -> void:
 		shop_i = (shop_i + 1) % n
 		Sfx.play("swipe", 1.2, -8.0)
 	elif e.is_action_pressed("left") or e.is_action_pressed("right"):
-		shop_page = posmod(shop_page + (-1 if e.is_action_pressed("left") and _page_count() > 2 else 1), _page_count())
+		shop_page = 1 - shop_page
 		shop_i = mini(shop_i, _rows().size() - 1)
 		Sfx.play("swipe", 1.4, -8.0)
 	elif e.is_action_pressed("btn_x"):
@@ -415,7 +415,7 @@ func _character_text() -> String:
 	Carry.ensure()
 	if not Carry.perry_unlocked():
 		return "CHARACTER: MERA     Perry is locked: clear Stage 2, Moonlit Sanctum (level %d)" % (Carry.PERRY_CLEAR_LEVEL + 1)
-	return "CHARACTER: %s     X (A key): change" % ("PERRY" if Carry.perry_selected() else "MERA")
+	return "CHARACTER: %s" % ("PERRY" if Carry.perry_selected() else "MERA")
 
 
 func _move(d: int) -> void:
@@ -471,9 +471,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _click_buttons(_to_design(e.position)):
 		return
-	if e.is_action_pressed("btn_x"):
-		_toggle_character()
-	elif e.is_action_pressed("left"):
+	if e.is_action_pressed("left"):
 		_move(-1)
 	elif e.is_action_pressed("right"):
 		_move(1)

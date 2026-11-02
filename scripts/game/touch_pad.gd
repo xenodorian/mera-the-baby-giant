@@ -32,7 +32,6 @@ var _font: Font
 var _box: StyleBoxFlat
 var _box_down: StyleBoxFlat
 var _laid := Vector2.ZERO
-var suppressed := false        # a chest puzzle is open: hidden and releases its buttons, so taps reach the puzzle
 
 
 func _ready() -> void:
@@ -148,12 +147,12 @@ func _chevron(b: Control, c: Vector2, dir: String, hot: bool) -> void:
 
 
 func _process(delta: float) -> void:
-	var target := 0.0 if (_pad or suppressed) else 1.0
+	var target := 0.0 if _pad else 1.0
 	_alpha = move_toward(_alpha, target, delta * 3.5)
 	if _root:
 		_root.modulate.a = _alpha
 		_root.visible = _alpha > 0.04
-	if _pad or suppressed:
+	if _pad:
 		_release_all()
 
 
@@ -172,7 +171,7 @@ func _input(event: InputEvent) -> void:
 		_volume_pause()
 		get_viewport().set_input_as_handled()
 		return
-	if _pad or suppressed or _alpha < 0.35:
+	if _pad or _alpha < 0.35:
 		return
 	if event is InputEventScreenTouch:
 		if event.pressed:
