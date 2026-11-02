@@ -21,18 +21,20 @@ A Perry 384 x 232 layer drawn at x5 is 1920 x 1160, exactly one Mera screen plus
 * Beating the dragon shows "You Defeated the Cavern Dragon!" and then "Stage 2: The Island", and unlocks level 7.
 * Stage 2, levels 7 to 11, built from Perry's five story maps:
 
+Only creatures with real frame animation are ported (owner, 2026-11-02): the goblin, the orc, the club ogre, Mirror Max, Percy, the fire mage and Perry. Perry Riposte's other creatures (hobgoblin, skull raider, dusksaur, dark knight, ogre, wyrm slug, ooze wraith, horned dread, ogre chief, boar lord) are single still images moved by code, so they are left out. The waves mix the Perry creatures with Mera's own animated enemies.
+
 | # | Index | id | Name | Waves (Roster.LEVELS) | End boss (Roster.BOSSES) |
 |---|---|---|---|---|---|
-| 7 | 6 | `p_falls` | Mossy Falls | goblin, hobgoblin, orc, skullraider | Ooze Wraith |
-| 8 | 7 | `p_canyon` | Sunstone Canyon | orc, skullraider, dusksaur, darkknight, fire mage | Horned Dread |
-| 9 | 8 | `p_shore` | Sunset Shore | hobgoblin, dusksaur, ogre (Perry), club ogre, fire mage | Ogre Chief |
-| 10 | 9 | `p_mire` | Mire Wood | darkknight, wyrmslug, club ogre, goblin, Percy | Boar Lord |
-| 11 | 10 | `p_sanctum` | Moonlit Sanctum | Mirror Max, Percy, darkknight, horneddread, fire mage | **Perry** (final boss) |
+| 7 | 6 | `p_falls` | Mossy Falls | p_goblin, p_orc, lm_goblin, lm_mushroom, lm_eye | Club Ogre |
+| 8 | 7 | `p_canyon` | Sunstone Canyon | p_orc, p_goblin, p_firemage, minotaur, hell_hound | none |
+| 9 | 8 | `p_shore` | Sunset Shore | p_goblin, p_orc, p_firemage, werewolf, mutant_toad, lm_skeleton | Mirror Max |
+| 10 | 9 | `p_mire` | Mire Wood | p_orc, p_firemage, p_goblin, sx_zombie, sx_witch, ghost | Percy |
+| 11 | 10 | `p_sanctum` | Moonlit Sanctum | p_orc, p_firemage, p_goblin, demon, death, lm_skeleton | **Perry** (final boss) |
 
 * Stage 2 bosses use the existing "boss shares a stage" path in `game.gd` (`BOSS_AT`, `BOSS_X`, exit locked until the boss falls). Only the dragon and Perry end a stage with a victory card (`Roster.FINALE`).
 * Beating Perry shows "You Defeated Perry!" and returns to the title. It pays the same 100 gold bonus as the dragon.
 * The level select gets two pages: Stage 1 (6 cards) and Stage 2 (5 cards). Left / Right moves across the pages.
-* Every Perry creature, Percy, the fire mage, Mirror Max and Perry herself are in the roster, so the endless run can use them too.
+* The goblin, the orc and the fire mage join the endless run pool.
 
 ## Steps
 
