@@ -118,7 +118,7 @@ const DEFS := {
 	"x_mimic": {"k": 5.0, "hp": 10, "speed": 150.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 5.0, "hurt": "hurt", "death": "death",
 		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 150.0, "cd": 1.6, "mode": "frames", "active": [11, 13]}]},
 	"x_rat": {"k": 5.0, "hp": 4, "speed": 340.0, "ai": "charger", "idle": "idle", "move": "run", "rage": 3.0, "hurt": "hurt", "death": "death",
-		"attacks": [{"anim": "attack", "kind": "rush", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 160.0, "cd": 1.1, "mode": "frames", "active": [7, 11]}]},
+		"attacks": [{"anim": "attack", "kind": "rush", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 260.0, "cd": 1.1, "mode": "contact", "vx": 620.0, "dur": 0.4}]},
 	"x_dark_wizard": {"k": 4.0, "hp": 9, "speed": 80.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 5.0, "hurt": "hurt", "death": "death",
 		"attacks": [{"anim": "attack", "kind": "ranged", "dmg": 2, "tell": 0.5, "near": 150.0, "far": 1000.0, "cd": 2.4, "mode": "shot", "shot": "bolt", "shot_frame": 8, "shot_speed": 820.0, "shot_tight": true}]},
 	"x_frost_guardian": {"k": 4.0, "hp": 24, "speed": 80.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 10.0, "hurt": "hurt", "death": "death",

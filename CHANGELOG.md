@@ -1,6 +1,18 @@
 # Changelog
 
-All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; art packs in the private `mera-assets` submodule). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
+All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
+
+## v0.13.0-playable (2026-11-02)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.13.0_Windows.exe
+- Android: Mera_Playable_v0.13.0_Android.apk
+- **Stage 2: The Island.** Beating the Cavern Dragon now shows "Stage 2: The Island is open" and unlocks five new levels made from Perry Riposte's maps and music (`xenodorian/BibooSGBA`): Mossy Falls, Sunstone Canyon, Sunset Shore, Mire Wood and Moonlit Sanctum (`tools/build_stage2.py`).
+- **Perry is the final boss.** She waits at the end of Moonlit Sanctum, opens with a taunt and uses her own moves in turn: energy wave, meteor shower, sky dash, dash, slash, push kick, thrust, upswing, heavy kick, spin, jumping crash and the heavy chop. She backs off to make room for her ranged moves. Beating her shows "You Defeated Perry!", pays 100 gold and returns to the title.
+- **Stage 2 bosses:** Club Ogre (Mossy Falls), the Fire Demon (Sunstone Canyon), Mirror Max (Sunset Shore) and Percy (Mire Wood). The exit opens when the waves are done and the boss is down.
+- **New enemies, all frame-animated.** From Perry Riposte: goblin, orc, fire mage, club ogre, Mirror Max, Percy and Perry (`tools/build_perry.py`). From free packs: Luiz Melo's fire worm, bat, slime, mimic, rat and dark wizard (CC0), and chierit's frost guardian and demon (CC-BY 4.0). Perry Riposte's code-puppeted still images were left out on purpose.
+- **Enemy AI options** (opt-in per enemy in `Roster.DEFS`): `"pick": "cycle"` takes turns through every attack in range, `"pick": "order"` goes through them in order and backs off when the next one needs room, `"hurt"` and `"death"` play the creature's own animations, and shots can be scaled (`shot_k`) and sized from their visible pixels (`shot_tight`). The Stage 1 enemies behave as before.
+- **Level select pages.** Stage 1 and Stage 2 each have a page; Left and Right move through all eleven levels. After the dragon the menu opens on Stage 2.
+- **Credits** list Perry Riposte, Luiz Melo's new packs and chierit's bosses.
 
 ## v0.12.5-playable (2026-11-01)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.

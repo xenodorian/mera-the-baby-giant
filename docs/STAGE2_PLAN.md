@@ -26,7 +26,7 @@ Only creatures with real frame animation are ported (owner, 2026-11-02): the gob
 | # | Index | id | Name | Waves (Roster.LEVELS) | End boss (Roster.BOSSES) |
 |---|---|---|---|---|---|
 | 7 | 6 | `p_falls` | Mossy Falls | p_goblin, p_orc, lm_goblin, lm_mushroom, lm_eye | Club Ogre |
-| 8 | 7 | `p_canyon` | Sunstone Canyon | p_orc, p_goblin, p_firemage, minotaur, hell_hound | none |
+| 8 | 7 | `p_canyon` | Sunstone Canyon | see `Roster.LEVELS` | Fire Demon |
 | 9 | 8 | `p_shore` | Sunset Shore | p_goblin, p_orc, p_firemage, werewolf, mutant_toad, lm_skeleton | Mirror Max |
 | 10 | 9 | `p_mire` | Mire Wood | p_orc, p_firemage, p_goblin, sx_zombie, sx_witch, ghost | Percy |
 | 11 | 10 | `p_sanctum` | Moonlit Sanctum | p_orc, p_firemage, p_goblin, demon, death, lm_skeleton | **Perry** (final boss) |
@@ -41,9 +41,13 @@ Only creatures with real frame animation are ported (owner, 2026-11-02): the gob
 | Step | Who | Status |
 |---|---|---|
 | 1. This plan | Opus | done |
-| 2. Copy the Perry art and music into `assets/perry/` (originals stay untouched in BibooSGBA) | Haiku | |
-| 3. `tools/build_perry.py`: cut every Perry strip into per-frame PNGs under `assets/characters/perry/<id>/<anim>/`, register them in `tools/build_roster.py`, rebuild `roster.json` | Haiku, reviewed by Opus | |
-| 4. `tools/build_stage2.py`: the 5 level folders, thumbs and `levels.json` entries | Haiku, reviewed by Opus | |
-| 5. `Roster.DEFS` for the new enemies and the Perry boss, `LEVELS`, `BOSSES`, `FINALE`, `RUN_POOL` | Sonnet | |
-| 6. Game flow: generic boss victory, dragon to stage 2, Perry ending, menu pages, props and cards on the new maps | Sonnet | |
-| 7. Tests, export file list, credits, docs, release | Opus | |
+| 2. Copy the Perry art and music into `assets/perry/` (originals stay untouched in BibooSGBA) | Haiku | done |
+| 3. `tools/build_perry.py`: cut every Perry strip into per-frame PNGs under `assets/characters/perry/<id>/<anim>/`, register them in `tools/build_roster.py`, rebuild `roster.json` | Haiku, reviewed by Opus | done |
+| 4. `tools/build_stage2.py`: the 5 level folders, thumbs and `levels.json` entries | Haiku, reviewed by Opus | done |
+| 5. `Roster.DEFS` for the new enemies and the Perry boss, `LEVELS`, `BOSSES`, `FINALE`, `RUN_POOL` | Opus | done |
+| 6. Game flow: generic boss victory, dragon to stage 2, Perry ending, menu pages, props and cards on the new maps | Sonnet | done |
+| 7. Tests, export file list, credits, docs, release | Opus | done |
+
+## Outcome (v0.13.0)
+* The waves use only frame-animated creatures: the Perry Riposte goblin, orc and fire mage plus eight free creatures found online (Luiz Melo CC0, chierit CC-BY 4.0; `docs/CREDITS.md`). The live lists are `Roster.LEVELS` 6 to 10; the table above shows the first draft.
+* Bosses: Club Ogre, Fire Demon (chierit's demon), Mirror Max, Percy, Perry.

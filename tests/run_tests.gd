@@ -1400,6 +1400,11 @@ func _run() -> void:
 						await physics_frame
 						if f % 30 == 0:
 							m.set_size(6, true)
+				if is_instance_valid(e):                                          # record now: a weak one dies on the next hit
+					for a in e.played:
+						used[a] = true
+					hits += e.hits_landed
+					e.hits_landed = 0
 				if is_instance_valid(e) and e.alive() and e.d.has("hurt"):     # Stage 2: a hit out of idle / walking flinches
 					for f in 240:
 						if e.state in ["idle", "move"] and e.hurt_cd <= 0.0:
