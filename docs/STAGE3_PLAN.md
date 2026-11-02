@@ -64,3 +64,17 @@ Mera's camera only scrolls sideways (it stays at y 540), so a Changeling map is 
 - Phase 3 is done (v0.14.0). Earlier note: the move frames are pushed (`tools/build_perry_player.py`, `assets/perry/perry_player.json`), along with `scripts/game/perry_player.gd`, `perry_unlocks.gd` and `perry_hud.gd`. None of it is wired into the game yet. The wiring (the player switch in `game.gd`, the character choice and Perry shop page in `menu.gd`, the Perry fields in `carry.gd`, `hud.gd`) and the tests were in progress when this note was written. If they are not on main, redo them from the Phase 3 spec above.
 - Phases 4 to 8 are not started. The Changeling art for them is on main.
 - Open design question for the owner: should a chest need a button press (Up) to open its puzzle, instead of opening when Mera walks into it?
+
+## Owner decisions on Perry (2026-11-02, after v0.14.0)
+These are kept as they are:
+- Meteor shower and earthquake hit every enemy on screen (the source has no hit boxes for them).
+- Fury and the bubbles do nothing for Perry; she has her own moves.
+- The empower meter is a small extra bar that appears once she owns a move that uses it.
+- The dash makes her invulnerable for 60 % of its length.
+
+The test suite now forces Mera at the start of the run (`tests/run_tests.gd` `_run`, in memory only), so a save with Perry selected cannot turn the Mera cases into Perry runs. Gameplay is unaffected: the game only spawns Perry when the player picks her on the title menu and Stage 2 is cleared.
+
+## Status at the end of this session
+- Done: Phase 0 (plan), Phase 1 (puzzle chests), Phase 2 (Changeling art) and Phase 3 (playable Perry). Released as v0.14.0.
+- Next: Phase 4 (ladders and run-time platforms), then 5 (Stage 3 maps), 6 (Changeling enemies), 7 (face summons and the ranger's building), and 8 (tests, credits, release). Specs are in the phase table and the map conversion rule above.
+- Open question for the owner: should a chest wait for a button press (Up) before its puzzle opens, instead of opening on touch?

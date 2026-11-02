@@ -71,6 +71,7 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 - Tools that write into `assets/` (build_roster, build_props, recolor scripts) now write into this repo.
 
 ## Pitfalls (learned the hard way)
+- The test suite reads `user://` saves. `_run` forces `Carry.character = "mera"` (in memory) so a saved Perry choice cannot change the Mera cases; `prop.gd touch_opens` is off except in the chest cases.
 - **Don't name a method `_set`** on a Node: it overrides `Object._set()` (the property setter hook) and breaks every property assignment. The updater uses `_state()`.
 - **The Android template already opens files through its FileProvider:** `OS.shell_open("/abs/path.apk")` → `content://` + ACTION_VIEW. There is no need for a Gradle plugin to install an APK. It does need `REQUEST_INSTALL_PACKAGES`, which Godot 4.7 has **no** `permissions/<name>` checkbox for (an unknown key is silently ignored). It goes in `permissions/custom_permissions=PackedStringArray("android.permission.REQUEST_INSTALL_PACKAGES")`. Check with `aapt2 dump badging <apk> | grep permission`.
 - **`export_presets.cfg` uses an explicit file list** (textures load by path). Every new runtime file (`.gd`, `.gdshader`, `.png`, `.json`) must be added to **all three** presets (Windows, Linux, Android), or the exported game silently misses it.

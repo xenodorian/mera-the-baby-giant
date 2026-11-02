@@ -348,6 +348,8 @@ func _keyboard_tests() -> void:
 
 func _run() -> void:
 	load("res://scripts/game/carry.gd").test_all = true   # v0.12.2: the existing cases run with every unlock owned
+	load("res://scripts/game/carry.gd").ensure()
+	load("res://scripts/game/carry.gd").character = "mera"   # a saved Perry choice must not turn the Mera cases into Perry runs (memory only, not saved)
 	load("res://scripts/game/prop.gd").touch_opens = false     # chests open a puzzle (pausing the tree) on touch: only the chest cases want that
 	root.get_node("HitStop").enabled = false      # v0.8: legacy frame-counted cases run without hit-stop (S4 tests turn it on)
 	await _input_map_tests()
