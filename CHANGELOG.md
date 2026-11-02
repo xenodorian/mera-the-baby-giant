@@ -13,6 +13,7 @@ Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. 
 - **Enemy AI options** (opt-in per enemy in `Roster.DEFS`): `"pick": "cycle"` takes turns through every attack in range, `"pick": "order"` goes through them in order and backs off when the next one needs room, `"hurt"` and `"death"` play the creature's own animations, and shots can be scaled (`shot_k`) and sized from their visible pixels (`shot_tight`). The Stage 1 enemies behave as before.
 - **Level select pages.** Stage 1 and Stage 2 each have a page; Left and Right move through all eleven levels. After the dragon the menu opens on Stage 2.
 - **Credits** list Perry Riposte, Luiz Melo's new packs and chierit's bosses.
+- **Tests.** 538 pass, 0 fail. Every new enemy plays all of its animations, hurts Mera, telegraphs every attack and never scales.
 
 ## v0.12.5-playable (2026-11-01)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
