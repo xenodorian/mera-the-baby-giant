@@ -835,6 +835,206 @@
     30
    ],
    "music": "res://assets/music/caverns.ogg"
+  },
+  {
+   "id": "p_falls",
+   "name": "Mossy Falls",
+   "sub": "Goblins under the waterfalls",
+   "layers": [
+    {
+     "file": "res://assets/levels/p_falls/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 4800,
+     "w": 4800,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_falls/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_falls/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    90,
+    107,
+    102
+   ],
+   "music": "res://assets/perry/music/level2.ogg"
+  },
+  {
+   "id": "p_canyon",
+   "name": "Sunstone Canyon",
+   "sub": "Red cliffs and raiders",
+   "layers": [
+    {
+     "file": "res://assets/levels/p_canyon/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 2600,
+     "w": 2600,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_canyon/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_canyon/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    91,
+    136,
+    143
+   ],
+   "music": "res://assets/perry/music/level3.ogg"
+  },
+  {
+   "id": "p_shore",
+   "name": "Sunset Shore",
+   "sub": "A calm beach with a bad crowd",
+   "layers": [
+    {
+     "file": "res://assets/levels/p_shore/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 3940,
+     "w": 3940,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_shore/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_shore/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    236,
+    99,
+    136
+   ],
+   "music": "res://assets/perry/music/level4.ogg"
+  },
+  {
+   "id": "p_mire",
+   "name": "Mire Wood",
+   "sub": "Hot, wet and crowded",
+   "layers": [
+    {
+     "file": "res://assets/levels/p_mire/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 2740,
+     "w": 2740,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_mire/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_mire/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    88,
+    89,
+    45
+   ],
+   "music": "res://assets/perry/music/level5.ogg"
+  },
+  {
+   "id": "p_sanctum",
+   "name": "Moonlit Sanctum",
+   "sub": "Perry waits at the center of the island",
+   "layers": [
+    {
+     "file": "res://assets/levels/p_sanctum/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 4310,
+     "w": 4310,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_sanctum/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_sanctum/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    3,
+    13,
+    53
+   ],
+   "music": "res://assets/perry/music/level6.ogg"
   }
  ]
 }
