@@ -37,13 +37,22 @@ Work is pushed to `main` after each phase. Haiku takes bulk and mechanical work,
 - **Summons.** The four Changeling faces (and Perry) become `Allies` entries. Their enemy versions drop their card like the existing ally cards.
 - **Chests.** Keys, key drops and key text are removed. A chest opens a random puzzle of the three. Winning gives the chest's loot; losing leaves the chest shut, and it can be tried again.
 
+## Map conversion rule
+Mera's camera only scrolls sideways (it stays at y 540), so a Changeling map is flattened into one screen height:
+- **Columns become x.** Each column is a fixed width, and a map is at least 9600 px wide. Warlord's Throne (40 columns) is an arena, like the Dragon's Lair.
+- **The floor becomes Mera's ground.** The floor row (the top of the bottom solid run) is GROUND_Y 1060.
+- **Ledges become surfaces in tiers.** A ledge (`=` or `_` with air above) becomes a one-way surface. Its height above the floor is counted in rows and clamped into a few tiers, each one comfortable jump apart for Mera at her starting size. That keeps the whole route on screen and reachable.
+- **Pits and spikes** become floor with a hazard strip. Walls `#` taller than one tier become scenery. Cracked walls `x` become Mera's cracked-wall props.
+- **Ladders** are added wherever a ledge tier is more than one jump above the tier below it.
+- **Signs** become the level-start subtitle. The enemy letters spawn that enemy type in the waves, in the order they appear.
+
 ## Phases
 
 | Phase | Work | Who | Status |
 |---|---|---|---|
 | 0 | This plan | Opus | done |
 | 1 | Puzzle chests: remove keys; pipes, enemy-portrait match-3 and stop-the-needle mini games (`scripts/puzzles/`), touch and pad controls, tests | Sonnet, reviewed by Opus | |
-| 2 | Changeling art: copy the LPC sheets, tiles and credits; cut the frames into `assets/characters/changeling/<id>/<anim>/`; roster entries | Haiku, reviewed by Opus | |
+| 2 | Changeling art: copy the LPC sheets, tiles and credits; cut the frames into `assets/characters/changeling/<id>/<anim>/` (`tools/build_changeling.py`) | Haiku, reviewed by Opus | done |
 | 3 | Playable Perry: character select, `perry_player.gd`, her moves and inputs, Perry shop page with her unlocks in gold, tests | Sonnet, reviewed by Opus | |
 | 4 | Ladders and run-time platforms (world objects, Mera climbing, one-way landing) | Sonnet | |
 | 5 | Stage 3 maps: `tools/build_stage3.py` renders the 8 tile grids into level art, surfaces and ladders; levels.json and thumbs; menu page 3 | Haiku (art), Sonnet (conversion rules) | |
