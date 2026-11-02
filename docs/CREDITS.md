@@ -71,3 +71,48 @@ Frame-by-frame animated creatures for Stage 2, cut unchanged from the original s
 | Evil Wizard (evil_wizard_3, bolt) | **Luiz Melo** | Evil Wizard 3 | https://luizmelo.itch.io/evil-wizard-3 | CC0 1.0 |
 | Frost Guardian | **chierit** | Boss: Frost Guardian (free version) | https://chierit.itch.io/boss-frost-guardian | CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit "chierit" |
 | Demon Slime (demon form) | **chierit** | Boss: Demon Slime (free version) | https://chierit.itch.io/boss-demon-slime | CC-BY 4.0. Credit "chierit" |
+
+## Stage 3: Changeling
+Changeling is the owner's game, made by xenodorian: https://github.com/xenodorian/GameOfGameBecauseGame. Its sprite art is cut into `assets/characters/changeling/` by `tools/build_changeling.py` from the copies in `assets/changeling/source/`. The LPC sheets and the full CREDITS file are at `assets/changeling/source/lpc/CREDITS.txt` and `assets/characters/changeling/CREDITS.txt`.
+
+| Character (id) | Sheet used | LPC credit section (CREDITS.txt) |
+|---|---|---|
+| Knight | `knight_big.png` (body and weapon) | knight |
+| Ranger | `ranger_big.png` (body and bow) | ranger |
+| Bone Weaver (`weaver`) | `weaver_big.png` (skeleton body and bow) | weaver |
+| Mage | `mage_big.png` (body, robe recolour, wand) | mage |
+| Grunt | `grunt.png` | grunt |
+| Mud Revenant | `mud_revenant.png` | mud_revenant |
+| Rat King | `rat_king.png` | rat_king |
+| Archer | `archer.png` (skeleton body and bow) | archer |
+| Warlord | `warlord.png` | warlord |
+
+Every LPC author below appears once. Licences are as listed in CREDITS.txt: OGA-BY 3.0, OGA-BY 3.0+, CC-BY-SA 3.0, CC-BY 3.0, CC-BY 4.0, GPL 2.0 and GPL 3.0. A layer may be offered under any one of the licences named on its line in CREDITS.txt.
+
+Liberated Pixel Cup (LPC) art, authors:
+- Benjamin K. Smith (BenCreating)
+- bluecarrot16
+- Charles Sanchez (CharlesGabriel)
+- DarkwallLKE
+- Durrani
+- Eliza Wyatt (ElizaWy)
+- ElizaWy
+- Evert
+- JaidynReiman
+- Joe White
+- Johannes Sjölund (wulax)
+- Matthew Krohn (makrohn)
+- Michael Whitlock (bigbeargames)
+- MuffinElZangano
+- Napsio
+- Napsio (Vitruvian Studio)
+- Nila122
+- Pierre Vigier (pvigier)
+- Sander Frenken (castelonia)
+- Stephen Challener (Redshrike)
+- TheraHedwig
+- Tuomo Untinen (reemax)
+- William.Thomsponj
+- Zi Ye
+
+DCSS tiles (`assets/changeling/source/tiles/`, licence file `LICENSE_DCSS.txt`): Dungeon Crawl Stone Soup, copyright 1997-2025 Linley Henzell, the dev team and the contributors. The licence file says most tiles are CC0 (https://creativecommons.org/publicdomain/zero/1.0/), and that some pieces carry other licences compatible with the GPL. Per-tile licences have not been checked.

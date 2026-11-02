@@ -1,0 +1,371 @@
+{
+  "grunt": {
+    "facing": 1,
+    "cell": [
+      64,
+      64
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "mud_revenant": {
+    "facing": 1,
+    "cell": [
+      64,
+      64
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "rat_king": {
+    "facing": 1,
+    "cell": [
+      64,
+      64
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "archer": {
+    "facing": 1,
+    "cell": [
+      64,
+      64
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "warlord": {
+    "facing": 1,
+    "cell": [
+      64,
+      64
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "knight": {
+    "facing": 1,
+    "cell": [
+      192,
+      192
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "ranger": {
+    "facing": 1,
+    "cell": [
+      192,
+      192
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "weaver": {
+    "facing": 1,
+    "cell": [
+      192,
+      192
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  },
+  "mage": {
+    "facing": 1,
+    "cell": [
+      192,
+      192
+    ],
+    "anims": {
+      "idle": {
+        "frames": 2,
+        "fps": 8
+      },
+      "walk": {
+        "frames": 9,
+        "fps": 10
+      },
+      "slash": {
+        "frames": 6,
+        "fps": 12
+      },
+      "thrust": {
+        "frames": 8,
+        "fps": 12
+      },
+      "spellcast": {
+        "frames": 7,
+        "fps": 12
+      },
+      "shoot": {
+        "frames": 13,
+        "fps": 12
+      },
+      "hurt": {
+        "frames": 6,
+        "fps": 8
+      },
+      "jump": {
+        "frames": 5,
+        "fps": 12
+      }
+    }
+  }
+}
