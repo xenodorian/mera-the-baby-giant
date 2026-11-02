@@ -173,7 +173,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **Then a 2 s quake** (`SUPER_QUAKE_S`) with a **70 px** shake (twice the normal) and twice the dust:
   - every enemy touching the ground during it is **stunned until 7 s after the quake started** (`SUPER_QUAKE_STUN_S`; flyers are not, as with the normal quake);
   - **every enemy** on the map takes **a flat 2 damage** (`SUPER_QUAKE_DMG`, never multiplied by Mera's size). It pierces the Fire Knight's guard. For the Infernal Dragon it is 2 toward its size pool;
-  - **every destructible ground object within 1920 px of the screen centre** is destroyed: candles, urns, crates, cracked walls, and barrels (chests need a key), which explode and chain. Chandeliers on screen fall. Levers, planks and doors aren't destructible and stay.
+  - **every destructible ground object within 1920 px of the screen centre** is destroyed: candles, urns, crates, cracked walls, and barrels (chests are not destroyed), which explode and chain. Chandeliers on screen fall. Levers, planks and doors aren't destructible and stay.
 - **Fury:** during Fury the meter is the Fury timer, so it is never "full rage" and Down+Y is the **normal** quake; Fury keeps going. While the meter is still draining after a spend, it's the normal quake too.
 - Below 100 % rage nothing changes: the normal 1 s quake, rage kept.
 
@@ -198,7 +198,7 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
 ## Enemy roster (v0.6)
 - Sixteen enemies on the four wave levels (Sunlit Country, Misty Woods, Moonlit Town, Infernal Caverns), built from the ansimuz and chierit packs. **Every one of their animations is used.**
 - Enemies never scale with Mera (fixed size).
-- Each defeated enemy drops **one** thing (v0.9.4; a key may come on top, see Shop unlocks): a rage sphere (30%), a green size potion (28%), a blue +30 mana potion (28%), a +5 max mana potion (7%, cap 200), or a +5 max rage sphere (7%, cap 200). A rage sphere still grants that enemy's rage value.
+- Each defeated enemy drops **one** thing (v0.9.4): a rage sphere (30%), a green size potion (28%), a blue +30 mana potion (28%), a +5 max mana potion (7%, cap 200), or a +5 max rage sphere (7%, cap 200). A rage sphere still grants that enemy's rage value.
 - Damage dealt by Mera = base × her size, as for the knights.
 
 | Level | Enemy | HP | Hits cost | Animations and what they do |
@@ -263,12 +263,12 @@ The four wave levels (1, 2, 3 and 5); the Moonlit Cemetery and the Dragon's Lair
 | Candle (2 looks) | 1 | the drop roll below |
 | Urn | 1 | the drop roll below |
 | Crate | 1 | the drop roll below |
-| Chest | key only | 3 to 5 coins (3 gold each) and 1 to 3 other items (see Shop unlocks) |
+| Chest | a puzzle (see Chests below) | 3 to 5 coins (3 gold each) and 1 to 3 other items |
 | Explosive barrel | 1 | the drop roll below; explodes |
 | Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
 
-- **Drop roll** (candle, urn, crate and barrel): 40 % coin, 25 % health potion, 25 % mana potion, 10 % summon card. Chests: see Shop unlocks.
-- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. Every destructible except the cracked wall and the chest breaks in one hit. A chest opens only with a key. A wall loses one hit per blow. A dragon bolt's blast breaks everything in the burst.
+- **Drop roll** (candle, urn, crate and barrel): 40 % coin, 25 % health potion, 25 % mana potion, 10 % summon card. Chests: see Puzzle chests.
+- **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. Every destructible except the cracked wall and the chest breaks in one hit. A chest opens only by solving a puzzle. A wall loses one hit per blow. A dragon bolt's blast breaks everything in the burst.
 - **Slide (Down+A):** her body breaks every destructible she passes through except a cracked wall and a chest, and she **takes the drop immediately** instead of leaving it behind. Walls still block her and still take one hit per kick.
 - **Explosive barrel:** **8 damage** (fixed, never × size) and a launch to every enemy within **300 px**; it pierces the Fire Knight's block (kind "explosion"); other barrels in the blast go off 0.14 s later (chains); chandeliers in range (1.8 × radius) drop; breakables in range break. Mera is not hurt.
 - **Chandelier:** hit it, blast it, or **earthquake** (Down+Y shakes loose every chandelier on screen). It falls and crushes enemies under it: **6 damage + 2.5 s stun**.
@@ -318,7 +318,13 @@ Summon cards are **not lying on the maps**. Each of the four stage maps (Sunlit 
 - His **ground fire breath** attack is unchanged: it still plays the original breath frames with the plume (a separate code path, the roster attack).
 - **Boss bar:** "INFERNAL DRAGON 12x" plus a bar with one notch per size.
 
-## Shop unlocks, keys and clear gold
+## Puzzle chests
+Chests need no key. Mera touches a shut chest (just walking into it) and the game pauses on one of three puzzles, picked at random from the game's drop RNG. The pause menu cannot open on top of a puzzle. **Win:** the chest opens and 3 to 5 coins (each worth 3 gold; a coin from a broken object is worth 1) and 1 to 3 other items (health potion, mana potion or a summon card) pop out. **Lose, give up or quit:** the chest stays shut. It ignores Mera for 1 s and until she has stepped off it, then it can be tried again and may pick another puzzle. All numbers are in `scripts/game/tuning.gd`.
+- **Connect the pipes:** a 5 x 5 board of straight, corner and tee pipes. Water enters on the left edge and the drain is on the right. Rotate tiles clockwise; the board is built from a random path and then scrambled, so it is always solvable. You win when water reaches the drain. You lose when you run out of rotations (the rotations the cheapest solution needs, plus 14) or give up.
+- **Match the foes:** a 7 x 7 board of portraits of 5 distinct random enemies. Swap two neighbours to make a run of 3 or more; runs clear, tiles fall, new ones drop in, and cascades pay 50 % more per step. A swap that matches nothing is undone and costs no move. The board never starts with a match and is reshuffled if no move is left. Reach **350 points** (5 per cleared tile) within **15 moves** to win; running out of moves loses.
+- **Stop the needle:** a needle sweeps a gauge with a green zone. Stop it inside the zone three times in a row. Zones are 24 %, 17 % and 12 % of the gauge (never under 6 %) and the needle runs at 0.6, 0.8 and 1.0 gauge widths per second. A miss loses.
+
+## Shop unlocks and clear gold
 - **Shop page 2** (Left/Right switches between the two shop pages) sells these moves. They start **locked**:
   - the beam finisher (X X X then Y);
   - the earthquake (Down+Y);
@@ -327,6 +333,4 @@ Summon cards are **not lying on the maps**. Each of the four stage maps (Sunlit 
   - Fury mode (L2+R2).
 - **Homing shots** are a sixth unlock: once bought, quick-fire bolts and rear-explosion fireballs steer toward the nearest enemy.
 - A locked move does nothing: the input falls back to the normal move.
-- **Keys:** some enemy deaths drop a key on top of their fury orb (25 % chance). Only one key exists at a time, on the floor or held; a new one drops only after the last is used. Keys only drop on levels that have chests.
-- **Chests** cannot be broken without a key. Touching a locked chest with a key uses it automatically: the key floats up, then 3 to 5 coins (each worth 3 gold; a coin from a broken object is worth 1) and 1 to 3 other items (health potion, mana potion or a summon card) pop out. The HUD shows KEY while one is held.
 - **Level clear gold:** the first clear of a level pays 15 gold, each later clear 5 gold. Killing the Infernal Dragon at the end clears its stage, pays that clear gold plus 100, shows "You Defeated the Cavern Dragon!" with "Stage 2: The Island is open" and returns to the title screen (the level select then opens on Stage 2). Perry, the final boss of level 11, does the same with "You Defeated Perry!" and "The island is free", and also pays the 100 gold bonus. The level select has two pages: Stage 1 (levels 1 to 6) and Stage 2 (7 to 11).

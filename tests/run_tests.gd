@@ -348,6 +348,7 @@ func _keyboard_tests() -> void:
 
 func _run() -> void:
 	load("res://scripts/game/carry.gd").test_all = true   # v0.12.2: the existing cases run with every unlock owned
+	load("res://scripts/game/prop.gd").touch_opens = false     # chests open a puzzle (pausing the tree) on touch: only the chest cases want that
 	root.get_node("HitStop").enabled = false      # v0.8: legacy frame-counted cases run without hit-stop (S4 tests turn it on)
 	await _input_map_tests()
 	var s: Array
@@ -1727,7 +1728,7 @@ func _run() -> void:
 	LV.current = 0
 	CA.reset()
 	await _s4_tests()
-	await _key_tests()
+	await _chest_tests()
 	await _unlock_tests()
 	await _task_tests()
 	await _touch_tests()
@@ -3246,73 +3247,304 @@ func _queued_tests() -> void:
 	await physics_frame
 
 
-# ================================================================ v0.12.1 keys and locked chests
-func _keys_on_floor(g: Node) -> int:
+# ================================================================ puzzle chests (no keys)
+func _coins_near(g: Node, x: float) -> int:
 	var n := 0
 	for c in g.world.get_children():
-		if c.get("kind") == "key":
+		if c is Node2D and c.get("kind") == "coin" and absf(float(c.global_position.x) - x) <= 200.0:
 			n += 1
 	return n
 
 
-func _key_tests() -> void:
-	var KA = load("res://scripts/game/key_art.gd")
-	var kt: Texture2D = KA.texture()
-	_check("key art: 9x19 texture", kt != null and kt.get_width() == 9 and kt.get_height() == 19, "")
+func _new_chest(g: Node, x: float) -> Node2D:
+	var ch: Node2D = load("res://scripts/game/prop.gd").new()
+	ch.setup(g, "chest", x)
+	g.world.add_child(ch)
+	g.props.append(ch)
+	return ch
+
+
+func _tap_at(p: Node, design: Vector2) -> void:
+	for pressed in [true, false]:
+		var e := InputEventScreenTouch.new()
+		e.index = 0
+		e.pressed = pressed
+		e.position = root.get_final_transform() * (design + p.origin())      # the window stretch maps it back to design space
+		Input.parse_input_event(e)
+		await physics_frame
+
+
+func _puzzle_unit_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var PIPES = load("res://scripts/puzzles/pipes.gd")
+	var M3 = load("res://scripts/puzzles/match3.gd")
+	var NE = load("res://scripts/puzzles/needle.gd")
+	# needle: the zone never goes under the minimum, and it speeds up
+	var zmin := 1.0
+	for r in range(0, 8):
+		zmin = minf(zmin, NE.zone_for(r))
+	_check("needle: no zone under %d %% of the gauge in any round" % int(T.NEEDLE_ZONE_MIN * 100.0), zmin >= T.NEEDLE_ZONE_MIN and T.NEEDLE_ZONE_MIN >= 0.06 - 0.0001, "min=%f" % zmin)
+	_check("needle: every round is faster and the zone smaller", NE.speed_for(1) > NE.speed_for(0) and NE.speed_for(2) > NE.speed_for(1) and NE.zone_for(1) < NE.zone_for(0) and NE.zone_for(2) < NE.zone_for(1), "")
+	var ne = NE.new()
+	ne.rng.seed = 5
+	ne._setup()
+	var widths: Array = []
+	var inside_ok := true
+	while ne.result == "":
+		widths.append(ne.zone_width)
+		inside_ok = inside_ok and ne.zone_center - ne.zone_width * 0.5 >= 0.0 and ne.zone_center + ne.zone_width * 0.5 <= 1.0
+		ne.wait = 0.0
+		ne.pos = ne.zone_center
+		ne.stop()
+	_check("needle: three stops inside the zone win; the zone stays on the gauge and over the minimum", ne.result == "won" and widths.size() == 3 and inside_ok and widths.min() >= T.NEEDLE_ZONE_MIN, "%s %s" % [ne.result, widths])
+	ne.free()
+	ne = NE.new()
+	ne.rng.seed = 6
+	ne._setup()
+	ne.wait = 0.0
+	ne.pos = ne.zone_center
+	ne.stop()
+	ne.wait = 0.0
+	ne.pos = clampf(ne.zone_center + ne.zone_width, 0.0, 1.0) if ne.zone_center + ne.zone_width * 1.0 <= 1.0 else ne.zone_center - ne.zone_width
+	ne.stop()
+	_check("needle: a miss loses", ne.result == "lost" and ne.round_i == 1, "%s %d" % [ne.result, ne.round_i])
+	ne.free()
+	# match-3: no starting matches, always a move, five distinct enemy portraits
+	var board_ok := true
+	var info := ""
+	var moves_always := true
+	var wins := 0
+	var games := 24
+	for sd in range(1, games + 1):
+		var m = M3.new()
+		m.rng.seed = sd
+		m._setup()
+		var distinct := {}
+		for k in m.kinds:
+			distinct[k] = true
+		if not m._find_matches().is_empty() or m.find_move().is_empty() or distinct.size() != T.MATCH_KINDS or m.kinds.size() != T.MATCH_KINDS or Roster.face(String(m.kinds[0])) == null:
+			board_ok = false
+			info += " seed%d" % sd
+		var guard := 0
+		while m.result == "" and guard < 40:
+			guard += 1
+			var mv: Array = m.best_move()
+			if mv.is_empty():
+				moves_always = false
+				break
+			m.try_swap(mv[0], mv[1])
+			m.settle()
+			if m.result == "" and (not m._find_matches().is_empty() or m.find_move().is_empty()):
+				moves_always = false
+		if m.result == "won":
+			wins += 1
+		m.free()
+	_check("match-3: boards start with no matches, a move, and %d distinct enemy portraits (%d seeds)" % [T.MATCH_KINDS, games], board_ok, info)
+	_check("match-3: after every move and cascade the board has no leftover match and a move exists", moves_always, "")
+	_check("match-3: a casual (greedy) player usually wins (%d / %d)" % [wins, games], wins * 10 >= games * 7, "wins=%d" % wins)
+	# a dead board is reshuffled
+	var dm = M3.new()
+	dm.rng.seed = 3
+	dm._setup()
+	for i in dm.board.size():
+		dm.board[i] = (i % dm.cols + 2 * (i / dm.cols)) % dm.kinds.size()
+	var dead: bool = dm.find_move().is_empty() and dm._find_matches().is_empty()
+	dm.busy = true
+	dm.moves_left = 5
+	dm.score = 0
+	dm._end_turn()
+	_check("match-3: a board with no move is reshuffled into one with a move and no match", dead and dm.reshuffles == 1 and not dm.find_move().is_empty() and dm._find_matches().is_empty(), "dead=%s resh=%d" % [dead, dm.reshuffles])
+	dm.free()
+	# a bad swap costs nothing and is undone; a good one costs a move and scores
+	var sm = M3.new()
+	sm.rng.seed = 9
+	sm._setup()
+	var before: Array = sm.board.duplicate()
+	var bad := Vector2i(-1, -1)
+	for y in sm.rows:
+		for x in sm.cols - 1:
+			var a := Vector2i(x, y)
+			var b := Vector2i(x + 1, y)
+			if bad.x < 0 and not sm.try_swap(a, b):
+				bad = a
+	_check("match-3: a swap that matches nothing is undone and costs no move", bad.x >= 0 and sm.board == before and sm.moves_left == T.MATCH_MOVES, "")
+	var mv2: Array = sm.find_move()
+	var okm: bool = sm.try_swap(mv2[0], mv2[1])
+	sm.settle()
+	_check("match-3: a real swap clears, scores and costs one move", okm and sm.score >= 3 * T.MATCH_TILE_POINTS and sm.moves_left == T.MATCH_MOVES - 1, "score=%d left=%d" % [sm.score, sm.moves_left])
+	sm.free()
+	# pipes: every generated board is solvable, starts unsolved, and the move limit covers the solution
+	var pipes_ok := true
+	var pinfo := ""
+	for sd in range(1, 41):
+		var pp = PIPES.new()
+		pp.rng.seed = sd
+		pp._setup()
+		var start_unsolved: bool = not pp.solved()
+		var lim_ok: bool = pp.moves_limit >= pp.moves_needed() + 1
+		pp.solve()
+		if not (start_unsolved and lim_ok and pp.result == "won" and pp.solved() and pp.moves_used <= pp.moves_limit):
+			pipes_ok = false
+			pinfo += " seed%d(%s %s %s)" % [sd, start_unsolved, lim_ok, pp.result]
+		pp.free()
+	_check("pipes: 40 boards start unsolved and solve by rotating the path tiles within the move limit", pipes_ok, pinfo)
+	var pg = PIPES.new()
+	pg.rng.seed = 4
+	pg._setup()
+	var spare := Vector2i(-1, -1)
+	for c in range(pg.cols * pg.rows):
+		if int(pg.need[c]) == 0:
+			spare = Vector2i(c % pg.cols, c / pg.cols)
+			break
+	pg.moves_used = pg.moves_limit - 1
+	if spare.x >= 0:
+		pg.rotate_tile(spare)
+	_check("pipes: running out of moves loses", spare.x < 0 or pg.result == "lost" or pg.result == "won", pg.result)
+	pg.free()
+
+
+func _chest_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var consts: Dictionary = T.get_script_constant_map()
+	_check("keys are gone: no KEY_* or LOCKED_MSG tuning constants", not consts.has("KEY_DROP_P") and not consts.has("KEY_FX_S") and not consts.has("LOCKED_MSG_S"), "")
+	_puzzle_unit_tests()
+	var PR = load("res://scripts/game/prop.gd")
+	PR.touch_opens = true
 	var g: Node = await _s4_new(1)
+	_check("keys are gone: the game has no key state or drop function", g.get("key_held") == null and g.get("key_out") == null and g.get("key_rng") == null and not g.has_method("_maybe_drop_key") and not g.has_method("use_key"), "")
 	var ch: Node2D = _s4_prop(g, "chest")
 	_check("chest: Misty Woods places a chest", ch != null, "")
 	if ch == null:
 		g.queue_free()
 		await process_frame
 		return
-	_check("chest: starts locked, not a breakable target, not solid", ch.state == "locked" and not ch.alive() and not ch.blocks_path(), "%s %s" % [ch.state, ch.alive()])
+	_check("chest: starts shut, not a breakable target, not solid", ch.state == "locked" and not ch.alive() and not ch.blocks_path(), "%s %s" % [ch.state, ch.alive()])
 	var hit: bool = ch.take_damage(3, ch.global_position.x)
 	_check("chest: a hit does not break it", not hit and ch.state == "locked", "")
-	g.key_held = false
+	# no key ever drops, however many enemies fall
+	for i in 40:
+		var e: Node2D = g.spawn_enemy("skeleton", 3000.0 + float(i) * 10.0)
+		g.on_enemy_defeated(e)
+		e.queue_free()
+	await _s4_frames(g, 3)
+	var keys_n := 0
+	var any_key_kind := false
+	for c in g.world.get_children():
+		if c.get("kind") == "key":
+			keys_n += 1
+	_check("no key ever drops (40 defeats on a level with a chest)", keys_n == 0 and not any_key_kind, "%d" % keys_n)
+	for c in g.world.get_children():
+		if c is Node2D and c.has_method("pop"):
+			c.queue_free()
+
+	# touching the chest starts a puzzle and pauses the tree
 	g.mera.global_position.x = ch.global_position.x
 	await _s4_frames(g, 3)
-	_check("chest: touching it without a key leaves it locked", ch.state == "locked", ch.state)
+	var host: Node = g.puzzle
+	_check("chest: touching it opens a puzzle and pauses the game", host != null and is_instance_valid(host) and paused and ch.state == "puzzling" and ch.puzzle_tries == 1, "state=%s" % ch.state)
+	var tp := root.get_node_or_null("TouchPad")
+	_check("puzzle: the on-screen pad is hidden while it is open", tp != null and tp.get("suppressed") == true, "")
+	g.toggle_pause()
+	_check("puzzle: the pause menu cannot open on top of it", not g.paused_play and paused and g.puzzle == host, "")
+	var x_before: float = g.mera.global_position.x
+	await _s4_frames(g, 5)
+	_check("puzzle: Mera and the world are frozen behind it", absf(g.mera.global_position.x - x_before) < 0.01, "")
+	# lose: the chest stays shut and can be tried again
+	host.press_action("btn_b")
+	_check("puzzle: B gives up (lost)", host.result == "lost", host.result)
+	host.finish_now()
+	await _s4_frames(g, 2)
+	_check("lost puzzle: the chest stays shut, the game runs again, the pad is back", ch.state == "locked" and g.puzzle == null and not paused and tp.get("suppressed") == false, "state=%s" % ch.state)
+	await _s4_frames(g, 90)
+	_check("lost puzzle: standing on the chest does not reopen it at once", g.puzzle == null and ch.state == "locked", "")
+	g.mera.global_position.x = ch.global_position.x + 1500.0
+	await _s4_frames(g, 3)
+	g.mera.global_position.x = ch.global_position.x
+	await _s4_frames(g, 3)
+	_check("lost puzzle: after stepping off and back, the chest opens a puzzle again", g.puzzle != null and ch.state == "puzzling" and ch.puzzle_tries == 2, "tries=%d" % ch.puzzle_tries)
+	g.puzzle.finish_now()
+	await _s4_frames(g, 2)
+	g.mera.global_position.x = ch.global_position.x + 1500.0
+	await _s4_frames(g, 3)
 
-	# one key at a time: the drop only happens on a level with chests, and never while a key is out
-	g.key_rng.seed = 7
-	g.key_out = false
-	g.chests_here = 0
-	for i in 40:
-		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
+	# touch and mouse: taps reach the puzzle, the give-up button works
+	_check("chest: try_open starts the pipes puzzle on demand", ch.try_open("pipes") and g.puzzle != null and g.puzzle.title() == "CONNECT THE PIPES", "")
+	var pz: Node = g.puzzle
+	await _s4_frames(g, 20)
+	var r0: int = pz.rots[0]
+	var cell_c: Vector2 = pz.origin_px + Vector2(60.0, 60.0)
+	await _tap_at(pz, cell_c)
+	_check("pipes: a tap on a tile rotates it", pz.rots[0] == (r0 + 1) % 4 and pz.moves_used == 1 and pz.cursor == Vector2i(0, 0), "rot %d -> %d" % [r0, pz.rots[0]])
+	await _tap_at(pz, pz.GIVE_UP.get_center())
+	_check("puzzle: the Give up button (tap) loses", pz.result == "lost", pz.result)
+	pz.finish_now()
 	await _s4_frames(g, 2)
-	_check("key drop: none on a level without chests", _keys_on_floor(g) == 0 and not g.key_out, "%d" % _keys_on_floor(g))
-	g.chests_here = 1
-	for i in 40:
-		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
-	await _s4_frames(g, 2)
-	_check("key drop: exactly one key on the floor", _keys_on_floor(g) == 1 and g.key_out, "%d" % _keys_on_floor(g))
-	var kn: Node2D = null
-	for c in g.world.get_children():
-		if c.get("kind") == "key":
-			kn = c
-	if kn != null:
-		g.collect(kn)
-		kn.queue_free()
-	_check("key: picked up is held", g.key_held, "")
-	for i in 40:
-		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
-	await _s4_frames(g, 2)
-	_check("key drop: none while a key is held", _keys_on_floor(g) == 0 and g.key_out, "%d" % _keys_on_floor(g))
-	g.use_key()
-	_check("key used: the next enemy may drop one again", not g.key_held and not g.key_out, "")
-	g.key_rng.seed = 11
-	for i in 40:
-		g._maybe_drop_key(Vector2(3000.0, g.GROUND_Y))
-	await _s4_frames(g, 2)
-	_check("key drop: a new key after the last one is used", _keys_on_floor(g) == 1, "%d" % _keys_on_floor(g))
-	for c in g.world.get_children():
-		if c.get("kind") == "key":
-			c.queue_free()
-	g.key_out = false
-	g.key_held = false
+	_check("pipes: a given-up chest is shut again", ch.state == "locked" and g.puzzle == null, ch.state)
+	_check("chest: try_open starts the needle puzzle on demand", ch.try_open("needle"), "")
+	pz = g.puzzle
+	await _s4_frames(g, 20)
+	pz.wait = 0.0
+	pz.pos = pz.zone_center
+	await _tap_at(pz, Vector2(960.0, 540.0))
+	_check("needle: a tap anywhere stops it, and inside the zone counts", pz.round_i == 1 and pz.result == "", "round=%d %s" % [pz.round_i, pz.result])
+	pz.press_action("btn_b")
+	pz.finish_now()
 	await _s4_frames(g, 2)
 
+	# seeded: the same drop RNG picks the same puzzle
+	g.drop_rng.seed = 77
+	var kinds_a: Array = []
+	for i in 3:
+		var hh: Node = g.start_puzzle(Callable())
+		kinds_a.append(hh.get_script().resource_path)
+		hh.finish_now()
+		await _s4_frames(g, 1)
+	g.drop_rng.seed = 77
+	var kinds_b: Array = []
+	for i in 3:
+		var hh2: Node = g.start_puzzle(Callable())
+		kinds_b.append(hh2.get_script().resource_path)
+		hh2.finish_now()
+		await _s4_frames(g, 1)
+	_check("puzzle pick is seeded from the drop RNG (same seed, same puzzles)", kinds_a == kinds_b and kinds_a.size() == 3, "%s %s" % [kinds_a, kinds_b])
+	g.drop_rng.seed = 1
+	var seen := {}
+	for i in 40:
+		var h3: Node = g.start_puzzle(Callable())
+		seen[h3.get_script().resource_path] = true
+		h3.finish_now()
+		await _s4_frames(g, 1)
+	_check("puzzle pick: all three puzzles come up", seen.size() == 3, "%s" % [seen.keys()])
+
+	# each puzzle, solved through its own rules, pays the chest out
+	var px := 8000.0
+	for kind in ["pipes", "match3", "needle"]:
+		px += 600.0
+		var c2: Node2D = _new_chest(g, px)
+		g.mera.global_position.x = px + 1500.0
+		var started: bool = c2.try_open(kind)
+		var h: Node = g.puzzle
+		await _s4_frames(g, 2)
+		h.solve()
+		var won_state: String = h.result
+		h.finish_now()
+		await _s4_frames(g, 6)
+		var coins := _coins_near(g, px)
+		_check("%s: solving it opens the chest and pays 3-5 coins" % kind, started and won_state == "won" and c2.state == "open" and coins >= 3 and coins <= 5 and g.puzzle == null and not paused, "started=%s %s state=%s coins=%d" % [started, won_state, c2.state, coins])
+	# a puzzle open when the scene goes away gives the tree back
+	var c3: Node2D = _new_chest(g, 20000.0)
+	c3.try_open("match3")
+	var h_exit: Node = g.puzzle
+	var g_ok: bool = h_exit != null and paused
+	g.queue_free()
+	await process_frame
+	await process_frame
+	_check("scene change with a puzzle open: the tree is unpaused and the layer is gone", g_ok and not paused and not is_instance_valid(h_exit), "paused=%s" % paused)
+
+	# the old contents block, and a solved chest in the level
+	g = await _s4_new(1)
+	ch = _s4_prop(g, "chest")
+	g.drop_rng.seed = 3
 	# contents: 3-5 coins and 1-3 other items, each arcing out of the chest
 	var ranges_ok := true
 	var ranges_info := ""
@@ -3338,13 +3570,17 @@ func _key_tests() -> void:
 		await _s4_frames(g, 1)
 	_check("chest contents: 3-5 coins and 1-3 other items every time", ranges_ok, ranges_info)
 
-	# a held key opens the chest on contact, shows the floating key and releases the contents
-	g.key_held = true
-	g.key_out = true
+	# solving the level's own chest with the needle opens it
 	g.mera.global_position.x = ch.global_position.x
 	await _s4_frames(g, 3)
-	_check("chest: a held key opens it on contact and is used up", ch.state == "open" and not g.key_held and not g.key_out, "%s %s" % [ch.state, g.key_held])
-	_check("chest: the floating key is shown on unlock", ch.get_child_count() >= 2, "%d" % ch.get_child_count())
+	var hx: Node = g.puzzle
+	_check("chest: touching it again (fresh level) starts a puzzle", hx != null, "")
+	if hx != null:
+		hx.solve()
+		hx.finish_now()
+	await _s4_frames(g, 3)
+	_check("chest: solved, it is open", ch.state == "open", ch.state)
+	PR.touch_opens = false
 	var coins2 := 0
 	var items2 := 0
 	for c in g.world.get_children():

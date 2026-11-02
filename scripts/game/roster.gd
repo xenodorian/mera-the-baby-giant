@@ -239,7 +239,8 @@ static var _faces: Dictionary = {}
 static func face(id: String) -> Texture2D:
 	if _faces.has(id):
 		return _faces[id]
-	var baked: Texture2D = load("res://assets/ui/faces/%s.png" % id)
+	var baked_path := "res://assets/ui/faces/%s.png" % id
+	var baked: Texture2D = load(baked_path) if ResourceLoader.exists(baked_path) else null
 	if baked != null:
 		_faces[id] = baked
 		return baked

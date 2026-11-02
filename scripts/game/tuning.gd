@@ -126,14 +126,30 @@ const CROUCH_BUBBLE_S := 3.0
 const BUBBLE_PULL := 2200.0    # both bubbles vacuum every item on screen toward Mera (px/s)
 ## one defeated enemy drops a fury orb. Potions, coins, and cards come from breakables.
 const ENEMY_LOOT := [["sphere", 100.0]]
-# ---------------------------------------------------------------- keys and locked chests
-const KEY_DROP_P := 0.25          # an enemy death drops a key on its fury orb with this chance ...
-                                  # ... but only while no key is out (on the floor or held). Keys are used on chests.
+# ---------------------------------------------------------------- puzzle chests (scripts/puzzles)
 const CHEST_COINS := [3, 5]       # a chest releases this many coins (inclusive) ...
 const CHEST_COIN_GOLD := 3        # ... and each of those coins is worth this much gold (a coin from a broken object is worth 1)
 const CHEST_ITEMS := [1, 3]       # ... and this many other items (potion, mana or card)
-const KEY_FX_S := 0.6             # the floating key shown when a chest unlocks
-const LOCKED_MSG_S := 1.5         # "a key opens it" is shown at most this often
+const PUZZLE_KINDS := ["pipes", "match3", "needle"]   # touching a chest opens one of these at random (drop RNG)
+const PUZZLE_RESULT_S := 0.9      # "SOLVED" / "FAILED" banner time before the puzzle closes
+const PUZZLE_RETRY_S := 1.0       # a failed chest ignores Mera this long, and until she steps off it
+# pipes: grid, and how many rotations the player may spend before it counts as a loss
+const PIPES_COLS := 5
+const PIPES_ROWS := 5
+const PIPES_MOVES_EXTRA := 14     # move limit = (rotations needed to solve) + this
+# match-3: portraits (distinct enemies), grid, win score and move limit. Each cleared tile is worth MATCH_TILE_POINTS, x(1 + 0.5 per earlier
+# cascade step). Simulated: a random-move player wins about 9 games in 10, a pure first-move player about 7 in 10.
+const MATCH_COLS := 7
+const MATCH_ROWS := 7
+const MATCH_KINDS := 5
+const MATCH_TARGET := 350
+const MATCH_MOVES := 15
+const MATCH_TILE_POINTS := 5
+# needle: three stops in a row. Zone and speed per round (fractions of the gauge, gauge widths per second). Never under NEEDLE_ZONE_MIN.
+const NEEDLE_ROUNDS := 3
+const NEEDLE_ZONES := [0.24, 0.17, 0.12]
+const NEEDLE_SPEEDS := [0.6, 0.8, 1.0]
+const NEEDLE_ZONE_MIN := 0.06
 ## level art lowered to the ground (game px, added to the layer's y). Cemetery graves_far stood about 65 px high.
 const LAYER_LOWER := {"res://assets/levels/cemetery/graves_far.png": 65.0}
 # ---------------------------------------------------------------- v0.9.1 rising slash (datk2): windup 4x, rise 2x speed and 2x distance

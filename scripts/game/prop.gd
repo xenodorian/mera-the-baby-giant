@@ -2,8 +2,8 @@ extends Node2D
 ## v0.8 (S4) one breakable / set piece / secret (data: scripts/game/props.gd). Duck-typed like an enemy for Mera's
 ## damage loops (game.targets()): alive() hurt_rect() take_damage(amount, from_x, kind) -> bool, plus is_prop.
 ##   candle, candle_b, urn, crate  break (shatter) and drop what Mera is low on (game.smart_drop)
-##   chest        v0.12.1 locked: not breakable. Touching it with a key (game.key_held) unlocks it: a floating key,
-##                then 3-5 coins and 1-3 other items (game.chest_contents)
+##   chest        not breakable. Touching it opens a random puzzle (game.start_puzzle: pipes, match-3 or stop the needle).
+##                Win: 3-5 coins and 1-3 other items (game.chest_contents). Lose or quit: it stays shut and can be tried again
 ##   barrel       explodes: fixed damage in a radius, kind "explosion" (pierces the Fire Knight's block), chains
 ##   chandelier   hangs on a chain; any hit, a nearby blast or the earthquake drops it: crushes + stuns below
 ##   wall         a cracked wall with an ally card behind it (4 hits)
@@ -11,7 +11,9 @@ extends Node2D
 ##   plank        crumbling step (Mera stands on it -> it shakes, breaks, grows back); ledge = solid card ledge
 
 const P := preload("res://scripts/game/props.gd")
-const KEY_ART := preload("res://scripts/game/key_art.gd")
+
+## false: walking into a chest does not open it (the test runs turn this off so a chest on the path cannot pause a combat case; try_open() still works)
+static var touch_opens := true
 
 var game: Node = null
 var kind := ""
@@ -33,7 +35,9 @@ var hits_taken := 0
 var top_y := 0.0               # platforms: surface height (world y)
 var crushed := 0               # chandelier: enemies hit (tests)
 var _boom_left := -1.0
-var _lock_msg_t := 0.0          # chest: counts down between "a key opens it" messages
+var _retry_t := 0.0             # chest: after a lost puzzle, ignores Mera for this long ...
+var _need_leave := false        # ... and until she has stepped off it
+var puzzle_tries := 0           # chest: puzzles started (tests)
 
 
 func setup(g: Node, kd: String, x: float, ex: Dictionary = {}) -> void:
@@ -320,50 +324,56 @@ func _physics_process(delta: float) -> void:
 			_chest_tick(delta)
 
 
-# ---------------------------------------------------------------- locked chest (v0.12.1)
+# ---------------------------------------------------------------- puzzle chest
 func _chest_tick(delta: float) -> void:
-	_lock_msg_t -= delta
+	_retry_t -= delta
 	if state != "locked" or game == null or game.mera == null:
 		return
 	var m: Node2D = game.mera
-	if m.state == "dead" or not hurt_rect().intersects(m.hurt_rect()):
+	var touching: bool = m.state != "dead" and hurt_rect().intersects(m.hurt_rect())
+	if _need_leave:
+		if not touching:
+			_need_leave = false
 		return
-	if game.key_held:
+	if touching and _retry_t <= 0.0 and touch_opens:
+		try_open()
+
+
+## Starts a puzzle for this chest (also the test hook). False when it is not shut or a puzzle is already open.
+func try_open(forced: String = "") -> bool:
+	if state != "locked" or game == null:
+		return false
+	var host: Node = game.start_puzzle(_puzzle_done, forced)
+	if host == null:
+		return false
+	state = "puzzling"
+	puzzle_tries += 1
+	Sfx.play("metal", 1.5, -10.0)
+	return true
+
+
+func _puzzle_done(won: bool) -> void:
+	if state != "puzzling":
+		return
+	if won:
 		_unlock()
-	elif _lock_msg_t <= 0.0:
-		_lock_msg_t = Tuning.LOCKED_MSG_S
-		game.hud.flash("pickup:locked  a key opens it")
-		Sfx.play("metal", 1.5, -10.0)
+	else:
+		state = "locked"
+		_retry_t = Tuning.PUZZLE_RETRY_S
+		_need_leave = true
+		if game:
+			game.hud.flash("pickup:the chest stays shut  (try again)")
 
 
 func _unlock() -> void:
 	state = "open"
-	game.use_key()
 	spr.texture = load(P.DIR + "chest_open.png")
 	Sfx.play("metal", 1.2)
 	Sfx.play("wood", 1.1)
 	Sfx.play("potion", 0.9, -4.0)
 	game.debris.spark(hurt_rect().get_center(), 3.0)
-	_key_fx()
 	game.chest_contents(global_position + Vector2(0, -30))
 	game.hud.flash("pickup:chest opened")
-
-
-## the key floats up out of the chest, spins to full size and fades: a quick animation on unlock
-func _key_fx() -> void:
-	var fx := Sprite2D.new()
-	fx.texture = KEY_ART.texture()
-	fx.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	fx.scale = Vector2(3, 3)
-	fx.position = Vector2(0, -spr.texture.get_height() * k * 0.6)
-	fx.z_index = 2
-	add_child(fx)
-	var tw := create_tween()
-	tw.set_parallel(true)
-	tw.tween_property(fx, "position:y", fx.position.y - 110.0, Tuning.KEY_FX_S).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tw.tween_property(fx, "scale", Vector2(4.5, 4.5), Tuning.KEY_FX_S).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tw.tween_property(fx, "modulate:a", 0.0, Tuning.KEY_FX_S).set_delay(Tuning.KEY_FX_S * 0.5)
-	tw.chain().tween_callback(fx.queue_free)
 
 
 func _crumble_tick(delta: float) -> void:

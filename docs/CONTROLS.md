@@ -44,6 +44,17 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. Volume keys do this on Android. Restart after Game Over |
 | Back (Share) | nothing. The animation gallery is not bound to any key or button |
 
+**Chest puzzles.** Touching a chest pauses the game on a puzzle (see `docs/GAME_RULES.md`, Puzzle chests). Start and the volume keys do nothing while it is open. The on-screen pad is hidden on Android so taps reach the puzzle; a **GIVE UP** button sits at the top right of every puzzle.
+
+| Puzzle | Keyboard / pad | Touch |
+|---|---|---|
+| All | **B (X)** gives up; Esc gives up | tap **GIVE UP** |
+| Connect the pipes | arrows move the cursor, **A (Z)** rotates the tile | tap a tile to rotate it |
+| Match the foes | arrows move the cursor; **A** picks a tile, then an arrow swaps it with that neighbour (or move the cursor to a neighbour and press A again) | drag a face onto a neighbour, or tap two neighbours |
+| Stop the needle | **A (Z)** stops the needle | tap anywhere |
+
+Buttons held when the chest opens are ignored for the first 0.25 s, so an attack in progress does not act on the puzzle.
+
 **Locked moves.** The beam finisher (X X X then Y), the earthquake (Down+Y), the super earthquake (Down+Y at full rage, after the earthquake is bought), the rear explosion (X+Y) and Fury (L2+R2) start locked. They are bought on shop page 2 (Left/Right switches the pages). A locked input does nothing special: it falls back to the normal move.
 
 ## Keyboard (v0.8 PC layout, user request t86u)

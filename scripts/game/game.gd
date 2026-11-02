@@ -27,10 +27,7 @@ var knights: Array = []         # v0.12.2: up to three Fire Knights at once, on 
 var blues: Array = []           # v0.4 Blue Knights he calls in
 var blues_spawned := 0
 var drop_rng := RandomNumberGenerator.new()
-var key_rng := RandomNumberGenerator.new()   # v0.12.1 key drops (own stream: they never shift the other drops)
-var key_held := false                        # v0.12.1: Mera carries the level's key (one at a time)
-var key_out := false                         # a key is on the floor or held. No new key drops until it is used
-var chests_here := 0                         # locked chests on this level. Keys only drop where there is a chest
+var puzzle: Node = null                     # the open chest puzzle (scripts/puzzles), or null. The tree is paused while it is up
 var knight_timer := 1.2
 var knights_spawned := 0
 var shake_amt := 0.0
@@ -493,10 +490,6 @@ func _place_props() -> void:
 	for pr in props:
 		if pr.kind == "lever":
 			pr.door = doors.get(float(pr.extra["door_x"]), null)
-	chests_here = 0
-	for pr in props:
-		if pr.kind == "chest":
-			chests_here += 1
 
 
 ## a secret wall broke / a door opened: its card can be taken
@@ -750,7 +743,6 @@ func on_enemy_defeated(e: Node2D) -> void:
 		if Roster.FINALE.has(Levels.current):
 			_start_finale_victory()
 	else:
-		_maybe_drop_key(p + Vector2(0, -10))
 		Sfx.play("boom", 1.8, -10.0)
 
 
@@ -1202,7 +1194,6 @@ func on_knight_defeated(k: Node2D) -> void:
 		return
 	defeated += 1
 	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), 10.0)
-	_maybe_drop_key(k.global_position + Vector2(0, -10))
 	knights.erase(k)
 	knight = knights[0] if not knights.is_empty() else null
 	knight_timer = 2.0
@@ -1224,26 +1215,22 @@ func _blue_defeated(k: Node2D) -> void:
 	defeated += 1
 	blues.erase(k)
 	_spawn_loot(enemy_loot_kind(drop_rng.randf()), k.global_position + Vector2(0, -10), float(Tuning.BLUE["rage"]))
-	_maybe_drop_key(k.global_position + Vector2(0, -10))
 	Sfx.play("boom", 2.0, -10.0)
 
 
-## v0.12.1: some enemies drop a key on their fury orb. One at a time: no new key until the last one is used on a chest.
-func _maybe_drop_key(p: Vector2) -> void:
-	if key_out or chests_here <= 0:
-		return
-	if key_rng.randf() >= Tuning.KEY_DROP_P:
-		return
-	key_out = true
-	var pk: Pickup = Pickup.new()
-	pk.setup(self, "key", p)
-	world.add_child.call_deferred(pk)
-
-
-## v0.12.1: a locked chest was opened with the held key (prop.gd _unlock)
-func use_key() -> void:
-	key_held = false
-	key_out = false
+## A chest asks for a puzzle (prop.gd). One of the three is picked from the drop RNG (so a seeded run is deterministic),
+## the tree pauses, and `done(won: bool)` is called when the player wins, loses or quits. Returns the host, or null if one is
+## already open. `forced` picks a kind ("pipes", "match3", "needle") for tests.
+func start_puzzle(done: Callable, forced: String = "") -> Node:
+	if puzzle != null and is_instance_valid(puzzle):
+		return null
+	var kinds: Array = Tuning.PUZZLE_KINDS
+	var pick: String = forced if forced != "" else String(kinds[drop_rng.randi() % kinds.size()])
+	var seed_v: int = drop_rng.randi()
+	var p: Node = load("res://scripts/puzzles/%s.gd" % pick).new()
+	puzzle = p
+	p.open(self, seed_v, done)
+	return p
 
 
 ## v0.12.1: 3-5 coins and 1-3 other items (potion, mana or card) pop out of an opened chest
@@ -1379,10 +1366,6 @@ func collect(p: Pickup) -> void:
 		else:
 			Carry.add_gold(1)
 			hud.flash("pickup:mana slots full  +1 gold")
-	elif p.kind == "key":
-		key_held = true
-		Sfx.play("clang", 1.4, -4.0)
-		hud.flash("pickup:key found  (touch a chest to open it)")
 	elif p.kind == "coin":
 		var worth := int(p.value) if p.value >= 1.0 else 1       # chest coins carry Tuning.CHEST_COIN_GOLD, others 1
 		Carry.add_gold(worth)
@@ -1875,6 +1858,8 @@ var paused_play := false          # v0.9.1: Start freezes gameplay (the controls
 func toggle_pause() -> void:
 	if picker != null and picker.open:
 		return
+	if puzzle != null and is_instance_valid(puzzle):
+		return                                      # a chest puzzle owns the pause
 	if over or cleared:
 		return
 	paused_play = not paused_play

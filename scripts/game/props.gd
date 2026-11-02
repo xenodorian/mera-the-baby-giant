@@ -11,7 +11,7 @@ const KINDS := {
 	"candle_b": ["candle_b.png", 4.0, 1, "small", "glass"],
 	"urn": ["urn.png", 5.0, 1, "medium", "glass"],
 	"crate": ["crate.png", 5.0, 1, "medium", "wood"],
-	"chest": ["chest.png", 5.0, 0, "", "wood"],      # locked: opened by a key (prop.gd), never broken
+	"chest": ["chest.png", 5.0, 0, "", "wood"],      # opened by a puzzle (prop.gd), never broken
 	"barrel": ["barrel.png", 4.0, 1, "", "boom_big"],
 	"chandelier": ["chandelier.png", 3.0, 1, "", "glass"],
 	"wall": ["wall_cracked.png", 3.0, 4, "", "stone"],

@@ -1,8 +1,7 @@
 class_name Pickup
 extends Node2D
 ## Green potion (+1 carried potion; L1 drinks one: +1 size up to 6x) or red rage sphere (+rage, 10 % per Fire Knight).
-## v0.12.1: "key" (opens a locked chest; drawn by key_art.gd) and chest contents, which pop out in an arc (pop()).
-const KEY_ART := preload("res://scripts/game/key_art.gd")
+## v0.12.1: chest contents pop out in an arc (pop()).
 const POP_S := 0.35
 
 var game: Node = null
@@ -30,15 +29,6 @@ func setup(g: Node, k: String, p: Vector2, v: float = -1.0) -> void:
 	kind = k
 	value = v if v >= 0.0 or k != "sphere" else 10.0
 	position = p
-	if kind == "key":
-		var kt: Texture2D = KEY_ART.texture()
-		spr.texture = kt
-		spr.hframes = 1
-		spr.scale = Vector2(SCALE, SCALE)
-		spr.offset = Vector2(0, -float(kt.get_height()) / 2.0)
-		add_child(spr)
-		set_meta("art", "key")
-		return
 	if kind == "coin" and ResourceLoader.exists("res://assets/ui/coin.png"):
 		spr.texture = load("res://assets/ui/coin.png")
 		spr.hframes = 1
@@ -81,7 +71,7 @@ func _physics_process(delta: float) -> void:
 		if u >= 1.0:
 			pop_t = -1.0
 			position = pop_to
-	if kind != "coin" and kind != "key":
+	if kind != "coin":
 		var art := "sphere" if kind == "rage_max" else kind
 		if kind == "mana" or kind == "card":
 			art = "stamina" if kind == "mana" else "potion"
