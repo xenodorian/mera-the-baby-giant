@@ -8,6 +8,7 @@ const ENTRIES := [
 	{"who": "Stealthix", "what": "Animated Monsters: zombie, skeleton, witch", "lic": "CC0", "url": "https://stealthix.itch.io/animated-monsters"},
 	{"who": "Merakintsugi", "what": "Mera: Platformer Character Pack (main character, licensed)", "lic": "Licensed", "url": "https://merakintsugi.itch.io/platformer-character-pack"},
 	{"who": "HydroGene", "what": "High Quality 8-bit / Chiptune Musics (cemetery, woods, town, caverns)", "lic": "CC0", "url": "https://hydrogene.itch.io/high-quality-8-bit-musics"},
+	{"who": "xenodorian", "what": "Perry Riposte: Perry, Percy, Mirror Max, goblin, orc, club ogre, fire mage, Stage 2 maps and music", "lic": "Owner", "url": "https://github.com/xenodorian/BibooSGBA"},
 	{"who": "Kenney", "what": "Sound effects: RPG Audio, Sci-fi Sounds, Impact Sounds", "lic": "CC0", "url": "https://kenney.nl"},
 	{"who": "Zane Little Music", "what": "Flowerbed Fields (Sunlit Country)", "lic": "CC0", "url": "https://opengameart.org/content/flowerbed-fields-loop"},
 	{"who": "Pixel Frog", "what": "Kings and Pigs (crate)", "lic": "CC0", "url": "https://pixelfrog-assets.itch.io/kings-and-pigs"},
@@ -17,4 +18,4 @@ const ENTRIES := [
 	{"who": "vk", "what": "Candles, oil lamp and eye with varied stands (via opengameart.org)", "lic": "CC0", "url": "https://opengameart.org/content/candles-oil-lamp-and-eye-with-varied-stands"},
 	{"who": "Godot Engine", "what": "Made with Godot. Godot is (c) the Godot Engine contributors and Juan Linietsky, Ariel Manzur; MIT license", "lic": "MIT", "url": "https://godotengine.org/license"},
 ]
-const FOOTER := "Game code and design: xenodorian. Source: github.com/xenodorian/mera-the-baby-giant (the art packs are not included)."
+const FOOTER := "Game code and design: xenodorian. Source: github.com/xenodorian/mera-the-baby-giant, art and sound included."

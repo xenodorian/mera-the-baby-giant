@@ -1239,8 +1239,8 @@ func _run() -> void:
 	await process_frame
 	# ================================================================ v0.5 levels, map bounds, earthquake
 	var LV = load("res://scripts/game/levels.gd")
-	_check("6 levels in the level list", LV.list().size() == 6 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
-	for li in 4:
+	_check("11 levels in the level list (stage 1: 0..5, stage 2: 6..10)", LV.list().size() == 11 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(10) == 1 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
+	for li in [0, 1, 2, 3, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game()
 		m = g.mera
@@ -1377,10 +1377,13 @@ func _run() -> void:
 				var e: Node2D = g.spawn_enemy(eid, 6000.0 + dist + e_half(RO, eid), {"variant": variant, "seed": 7})
 				var k0: float = e.k
 				var tell_len := 0
-				for f in 420:
+				var run_f := 420                                    # Stage 2 "cycle" enemies get time for every attack
+				if String(RO.def(eid).get("pick", "")) == "cycle":
+					run_f = maxi(420, RO.def(eid)["attacks"].size() * 150)
+				for f in run_f:
 					await physics_frame
 					if f % 30 == 0:
-						m.set_size(6 if f < 300 else 3, true)
+						m.set_size(6 if f < run_f - 120 else 3, true)
 					if e.state == "tell":
 						tell_len += 1
 						if e.marker.visible:
@@ -1397,6 +1400,17 @@ func _run() -> void:
 						await physics_frame
 						if f % 30 == 0:
 							m.set_size(6, true)
+				if is_instance_valid(e) and e.alive() and e.d.has("hurt"):     # Stage 2: a hit out of idle / walking flinches
+					for f in 240:
+						if e.state in ["idle", "move"] and e.hurt_cd <= 0.0:
+							break
+						await physics_frame
+					e.take_damage(1, m.global_position.x)
+					for f in 40:
+						await physics_frame
+				if is_instance_valid(e) and e.alive() and e.d.has("death"):    # and plays its death animation as it falls
+					e.take_damage(e.hp, m.global_position.x)
+					await physics_frame
 				if is_instance_valid(e):
 					for a in e.played:
 						used[a] = true
@@ -1425,7 +1439,7 @@ func _run() -> void:
 	g.queue_free()
 	await process_frame
 	# the spawner: walking a wave level meets every enemy on its list; the dragon is not on Infernal Caverns
-	for li in [0, 1, 2, 4]:
+	for li in [0, 1, 2, 4, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game(true)
 		m = g.mera
@@ -1455,7 +1469,7 @@ func _run() -> void:
 	# ================================================================ v0.7 allies
 	var AL = load("res://scripts/game/allies.gd")
 	var cards_ok := true
-	for li in [0, 1, 2, 4]:
+	for li in [0, 1, 2, 4, 6, 7, 8, 9, 10]:
 		var ids: Array = []
 		for pr in AL.CARDS[li]:
 			ids.append(pr[1])
@@ -1676,6 +1690,30 @@ func _run() -> void:
 	_check("menu: Right selects level 2", menu.sel == 1, "")
 	menu.queue_free()
 	await process_frame
+	# stage 2 menu pages: 6 cards on page 0, 5 on page 1; the page follows sel; opens on level 7 after the dragon
+	var CA = load("res://scripts/game/carry.gd")
+	CA.reset()
+	CA.ensure()
+	CA.unlocked = 6
+	LV.current = 5
+	var pm: Control = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(pm)
+	await process_frame
+	_check("menu: after the dragon (unlocked >= 6, level 6 played) it opens on level 7, the stage 2 page", pm.sel == 6 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
+	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..10", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10], "%s %s" % [pm.page_levels(0), pm.page_levels(1)])
+	pm.sel = 5
+	pm._move(1)
+	var page_follow: bool = pm.sel == 6 and pm.page_of(pm.sel) == 1
+	pm._move(-1)
+	_check("menu: Right from level 6 goes to level 7 (page 2) and Left comes back", page_follow and pm.sel == 5 and pm.page_of(pm.sel) == 0, "sel=%d" % pm.sel)
+	var c6: Rect2 = pm._card(6)
+	var c10: Rect2 = pm._card(10)
+	var cs1: Rect2 = pm._card(0)
+	_check("menu: cards are laid out per page (5 wider cards on stage 2, same margin, inside the screen)", absf(c6.position.x - cs1.position.x) < 0.1 and c6.size.x > cs1.size.x and c10.end.x <= 1920.0 and absf(pm._card(7).position.x - (c6.end.x + 18.0)) < 0.1, "%s %s" % [c6, c10])
+	pm.queue_free()
+	await process_frame
+	LV.current = 0
+	CA.reset()
 	await _s4_tests()
 	await _key_tests()
 	await _unlock_tests()
@@ -1720,7 +1758,7 @@ func _s4_tests() -> void:
 	# ---- props per level
 	var lay_ok: bool = P.layout(3, 20000.0).is_empty()
 	var lay_info := ""
-	for lv in [0, 1, 2, 4]:
+	for lv in [0, 1, 2, 4, 6, 7, 8, 9, 10]:
 		var kinds := {}
 		for it in P.layout(lv, 24000.0):
 			kinds[String(it[0])] = true
@@ -1731,7 +1769,7 @@ func _s4_tests() -> void:
 		if not (kinds.has("candle") or kinds.has("candle_b")) or not kinds.has("urn"):
 			lay_ok = false
 		lay_info += "L%d=%s " % [lv, kinds.keys()]
-	_check("props: the cemetery has none; the four wave levels have candles, urns, crates, chests, barrels", lay_ok, lay_info)
+	_check("props: the cemetery has none; the wave levels (stage 1 and 2) have candles, urns, crates, chests, barrels", lay_ok, lay_info)
 
 	# ---- hit-stop
 	var g: Node = await _s4_new(1)
@@ -3499,6 +3537,42 @@ func _task_tests() -> void:
 				if n is Label:
 					labels += 1
 	_check("dragon victory: the card is drawn by the HUD, with no Label in the victory layer", g.victory_card and labels == 0, "card=%s labels=%d" % [g.victory_card, labels])
+	_check("dragon victory: the card says Stage 2 is open and the flash names the dragon", g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated the Cavern Dragon!" and g.victory_text[1].find("Stage 2") >= 0 and C.unlocked >= 6, str(g.victory_text))
+	root.get_tree().paused = false
+	g.queue_free()
+	await process_frame
+	C.reset()
+	# 5b. stage 2: a boss that is not a finale only opens the exit; Perry (level 11) ends the game
+	LVS.current = 6
+	g = await _s4_new(6)
+	g.wave_i = 100
+	var og: Node2D = g.spawn_enemy("p_clubogre", g.mera.global_position.x + 600.0)
+	await process_frame
+	var txt_boss: String = g.exit_lock_text()
+	var locked_before: bool = g.exit_locked()
+	g.on_enemy_defeated(og)
+	_check("stage 2 boss (level 7): its death opens the exit with no victory card", locked_before and txt_boss == "SLAY THE CLUB OGRE" and g.boss_dead and not g.exit_locked() and not g.victory and not g.victory_card and not g.cleared, "text=%s dead=%s victory=%s" % [txt_boss, g.boss_dead, g.victory])
+	g.queue_free()
+	await process_frame
+	g = await _s4_new(6)
+	_check("stage 2 boss level: CLEAR THE ROAD while waves remain, locked even with the boss dead", g.exit_lock_text() == "CLEAR THE ROAD" and g.exit_locked(), g.exit_lock_text())
+	g.boss_dead = true
+	_check("stage 2 boss level: a dead boss does not open the exit before the waves are done", g.exit_locked(), "")
+	g.finish_endpoint()
+	_check("finish_endpoint on a level with waves and a boss opens the exit", g.boss_dead and not g.exit_locked(), "")
+	g.queue_free()
+	await process_frame
+	C.reset()
+	g = await _s4_new(10)
+	g.wave_i = 100
+	var pe: Node2D = g.spawn_enemy("perry", g.mera.global_position.x + 600.0)
+	await process_frame
+	_check("level 11: the exit stays locked until Perry is dead ('DEFEAT PERRY')", g.exit_locked() and g.exit_lock_text() == "DEFEAT PERRY" and not g.boss_dead, g.exit_lock_text())
+	g.on_enemy_defeated(pe)
+	_check("level 11: Perry's death opens the exit, pays the 100 gold bonus and shows the island card", g.victory and g.boss_dead and not g.exit_locked() and C.gold >= 100 and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!", "gold %d %s" % [C.gold, g.victory_text])
+	t0 = Time.get_ticks_msec()
+	while not g.victory_card and Time.get_ticks_msec() - t0 < 8000:
+		await create_timer_always(0.1)
 	root.get_tree().paused = false
 	g.queue_free()
 	await process_frame

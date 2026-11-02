@@ -28,10 +28,15 @@ const DANCE_RANGE := 1100.0    # enemies within this distance of the dancer (on 
 const MAX_ACTIVE := 2          # allies on the field at once (one of each type)
 
 ## where the cards lie: level index -> [[x, ally id], ...]
-## 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns. Cemetery (3) has none.
+## 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns, 6..10 the stage 2 maps. Cemetery (3) has none.
 const CARDS := {
 	0: [[2800.0, "ranger"], [7200.0, "dancer"], [11000.0, "priestess"], [15000.0, "brawler"]],
 	1: [[3400.0, "priestess"], [7600.0, "brawler"], [11800.0, "ranger"], [15600.0, "dancer"]],
 	2: [[3000.0, "dancer"], [7000.0, "ranger"], [10800.0, "priestess"], [14800.0, "brawler"]],
 	4: [[3200.0, "ranger"], [6800.0, "priestess"], [10400.0, "dancer"], [13600.0, "brawler"]],
+	6: [[3600.0, "priestess"], [7400.0, "dancer"], [11400.0, "brawler"], [15200.0, "ranger"]],
+	7: [[2600.0, "brawler"], [6600.0, "ranger"], [10200.0, "dancer"], [14400.0, "priestess"]],
+	8: [[3800.0, "dancer"], [7800.0, "priestess"], [12200.0, "ranger"], [15800.0, "brawler"]],
+	9: [[3000.0, "ranger"], [6400.0, "brawler"], [11600.0, "priestess"], [14000.0, "dancer"]],
+	10: [[3400.0, "brawler"], [7000.0, "dancer"], [10600.0, "ranger"], [14600.0, "priestess"]],
 }

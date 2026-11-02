@@ -26,6 +26,8 @@ func _ready() -> void:
 	font = ThemeDB.fallback_font
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sel = Levels.current
+	if Carry.unlocked >= Levels.STAGE2_FROM and Levels.current == Levels.STAGE2_FROM - 1:
+		sel = Levels.STAGE2_FROM                      # just beat the dragon: open on stage 2
 	for lv in Levels.list():
 		thumbs.append(load("res://assets/levels/%s/thumb.png" % String(lv["id"])))
 	RenderingServer.set_default_clear_color(Color(0.02, 0.01, 0.04))
@@ -74,12 +76,27 @@ func _to_design(p: Vector2) -> Vector2:
 	return p - _origin()
 
 
+## the level indices on the page that shows level i (stage 1: 0..5, stage 2: 6..)
+func page_levels(page: int) -> Array:
+	var out: Array = []
+	for i in thumbs.size():
+		if Levels.stage_of(i) == page:
+			out.append(i)
+	return out
+
+
+func page_of(i: int) -> int:
+	return Levels.stage_of(i)
+
+
 func _card(i: int) -> Rect2:
-	var n := maxi(thumbs.size(), 1)
+	var pl := page_levels(page_of(i))
+	var n := maxi(pl.size(), 1)
+	var k := maxi(pl.find(i), 0)
 	var gap := 18.0
 	var margin := 28.0
 	var w := (1920.0 - margin * 2.0 - gap * float(n - 1)) / float(n)
-	return Rect2(margin + float(i) * (w + gap), 400, w, 168)
+	return Rect2(margin + float(k) * (w + gap), 400, w, 168)
 
 
 func _button(i: int) -> Rect2:
@@ -400,7 +417,7 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("btn_a") or e.is_action_pressed("start") or e.is_action_pressed("ui_accept"):
 		_start()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		for i in thumbs.size():
+		for i: int in page_levels(page_of(sel)):
 			if _card(i).has_point(_to_design(e.position)):
 				if sel == i:
 					_start()
@@ -426,9 +443,10 @@ func _draw() -> void:
 	draw_set_transform(_origin(), 0.0, Vector2.ONE)
 	draw_string(font, Vector2(0, 200), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
 	draw_string(font, Vector2(0, 280), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
-	draw_string(font, Vector2(0, 370), "SELECT A LEVEL", HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
+	var head := "STAGE 1  SELECT A LEVEL" if page_of(sel) == 0 else "STAGE 2: THE ISLAND  SELECT A LEVEL"
+	draw_string(font, Vector2(0, 370), head, HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
 	var ls := Levels.list()
-	for i in thumbs.size():
+	for i: int in page_levels(page_of(sel)):
 		var r := _card(i)
 		var on := i == sel
 		if on:

@@ -12,7 +12,8 @@ extends RefCounted
 ##   cd      seconds before the next attack
 ##   mode    frames  = hit box cut from the frames that reach out past the body (or the listed "active" frames)
 ##           contact = the body itself hurts while it lunges / charges / swoops ("vx" px/s, "dur" s, "jump" px/s up)
-##           shot    = spawns a projectile ("shot" anim) on frame "shot_frame"
+##           shot    = spawns a projectile ("shot" anim) on frame "shot_frame"; "shot_k" scales it, "shot_tight" sizes its hit box
+##                     from the opaque pixels instead of the whole frame
 
 const JSON_PATH := "res://assets/enemies/roster.json"
 static var _data: Dictionary = {}
@@ -78,9 +79,54 @@ const DEFS := {
 	"sx_witch": {"k": 6.0, "hp": 9, "speed": 90.0, "ai": "walker", "idle": "idle", "move": "move", "rage": 4.0,
 		"attacks": [{"anim": "atk", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 80.0, "cd": 1.2, "mode": "contact", "vx": 200.0, "dur": 0.35},
 			{"anim": "atk2", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": 40.0, "far": 160.0, "cd": 1.8, "mode": "contact", "vx": 180.0, "dur": 0.45}]},
+	# Stage 2: frame-animated creatures from Perry Riposte (xenodorian/BibooSGBA, the owner's art). Frames: tools/build_perry.py.
+	# "active" ranges are the frames Perry Riposte marks with a hit box.
+	"p_goblin": {"k": 3.0, "hp": 6, "speed": 170.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 3.0,
+		"pick": "cycle",
+		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 110.0, "cd": 1.2, "mode": "frames", "active": [2, 7]},
+			{"anim": "dive", "kind": "rush", "dmg": 1, "tell": 0.45, "near": 60.0, "far": 260.0, "cd": 1.6, "mode": "frames", "active": [3, 6]},
+			{"anim": "combo", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": -999.0, "far": 140.0, "cd": 2.2, "mode": "frames", "active": [4, 14]}]},
+	"p_orc": {"k": 3.0, "hp": 12, "speed": 120.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 5.0,
+		"pick": "cycle", "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 150.0, "cd": 1.5, "mode": "frames", "active": [2, 3]}]},
+	"p_firemage": {"k": 3.0, "hp": 7, "speed": 0.0, "ai": "turret", "idle": "idle", "move": "idle", "rage": 4.0,
+		"hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "fireball", "kind": "ranged", "dmg": 1, "tell": 0.5, "near": -999.0, "far": 1100.0, "cd": 2.6, "mode": "shot", "shot": "blast", "shot_frame": 11, "shot_speed": 620.0, "shot_tight": true}]},
+	"p_clubogre": {"k": 3.0, "hp": 48, "speed": 90.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 20.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "smash", "kind": "heavy", "dmg": 3, "tell": 0.6, "near": -999.0, "far": 230.0, "cd": 1.6, "mode": "frames", "active": [4, 5]},
+			{"anim": "walk", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 240.0, "far": 700.0, "cd": 2.4, "mode": "contact", "vx": 650.0, "dur": 0.6}]},
+	"p_mirrormax": {"k": 4.0, "hp": 60, "speed": 190.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 24.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 150.0, "cd": 0.9, "mode": "frames", "active": [2, 3]},
+			{"anim": "thrust", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 190.0, "cd": 0.9, "mode": "frames", "active": [2, 3]},
+			{"anim": "upswing", "kind": "melee", "dmg": 2, "tell": 0.4, "near": -999.0, "far": 150.0, "cd": 1.1, "mode": "frames", "active": [2, 3]},
+			{"anim": "push_kick", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 110.0, "cd": 0.9, "mode": "frames", "active": [1, 2]},
+			{"anim": "spin", "kind": "heavy", "dmg": 2, "tell": 0.45, "near": -999.0, "far": 170.0, "cd": 1.3, "mode": "frames", "active": [1, 4]},
+			{"anim": "heavy", "kind": "heavy", "dmg": 3, "tell": 0.6, "near": -999.0, "far": 200.0, "cd": 1.8, "mode": "frames", "active": [4, 4]}]},
+	"p_percy": {"k": 3.0, "hp": 70, "speed": 150.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 26.0, "boss": true,
+		"pick": "cycle", "hurt": "blockIn", "spawn": "up",
+		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 2, "tell": 0.4, "near": -999.0, "far": 200.0, "cd": 1.0, "mode": "frames", "active": [3, 4]},
+			{"anim": "up", "kind": "ranged", "dmg": 2, "tell": 0.6, "near": 200.0, "far": 1100.0, "cd": 2.4, "mode": "shot", "shot": "energy", "shot_frame": 2, "shot_speed": 900.0, "shot_tight": true}]},
+	# the final boss: Perry herself, at Mera's art scale, with her own moves from Perry Riposte
+	"perry": {"k": 5.0, "hp": 180, "speed": 230.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
+		"pick": "cycle", "hurt": "recover", "spawn": "taunt",
+		"attacks": [{"anim": "energy_wave", "kind": "ranged", "dmg": 2, "tell": 0.55, "near": 300.0, "far": 1400.0, "cd": 2.2, "mode": "shot", "shot": "wave_fx", "shot_frame": 3, "shot_speed": 850.0, "shot_k": 0.6, "shot_tight": true},
+			{"anim": "meteor_shower", "kind": "ranged", "dmg": 2, "tell": 0.6, "near": 400.0, "far": 1600.0, "cd": 3.0, "mode": "shot", "shot": "meteor_fx", "shot_frame": 6, "shot_speed": 700.0, "shot_k": 0.5, "shot_tight": true},
+			{"anim": "sky_dash", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 200.0, "far": 900.0, "cd": 2.0, "mode": "contact", "vx": 1300.0, "dur": 0.4},
+			{"anim": "dash", "kind": "rush", "dmg": 2, "tell": 0.45, "near": 250.0, "far": 800.0, "cd": 1.8, "mode": "contact", "vx": 1100.0, "dur": 0.45},
+			{"anim": "slash", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 180.0, "cd": 0.8, "mode": "frames", "active": [2, 3]},
+			{"anim": "push_kick", "kind": "melee", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 140.0, "cd": 0.8, "mode": "frames", "active": [1, 2]},
+			{"anim": "thrust", "kind": "melee", "dmg": 2, "tell": 0.35, "near": -999.0, "far": 240.0, "cd": 0.9, "mode": "frames", "active": [2, 3]},
+			{"anim": "upswing", "kind": "melee", "dmg": 2, "tell": 0.35, "near": -999.0, "far": 180.0, "cd": 1.0, "mode": "frames", "active": [2, 3]},
+			{"anim": "heavy_kick", "kind": "heavy", "dmg": 2, "tell": 0.45, "near": -999.0, "far": 160.0, "cd": 1.2, "mode": "frames", "active": [1, 2]},
+			{"anim": "spin", "kind": "heavy", "dmg": 2, "tell": 0.45, "near": -999.0, "far": 220.0, "cd": 1.2, "mode": "frames", "active": [1, 4]},
+			{"anim": "jump_crash", "kind": "heavy", "dmg": 3, "tell": 0.55, "near": -999.0, "far": 260.0, "cd": 1.6, "mode": "frames", "active": [5, 6]},
+			{"anim": "heavy", "kind": "heavy", "dmg": 3, "tell": 0.6, "near": -999.0, "far": 230.0, "cd": 1.6, "mode": "frames", "active": [4, 4]}]},
 }
 
-## who appears where. 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns.
+## who appears where. 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns,
+## 6 Mossy Falls, 7 Sunstone Canyon, 8 Sunset Shore, 9 Mire Wood, 10 Moonlit Sanctum (stage 2, the p_* ids).
 ## Index 3 is Moonlit Cemetery and is not listed: it keeps the Fire Knights.
 ## Index 5 is the Dragon's Lair: no trash waves, only the boss.
 const LEVELS := {
@@ -88,8 +134,18 @@ const LEVELS := {
 	1: ["wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur"],
 	2: ["skeleton", "hell_gato", "ghost", "death", "nightmare"],
 	4: ["hell_hound", "fire_skull", "hell_beast", "demon"],
+	6: ["p_goblin", "p_orc", "lm_goblin", "lm_mushroom", "lm_eye"],
+	7: ["p_orc", "p_goblin", "p_firemage", "minotaur", "hell_hound"],
+	8: ["p_goblin", "p_orc", "p_firemage", "werewolf", "mutant_toad", "lm_skeleton"],
+	9: ["p_orc", "p_firemage", "p_goblin", "sx_zombie", "sx_witch", "ghost"],
+	10: ["p_orc", "p_firemage", "p_goblin", "demon", "death", "lm_skeleton"],
 }
-const BOSSES := {5: "dragon"}
+## the end boss of a level. 5 has no waves (boss only); 6, 8, 9 and 10 are wave levels whose boss waits near the exit (7 has none).
+const BOSSES := {5: "dragon", 6: "p_clubogre", 8: "p_mirrormax", 9: "p_percy", 10: "perry"}
+## levels whose boss ends a stage with a victory card (level index -> what falls). Other bosses only open the exit.
+const FINALE := {5: "the Cavern Dragon", 10: "Perry"}
+## display names of the bosses (exit lock text)
+const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
 const RUN_POOL := [
 	"wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur",
@@ -97,6 +153,7 @@ const RUN_POOL := [
 	"hell_hound", "fire_skull", "hell_beast", "demon",
 	"lm_goblin", "lm_goblin", "lm_mushroom", "lm_mushroom", "lm_skeleton", "lm_skeleton", "lm_eye", "lm_eye",
 	"sx_zombie", "sx_zombie", "sx_skeleton", "sx_skeleton", "sx_witch", "sx_witch",
+	"p_goblin", "p_goblin", "p_orc", "p_orc", "p_firemage", "p_firemage",
 ]
 const RUN_START := 3           # enemies on the first map
 const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then the exit opens. No more after that.
@@ -104,7 +161,7 @@ const WAVE_FIRST := 2200.0     # first wave trigger x
 const WAVE_EVERY := 1500.0     # then one wave every this many px
 const WAVE_SIZES := [1, 2, 2, 3]
 ## on every wave level, two monsters per level come from BEHIND Mera. Cemetery (index 3) is the knight fight.
-const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3]}
+const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3], 6: [1, 3], 7: [1, 3], 8: [1, 3], 9: [1, 3], 10: [1, 3]}
 const MAX_ALIVE := 5
 const BOSS_AT := 3400.0        # the boss appears when Mera gets this close to the map end ...
 const BOSS_X := 1300.0         # ... standing this far from the end, in front of the exit (locked until he falls)

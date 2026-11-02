@@ -55,6 +55,8 @@ var variant := ""
 var history: Array = []
 var played := {}                        # every animation that has been shown (tests: "uses all its animations")
 var hits_landed := 0
+var atk_i := 0                          # "pick": "cycle" defs: where the next attack search starts
+var hurt_cd := 0.0                      # defs with a "hurt" anim: bosses flinch at most this often
 # v0.8 (S4) juggles and corpse launch (docs/GAME_RULES.md "Juggles")
 var juggle_n := 0                      # air hits in the current juggle (gravity grows with it)
 var bounced := false                   # one ground bounce per launch
@@ -319,12 +321,25 @@ func take_damage(amount: int, from_x: float, _kind: String = "melee") -> bool:
 	if _juggle_hit(from_x, _kind):                            # v0.8 launch / juggle / slam
 		return true
 	if boss or state == "stun" or state == "spawn":
+		if boss:
+			_flinch()
 		return true
 	if state == "tell" or (state == "atk" and String(atk["mode"]) == "contact" and not flyer):
 		_to_idle(0.6)                                         # a hit during the wind-up (or a lunge) cancels it
+	_flinch()
 	var away := -1.0 if from_x > global_position.x else 1.0
 	position.x += away * 4.0 * k
 	return true
+
+
+## Stage 2 defs with a "hurt" anim play it when hit out of idle or walking (bosses at most every 2.5 s)
+func _flinch() -> void:
+	if not d.has("hurt") or hurt_cd > 0.0 or not state in ["idle", "move"]:
+		return
+	hurt_cd = 2.5 if boss else 0.0
+	vx = 0.0
+	_set_state("hurt")
+	_play(String(d["hurt"]))
 
 
 ## v0.8 launch / juggle: launchers (rising slash, 3x, 2x-1, explosions) throw a ground enemy up; any hit while it
@@ -462,7 +477,10 @@ func parried(t: float) -> void:
 func _die() -> void:
 	_set_state("dead")
 	marker.visible = false
-	sprite.pause()
+	if d.has("death"):
+		_play(String(d["death"]))              # Stage 2: the creature's own death animation plays as the corpse flies
+	else:
+		sprite.pause()
 	# v0.8 corpse launch: flung away from the killing blow, spinning, then it shatters (+ gore) where it lands
 	var away := -1.0 if last_from_x > global_position.x else 1.0
 	var pw := 1.6 if last_kind in ["explosion", "crush"] else (1.25 if last_kind in ["launch", "slam", "lightning"] else 1.0)
@@ -471,6 +489,8 @@ func _die() -> void:
 	vy = -Tuning.CORPSE_VY * pw / mass
 	on_ground = false
 	spin = away * randf_range(5.0, 9.0) / mass
+	if d.has("death"):
+		spin *= 0.25
 	corpse_t = 0.0
 	if game and game.has_method("on_enemy_defeated"):
 		game.on_enemy_defeated(self)
@@ -556,6 +576,8 @@ func _on_anim_done() -> void:
 	match state:
 		"spawn":
 			_to_idle(0.5)
+		"hurt":
+			_to_idle(0.3)
 		"atk":
 			if String(atk["mode"]) != "contact":
 				_finish_attack()
@@ -579,6 +601,7 @@ func _physics_process(delta: float) -> void:
 		return
 	cooldown -= delta
 	hop_cd -= delta
+	hurt_cd -= delta
 	if doused_t > 0.0:
 		doused_t -= delta
 		if doused_t <= 0.0 and state in ["idle", "move"]:
@@ -610,6 +633,10 @@ func _physics_process(delta: float) -> void:
 		"hop":
 			if on_ground and t_state > 0.1:
 				_to_idle(0.0)
+			return
+		"hurt":
+			if t_state >= 0.6:                 # looping hurt anims (Perry's recover) end here
+				_to_idle(0.3)
 			return
 	if m.state == "dead":
 		if state != "idle":
@@ -696,8 +723,13 @@ func _ai(m: Node2D, delta: float) -> void:
 	var face := 1 if dx > 0.0 else -1
 	# 1) an attack in range
 	if cooldown <= 0.0 and doused_t <= 0.0 and _may_attack():
-		for a in attacks:
+		var cyc := String(d.get("pick", "")) == "cycle"      # Stage 2: take turns through every attack in range
+		for j in attacks.size():
+			var ai_j := (atk_i + j) % attacks.size() if cyc else j
+			var a: Dictionary = attacks[ai_j]
 			if gap >= float(a["near"]) and gap <= float(a["far"]) and (flyer or absf(m.global_position.y - global_position.y) < 400.0 or a["mode"] == "shot"):
+				if cyc:
+					atk_i = (ai_j + 1) % attacks.size()
 				_start_tell(a, face)
 				return
 	# 2) move
@@ -863,7 +895,7 @@ func _fire(_m: Node2D) -> void:
 	var dir: Vector2 = (aim.hurt_rect().get_center() - p).normalized()
 	if absf(dir.y) > 0.6:
 		dir = Vector2(facing, signf(dir.y) * 0.6).normalized()
-	s.setup(game, id, String(atk["shot"]), p, dir * float(atk.get("shot_speed", 700.0)), int(atk["dmg"]), k)
+	s.setup(game, id, String(atk["shot"]), p, dir * float(atk.get("shot_speed", 700.0)), int(atk["dmg"]), k * float(atk.get("shot_k", 1.0)), bool(atk.get("shot_tight", false)))
 	s.shooter = self
 	played[String(atk["shot"])] = true
 	get_parent().add_child(s)

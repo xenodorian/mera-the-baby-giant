@@ -117,6 +117,16 @@ E = {
                             "atk": ("itch/stealthix/witch/atk", 10, False),
                             "atk2": ("itch/stealthix/witch/atk2", 10, False)}),
 }
+# v0.11 Perry + the biboosgba creatures: written by tools/build_perry.py (assets/perry/perry_meta.json), frames under
+# assets/characters/perry/<id>/<anim>/. Every anim carries an explicit pivot (the 4th tuple element).
+PERRY_META = os.path.join(ROOT, "assets/perry/perry_meta.json")
+# Perry Riposte anims the Mera AI never plays (Roster.DEFS): left out of the roster and the export
+PERRY_DROP = {"perry": {"parry", "block", "charge"}, "p_percy": {"block", "upHold"}, "p_firemage": {"walk"}}
+if os.path.exists(PERRY_META):
+    with open(PERRY_META) as fh:
+        for _pid, _m in json.load(fh).items():
+            E[_pid] = (_m["facing"], False, {_n: ("perry/%s/%s" % (_pid, _n), _a["fps"], _a["loop"], _a["pivot"])
+                                             for _n, _a in _m["anims"].items() if _n not in PERRY_DROP.get(_pid, ())})
 WP = "chierit/water-priestess/png/"
 LR = "chierit/leaf-ranger/animations/PNG/"
 BG = "ansimuz/brawler-girl/skin-recolor/sprites/"
@@ -159,6 +169,8 @@ def anim_entry(eid, name, src, fps, loop, flyer, pivot=None):
     else:
         files = frames_in(src)
     size, b0 = bbox(files[0])
+    if b0 is None:                              # fully transparent first frame: fall back to the frame centre
+        b0 = (size[0] // 2, size[1] // 2, size[0] // 2, size[1] // 2)
     if pivot is None:
         if flyer:
             pivot = [(b0[0] + b0[2]) / 2.0, (b0[1] + b0[3]) / 2.0]
@@ -183,10 +195,12 @@ def main():
         first = BODY.get(eid, next(iter(anims)))
         order = [first] + [n for n in anims if n != first]
         for name in order:
-            src, fps, loop = anims[name]
-            ent = anim_entry(eid, name, src, fps, loop, flyer)
-            # same frame size as the first animation -> share its pivot so poses don't jump
-            if base is not None and ent["size"] == base["size"] and name not in ("fireball", "arrow", "arrow_hit"):
+            src, fps, loop, *rest = anims[name]          # optional 4th element: an explicit pivot [x, y]
+            explicit = rest[0] if rest else None
+            ent = anim_entry(eid, name, src, fps, loop, flyer, explicit)
+            # same frame size as the first animation -> share its pivot so poses don't jump (explicit pivots are kept)
+            if (explicit is None and base is not None and ent["size"] == base["size"]
+                    and name not in ("fireball", "arrow", "arrow_hit")):
                 ent = anim_entry(eid, name, src, fps, loop, flyer, base["pivot"])
             if base is None:
                 base = ent

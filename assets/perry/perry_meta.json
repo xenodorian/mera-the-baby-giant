@@ -1,0 +1,1177 @@
+{
+ "perry": {
+  "facing": 1,
+  "anims": {
+   "idle": {
+    "frames": 4,
+    "fps": 4,
+    "loop": true,
+    "pivot": [
+     66.0,
+     92
+    ],
+    "cell": [
+     132,
+     93
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 5,
+    "fps": 10,
+    "loop": true,
+    "pivot": [
+     65.0,
+     92
+    ],
+    "cell": [
+     131,
+     93
+    ],
+    "active": []
+   },
+   "slash": {
+    "frames": 6,
+    "fps": 11,
+    "loop": false,
+    "pivot": [
+     137.0,
+     92
+    ],
+    "cell": [
+     222,
+     93
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "thrust": {
+    "frames": 6,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     70.0,
+     92
+    ],
+    "cell": [
+     160,
+     94
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "upswing": {
+    "frames": 6,
+    "fps": 11,
+    "loop": false,
+    "pivot": [
+     134.0,
+     167
+    ],
+    "cell": [
+     200,
+     168
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "heavy": {
+    "frames": 11,
+    "fps": 7,
+    "loop": false,
+    "pivot": [
+     103.0,
+     165
+    ],
+    "cell": [
+     199,
+     167
+    ],
+    "active": [
+     4
+    ]
+   },
+   "spin": {
+    "frames": 8,
+    "fps": 13,
+    "loop": false,
+    "pivot": [
+     148.0,
+     92
+    ],
+    "cell": [
+     233,
+     93
+    ],
+    "active": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "dash": {
+    "frames": 5,
+    "fps": 14,
+    "loop": false,
+    "pivot": [
+     224.0,
+     375
+    ],
+    "cell": [
+     636,
+     377
+    ],
+    "active": []
+   },
+   "energy_wave": {
+    "frames": 7,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     132.0,
+     172
+    ],
+    "cell": [
+     419,
+     173
+    ],
+    "active": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ]
+   },
+   "jump_crash": {
+    "frames": 12,
+    "fps": 11,
+    "loop": false,
+    "pivot": [
+     136.0,
+     434
+    ],
+    "cell": [
+     232,
+     469
+    ],
+    "active": [
+     5
+    ]
+   },
+   "parry": {
+    "frames": 5,
+    "fps": 25,
+    "loop": false,
+    "pivot": [
+     66.0,
+     139
+    ],
+    "cell": [
+     132,
+     140
+    ],
+    "active": []
+   },
+   "block": {
+    "frames": 3,
+    "fps": 9,
+    "loop": true,
+    "pivot": [
+     66.0,
+     144
+    ],
+    "cell": [
+     109,
+     145
+    ],
+    "active": []
+   },
+   "taunt": {
+    "frames": 8,
+    "fps": 8,
+    "loop": false,
+    "pivot": [
+     67.0,
+     92
+    ],
+    "cell": [
+     135,
+     93
+    ],
+    "active": []
+   },
+   "recover": {
+    "frames": 5,
+    "fps": 10,
+    "loop": true,
+    "pivot": [
+     73.0,
+     80
+    ],
+    "cell": [
+     139,
+     81
+    ],
+    "active": []
+   },
+   "charge": {
+    "frames": 6,
+    "fps": 11,
+    "loop": true,
+    "pivot": [
+     128.0,
+     165
+    ],
+    "cell": [
+     142,
+     166
+    ],
+    "active": []
+   },
+   "sky_dash": {
+    "frames": 5,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     85.0,
+     427
+    ],
+    "cell": [
+     163,
+     505
+    ],
+    "active": []
+   },
+   "meteor_shower": {
+    "frames": 10,
+    "fps": 9,
+    "loop": false,
+    "pivot": [
+     224.0,
+     434
+    ],
+    "cell": [
+     290,
+     435
+    ],
+    "active": []
+   },
+   "push_kick": {
+    "frames": 6,
+    "fps": 14,
+    "loop": false,
+    "pivot": [
+     103.0,
+     159
+    ],
+    "cell": [
+     169,
+     161
+    ],
+    "active": [
+     1,
+     2
+    ]
+   },
+   "heavy_kick": {
+    "frames": 6,
+    "fps": 13,
+    "loop": false,
+    "pivot": [
+     103.0,
+     159
+    ],
+    "cell": [
+     169,
+     161
+    ],
+    "active": [
+     1,
+     2
+    ]
+   },
+   "wave_fx": {
+    "frames": 7,
+    "fps": 16,
+    "loop": false,
+    "pivot": [
+     209.5,
+     86.5
+    ],
+    "cell": [
+     419,
+     173
+    ],
+    "active": []
+   },
+   "meteor_fx": {
+    "frames": 10,
+    "fps": 16,
+    "loop": false,
+    "pivot": [
+     145.0,
+     217.5
+    ],
+    "cell": [
+     290,
+     435
+    ],
+    "active": []
+   }
+  },
+  "title": "Perry",
+  "ai": null
+ },
+ "p_goblin": {
+  "facing": -1,
+  "anims": {
+   "idle": {
+    "frames": 6,
+    "fps": 12,
+    "loop": true,
+    "pivot": [
+     178.0,
+     191
+    ],
+    "cell": [
+     252,
+     194
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 6,
+    "fps": 12,
+    "loop": true,
+    "pivot": [
+     178.0,
+     191
+    ],
+    "cell": [
+     252,
+     194
+    ],
+    "active": []
+   },
+   "slash": {
+    "frames": 10,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     178.0,
+     191
+    ],
+    "cell": [
+     252,
+     194
+    ],
+    "active": [
+     2,
+     3,
+     6,
+     7
+    ]
+   },
+   "dive": {
+    "frames": 9,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     178.0,
+     191
+    ],
+    "cell": [
+     252,
+     194
+    ],
+    "active": [
+     4,
+     5
+    ]
+   },
+   "combo": {
+    "frames": 16,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     178.0,
+     191
+    ],
+    "cell": [
+     252,
+     194
+    ],
+    "active": [
+     4,
+     5,
+     6,
+     12,
+     13,
+     14
+    ]
+   }
+  },
+  "title": "Goblin",
+  "ai": {
+   "speed": 48,
+   "reach": 70,
+   "attacks": [
+    "slash",
+    "combo"
+   ],
+   "dive": {
+    "anim": "dive",
+    "min": 110,
+    "max": 170
+   },
+   "rest": [
+    500,
+    1100
+   ],
+   "death": null,
+   "stun": null,
+   "knock": [
+    40,
+    300
+   ],
+   "parried": [
+    50,
+    450
+   ]
+  }
+ },
+ "p_orc": {
+  "facing": -1,
+  "anims": {
+   "idle": {
+    "frames": 4,
+    "fps": 5,
+    "loop": true,
+    "pivot": [
+     77.5,
+     149
+    ],
+    "cell": [
+     140,
+     150
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 8,
+    "fps": 10,
+    "loop": true,
+    "pivot": [
+     77.5,
+     149
+    ],
+    "cell": [
+     140,
+     150
+    ],
+    "active": []
+   },
+   "attack": {
+    "frames": 7,
+    "fps": 10,
+    "loop": false,
+    "pivot": [
+     77.5,
+     149
+    ],
+    "cell": [
+     140,
+     150
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "hurt": {
+    "frames": 2,
+    "fps": 10,
+    "loop": false,
+    "pivot": [
+     77.5,
+     149
+    ],
+    "cell": [
+     140,
+     150
+    ],
+    "active": []
+   },
+   "death": {
+    "frames": 4,
+    "fps": 5,
+    "loop": false,
+    "pivot": [
+     77.5,
+     149
+    ],
+    "cell": [
+     140,
+     150
+    ],
+    "active": []
+   }
+  },
+  "title": "Orc",
+  "ai": {
+   "speed": 40,
+   "reach": 52,
+   "attacks": [
+    "attack"
+   ],
+   "rest": [
+    700,
+    1300
+   ],
+   "death": "death",
+   "stun": "hurt",
+   "knock": [
+    64,
+    400
+   ],
+   "parried": [
+    40,
+    450
+   ]
+  }
+ },
+ "p_clubogre": {
+  "facing": -1,
+  "anims": {
+   "idle": {
+    "frames": 4,
+    "fps": 6,
+    "loop": true,
+    "pivot": [
+     273.0,
+     231
+    ],
+    "cell": [
+     486,
+     237
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 6,
+    "fps": 10,
+    "loop": true,
+    "pivot": [
+     273.0,
+     231
+    ],
+    "cell": [
+     486,
+     237
+    ],
+    "active": []
+   },
+   "smash": {
+    "frames": 8,
+    "fps": 8,
+    "loop": false,
+    "pivot": [
+     273.0,
+     231
+    ],
+    "cell": [
+     486,
+     237
+    ],
+    "active": [
+     4,
+     5
+    ]
+   },
+   "hurt": {
+    "frames": 2,
+    "fps": 8,
+    "loop": false,
+    "pivot": [
+     273.0,
+     231
+    ],
+    "cell": [
+     486,
+     237
+    ],
+    "active": []
+   },
+   "death": {
+    "frames": 4,
+    "fps": 5,
+    "loop": false,
+    "pivot": [
+     273.0,
+     231
+    ],
+    "cell": [
+     486,
+     237
+    ],
+    "active": []
+   }
+  },
+  "title": "clubogre",
+  "ai": {
+   "speed": 34,
+   "reach": 70,
+   "attacks": [
+    "smash"
+   ],
+   "rest": [
+    900,
+    1500
+   ],
+   "death": "death",
+   "stun": "hurt",
+   "knock": [
+    64,
+    400
+   ],
+   "parried": [
+    40,
+    450
+   ],
+   "hp": 380,
+   "dmg": 44,
+   "atk": {
+    "smash": {
+     "dmg": 44,
+     "knock": [
+      100,
+      400
+     ]
+    }
+   }
+  }
+ },
+ "p_mirrormax": {
+  "facing": -1,
+  "anims": {
+   "idle": {
+    "frames": 4,
+    "fps": 4,
+    "loop": true,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 5,
+    "fps": 10,
+    "loop": true,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": []
+   },
+   "slash": {
+    "frames": 6,
+    "fps": 11,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "thrust": {
+    "frames": 6,
+    "fps": 12,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "upswing": {
+    "frames": 6,
+    "fps": 11,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": [
+     2,
+     3
+    ]
+   },
+   "push_kick": {
+    "frames": 6,
+    "fps": 14,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": [
+     1,
+     2
+    ]
+   },
+   "heavy": {
+    "frames": 11,
+    "fps": 7,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": [
+     4
+    ]
+   },
+   "spin": {
+    "frames": 8,
+    "fps": 13,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": [
+     1,
+     2,
+     3,
+     4
+    ]
+   },
+   "hurt": {
+    "frames": 1,
+    "fps": 17,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": []
+   },
+   "death": {
+    "frames": 3,
+    "fps": 9,
+    "loop": false,
+    "pivot": [
+     97.0,
+     172
+    ],
+    "cell": [
+     250,
+     176
+    ],
+    "active": []
+   }
+  },
+  "title": "Mirror Max",
+  "ai": {
+   "speed": 62,
+   "reach": 70,
+   "attacks": [
+    "slash",
+    "thrust",
+    "upswing",
+    "push_kick",
+    "heavy",
+    "spin"
+   ],
+   "rest": [
+    350,
+    700
+   ],
+   "death": "death",
+   "stun": "hurt",
+   "knock": [
+    10,
+    150
+   ],
+   "parried": [
+    30,
+    400
+   ],
+   "hp": 200,
+   "dmg": 30,
+   "atk": {
+    "slash": {
+     "dmg": 30,
+     "knock": [
+      60,
+      300
+     ]
+    },
+    "thrust": {
+     "dmg": 30,
+     "knock": [
+      60,
+      300
+     ]
+    },
+    "upswing": {
+     "dmg": 35,
+     "knock": [
+      70,
+      300
+     ]
+    },
+    "push_kick": {
+     "dmg": 40,
+     "knock": [
+      100,
+      350
+     ]
+    },
+    "heavy": {
+     "dmg": 50,
+     "knock": [
+      110,
+      400
+     ]
+    },
+    "spin": {
+     "dmg": 40,
+     "knock": [
+      90,
+      350
+     ]
+    }
+   },
+   "boss": true,
+   "bossName": "Mirror Max"
+  }
+ },
+ "p_percy": {
+  "facing": 1,
+  "anims": {
+   "idle": {
+    "frames": 1,
+    "fps": 4,
+    "loop": true,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 6,
+    "fps": 8,
+    "loop": true,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": []
+   },
+   "blockIn": {
+    "frames": 3,
+    "fps": 17,
+    "loop": false,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": []
+   },
+   "block": {
+    "frames": 1,
+    "fps": 12,
+    "loop": true,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": []
+   },
+   "slash": {
+    "frames": 7,
+    "fps": 16,
+    "loop": false,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": [
+     3,
+     4
+    ]
+   },
+   "up": {
+    "frames": 3,
+    "fps": 17,
+    "loop": false,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": []
+   },
+   "upHold": {
+    "frames": 1,
+    "fps": 12,
+    "loop": true,
+    "pivot": [
+     46.5,
+     139
+    ],
+    "cell": [
+     99,
+     150
+    ],
+    "active": []
+   },
+   "energy": {
+    "frames": 3,
+    "fps": 16,
+    "loop": true,
+    "pivot": [
+     197.5,
+     7.0
+    ],
+    "cell": [
+     395,
+     14
+    ],
+    "active": []
+   }
+  },
+  "title": "Percy",
+  "ai": {
+   "prop": true,
+   "duelist": true,
+   "hp": 9999,
+   "dmg": 50,
+   "speed": 0,
+   "reach": 90,
+   "attacks": [
+    "slash"
+   ],
+   "rest": [
+    400,
+    400
+   ],
+   "stun": "block",
+   "knock": [
+    40,
+    220
+   ],
+   "parried": [
+    0,
+    0
+   ],
+   "atk": {
+    "slash": {
+     "dmg": 50,
+     "knock": [
+      40,
+      220
+     ]
+    }
+   }
+  }
+ },
+ "p_firemage": {
+  "facing": -1,
+  "anims": {
+   "idle": {
+    "frames": 1,
+    "fps": 7,
+    "loop": true,
+    "pivot": [
+     120.0,
+     160
+    ],
+    "cell": [
+     241,
+     160
+    ],
+    "active": []
+   },
+   "walk": {
+    "frames": 1,
+    "fps": 7,
+    "loop": true,
+    "pivot": [
+     120.0,
+     160
+    ],
+    "cell": [
+     241,
+     160
+    ],
+    "active": []
+   },
+   "fireball": {
+    "frames": 20,
+    "fps": 7,
+    "loop": false,
+    "pivot": [
+     120.0,
+     160
+    ],
+    "cell": [
+     241,
+     160
+    ],
+    "active": []
+   },
+   "hurt": {
+    "frames": 3,
+    "fps": 7,
+    "loop": false,
+    "pivot": [
+     120.0,
+     160
+    ],
+    "cell": [
+     241,
+     160
+    ],
+    "active": []
+   },
+   "death": {
+    "frames": 6,
+    "fps": 4,
+    "loop": false,
+    "pivot": [
+     120.0,
+     160
+    ],
+    "cell": [
+     241,
+     160
+    ],
+    "active": []
+   },
+   "blast": {
+    "frames": 15,
+    "fps": 16,
+    "loop": false,
+    "pivot": [
+     50.0,
+     48.0
+    ],
+    "cell": [
+     100,
+     96
+    ],
+    "active": []
+   }
+  },
+  "title": "Fire mage",
+  "ai": {
+   "speed": 0,
+   "reach": 0,
+   "attacks": [],
+   "rest": [
+    1500,
+    2500
+   ],
+   "death": "death",
+   "stun": "hurt",
+   "knock": [
+    40,
+    300
+   ],
+   "parried": [
+    40,
+    450
+   ],
+   "hp": 90,
+   "dmg": 0,
+   "mage": true,
+   "range": 460,
+   "atk": {
+    "fireball": {
+     "dmg": 50,
+     "knock": [
+      40,
+      300
+     ]
+    }
+   }
+  }
+ }
+}

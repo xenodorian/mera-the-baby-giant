@@ -1,15 +1,23 @@
 class_name Levels
 extends RefCounted
 ## v0.5 level list (built by tools/build_levels.py into assets/levels/levels.json) and the level being played.
-## 1 Sunlit Country, 2 Misty Woods, 3 Moonlit Town, 4 Moonlit Cemetery, 5 Infernal Caverns, 6 Dragon's Lair.
+## 1 Sunlit Country, 2 Misty Woods, 3 Moonlit Town, 4 Moonlit Cemetery, 5 Infernal Caverns, 6 Dragon's Lair (stage 1);
+## 7 Mossy Falls, 8 Sunstone Canyon, 9 Sunset Shore, 10 Mire Wood, 11 Moonlit Sanctum (stage 2: the island).
 ## with invisible walls at both ends and an exit gate at the right end.
 
 const JSON_PATH := "res://assets/levels/levels.json"
 const EDGE := 120.0          # Mera / enemies stay this far inside the map ends
 const EXIT_PAD := 360.0      # the exit gate stands this far from the right end
 
+const STAGE2_FROM := 6       # the first level index of stage 2
+
 static var current := 0      # index into list()
 static var _data: Dictionary = {}
+
+
+## 0 for the levels of stage 1, 1 for stage 2
+static func stage_of(i: int) -> int:
+	return 1 if i >= STAGE2_FROM else 0
 
 
 static func data() -> Dictionary:

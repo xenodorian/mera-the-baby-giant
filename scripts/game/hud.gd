@@ -233,9 +233,9 @@ func _draw_ui() -> void:
 			for i in range(1, int(bs.hp_max / bs.hps)):
 				var tx := 465.0 + 990.0 * float(i) * hps / float(bs.hp_max)
 				ui.draw_line(Vector2(tx, 1005), Vector2(tx, 1029), Color(0, 0, 0, 0.5), 2.0)
-			_txt(Vector2(470, 990), "INFERNAL DRAGON   %dx" % bs.size, 28, Color(1, 0.7, 0.5))
+			_txt(Vector2(470, 990), "%s   %dx" % [_boss_name(bs), bs.size], 28, Color(1, 0.7, 0.5))
 		else:
-			_txt(Vector2(470, 990), "INFERNAL DRAGON", 28, Color(1, 0.7, 0.5))
+			_txt(Vector2(470, 990), _boss_name(bs), 28, Color(1, 0.7, 0.5))
 	if m.debug:
 		_txt(Vector2(1300, 106), "DEBUG: boxes on, PageUp/PageDown size   x %d" % int(m.global_position.x), 22, Color(1, 1, 0.4))
 	if overlay:
@@ -289,9 +289,19 @@ func _draw_ui() -> void:
 			_center(o3.y + 330, "LEVEL %d   %s" % [Levels.current + 1, String(lv["name"])], 54, Color(1, 0.85, 0.5, al))
 			_center(o3.y + 400, String(lv["sub"]), 30, Color(0.9, 0.9, 0.95, al))
 	if game.victory_card:
-		var vt := "You Defeated the Cavern Dragon!"
-		ui.draw_string(font, Vector2(4, 504), vt, HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(0, 0, 0, 0.55))
-		ui.draw_string(font, Vector2(0, 500), vt, HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(1.0, 0.82, 0.35))
+		var vts: PackedStringArray = game.victory_text
+		for li in vts.size():
+			var vy := 500.0 + 90.0 * li
+			var vsz := 64 if li == 0 else 44
+			var vcol := Color(1.0, 0.82, 0.35) if li == 0 else Color(0.9, 0.92, 1.0)
+			ui.draw_string(font, Vector2(4, vy + 4), vts[li], HORIZONTAL_ALIGNMENT_CENTER, 1920, vsz, Color(0, 0, 0, 0.55))
+			ui.draw_string(font, Vector2(0, vy), vts[li], HORIZONTAL_ALIGNMENT_CENTER, 1920, vsz, vcol)
+
+
+func _boss_name(bs) -> String:
+	if String(bs.id) == "dragon":
+		return "INFERNAL DRAGON"
+	return String(ROSTER.NAMES.get(String(bs.id), String(bs.id))).to_upper()
 
 
 func _center(y: float, t: String, sz: int, c: Color) -> void:

@@ -14,7 +14,7 @@ var deflected := false
 var shooter: Node = null
 
 
-func setup(g: Node, enemy_id: String, anim: String, p: Vector2, v: Vector2, damage: int, scale_k: float) -> void:
+func setup(g: Node, enemy_id: String, anim: String, p: Vector2, v: Vector2, damage: int, scale_k: float, tight := false) -> void:
 	game = g
 	vel = v
 	dmg = damage
@@ -33,6 +33,9 @@ func setup(g: Node, enemy_id: String, anim: String, p: Vector2, v: Vector2, dama
 	add_child(spr)
 	spr.play("default")
 	size_px = Vector2(float(e["size"][0]), float(e["size"][1])) * k * 0.7
+	if tight:                           # Stage 2 shots with big empty frames: the opaque box of the middle frame
+		var b: Array = e["boxes"][int(e["boxes"].size() / 2)]
+		size_px = Vector2(float(b[2]) - float(b[0]), float(b[3]) - float(b[1])) * k * 0.8
 
 
 func rect() -> Rect2:

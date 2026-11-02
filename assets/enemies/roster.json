@@ -4845,6 +4845,3383 @@
    0.0
   ]
  },
+ "perry": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/perry/idle/idle_1.png",
+     "res://assets/characters/perry/perry/idle/idle_2.png",
+     "res://assets/characters/perry/perry/idle/idle_3.png",
+     "res://assets/characters/perry/perry/idle/idle_4.png"
+    ],
+    "fps": 4,
+    "loop": true,
+    "size": [
+     132,
+     93
+    ],
+    "pivot": [
+     66.0,
+     92
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -91,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -89,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/perry/walk/walk_1.png",
+     "res://assets/characters/perry/perry/walk/walk_2.png",
+     "res://assets/characters/perry/perry/walk/walk_3.png",
+     "res://assets/characters/perry/perry/walk/walk_4.png",
+     "res://assets/characters/perry/perry/walk/walk_5.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     131,
+     93
+    ],
+    "pivot": [
+     65.0,
+     92
+    ],
+    "boxes": [
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/perry/perry/slash/slash_1.png",
+     "res://assets/characters/perry/perry/slash/slash_2.png",
+     "res://assets/characters/perry/perry/slash/slash_3.png",
+     "res://assets/characters/perry/perry/slash/slash_4.png",
+     "res://assets/characters/perry/perry/slash/slash_5.png",
+     "res://assets/characters/perry/perry/slash/slash_6.png"
+    ],
+    "fps": 11,
+    "loop": false,
+    "size": [
+     222,
+     93
+    ],
+    "pivot": [
+     137.0,
+     92
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -137.0,
+      -80,
+      13.0,
+      1
+     ],
+     [
+      -108.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      84.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      80.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "thrust": {
+    "frames": [
+     "res://assets/characters/perry/perry/thrust/thrust_1.png",
+     "res://assets/characters/perry/perry/thrust/thrust_2.png",
+     "res://assets/characters/perry/perry/thrust/thrust_3.png",
+     "res://assets/characters/perry/perry/thrust/thrust_4.png",
+     "res://assets/characters/perry/perry/thrust/thrust_5.png",
+     "res://assets/characters/perry/perry/thrust/thrust_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     160,
+     94
+    ],
+    "pivot": [
+     70.0,
+     92
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "upswing": {
+    "frames": [
+     "res://assets/characters/perry/perry/upswing/upswing_1.png",
+     "res://assets/characters/perry/perry/upswing/upswing_2.png",
+     "res://assets/characters/perry/perry/upswing/upswing_3.png",
+     "res://assets/characters/perry/perry/upswing/upswing_4.png",
+     "res://assets/characters/perry/perry/upswing/upswing_5.png",
+     "res://assets/characters/perry/perry/upswing/upswing_6.png"
+    ],
+    "fps": 11,
+    "loop": false,
+    "size": [
+     200,
+     168
+    ],
+    "pivot": [
+     134.0,
+     167
+    ],
+    "boxes": [
+     [
+      -134.0,
+      -72,
+      13.0,
+      1
+     ],
+     [
+      -130.0,
+      -62,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -157,
+      61.0,
+      1
+     ],
+     [
+      -69.0,
+      -167,
+      45.0,
+      1
+     ],
+     [
+      -67.0,
+      -148,
+      21.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "heavy": {
+    "frames": [
+     "res://assets/characters/perry/perry/heavy/heavy_1.png",
+     "res://assets/characters/perry/perry/heavy/heavy_2.png",
+     "res://assets/characters/perry/perry/heavy/heavy_3.png",
+     "res://assets/characters/perry/perry/heavy/heavy_4.png",
+     "res://assets/characters/perry/perry/heavy/heavy_5.png",
+     "res://assets/characters/perry/perry/heavy/heavy_6.png",
+     "res://assets/characters/perry/perry/heavy/heavy_7.png",
+     "res://assets/characters/perry/perry/heavy/heavy_8.png",
+     "res://assets/characters/perry/perry/heavy/heavy_9.png",
+     "res://assets/characters/perry/perry/heavy/heavy_10.png",
+     "res://assets/characters/perry/perry/heavy/heavy_11.png"
+    ],
+    "fps": 7,
+    "loop": false,
+    "size": [
+     199,
+     167
+    ],
+    "pivot": [
+     103.0,
+     165
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -68.0,
+      -156,
+      13.0,
+      1
+     ],
+     [
+      -69.0,
+      -165,
+      12.0,
+      1
+     ],
+     [
+      -103.0,
+      -147,
+      12.0,
+      1
+     ],
+     [
+      -66.0,
+      -123,
+      78.0,
+      2
+     ],
+     [
+      -66.0,
+      -78,
+      55.0,
+      1
+     ],
+     [
+      -66.0,
+      -78,
+      68.0,
+      2
+     ],
+     [
+      -65.0,
+      -77,
+      75.0,
+      2
+     ],
+     [
+      -66.0,
+      -78,
+      96.0,
+      2
+     ],
+     [
+      -67.0,
+      -81,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -81,
+      76.0,
+      1
+     ]
+    ]
+   },
+   "spin": {
+    "frames": [
+     "res://assets/characters/perry/perry/spin/spin_1.png",
+     "res://assets/characters/perry/perry/spin/spin_2.png",
+     "res://assets/characters/perry/perry/spin/spin_3.png",
+     "res://assets/characters/perry/perry/spin/spin_4.png",
+     "res://assets/characters/perry/perry/spin/spin_5.png",
+     "res://assets/characters/perry/perry/spin/spin_6.png",
+     "res://assets/characters/perry/perry/spin/spin_7.png",
+     "res://assets/characters/perry/perry/spin/spin_8.png"
+    ],
+    "fps": 13,
+    "loop": false,
+    "size": [
+     233,
+     93
+    ],
+    "pivot": [
+     148.0,
+     92
+    ],
+    "boxes": [
+     [
+      -137.0,
+      -80,
+      13.0,
+      1
+     ],
+     [
+      -148.0,
+      -80,
+      40.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      74.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      84.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      80.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "dash": {
+    "frames": [
+     "res://assets/characters/perry/perry/dash/dash_1.png",
+     "res://assets/characters/perry/perry/dash/dash_2.png",
+     "res://assets/characters/perry/perry/dash/dash_3.png",
+     "res://assets/characters/perry/perry/dash/dash_4.png",
+     "res://assets/characters/perry/perry/dash/dash_5.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     636,
+     377
+    ],
+    "pivot": [
+     224.0,
+     375
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -78,
+      72.0,
+      1
+     ],
+     [
+      -224.0,
+      -375,
+      383.0,
+      2
+     ],
+     [
+      -224.0,
+      -372,
+      412.0,
+      0
+     ],
+     [
+      -66.0,
+      -78,
+      72.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      2
+     ]
+    ]
+   },
+   "energy_wave": {
+    "frames": [
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_1.png",
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_2.png",
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_3.png",
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_4.png",
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_5.png",
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_6.png",
+     "res://assets/characters/perry/perry/energy_wave/energy_wave_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     419,
+     173
+    ],
+    "pivot": [
+     132.0,
+     172
+    ],
+    "boxes": [
+     [
+      -130.0,
+      -62,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -157,
+      13.0,
+      1
+     ],
+     [
+      -69.0,
+      -166,
+      12.0,
+      1
+     ],
+     [
+      -69.0,
+      -166,
+      12.0,
+      1
+     ],
+     [
+      -67.0,
+      -148,
+      21.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "jump_crash": {
+    "frames": [
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_1.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_2.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_3.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_4.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_5.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_6.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_7.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_8.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_9.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_10.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_11.png",
+     "res://assets/characters/perry/perry/jump_crash/jump_crash_12.png"
+    ],
+    "fps": 11,
+    "loop": false,
+    "size": [
+     232,
+     469
+    ],
+    "pivot": [
+     136.0,
+     434
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -81,
+      70.0,
+      1
+     ],
+     [
+      -73.0,
+      -107,
+      59.0,
+      26
+     ],
+     [
+      -84.0,
+      -427,
+      53.0,
+      -2
+     ],
+     [
+      -103.0,
+      -147,
+      10.0,
+      -7
+     ],
+     [
+      -83.0,
+      -434,
+      29.0,
+      35
+     ],
+     [
+      -66.0,
+      -91,
+      62.0,
+      2
+     ],
+     [
+      -66.0,
+      -78,
+      55.0,
+      1
+     ],
+     [
+      -66.0,
+      -78,
+      68.0,
+      2
+     ],
+     [
+      -66.0,
+      -78,
+      75.0,
+      2
+     ],
+     [
+      -66.0,
+      -78,
+      96.0,
+      2
+     ],
+     [
+      -66.0,
+      -80,
+      82.0,
+      1
+     ],
+     [
+      -136.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "taunt": {
+    "frames": [
+     "res://assets/characters/perry/perry/taunt/taunt_1.png",
+     "res://assets/characters/perry/perry/taunt/taunt_2.png",
+     "res://assets/characters/perry/perry/taunt/taunt_3.png",
+     "res://assets/characters/perry/perry/taunt/taunt_4.png",
+     "res://assets/characters/perry/perry/taunt/taunt_5.png",
+     "res://assets/characters/perry/perry/taunt/taunt_6.png",
+     "res://assets/characters/perry/perry/taunt/taunt_7.png",
+     "res://assets/characters/perry/perry/taunt/taunt_8.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     135,
+     93
+    ],
+    "pivot": [
+     67.0,
+     92
+    ],
+    "boxes": [
+     [
+      -67.0,
+      -82,
+      68.0,
+      1
+     ],
+     [
+      -67.0,
+      -82,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -82,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -82,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -82,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -82,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -82,
+      68.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "recover": {
+    "frames": [
+     "res://assets/characters/perry/perry/recover/recover_1.png",
+     "res://assets/characters/perry/perry/recover/recover_2.png",
+     "res://assets/characters/perry/perry/recover/recover_3.png",
+     "res://assets/characters/perry/perry/recover/recover_4.png",
+     "res://assets/characters/perry/perry/recover/recover_5.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     139,
+     81
+    ],
+    "pivot": [
+     73.0,
+     80
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -77,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -73,
+      13.0,
+      1
+     ],
+     [
+      -73.0,
+      -75,
+      15.0,
+      1
+     ],
+     [
+      -73.0,
+      -76,
+      16.0,
+      1
+     ],
+     [
+      -73.0,
+      -80,
+      15.0,
+      1
+     ]
+    ]
+   },
+   "sky_dash": {
+    "frames": [
+     "res://assets/characters/perry/perry/sky_dash/sky_dash_1.png",
+     "res://assets/characters/perry/perry/sky_dash/sky_dash_2.png",
+     "res://assets/characters/perry/perry/sky_dash/sky_dash_3.png",
+     "res://assets/characters/perry/perry/sky_dash/sky_dash_4.png",
+     "res://assets/characters/perry/perry/sky_dash/sky_dash_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     163,
+     505
+    ],
+    "pivot": [
+     85.0,
+     427
+    ],
+    "boxes": [
+     [
+      -64.0,
+      -62,
+      78.0,
+      1
+     ],
+     [
+      -75.0,
+      -400,
+      28.0,
+      78
+     ],
+     [
+      -84.0,
+      -427,
+      28.0,
+      78
+     ],
+     [
+      -85.0,
+      -418,
+      22.0,
+      78
+     ],
+     [
+      -66.0,
+      -171,
+      11.0,
+      -1
+     ]
+    ]
+   },
+   "meteor_shower": {
+    "frames": [
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_1.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_2.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_3.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_4.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_5.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_6.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_7.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_8.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_9.png",
+     "res://assets/characters/perry/perry/meteor_shower/meteor_shower_10.png"
+    ],
+    "fps": 9,
+    "loop": false,
+    "size": [
+     290,
+     435
+    ],
+    "pivot": [
+     224.0,
+     434
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -156,
+      13.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -67.0,
+      -145,
+      30.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "push_kick": {
+    "frames": [
+     "res://assets/characters/perry/perry/push_kick/push_kick_1.png",
+     "res://assets/characters/perry/perry/push_kick/push_kick_2.png",
+     "res://assets/characters/perry/perry/push_kick/push_kick_3.png",
+     "res://assets/characters/perry/perry/push_kick/push_kick_4.png",
+     "res://assets/characters/perry/perry/push_kick/push_kick_5.png",
+     "res://assets/characters/perry/perry/push_kick/push_kick_6.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     169,
+     161
+    ],
+    "pivot": [
+     103.0,
+     159
+    ],
+    "boxes": [
+     [
+      -103.0,
+      -147,
+      -7.0,
+      1
+     ],
+     [
+      -103.0,
+      -145,
+      31.0,
+      2
+     ],
+     [
+      -103.0,
+      -145,
+      31.0,
+      2
+     ],
+     [
+      -75.0,
+      -159,
+      8.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "heavy_kick": {
+    "frames": [
+     "res://assets/characters/perry/perry/heavy_kick/heavy_kick_1.png",
+     "res://assets/characters/perry/perry/heavy_kick/heavy_kick_2.png",
+     "res://assets/characters/perry/perry/heavy_kick/heavy_kick_3.png",
+     "res://assets/characters/perry/perry/heavy_kick/heavy_kick_4.png",
+     "res://assets/characters/perry/perry/heavy_kick/heavy_kick_5.png",
+     "res://assets/characters/perry/perry/heavy_kick/heavy_kick_6.png"
+    ],
+    "fps": 13,
+    "loop": false,
+    "size": [
+     169,
+     161
+    ],
+    "pivot": [
+     103.0,
+     159
+    ],
+    "boxes": [
+     [
+      -103.0,
+      -147,
+      -7.0,
+      1
+     ],
+     [
+      -103.0,
+      -145,
+      37.0,
+      2
+     ],
+     [
+      -103.0,
+      -145,
+      37.0,
+      2
+     ],
+     [
+      -75.0,
+      -159,
+      8.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "wave_fx": {
+    "frames": [
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_1.png",
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_2.png",
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_3.png",
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_4.png",
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_5.png",
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_6.png",
+     "res://assets/characters/perry/perry/wave_fx/wave_fx_7.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     419,
+     173
+    ],
+    "pivot": [
+     209.5,
+     86.5
+    ],
+    "boxes": [
+     [
+      -209.5,
+      21.5,
+      -62.5,
+      86.5
+     ],
+     [
+      -114.5,
+      -76.5,
+      -16.5,
+      86.5
+     ],
+     [
+      -130.5,
+      -86.5,
+      21.5,
+      74.5
+     ],
+     [
+      -2.5,
+      -5.5,
+      82.5,
+      78.5
+     ],
+     [
+      59.5,
+      -5.5,
+      145.5,
+      82.5
+     ],
+     [
+      123.5,
+      -3.5,
+      209.5,
+      84.5
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ]
+   },
+   "meteor_fx": {
+    "frames": [
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_1.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_2.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_3.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_4.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_5.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_6.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_7.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_8.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_9.png",
+     "res://assets/characters/perry/perry/meteor_fx/meteor_fx_10.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     290,
+     435
+    ],
+    "pivot": [
+     145.0,
+     217.5
+    ],
+    "boxes": [
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      9.0,
+      40.5,
+      93.0,
+      217.5
+     ],
+     [
+      -145.0,
+      -217.5,
+      68.0,
+      125.5
+     ],
+     [
+      -145.0,
+      -217.5,
+      65.0,
+      125.5
+     ],
+     [
+      -145.0,
+      -217.5,
+      69.0,
+      125.5
+     ],
+     [
+      -145.0,
+      -217.5,
+      19.0,
+      -79.5
+     ],
+     [
+      -145.0,
+      -206.5,
+      42.0,
+      -38.5
+     ],
+     [
+      -145.0,
+      -217.5,
+      64.0,
+      2.5
+     ],
+     [
+      -145.0,
+      -210.5,
+      92.0,
+      52.5
+     ],
+     [
+      -145.0,
+      -171.5,
+      117.0,
+      97.5
+     ]
+    ]
+   }
+  },
+  "body": [
+   -66.0,
+   -92,
+   66.0,
+   1
+  ]
+ },
+ "p_goblin": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/p_goblin/idle/idle_1.png",
+     "res://assets/characters/perry/p_goblin/idle/idle_2.png",
+     "res://assets/characters/perry/p_goblin/idle/idle_3.png",
+     "res://assets/characters/perry/p_goblin/idle/idle_4.png",
+     "res://assets/characters/perry/p_goblin/idle/idle_5.png",
+     "res://assets/characters/perry/p_goblin/idle/idle_6.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     252,
+     194
+    ],
+    "pivot": [
+     178.0,
+     191
+    ],
+    "boxes": [
+     [
+      -30.0,
+      -59,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -59,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -55,
+      28.0,
+      3
+     ],
+     [
+      -30.0,
+      -53,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -53,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -57,
+      30.0,
+      3
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/p_goblin/walk/walk_1.png",
+     "res://assets/characters/perry/p_goblin/walk/walk_2.png",
+     "res://assets/characters/perry/p_goblin/walk/walk_3.png",
+     "res://assets/characters/perry/p_goblin/walk/walk_4.png",
+     "res://assets/characters/perry/p_goblin/walk/walk_5.png",
+     "res://assets/characters/perry/p_goblin/walk/walk_6.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     252,
+     194
+    ],
+    "pivot": [
+     178.0,
+     191
+    ],
+    "boxes": [
+     [
+      -30.0,
+      -59,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -59,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -55,
+      28.0,
+      3
+     ],
+     [
+      -30.0,
+      -53,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -53,
+      30.0,
+      3
+     ],
+     [
+      -30.0,
+      -57,
+      30.0,
+      3
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/perry/p_goblin/slash/slash_1.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_2.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_3.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_4.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_5.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_6.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_7.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_8.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_9.png",
+     "res://assets/characters/perry/p_goblin/slash/slash_10.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     252,
+     194
+    ],
+    "pivot": [
+     178.0,
+     191
+    ],
+    "boxes": [
+     [
+      -26.0,
+      -57,
+      42.0,
+      3
+     ],
+     [
+      -28.0,
+      -57,
+      52.0,
+      3
+     ],
+     [
+      -68.0,
+      -53,
+      28.0,
+      3
+     ],
+     [
+      -72.0,
+      -57,
+      28.0,
+      3
+     ],
+     [
+      -76.0,
+      -59,
+      32.0,
+      3
+     ],
+     [
+      -22.0,
+      -59,
+      44.0,
+      3
+     ],
+     [
+      -120.0,
+      -51,
+      28.0,
+      3
+     ],
+     [
+      -120.0,
+      -57,
+      28.0,
+      3
+     ],
+     [
+      -124.0,
+      -55,
+      26.0,
+      3
+     ],
+     [
+      -122.0,
+      -51,
+      22.0,
+      3
+     ]
+    ]
+   },
+   "dive": {
+    "frames": [
+     "res://assets/characters/perry/p_goblin/dive/dive_1.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_2.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_3.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_4.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_5.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_6.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_7.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_8.png",
+     "res://assets/characters/perry/p_goblin/dive/dive_9.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     252,
+     194
+    ],
+    "pivot": [
+     178.0,
+     191
+    ],
+    "boxes": [
+     [
+      -122.0,
+      -51,
+      22.0,
+      3
+     ],
+     [
+      -54.0,
+      -37,
+      10.0,
+      3
+     ],
+     [
+      -64.0,
+      -37,
+      -18.0,
+      3
+     ],
+     [
+      -100.0,
+      -39,
+      -40.0,
+      3
+     ],
+     [
+      -166.0,
+      -41,
+      -50.0,
+      3
+     ],
+     [
+      -166.0,
+      -41,
+      -46.0,
+      3
+     ],
+     [
+      -166.0,
+      -33,
+      -50.0,
+      3
+     ],
+     [
+      -166.0,
+      -39,
+      -56.0,
+      3
+     ],
+     [
+      -120.0,
+      -41,
+      -66.0,
+      3
+     ]
+    ]
+   },
+   "combo": {
+    "frames": [
+     "res://assets/characters/perry/p_goblin/combo/combo_1.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_2.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_3.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_4.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_5.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_6.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_7.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_8.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_9.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_10.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_11.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_12.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_13.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_14.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_15.png",
+     "res://assets/characters/perry/p_goblin/combo/combo_16.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     252,
+     194
+    ],
+    "pivot": [
+     178.0,
+     191
+    ],
+    "boxes": [
+     [
+      -120.0,
+      -41,
+      -66.0,
+      3
+     ],
+     [
+      -124.0,
+      -43,
+      -68.0,
+      3
+     ],
+     [
+      -118.0,
+      -53,
+      -70.0,
+      3
+     ],
+     [
+      -122.0,
+      -65,
+      -56.0,
+      3
+     ],
+     [
+      -170.0,
+      -81,
+      -22.0,
+      1
+     ],
+     [
+      -178.0,
+      -133,
+      -4.0,
+      1
+     ],
+     [
+      -168.0,
+      -163,
+      -8.0,
+      1
+     ],
+     [
+      -138.0,
+      -181,
+      10.0,
+      1
+     ],
+     [
+      -80.0,
+      -191,
+      20.0,
+      1
+     ],
+     [
+      -36.0,
+      -127,
+      26.0,
+      1
+     ],
+     [
+      -34.0,
+      -127,
+      28.0,
+      1
+     ],
+     [
+      -24.0,
+      -135,
+      20.0,
+      1
+     ],
+     [
+      -6.0,
+      -147,
+      52.0,
+      1
+     ],
+     [
+      -10.0,
+      -145,
+      54.0,
+      1
+     ],
+     [
+      -18.0,
+      -147,
+      74.0,
+      1
+     ],
+     [
+      -2.0,
+      -157,
+      56.0,
+      1
+     ]
+    ]
+   }
+  },
+  "body": [
+   -30.0,
+   -59,
+   30.0,
+   3
+  ]
+ },
+ "p_orc": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/p_orc/idle/idle_1.png",
+     "res://assets/characters/perry/p_orc/idle/idle_2.png",
+     "res://assets/characters/perry/p_orc/idle/idle_3.png",
+     "res://assets/characters/perry/p_orc/idle/idle_4.png"
+    ],
+    "fps": 5,
+    "loop": true,
+    "size": [
+     140,
+     150
+    ],
+    "pivot": [
+     77.5,
+     149
+    ],
+    "boxes": [
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -124,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -124,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/p_orc/walk/walk_1.png",
+     "res://assets/characters/perry/p_orc/walk/walk_2.png",
+     "res://assets/characters/perry/p_orc/walk/walk_3.png",
+     "res://assets/characters/perry/p_orc/walk/walk_4.png",
+     "res://assets/characters/perry/p_orc/walk/walk_5.png",
+     "res://assets/characters/perry/p_orc/walk/walk_6.png",
+     "res://assets/characters/perry/p_orc/walk/walk_7.png",
+     "res://assets/characters/perry/p_orc/walk/walk_8.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     140,
+     150
+    ],
+    "pivot": [
+     77.5,
+     149
+    ],
+    "boxes": [
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -124,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -134,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -124,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ],
+     [
+      -52.5,
+      -129,
+      52.5,
+      1
+     ]
+    ]
+   },
+   "attack": {
+    "frames": [
+     "res://assets/characters/perry/p_orc/attack/attack_1.png",
+     "res://assets/characters/perry/p_orc/attack/attack_2.png",
+     "res://assets/characters/perry/p_orc/attack/attack_3.png",
+     "res://assets/characters/perry/p_orc/attack/attack_4.png",
+     "res://assets/characters/perry/p_orc/attack/attack_5.png",
+     "res://assets/characters/perry/p_orc/attack/attack_6.png",
+     "res://assets/characters/perry/p_orc/attack/attack_7.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     140,
+     150
+    ],
+    "pivot": [
+     77.5,
+     149
+    ],
+    "boxes": [
+     [
+      -47.5,
+      -129,
+      57.5,
+      1
+     ],
+     [
+      -42.5,
+      -124,
+      62.5,
+      1
+     ],
+     [
+      -72.5,
+      -149,
+      62.5,
+      1
+     ],
+     [
+      -77.5,
+      -129,
+      37.5,
+      1
+     ],
+     [
+      -52.5,
+      -129,
+      32.5,
+      1
+     ],
+     [
+      -37.5,
+      -129,
+      37.5,
+      1
+     ],
+     [
+      -47.5,
+      -129,
+      37.5,
+      1
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/perry/p_orc/hurt/hurt_1.png",
+     "res://assets/characters/perry/p_orc/hurt/hurt_2.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     140,
+     150
+    ],
+    "pivot": [
+     77.5,
+     149
+    ],
+    "boxes": [
+     [
+      -47.5,
+      -129,
+      57.5,
+      1
+     ],
+     [
+      -47.5,
+      -119,
+      57.5,
+      1
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/perry/p_orc/death/death_1.png",
+     "res://assets/characters/perry/p_orc/death/death_2.png",
+     "res://assets/characters/perry/p_orc/death/death_3.png",
+     "res://assets/characters/perry/p_orc/death/death_4.png"
+    ],
+    "fps": 5,
+    "loop": false,
+    "size": [
+     140,
+     150
+    ],
+    "pivot": [
+     77.5,
+     149
+    ],
+    "boxes": [
+     [
+      -52.5,
+      -109,
+      57.5,
+      1
+     ],
+     [
+      -77.5,
+      -89,
+      37.5,
+      1
+     ],
+     [
+      -77.5,
+      -69,
+      47.5,
+      1
+     ],
+     [
+      -77.5,
+      -69,
+      52.5,
+      1
+     ]
+    ]
+   }
+  },
+  "body": [
+   -52.5,
+   -129,
+   52.5,
+   1
+  ]
+ },
+ "p_clubogre": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/p_clubogre/idle/idle_1.png",
+     "res://assets/characters/perry/p_clubogre/idle/idle_2.png",
+     "res://assets/characters/perry/p_clubogre/idle/idle_3.png",
+     "res://assets/characters/perry/p_clubogre/idle/idle_4.png"
+    ],
+    "fps": 6,
+    "loop": true,
+    "size": [
+     486,
+     237
+    ],
+    "pivot": [
+     273.0,
+     231
+    ],
+    "boxes": [
+     [
+      -99.0,
+      -178,
+      99.0,
+      0
+     ],
+     [
+      -99.0,
+      -184,
+      99.0,
+      -2
+     ],
+     [
+      -99.0,
+      -178,
+      99.0,
+      0
+     ],
+     [
+      -100.0,
+      -173,
+      100.0,
+      2
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/p_clubogre/walk/walk_1.png",
+     "res://assets/characters/perry/p_clubogre/walk/walk_2.png",
+     "res://assets/characters/perry/p_clubogre/walk/walk_3.png",
+     "res://assets/characters/perry/p_clubogre/walk/walk_4.png",
+     "res://assets/characters/perry/p_clubogre/walk/walk_5.png",
+     "res://assets/characters/perry/p_clubogre/walk/walk_6.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     486,
+     237
+    ],
+    "pivot": [
+     273.0,
+     231
+    ],
+    "boxes": [
+     [
+      -99.0,
+      -178,
+      99.0,
+      0
+     ],
+     [
+      -102.0,
+      -183,
+      91.0,
+      1
+     ],
+     [
+      -102.0,
+      -185,
+      91.0,
+      -1
+     ],
+     [
+      -99.0,
+      -182,
+      99.0,
+      -4
+     ],
+     [
+      -96.0,
+      -179,
+      107.0,
+      -1
+     ],
+     [
+      -96.0,
+      -177,
+      107.0,
+      1
+     ]
+    ]
+   },
+   "smash": {
+    "frames": [
+     "res://assets/characters/perry/p_clubogre/smash/smash_1.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_2.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_3.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_4.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_5.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_6.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_7.png",
+     "res://assets/characters/perry/p_clubogre/smash/smash_8.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     486,
+     237
+    ],
+    "pivot": [
+     273.0,
+     231
+    ],
+    "boxes": [
+     [
+      -145.0,
+      -172,
+      111.0,
+      0
+     ],
+     [
+      -145.0,
+      -170,
+      99.0,
+      0
+     ],
+     [
+      -141.0,
+      -166,
+      99.0,
+      0
+     ],
+     [
+      -143.0,
+      -164,
+      101.0,
+      0
+     ],
+     [
+      -121.0,
+      -166,
+      99.0,
+      0
+     ],
+     [
+      -139.0,
+      -168,
+      97.0,
+      0
+     ],
+     [
+      -139.0,
+      -172,
+      97.0,
+      0
+     ],
+     [
+      -143.0,
+      -176,
+      93.0,
+      0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/perry/p_clubogre/hurt/hurt_1.png",
+     "res://assets/characters/perry/p_clubogre/hurt/hurt_2.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     486,
+     237
+    ],
+    "pivot": [
+     273.0,
+     231
+    ],
+    "boxes": [
+     [
+      -76.0,
+      -178,
+      132.0,
+      6
+     ],
+     [
+      -60.0,
+      -176,
+      151.0,
+      6
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/perry/p_clubogre/death/death_1.png",
+     "res://assets/characters/perry/p_clubogre/death/death_2.png",
+     "res://assets/characters/perry/p_clubogre/death/death_3.png",
+     "res://assets/characters/perry/p_clubogre/death/death_4.png"
+    ],
+    "fps": 5,
+    "loop": false,
+    "size": [
+     486,
+     237
+    ],
+    "pivot": [
+     273.0,
+     231
+    ],
+    "boxes": [
+     [
+      -78.0,
+      -169,
+      134.0,
+      6
+     ],
+     [
+      -63.0,
+      -139,
+      166.0,
+      6
+     ],
+     [
+      -46.0,
+      -105,
+      185.0,
+      6
+     ],
+     [
+      -38.0,
+      -96,
+      189.0,
+      6
+     ]
+    ]
+   }
+  },
+  "body": [
+   -99.0,
+   -178,
+   99.0,
+   0
+  ]
+ },
+ "p_mirrormax": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/idle/idle_1.png",
+     "res://assets/characters/perry/p_mirrormax/idle/idle_2.png",
+     "res://assets/characters/perry/p_mirrormax/idle/idle_3.png",
+     "res://assets/characters/perry/p_mirrormax/idle/idle_4.png"
+    ],
+    "fps": 4,
+    "loop": true,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -91,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -89,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/walk/walk_1.png",
+     "res://assets/characters/perry/p_mirrormax/walk/walk_2.png",
+     "res://assets/characters/perry/p_mirrormax/walk/walk_3.png",
+     "res://assets/characters/perry/p_mirrormax/walk/walk_4.png",
+     "res://assets/characters/perry/p_mirrormax/walk/walk_5.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      65.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      65.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      65.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      65.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      65.0,
+      1
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/slash/slash_1.png",
+     "res://assets/characters/perry/p_mirrormax/slash/slash_2.png",
+     "res://assets/characters/perry/p_mirrormax/slash/slash_3.png",
+     "res://assets/characters/perry/p_mirrormax/slash/slash_4.png",
+     "res://assets/characters/perry/p_mirrormax/slash/slash_5.png",
+     "res://assets/characters/perry/p_mirrormax/slash/slash_6.png"
+    ],
+    "fps": 11,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -13.0,
+      -80,
+      137.0,
+      1
+     ],
+     [
+      -85.0,
+      -80,
+      108.0,
+      1
+     ],
+     [
+      -84.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -80.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "thrust": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/thrust/thrust_1.png",
+     "res://assets/characters/perry/p_mirrormax/thrust/thrust_2.png",
+     "res://assets/characters/perry/p_mirrormax/thrust/thrust_3.png",
+     "res://assets/characters/perry/p_mirrormax/thrust/thrust_4.png",
+     "res://assets/characters/perry/p_mirrormax/thrust/thrust_5.png",
+     "res://assets/characters/perry/p_mirrormax/thrust/thrust_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -80,
+      68.0,
+      1
+     ],
+     [
+      -90.0,
+      -78,
+      70.0,
+      1
+     ],
+     [
+      -90.0,
+      -78,
+      69.0,
+      2
+     ],
+     [
+      -90.0,
+      -78,
+      69.0,
+      2
+     ],
+     [
+      -79.0,
+      -80,
+      70.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "upswing": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/upswing/upswing_1.png",
+     "res://assets/characters/perry/p_mirrormax/upswing/upswing_2.png",
+     "res://assets/characters/perry/p_mirrormax/upswing/upswing_3.png",
+     "res://assets/characters/perry/p_mirrormax/upswing/upswing_4.png",
+     "res://assets/characters/perry/p_mirrormax/upswing/upswing_5.png",
+     "res://assets/characters/perry/p_mirrormax/upswing/upswing_6.png"
+    ],
+    "fps": 11,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -72,
+      134.0,
+      1
+     ],
+     [
+      -13.0,
+      -62,
+      130.0,
+      1
+     ],
+     [
+      -61.0,
+      -157,
+      67.0,
+      1
+     ],
+     [
+      -45.0,
+      -167,
+      69.0,
+      1
+     ],
+     [
+      -21.0,
+      -148,
+      67.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "push_kick": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/push_kick/push_kick_1.png",
+     "res://assets/characters/perry/p_mirrormax/push_kick/push_kick_2.png",
+     "res://assets/characters/perry/p_mirrormax/push_kick/push_kick_3.png",
+     "res://assets/characters/perry/p_mirrormax/push_kick/push_kick_4.png",
+     "res://assets/characters/perry/p_mirrormax/push_kick/push_kick_5.png",
+     "res://assets/characters/perry/p_mirrormax/push_kick/push_kick_6.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      7.0,
+      -147,
+      103.0,
+      1
+     ],
+     [
+      -31.0,
+      -145,
+      103.0,
+      2
+     ],
+     [
+      -31.0,
+      -145,
+      103.0,
+      2
+     ],
+     [
+      -8.0,
+      -159,
+      75.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "heavy": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_1.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_2.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_3.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_4.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_5.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_6.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_7.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_8.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_9.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_10.png",
+     "res://assets/characters/perry/p_mirrormax/heavy/heavy_11.png"
+    ],
+    "fps": 7,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -13.0,
+      -156,
+      68.0,
+      1
+     ],
+     [
+      -12.0,
+      -165,
+      69.0,
+      1
+     ],
+     [
+      -12.0,
+      -147,
+      103.0,
+      1
+     ],
+     [
+      -78.0,
+      -123,
+      66.0,
+      2
+     ],
+     [
+      -55.0,
+      -78,
+      66.0,
+      1
+     ],
+     [
+      -68.0,
+      -78,
+      66.0,
+      2
+     ],
+     [
+      -75.0,
+      -77,
+      65.0,
+      2
+     ],
+     [
+      -96.0,
+      -78,
+      66.0,
+      2
+     ],
+     [
+      -79.0,
+      -81,
+      67.0,
+      1
+     ],
+     [
+      -76.0,
+      -81,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "spin": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/spin/spin_1.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_2.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_3.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_4.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_5.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_6.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_7.png",
+     "res://assets/characters/perry/p_mirrormax/spin/spin_8.png"
+    ],
+    "fps": 13,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -80,
+      137.0,
+      1
+     ],
+     [
+      -40.0,
+      -80,
+      148.0,
+      1
+     ],
+     [
+      -85.0,
+      -80,
+      100.0,
+      1
+     ],
+     [
+      -74.0,
+      -80,
+      100.0,
+      1
+     ],
+     [
+      -85.0,
+      -80,
+      100.0,
+      1
+     ],
+     [
+      -84.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -80.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/hurt/hurt_1.png"
+    ],
+    "fps": 17,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -144,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/perry/p_mirrormax/death/death_1.png",
+     "res://assets/characters/perry/p_mirrormax/death/death_2.png",
+     "res://assets/characters/perry/p_mirrormax/death/death_3.png"
+    ],
+    "fps": 9,
+    "loop": false,
+    "size": [
+     250,
+     176
+    ],
+    "pivot": [
+     97.0,
+     172
+    ],
+    "boxes": [
+     [
+      -73.0,
+      -73,
+      65.0,
+      1
+     ],
+     [
+      -78.0,
+      -62,
+      64.0,
+      1
+     ],
+     [
+      -78.0,
+      -62,
+      64.0,
+      1
+     ]
+    ]
+   }
+  },
+  "body": [
+   -66.0,
+   -92,
+   66.0,
+   1
+  ]
+ },
+ "p_percy": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/p_percy/idle/idle_1.png"
+    ],
+    "fps": 4,
+    "loop": true,
+    "size": [
+     99,
+     150
+    ],
+    "pivot": [
+     46.5,
+     139
+    ],
+    "boxes": [
+     [
+      -28.5,
+      -132,
+      28.5,
+      3
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/p_percy/walk/walk_1.png",
+     "res://assets/characters/perry/p_percy/walk/walk_2.png",
+     "res://assets/characters/perry/p_percy/walk/walk_3.png",
+     "res://assets/characters/perry/p_percy/walk/walk_4.png",
+     "res://assets/characters/perry/p_percy/walk/walk_5.png",
+     "res://assets/characters/perry/p_percy/walk/walk_6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     99,
+     150
+    ],
+    "pivot": [
+     46.5,
+     139
+    ],
+    "boxes": [
+     [
+      -32.5,
+      -129,
+      31.5,
+      2
+     ],
+     [
+      -32.5,
+      -131,
+      33.5,
+      2
+     ],
+     [
+      -30.5,
+      -131,
+      47.5,
+      0
+     ],
+     [
+      -34.5,
+      -130,
+      50.5,
+      1
+     ],
+     [
+      -33.5,
+      -131,
+      40.5,
+      1
+     ],
+     [
+      -30.5,
+      -131,
+      30.5,
+      0
+     ]
+    ]
+   },
+   "blockIn": {
+    "frames": [
+     "res://assets/characters/perry/p_percy/blockIn/blockIn_1.png",
+     "res://assets/characters/perry/p_percy/blockIn/blockIn_2.png",
+     "res://assets/characters/perry/p_percy/blockIn/blockIn_3.png"
+    ],
+    "fps": 17,
+    "loop": false,
+    "size": [
+     99,
+     150
+    ],
+    "pivot": [
+     46.5,
+     139
+    ],
+    "boxes": [
+     [
+      -27.5,
+      -134,
+      52.5,
+      5
+     ],
+     [
+      -26.5,
+      -134,
+      37.5,
+      3
+     ],
+     [
+      -37.5,
+      -134,
+      47.5,
+      3
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/perry/p_percy/slash/slash_1.png",
+     "res://assets/characters/perry/p_percy/slash/slash_2.png",
+     "res://assets/characters/perry/p_percy/slash/slash_3.png",
+     "res://assets/characters/perry/p_percy/slash/slash_4.png",
+     "res://assets/characters/perry/p_percy/slash/slash_5.png",
+     "res://assets/characters/perry/p_percy/slash/slash_6.png",
+     "res://assets/characters/perry/p_percy/slash/slash_7.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     99,
+     150
+    ],
+    "pivot": [
+     46.5,
+     139
+    ],
+    "boxes": [
+     [
+      -28.5,
+      -133,
+      52.5,
+      5
+     ],
+     [
+      -27.5,
+      -134,
+      52.5,
+      4
+     ],
+     [
+      -26.5,
+      -134,
+      37.5,
+      3
+     ],
+     [
+      -46.5,
+      -134,
+      39.5,
+      3
+     ],
+     [
+      -46.5,
+      -134,
+      37.5,
+      3
+     ],
+     [
+      -35.5,
+      -134,
+      35.5,
+      4
+     ],
+     [
+      -39.5,
+      -134,
+      32.5,
+      5
+     ]
+    ]
+   },
+   "up": {
+    "frames": [
+     "res://assets/characters/perry/p_percy/up/up_1.png",
+     "res://assets/characters/perry/p_percy/up/up_2.png",
+     "res://assets/characters/perry/p_percy/up/up_3.png"
+    ],
+    "fps": 17,
+    "loop": false,
+    "size": [
+     99,
+     150
+    ],
+    "pivot": [
+     46.5,
+     139
+    ],
+    "boxes": [
+     [
+      -28.5,
+      -132,
+      27.5,
+      4
+     ],
+     [
+      -30.5,
+      -132,
+      46.5,
+      1
+     ],
+     [
+      -30.5,
+      -131,
+      47.5,
+      0
+     ]
+    ]
+   },
+   "energy": {
+    "frames": [
+     "res://assets/characters/perry/p_percy/energy/energy_1.png",
+     "res://assets/characters/perry/p_percy/energy/energy_2.png",
+     "res://assets/characters/perry/p_percy/energy/energy_3.png"
+    ],
+    "fps": 16,
+    "loop": true,
+    "size": [
+     395,
+     14
+    ],
+    "pivot": [
+     197.5,
+     7.0
+    ],
+    "boxes": [
+     [
+      -184.5,
+      -6.0,
+      182.5,
+      6.0
+     ],
+     [
+      -182.5,
+      -6.0,
+      184.5,
+      6.0
+     ],
+     [
+      -184.5,
+      -6.0,
+      182.5,
+      6.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -28.5,
+   -132,
+   28.5,
+   3
+  ]
+ },
+ "p_firemage": {
+  "facing": -1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/p_firemage/idle/idle_1.png"
+    ],
+    "fps": 7,
+    "loop": true,
+    "size": [
+     241,
+     160
+    ],
+    "pivot": [
+     120.0,
+     160
+    ],
+    "boxes": [
+     [
+      -35.0,
+      -131,
+      35.0,
+      -1
+     ]
+    ]
+   },
+   "fireball": {
+    "frames": [
+     "res://assets/characters/perry/p_firemage/fireball/fireball_1.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_2.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_3.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_4.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_5.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_6.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_7.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_8.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_9.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_10.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_11.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_12.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_13.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_14.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_15.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_16.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_17.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_18.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_19.png",
+     "res://assets/characters/perry/p_firemage/fireball/fireball_20.png"
+    ],
+    "fps": 7,
+    "loop": false,
+    "size": [
+     241,
+     160
+    ],
+    "pivot": [
+     120.0,
+     160
+    ],
+    "boxes": [
+     [
+      -35.0,
+      -131,
+      35.0,
+      -1
+     ],
+     [
+      -40.0,
+      -131,
+      35.0,
+      -1
+     ],
+     [
+      -42.0,
+      -131,
+      43.0,
+      -1
+     ],
+     [
+      -43.0,
+      -131,
+      49.0,
+      -1
+     ],
+     [
+      -42.0,
+      -131,
+      43.0,
+      -1
+     ],
+     [
+      -43.0,
+      -131,
+      49.0,
+      -1
+     ],
+     [
+      -42.0,
+      -131,
+      43.0,
+      -1
+     ],
+     [
+      -43.0,
+      -131,
+      49.0,
+      -1
+     ],
+     [
+      -27.0,
+      -140,
+      49.0,
+      0
+     ],
+     [
+      -85.0,
+      -141,
+      55.0,
+      0
+     ],
+     [
+      -86.0,
+      -135,
+      57.0,
+      0
+     ],
+     [
+      -91.0,
+      -124,
+      37.0,
+      -1
+     ],
+     [
+      -86.0,
+      -135,
+      57.0,
+      0
+     ],
+     [
+      -91.0,
+      -124,
+      37.0,
+      -1
+     ],
+     [
+      -86.0,
+      -135,
+      57.0,
+      0
+     ],
+     [
+      -85.0,
+      -141,
+      55.0,
+      0
+     ],
+     [
+      -27.0,
+      -140,
+      49.0,
+      0
+     ],
+     [
+      -43.0,
+      -131,
+      49.0,
+      -1
+     ],
+     [
+      -42.0,
+      -131,
+      43.0,
+      -1
+     ],
+     [
+      -40.0,
+      -131,
+      35.0,
+      -1
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/perry/p_firemage/hurt/hurt_1.png",
+     "res://assets/characters/perry/p_firemage/hurt/hurt_2.png",
+     "res://assets/characters/perry/p_firemage/hurt/hurt_3.png"
+    ],
+    "fps": 7,
+    "loop": false,
+    "size": [
+     241,
+     160
+    ],
+    "pivot": [
+     120.0,
+     160
+    ],
+    "boxes": [
+     [
+      -29.0,
+      -102,
+      31.0,
+      0
+     ],
+     [
+      -29.0,
+      -104,
+      35.0,
+      0
+     ],
+     [
+      -29.0,
+      -102,
+      31.0,
+      0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/perry/p_firemage/death/death_1.png",
+     "res://assets/characters/perry/p_firemage/death/death_2.png",
+     "res://assets/characters/perry/p_firemage/death/death_3.png",
+     "res://assets/characters/perry/p_firemage/death/death_4.png",
+     "res://assets/characters/perry/p_firemage/death/death_5.png",
+     "res://assets/characters/perry/p_firemage/death/death_6.png"
+    ],
+    "fps": 4,
+    "loop": false,
+    "size": [
+     241,
+     160
+    ],
+    "pivot": [
+     120.0,
+     160
+    ],
+    "boxes": [
+     [
+      -36.0,
+      -114,
+      37.0,
+      0
+     ],
+     [
+      -33.0,
+      -112,
+      35.0,
+      0
+     ],
+     [
+      -35.0,
+      -108,
+      35.0,
+      0
+     ],
+     [
+      -43.0,
+      -88,
+      33.0,
+      0
+     ],
+     [
+      -60.0,
+      -42,
+      48.0,
+      0
+     ],
+     [
+      -61.0,
+      -22,
+      63.0,
+      0
+     ]
+    ]
+   },
+   "blast": {
+    "frames": [
+     "res://assets/characters/perry/p_firemage/blast/blast_1.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_2.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_3.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_4.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_5.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_6.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_7.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_8.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_9.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_10.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_11.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_12.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_13.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_14.png",
+     "res://assets/characters/perry/p_firemage/blast/blast_15.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     100,
+     96
+    ],
+    "pivot": [
+     50.0,
+     48.0
+    ],
+    "boxes": [
+     [
+      -39.0,
+      -20.0,
+      36.0,
+      44.0
+     ],
+     [
+      -42.0,
+      -25.0,
+      41.0,
+      48.0
+     ],
+     [
+      -40.0,
+      -28.0,
+      48.0,
+      39.0
+     ],
+     [
+      -40.0,
+      -33.0,
+      48.0,
+      48.0
+     ],
+     [
+      -40.0,
+      -48.0,
+      50.0,
+      48.0
+     ],
+     [
+      -50.0,
+      -45.0,
+      50.0,
+      43.0
+     ],
+     [
+      -50.0,
+      -48.0,
+      50.0,
+      44.0
+     ],
+     [
+      -50.0,
+      -46.0,
+      50.0,
+      48.0
+     ],
+     [
+      -50.0,
+      -48.0,
+      43.0,
+      48.0
+     ],
+     [
+      -50.0,
+      -48.0,
+      46.0,
+      48.0
+     ],
+     [
+      -47.0,
+      -48.0,
+      48.0,
+      47.0
+     ],
+     [
+      -50.0,
+      -48.0,
+      45.0,
+      46.0
+     ],
+     [
+      -50.0,
+      -48.0,
+      42.0,
+      46.0
+     ],
+     [
+      -50.0,
+      -48.0,
+      41.0,
+      48.0
+     ],
+     [
+      -32.0,
+      -48.0,
+      32.0,
+      -19.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -35.0,
+   -131,
+   35.0,
+   -1
+  ]
+ },
  "priestess": {
   "facing": 1,
   "flyer": false,

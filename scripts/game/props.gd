@@ -44,8 +44,13 @@ const SECRETS := {
 	1: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
 	2: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
 	4: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
+	6: [[0, "ledge"], [1, "wall"], [2, "door"], [3, "wall"]],
+	7: [[0, "wall"], [1, "door"], [2, "ledge"], [3, "wall"]],
+	8: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
+	9: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
+	10: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
 }
-const CHANDELIERS := {2: true, 4: true}       # Moonlit Town and Infernal Caverns have something to hang them from
+const CHANDELIERS := {2: true, 4: true, 10: true}   # Moonlit Town, Infernal Caverns and Moonlit Sanctum have something to hang them from
 const LEVER_BACK := 620.0                     # the lever for a door stands this far before it
 
 

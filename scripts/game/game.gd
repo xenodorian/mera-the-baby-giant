@@ -747,33 +747,44 @@ func on_enemy_defeated(e: Node2D) -> void:
 		boss_dead = true
 		shake(24.0, 0.8)
 		Sfx.play("boom_big", 0.5)
-		if Roster.BOSSES.has(Levels.current):
-			_start_dragon_victory()
+		if Roster.FINALE.has(Levels.current):
+			_start_finale_victory()
 	else:
 		_maybe_drop_key(p + Vector2(0, -10))
 		Sfx.play("boom", 1.8, -10.0)
 
 
-# ---------------------------------------------------------------- v0.12.2 dragon victory
+# ---------------------------------------------------------------- finale victory (the dragon, Perry)
 var victory := false
-var victory_card := false           # set when the dragon card is on screen (hud.gd draws its text)
-const DRAGON_GOLD := 100           # v0.12.2: the reward for the dragon at the end of the game
+var victory_card := false           # set when the finale card is on screen (hud.gd draws victory_text)
+var victory_text: PackedStringArray = PackedStringArray()   # the card's two lines, set by _start_finale_victory
+const FINALE_GOLD := 100           # the reward for a stage-ending boss (the dragon, Perry)
+const DRAGON_GOLD := FINALE_GOLD   # old name (tests)
 const VICTORY_DELAY_S := 2.0      # the corpse falls and bursts before the card shows
 const VICTORY_CARD_S := 3.5       # the card holds this long, then the title screen
 
 
-## the boss is dead: the stage counts as cleared (unlock + clear gold), then the title card, then the title screen
-func _start_dragon_victory() -> void:
+func _start_dragon_victory() -> void:      # old name (tests)
+	_start_finale_victory()
+
+
+## a FINALE boss is dead: the stage counts as cleared (unlock + clear gold), then the title card, then the title screen
+func _start_finale_victory() -> void:
 	if victory:
 		return
 	victory = true
+	var who: String = String(Roster.FINALE.get(Levels.current, "the Cavern Dragon"))
+	if Levels.current != 5:
+		victory_text = PackedStringArray(["You Defeated Perry!", "The island is free"])
+	else:
+		victory_text = PackedStringArray(["You Defeated the Cavern Dragon!", "Stage 2: The Island is open"])
 	if not run_mode:
 		cleared = true                          # the stage counts as cleared (also stops a second payment at the exit)
 		over_t = 0.0
 		Carry.unlock_through(Levels.current + 1)
 		var pay := Carry.record_clear(Levels.current)
-		Carry.add_gold(DRAGON_GOLD)            # v0.12.2: the dragon ends the game
-		hud.flash("pickup:the dragon falls  +%d gold" % (pay + DRAGON_GOLD))
+		Carry.add_gold(FINALE_GOLD)            # the finale boss pays a bonus
+		hud.flash("pickup:%s falls  +%d gold" % [who, pay + FINALE_GOLD])
 	var tm := Timer.new()
 	tm.one_shot = true
 	tm.wait_time = VICTORY_DELAY_S
@@ -905,8 +916,10 @@ func summon_type(aid: String) -> Node2D:
 func exit_locked() -> bool:
 	if run_mode:
 		return defeated < quota or _roster_threat()
-	if Roster.BOSSES.has(Levels.current):        # a boss level (the Dragon's Lair has no waves, so it must be checked first)
-		return not boss_dead
+	if Roster.BOSSES.has(Levels.current):
+		if not Roster.LEVELS.has(Levels.current):    # boss only (the Dragon's Lair has no waves)
+			return not boss_dead
+		return not _waves_done() or _roster_threat() or not boss_dead   # waves, then the boss near the exit
 	if not Roster.LEVELS.has(Levels.current):
 		return knights_spawned < Roster.KNIGHT_CAP or _knight_fight_live()
 	return not _waves_done() or _roster_threat()
@@ -938,7 +951,7 @@ func _knight_fight_live() -> bool:
 
 ## tests: the level's fight is over, so the exit may open
 func finish_endpoint() -> void:
-	if Roster.BOSSES.has(Levels.current):
+	if Roster.BOSSES.has(Levels.current) and not Roster.LEVELS.has(Levels.current):
 		boss_dead = true
 		return
 	if not Roster.LEVELS.has(Levels.current):
@@ -957,11 +970,20 @@ func finish_endpoint() -> void:
 		if is_instance_valid(e) and not e.boss:
 			e.queue_free()
 	mobs = mobs.filter(func(e): return is_instance_valid(e) and e.boss)
+	if Roster.BOSSES.has(Levels.current):
+		boss_dead = true
+		boss_spawned = true                          # a boss that never appeared must not appear after the exit opened
 
 
 func exit_lock_text() -> String:
-	if Roster.BOSSES.has(Levels.current):
+	if Levels.current == 5:
 		return "SLAY THE DRAGON"
+	if Levels.current == 10:
+		return "DEFEAT PERRY"
+	if Roster.BOSSES.has(Levels.current) and Roster.LEVELS.has(Levels.current):
+		if _waves_done() and not _roster_threat():
+			return "SLAY THE " + String(Roster.NAMES.get(Roster.BOSSES[Levels.current], "BOSS")).to_upper()
+		return "CLEAR THE ROAD"
 	if not Roster.LEVELS.has(Levels.current):
 		return "SLAY THE KNIGHT"
 	return "CLEAR THE ROAD"

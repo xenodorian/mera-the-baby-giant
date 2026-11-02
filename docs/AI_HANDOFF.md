@@ -1,6 +1,8 @@
 # AI handoff: Mera, The Baby Giant
 
 For any agent that picks this project up. Keep this file updated at the end of every stage.
+_Stage 2 (levels index 6..10, see docs/STAGE2_PLAN.md): `Levels.STAGE2_FROM` = 6, `Levels.stage_of(i)`, `Roster.FINALE` ({5, 10}: the only bosses that end a stage with a victory card, `game._start_finale_victory`, text in `game.victory_text`), `Roster.NAMES` for the exit lock text; a level in both `Roster.LEVELS` and `Roster.BOSSES` locks its exit until waves are done, no trash lives and the boss is dead. The title menu has two pages (`menu.gd page_levels / page_of`). Cards and secrets for 6..10 are in `allies.gd` / `props.gd`._
+
 _Last updated: 2026-11-01, v0.12.2. Level order is Sunlit Country, Misty Woods, Moonlit Town, Moonlit Cemetery, Infernal Caverns, Dragon's Lair. Country is index 0. Cemetery is index 3 (three Fire Knights on fixed points at 25, 50 and 75 % of the map, five in total). Caverns are index 4 and have no boss. The dragon is `BOSSES[5]` on a 7200 px arena: killing it clears the stage, pays the clear gold plus 100, shows the title card and returns to the title screen. Nothing despawns for distance. The beam finisher, earthquake, super earthquake (needs the earthquake), rear explosion, Fury and homing shots are bought in the shop (page 2) and start locked. Stages after the first stay locked until the previous one is cleared or a 200 gold key is bought. Summon cards come only from breaking objects._
 
 
