@@ -1733,6 +1733,7 @@ func _run() -> void:
 	await _task_tests()
 	await _touch_tests()
 	await _mark_tests()
+	await _perry_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -3867,3 +3868,243 @@ func _touch_tests() -> void:
 	var l3_label: String = tpn._label("mana")
 	tpn.free()
 	_check("touch pad: the L3 button sends the mana action (E / left-stick click)", InputMap.has_action("mana") and l3_label == "L3", "label=%s" % l3_label)
+
+
+# ================================================================ Stage 3 phase 3: playable Perry (scripts/game/perry_player.gd, perry_unlocks.gd)
+func _perry_new(level: int = 0) -> Node:
+	var C = load("res://scripts/game/carry.gd")
+	C.set_character("perry")
+	var g: Node = await _s4_new(level)
+	g.mera.invuln = 99.0
+	return g
+
+
+func _perry_clear_stage2(C) -> void:
+	for i in range(6, 11):
+		C.record_clear(i)
+
+
+func _perry_tests() -> void:
+	var C = load("res://scripts/game/carry.gd")
+	var PU = load("res://scripts/game/perry_unlocks.gd")
+	var T = load("res://scripts/game/tuning.gd")
+	C.test_all = false
+	root.get_node("HitStop").enabled = false
+	# ---- locked until Moonlit Sanctum (level index 10) is cleared
+	C.reset()
+	var set0: bool = C.set_character("perry")
+	_check("perry: locked at the start, the choice stays Mera", not C.perry_unlocked() and not set0 and C.character == "mera", "")
+	C.record_clear(9)
+	_check("perry: clearing level index 9 does not unlock her", not C.perry_unlocked(), "")
+	C.character = "perry"
+	var gl: Node = await _s4_new(0)
+	_check("perry: a locked choice still spawns Mera", not C.perry_selected() and gl.mera.get("is_perry") == null, "")
+	gl.queue_free()
+	await process_frame
+	C.reset()
+	C.record_clear(10)
+	_check("perry: unlocked by a clear of level index 10, and the title menu choice sticks", C.perry_unlocked() and C.set_character("perry") and C.perry_selected(), "")
+	# ---- the game spawns her
+	var g: Node = await _perry_new()
+	var m: Node2D = g.mera
+	_check("perry: choosing her makes the game spawn PerryPlayer with 50 HP", m.get("is_perry") == true and m.name == "Perry" and m.hp == 50 and m.hp_max == 50, "%s hp %s" % [m.name, m.hp])
+	_check("perry: she keeps the interface the game reads (size, stamina, rage, potions, hurt_rect)", m.size >= 1 and m.stamina > 0.0 and m.rage_max > 0.0 and m.potions >= 0 and m.hurt_rect().size.x > 10.0 and m.hurt_rect().size.y > 50.0, "")
+	# ---- walk, jump, double jump
+	var x0: float = m.position.x
+	await _drive(g, [[1, "right", true]], 30)
+	_check("perry: walks (walk_right pose, moves right)", m.position.x > x0 + 100.0 and m.pa == "walk_right", "x %.0f pa %s" % [m.position.x, m.pa])
+	m.forced["right"] = false
+	await _drive(g, [], 5)
+	var s: Array = []
+	_tap(s, 2, "up")
+	var y_top := 1e9
+	for f in range(1, 90):
+		for st in s:
+			if int(st[0]) == f:
+				m.forced[st[1]] = st[2]
+		await physics_frame
+		g.mera.invuln = 99.0
+		y_top = minf(y_top, m.position.y)
+	_check("perry: jumps about 200 px and lands again", y_top < g.GROUND_Y - 150.0 and y_top > g.GROUND_Y - 260.0 and m.state == "ground", "top %.0f state %s" % [y_top, m.state])
+	s = []
+	_tap(s, 2, "up")
+	_tap(s, 22, "up")
+	y_top = 1e9
+	for f in range(1, 110):
+		for st in s:
+			if int(st[0]) == f:
+				m.forced[st[1]] = st[2]
+		await physics_frame
+		y_top = minf(y_top, m.position.y)
+	_check("perry: the double jump (always on) goes higher than the single jump", y_top < g.GROUND_Y - 280.0, "top %.0f" % y_top)
+	# ---- slash hits an enemy through the Mera enemy interface
+	var e: Node2D = g.spawn_enemy("p_goblin", m.global_position.x + 220.0)
+	await physics_frame
+	var hp0: int = e.hp
+	s = []
+	_tap(s, 3, "btn_a")
+	await _drive(g, s, 60)
+	_check("perry: a slash hits the goblin for the scaled slash damage (%d)" % T.perry_dmg("slash"), e.hp == hp0 - T.perry_dmg("slash") and "slash" in m.move_log, "hp %d -> %d log %s" % [hp0, e.hp, m.move_log])
+	_check("perry: the slash damage is the original 25 x 0.12, so a 6 HP goblin takes two", T.perry_dmg("slash") == 3, "")
+	# ---- a move she does not own does nothing; buying it enables it at the exact original price
+	m.move_log.clear()
+	s = [[1, "right", true]]
+	_tap(s, 8, "btn_a")
+	await _drive(g, s, 40)
+	m.forced["right"] = false
+	_check("perry: Right + A without the thrust does not lunge", "thrust" not in m.move_log, "log %s" % [m.move_log])
+	_perry_clear_stage2(C)
+	C.gold = 1000
+	var reason_before: String = PU.locked_reason("crash")
+	var r_thrust: String = C.buy("perry:thrust")
+	_check("perry shop: the lunging thrust costs 15 + 10 x 1 = 25 gold and is owned after", r_thrust == "" and C.gold == 975 and PU.has_move("thrust"), "%s gold %d" % [r_thrust, C.gold])
+	_check("perry shop: buying it twice refuses and takes nothing", C.buy("perry:thrust") == "owned" and C.gold == 975, "")
+	m.move_log.clear()
+	await _drive(g, [], 30)
+	s = [[1, "right", true]]
+	_tap(s, 8, "btn_a")
+	await _drive(g, s, 40)
+	m.forced["right"] = false
+	_check("perry: Right + A lunges once the thrust is bought", "thrust" in m.move_log, "log %s" % [m.move_log])
+	g.queue_free()
+	await process_frame
+	# ---- prices of the ported list
+	var ids: Dictionary = {}
+	for u in PU.LIST:
+		ids[String(u["id"])] = PU.price(String(u["id"]))
+	_check("perry shop: 26 unlocks plus Bone Powder", PU.LIST.size() == 26 and PU.price("bone_powder") == 90, "%d" % PU.LIST.size())
+	_check("perry shop: scroll = 15 + 10 x level (thrust 25, taunt 35, flight 55), mutagen = 25 + 15 x level (energy wave 55, ultimate 85, earthquake 100, meter charge 100)",
+		ids["thrust"] == 25 and ids["taunt"] == 35 and ids["fly"] == 55 and ids["energy_wave"] == 55 and ids["ultimate"] == 85 and ids["earthquake"] == 100 and ids["meter_charge"] == 100 and ids["push_kick"] == 25, str(ids))
+	# ---- locked by stage progress: names the level to clear
+	C.reset()
+	C.record_clear(10)
+	C.gold = 500
+	var rl: String = C.buy("perry:crash")
+	_check("perry shop: a row whose Stage 2 level is not cleared says 'Clear Stage 2 level 3 first' and takes no gold", rl == "locked" and C.gold == 500 and PU.locked_reason("crash") == "Clear Stage 2 level 3 first" and reason_before == "" , "%s / %s / before '%s'" % [rl, PU.locked_reason("crash"), reason_before])
+	_check("perry shop: level 5 and above cap at Stage 2 level 5 (earthquake)", PU.locked_reason("earthquake") == "" and PU.req_index("earthquake") == 10 and PU.req_index("thrust") == 6, "")
+	# ---- parry, block, HP, death
+	C.reset()
+	C.record_clear(10)
+	g = await _perry_new()
+	m = g.mera
+	m.invuln = 0.0
+	e = g.spawn_enemy("p_orc", m.global_position.x + 150.0)
+	await physics_frame
+	s = []
+	_tap(s, 2, "btn_b")
+	await _drive(g, s, 5)
+	m.invuln = 0.0
+	m.take_hit(1, e.global_position.x, e)
+	_check("perry: a tap of B parries: no damage, the attacker is stunned", m.hp == 50 and m.parries == 1 and e.state == "stun", "hp %d parries %d state %s" % [m.hp, m.parries, e.state])
+	await _drive(g, [], 60)
+	m.invuln = 0.0
+	m.take_hit(1, e.global_position.x, e)
+	_check("perry: a hit costs PERRY_HP_PER_DMG (10) HP per damage point and knocks her back", m.hp == 40 and m.state == "hurt", "hp %d state %s" % [m.hp, m.state])
+	await _drive(g, [], 60)
+	m.invuln = 0.0
+	s = [[2, "btn_b", true]]
+	await _drive(g, s, 30)
+	m.take_hit(2, e.global_position.x, e)
+	_check("perry: holding B blocks: no damage, a small slide", m.hp == 40 and m.blocks == 1 and m.pa == "block", "hp %d blocks %d pa %s" % [m.hp, m.blocks, m.pa])
+	m.forced["btn_b"] = false
+	await _drive(g, [], 30)
+	m.invuln = 0.0
+	m.hp = 10
+	m.take_hit(1, e.global_position.x, e)
+	_check("perry: at 0 HP she dies the way Mera does (state dead, died signal, Game Over)", m.state == "dead" and m.hp == 0 and g.over, "state %s hp %d over %s" % [m.state, m.hp, g.over])
+	g.queue_free()
+	await process_frame
+	# ---- potions heal HP, never change the size Carry holds for Mera
+	C.reset()
+	C.record_clear(10)
+	g = await _perry_new()
+	m = g.mera
+	m.hp = 20
+	var size0: int = m.size
+	var pk = load("res://scripts/game/pickup.gd").new()
+	pk.kind = "potion"
+	g.collect(pk)
+	_check("perry: a green potion pickup heals her HP and leaves the saved size alone", m.hp == 20 + T.PERRY_POTION_HP and m.size == size0, "hp %d size %d" % [m.hp, m.size])
+	pk.free()
+	g.queue_free()
+	await process_frame
+	# ---- an energy move: charge R2, release fires the wave and spends energy; locked until bought
+	C.reset()
+	C.record_clear(10)
+	_perry_clear_stage2(C)
+	C.gold = 500
+	g = await _perry_new()
+	m = g.mera
+	s = [[1, "r2", true], [40, "r2", false]]
+	await _drive(g, s, 70)
+	_check("perry: R2 held and released does nothing before the energy wave is bought", "energy_wave" not in m.move_log, "log %s" % [m.move_log])
+	g.queue_free()
+	await process_frame
+	C.buy("perry:energy_wave")
+	g = await _perry_new()
+	m = g.mera
+	var en0: float = m.stamina
+	s = [[1, "r2", true], [40, "r2", false]]
+	await _drive(g, s, 70)
+	_check("perry: bought, R2 held and released fires the energy wave and the charge drew energy", "energy_wave" in m.move_log and m.stamina < en0, "log %s energy %.1f -> %.1f" % [m.move_log, en0, m.stamina])
+	g.queue_free()
+	await process_frame
+	# ---- Bone Powder
+	C.reset()
+	C.record_clear(10)
+	C.gold = 500
+	var rp: String = C.buy("perry:bone_powder")
+	_check("perry shop: Bone Powder costs 90 gold and adds 25 max HP", rp == "" and C.perry_hp_max == 75 and C.gold == 410, "%s hp_max %d gold %d" % [rp, C.perry_hp_max, C.gold])
+	g = await _perry_new()
+	_check("perry: the next level starts her at the raised max HP", g.mera.hp_max == 75 and g.mera.hp == 75, "%d" % g.mera.hp_max)
+	g.queue_free()
+	await process_frame
+	C.gold = 2000
+	for i in 8:
+		C.buy("perry:bone_powder")
+	_check("perry shop: Bone Powder stops at 200 max HP", C.perry_hp_max == 200 and C.buy("perry:bone_powder") == "max", "%d" % C.perry_hp_max)
+	# ---- saves: Perry fields round trip, and an old save without them loads
+	C.reset()
+	_perry_clear_stage2(C)
+	C.gold = 300
+	C.buy("perry:taunt")
+	C.perry_hp_max = 100
+	C.set_character("perry")
+	C.ready = false
+	C.character = "mera"
+	C.perry_owned = {}
+	C.perry_hp_max = 50
+	C.ensure()
+	_check("saves: Perry's character, owned unlocks and max HP survive a reload", C.character == "perry" and PU.owned("taunt") and C.perry_hp_max == 100, "%s %s %d" % [C.character, C.perry_owned, C.perry_hp_max])
+	var f := FileAccess.open(C.PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"gold": 77, "potion_cap": 5, "size": 3, "clears": {"2": 1}, "moves": {"beam": true}}))
+	f.close()
+	C.ready = false
+	C.character = "perry"
+	C.perry_owned = {"thrust": true}
+	C.perry_hp_max = 150
+	C.ensure()
+	_check("saves: an old save without Perry fields loads with Mera, no unlocks and 50 HP", C.gold == 77 and C.character == "mera" and C.perry_owned.is_empty() and C.perry_hp_max == 50 and not C.perry_unlocked(), "%d %s" % [C.gold, C.character])
+	# ---- the title menu: the choice and the shop pages
+	C.reset()
+	var menu: Node = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	menu._toggle_character()
+	_check("menu: the character choice says why Perry is locked and stays Mera", menu.note.find("locked") >= 0 and C.character == "mera" and menu._page_count() == 2, menu.note)
+	_perry_clear_stage2(C)
+	C.gold = 100
+	menu._toggle_character()
+	_check("menu: with Perry unlocked X switches to her, and the shop gets two Perry pages", C.perry_selected() and menu._page_count() == 4, "%s %d" % [C.character, menu._page_count()])
+	menu.shop_page = 2
+	menu.shop_i = 1
+	var row_what: String = menu._shop_what(1)
+	var price_txt: int = menu._shop_price(1)
+	var stat_locked: String = menu._shop_stat(1)
+	menu._shop_buy()
+	_check("menu: a Perry row shows its price in gold, buying it makes the row 'owned'", row_what == "perry:thrust" and price_txt == 25 and C.gold == 75 and menu._shop_stat(1) == "owned" and stat_locked.begins_with("Clear Stage 2 level") == false, "%s %d %s gold %d" % [row_what, price_txt, stat_locked, C.gold])
+	menu.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+

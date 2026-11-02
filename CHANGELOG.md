@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.14.0-playable (2026-11-02)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.14.0_Windows.exe
+- Android: Mera_Playable_v0.14.0_Android.apk
+- **Perry is playable** once Stage 2 is cleared. X (the A key) on the level select switches between Mera and Perry. Perry has her Perry Riposte moves, parry and block, an HP bar (50, Bone Powder raises it to 200), and her 26 unlocks on two Perry shop pages at the original prices, paid in gold (scroll 15 + 10 x level, mutagen 25 + 15 x level). Controls: `docs/CONTROLS.md`.
+- **Puzzle chests.** Keys are gone. Touching a shut chest opens one of three puzzles: connect the pipes, a match-3 of enemy portraits, or stop the needle. Win to open the chest; lose and it stays shut to try again.
+- **Tests.** 599 pass, 0 fail.
+
 ## v0.13.0-playable (2026-11-02)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.13.0_Windows.exe

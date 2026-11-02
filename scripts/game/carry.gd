@@ -62,6 +62,12 @@ static var clears: Dictionary = {}   # level index (as a string key) -> times cl
 const CLEAR_GOLD_FIRST := 15         # first clear of a level
 const CLEAR_GOLD_REPEAT := 5         # each clear after that
 
+## Stage 3 phase 3 (docs/STAGE3_PLAN.md): Perry becomes playable once Stage 2 is cleared (level index 10, Moonlit Sanctum)
+const PERRY_CLEAR_LEVEL := 10
+static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
+static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
+static var perry_hp_max := Tuning.PERRY_HP_START
+
 
 static func ensure() -> void:
 	if ready:
@@ -110,6 +116,14 @@ static func _read(d: Dictionary) -> void:
 	rage = clampf(float(d.get("rage", 0.0)), 0.0, rage_max)
 	size = clampi(int(d.get("size", 2)), 1, scale_cap)
 	unlocked = maxi(int(d.get("unlocked", 0)), 0)
+	character = "perry" if String(d.get("character", "mera")) == "perry" else "mera"     # old saves: no Perry fields
+	perry_hp_max = clampi(int(d.get("perry_hp_max", Tuning.PERRY_HP_START)), Tuning.PERRY_HP_START, Tuning.PERRY_HP_CAP)
+	perry_owned = {}
+	var po = d.get("perry_owned", {})
+	if po is Dictionary:
+		for k in po:
+			if bool(po[k]) and PerryUnlocks.by_id(String(k)) != null:
+				perry_owned[String(k)] = true
 	clears = {}
 	var rc = d.get("clears", {})
 	if rc is Dictionary:
@@ -146,6 +160,9 @@ static func pack() -> Dictionary:
 		"clears": clears.duplicate(),
 		"moves": moves.duplicate(),
 		"summon_tier": summon_tier,
+		"character": character,
+		"perry_owned": perry_owned.duplicate(),
+		"perry_hp_max": perry_hp_max,
 	}
 
 
@@ -174,6 +191,9 @@ static func reset() -> void:
 	clears = {}
 	moves = {}
 	summon_tier = 0
+	character = "mera"
+	perry_owned = {}
+	perry_hp_max = Tuning.PERRY_HP_START
 	ready = true
 	save()
 	if FileAccess.file_exists(RUN_PATH):
@@ -247,6 +267,27 @@ static func record_clear(level: int) -> int:
 	clears[key] = before + 1
 	add_gold(pay)
 	return pay
+
+
+## Perry is playable once Stage 2's last level has been cleared
+static func perry_unlocked() -> bool:
+	ensure()
+	return int(clears.get(str(PERRY_CLEAR_LEVEL), 0)) > 0
+
+
+## the title menu's choice, only while Perry is unlocked
+static func perry_selected() -> bool:
+	return character == "perry" and perry_unlocked()
+
+
+## "mera" or "perry"; a locked Perry falls back to Mera
+static func set_character(who: String) -> bool:
+	ensure()
+	if who == "perry" and not perry_unlocked():
+		return false
+	character = "perry" if who == "perry" else "mera"
+	save()
+	return true
 
 
 static func add_gold(n: int) -> void:
@@ -353,6 +394,8 @@ static func buy(what: String, ally_id: String = "") -> String:
 		return _buy_move(what.substr(5))
 	if what.begins_with("summon:"):
 		return _buy_summon(int(what.substr(7)))
+	if what.begins_with("perry:"):
+		return PerryUnlocks.buy(what.substr(6))
 	match what:
 		"potion_cap":
 			if potion_cap >= POTION_CAP_MAX:

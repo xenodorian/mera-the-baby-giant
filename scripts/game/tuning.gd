@@ -208,3 +208,70 @@ const DRAGON_BOLT_MIN_DX := 160.0  # the target is at least this far in front of
 const DRAGON_BOLT_DMG := 2         # never scales with the dragon's size (enemies never scale damage)
 const DRAGON_BOLT_R := 170.0       # explosion radius
 
+
+# ---------------------------------------------------------------- Stage 3 phase 3: playable Perry (scripts/game/perry_player.gd)
+# Perry Riposte's numbers (web/game/05_health.js, 03_state.js, 00_core.js) times PERRY_DMG_SCALE, so she kills at about
+# Mera's pace at 3x (slash 25 -> 3, like a 3x Mera's 1x attack). Enemy damage to her: 1 point = PERRY_HP_PER_DMG HP.
+const PERRY_SCALE := 2.0              # art scale (integer, pixel art); her size never changes
+const PERRY_HP_START := 50
+const PERRY_HP_CAP := 200
+const PERRY_HP_STEP := 25             # Bone Powder
+const PERRY_HP_PER_DMG := 10          # 1 enemy damage point = this many HP
+const PERRY_POTION_HP := 15           # a green potion (pickup or L1) heals this much
+const PERRY_IFRAMES_S := 1.2
+const PERRY_WALK := 300.0             # px/s
+const PERRY_AIR_SPEED := 430.0        # steering in the air (px/s); 640 after the double jump
+const PERRY_AIR_SPEED_DBL := 640.0
+const PERRY_JUMP_H := 100.0           # native px: the plain jump (280 ms to the apex)
+const PERRY_JUMP_APEX_S := 0.28
+const PERRY_DBL_H := 200.0            # double jump: at most this high above the starting surface
+const PERRY_SKY_H := 300.0            # flight / sky dash arc
+const PERRY_SKY_APEX_S := 0.42
+const PERRY_SKY_LIFT := 0.6           # the sky dash move's own 492 px climb is scaled by this
+const PERRY_CRASH_MIN := 180.0        # native px: A in the air does nothing below this height
+const PERRY_CRASH_COST := 30.0
+const PERRY_CHARGE_COST := 20.0       # energy for a full charge (1 s), drawn while holding
+const PERRY_CHARGE_FULL_MS := 1000.0
+const PERRY_MIN_FIRE_MS := 250.0      # a charge released sooner does nothing
+const PERRY_TAP_MS := 150.0
+const PERRY_SEQ_MS := 400.0           # sequence window (Down Down Down Down A, B B B B B, A B A B Up ...)
+const PERRY_CHAIN_MS := 750.0         # mash A window
+const PERRY_ULT_MS := 150.0           # the four shoulders together
+const PERRY_PARRY_MS := 260.0         # a hit within this long of tapping B is parried
+const PERRY_PARRY_DMG := 10           # original points, x PERRY_DMG_SCALE
+const PERRY_PARRY_STUN_S := 2.0
+const PERRY_PARRY_KNOCK_PX := 200.0
+const PERRY_BLOCK_SLIDE_PX := 40.0
+const PERRY_DASH_IFRAME := 0.6        # fraction of the dash that cannot be hit
+const PERRY_RAINBOW_S := 5.0
+const PERRY_HEAL_EVERY_S := 0.35      # recover: HP per tick and empower per tick
+const PERRY_HEAL_AMOUNT := 5
+const PERRY_EMPOWER_START := 50.0
+const PERRY_EMPOWER_COST := 1.0
+const PERRY_EMPOWER_REGEN := 1.0      # per second, up to the max
+const PERRY_METER_CHARGE_S := 0.5     # L1 + R1: +1 of every owned meter per tick
+const PERRY_SUPER_NEED := 100.0       # rage needed for the earthquake and the meteor shower (all of it is spent)
+const PERRY_SUPER_SCALE := 0.3        # the supers hit every enemy on screen repeatedly: scaled down again
+const PERRY_BEAM_LEN := 500.0         # native px
+const PERRY_BEAM_TICK_S := 0.1
+const PERRY_WAVE_R := 75.0
+const PERRY_DMG_SCALE := 0.12
+const PERRY_DMG_ORIG := {"slash": 25, "heavy_horizontal": 50, "thrust": 15, "upswing": 15, "push_kick": 10, "heavy_kick": 25,
+	"energy_kick": 30, "energy_burst": 50, "dash_thrust": 25, "energy_dash_thrust": 50, "spin_attack": 20, "wave_blast": 50,
+	"earthquake": 250, "meteor_shower": 200, "chain2": 15, "chain3": 18, "chain4": 22, "heavy": 200, "heavy_aoe": 150, "jump_crash": 300,
+	"cloud": 5, "fire": 15, "laser": 15, "plasma": 0}
+const PERRY_BEAM_COST := {"cloud": 1.0, "fire": 3.0, "laser": 5.0, "plasma": 5.0}     # per tick; plasma pays empower, the rest energy
+const PERRY_BEAM_PUSH := {"cloud": 0.0, "fire": 5.0, "laser": 20.0, "plasma": 30.0}   # native px per tick
+const PERRY_KNOCK := {"heavy": 25.0, "slash": 25.0, "heavy_horizontal": 50.0, "push_kick": 100.0, "energy_kick": 200.0, "energy_burst": 100.0}   # native px
+const PERRY_REHIT_MS := {"earthquake": 250.0, "meteor_shower": 300.0}
+
+
+## Perry's damage for a move: the original number x PERRY_DMG_SCALE, at least 1 (the plasma beam is 0)
+static func perry_dmg(id: String) -> int:
+	var o: int = int(PERRY_DMG_ORIG.get(id, 15))
+	if o <= 0:
+		return 0
+	var v := float(o) * PERRY_DMG_SCALE
+	if id in ["earthquake", "meteor_shower"]:
+		v *= PERRY_SUPER_SCALE
+	return maxi(1, roundi(v))

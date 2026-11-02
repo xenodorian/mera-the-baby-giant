@@ -178,7 +178,32 @@ const SHOP_PAGES := [
 
 
 func _rows() -> Array:
-	return SHOP_PAGES[shop_page]
+	if shop_page < SHOP_PAGES.size():
+		return SHOP_PAGES[shop_page]
+	var ids := _perry_ids()                                  # Stage 3: Perry's pages (two, once she is unlocked)
+	var half := 14
+	var chunk: Array = ids.slice(0, half) if shop_page == SHOP_PAGES.size() else ids.slice(half)
+	return chunk.map(func(id): return "perry:" + String(id))
+
+
+func _perry_ids() -> Array:
+	var ids: Array = [PerryUnlocks.POWDER_ID]
+	for u in PerryUnlocks.LIST:
+		ids.append(String(u["id"]))
+	return ids
+
+
+func _page_count() -> int:
+	return SHOP_PAGES.size() + (2 if Carry.perry_unlocked() else 0)
+
+
+func _perry_page() -> bool:
+	return shop_page >= SHOP_PAGES.size()
+
+
+func _perry_row_id(i: int) -> String:
+	var w := _shop_what(i)
+	return w.substr(6) if w.begins_with("perry:") else ""
 
 
 func _shop_what(i: int) -> String:
@@ -191,6 +216,9 @@ func _ally_id() -> String:
 
 
 func _shop_name(i: int) -> String:
+	var pid := _perry_row_id(i)
+	if pid != "":
+		return "Bone Powder  (+%d max HP)" % Tuning.PERRY_HP_STEP if pid == PerryUnlocks.POWDER_ID else String(PerryUnlocks.by_id(pid)["name"])
 	match _shop_what(i):
 		"potion_cap":
 			return "Health potion slots"
@@ -232,6 +260,13 @@ func _shop_name(i: int) -> String:
 
 func _shop_stat(i: int) -> String:
 	var w := _shop_what(i)
+	if w.begins_with("perry:"):
+		var pid := w.substr(6)
+		if pid == PerryUnlocks.POWDER_ID:
+			return "%d / %d HP" % [Carry.perry_hp_max, Tuning.PERRY_HP_CAP]
+		if PerryUnlocks.owned(pid):
+			return "owned"
+		return PerryUnlocks.locked_reason(pid) if PerryUnlocks.locked_reason(pid) != "" else "for sale"
 	if w.begins_with("move:"):
 		if Carry.owns(w.substr(5)):
 			return "owned"
@@ -268,6 +303,8 @@ func _shop_stat(i: int) -> String:
 
 func _shop_price(i: int) -> int:
 	var w := _shop_what(i)
+	if w.begins_with("perry:"):
+		return PerryUnlocks.price(w.substr(6))
 	if w.begins_with("move:"):
 		return int(Carry.PRICE_MOVE.get(w.substr(5), 0))
 	if w.begins_with("summon:"):
@@ -294,6 +331,8 @@ func _shop_price(i: int) -> int:
 
 
 func _shop_row_rect(i: int) -> Rect2:
+	if _perry_page():
+		return Rect2(160, 244 + i * 46, 1600, 42)
 	return Rect2(160, 248 + i * 68, 1600, 62)
 
 
@@ -321,6 +360,9 @@ func _shop_buy() -> void:
 	elif result == "full":
 		note = "Card slots full."
 		Sfx.play("swipe", 0.8, -10.0)
+	elif result == "locked":
+		note = PerryUnlocks.locked_reason(what.substr(6))
+		Sfx.play("swipe", 0.8, -10.0)
 	else:
 		note = "Can't buy that."
 		Sfx.play("swipe", 0.8, -10.0)
@@ -339,7 +381,7 @@ func _shop_input(e: InputEvent) -> void:
 		shop_i = (shop_i + 1) % n
 		Sfx.play("swipe", 1.2, -8.0)
 	elif e.is_action_pressed("left") or e.is_action_pressed("right"):
-		shop_page = 1 - shop_page
+		shop_page = posmod(shop_page + (-1 if e.is_action_pressed("left") and _page_count() > 2 else 1), _page_count())
 		shop_i = mini(shop_i, _rows().size() - 1)
 		Sfx.play("swipe", 1.4, -8.0)
 	elif e.is_action_pressed("btn_x"):
@@ -355,6 +397,25 @@ func _shop_input(e: InputEvent) -> void:
 				shop_i = i
 				_shop_buy()
 				return
+
+
+## Stage 3: X (the A key) on the level select switches between Mera and Perry. Perry opens once Moonlit Sanctum is cleared.
+func _toggle_character() -> void:
+	Carry.ensure()
+	if not Carry.perry_unlocked():
+		note = "Perry is locked: clear Stage 2, Moonlit Sanctum (level %d), first." % (Carry.PERRY_CLEAR_LEVEL + 1)
+		note_t = 4.0
+		Sfx.play("swipe", 0.7, -8.0)
+		return
+	Carry.set_character("mera" if Carry.character == "perry" else "perry")
+	Sfx.play("swipe", 1.4, -8.0)
+
+
+func _character_text() -> String:
+	Carry.ensure()
+	if not Carry.perry_unlocked():
+		return "CHARACTER: MERA     Perry is locked: clear Stage 2, Moonlit Sanctum (level %d)" % (Carry.PERRY_CLEAR_LEVEL + 1)
+	return "CHARACTER: %s     X (A key): change" % ("PERRY" if Carry.perry_selected() else "MERA")
 
 
 func _move(d: int) -> void:
@@ -410,7 +471,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _click_buttons(_to_design(e.position)):
 		return
-	if e.is_action_pressed("left"):
+	if e.is_action_pressed("btn_x"):
+		_toggle_character()
+	elif e.is_action_pressed("left"):
 		_move(-1)
 	elif e.is_action_pressed("right"):
 		_move(1)
@@ -464,6 +527,7 @@ func _draw() -> void:
 		draw_string(font, Vector2(r.position.x, r.end.y + 86), sub, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18,
 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
 	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: Shop / Reset / updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 896), _character_text(), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(1.0, 0.85, 0.5) if Carry.perry_selected() else Color(0.8, 0.85, 1.0))
 	if mode == "menu":
 		_draw_note_at(930)
 	for i in 4:
@@ -539,7 +603,8 @@ func _draw_shop() -> void:
 	Carry.ensure()
 	_panel(Rect2(120, 60, 1680, 960))
 	draw_string(font, Vector2(0, 150), "SHOP", HORIZONTAL_ALIGNMENT_CENTER, 1920, 50, Color(1.0, 0.8, 0.45))
-	draw_string(font, Vector2(0, 220), "Gold: %d      page %d / 2  %s" % [Carry.gold, shop_page + 1, "stats" if shop_page == 0 else "moves and summon time"], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
+	var page_name := "stats" if shop_page == 0 else ("moves and summon time" if shop_page == 1 else "Perry %d" % (shop_page - 1))
+	draw_string(font, Vector2(0, 220), "Gold: %d      page %d / %d  %s" % [Carry.gold, shop_page + 1, _page_count(), page_name], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
 	var rows := _rows()
 	for i in rows.size():
 		var r := _shop_row_rect(i)
@@ -547,6 +612,9 @@ func _draw_shop() -> void:
 		if on:
 			draw_rect(r, Color(0.3, 0.15, 0.05, 0.8))
 		var col := Color(1, 0.9, 0.6) if on else Color(0.95, 0.9, 1.0)
+		if _perry_page():
+			_draw_perry_row(i, r, col)
+			continue
 		var y := r.position.y + 44
 		draw_string(font, Vector2(r.position.x + 24, y), _shop_name(i), HORIZONTAL_ALIGNMENT_LEFT, 860, 28, col)
 		draw_string(font, Vector2(r.position.x + 900, y), _shop_stat(i), HORIZONTAL_ALIGNMENT_LEFT, 340, 28, col)
@@ -555,6 +623,21 @@ func _draw_shop() -> void:
 		draw_string(font, Vector2(r.position.x + 1240, y), "%d g" % price, HORIZONTAL_ALIGNMENT_RIGHT, 320, 28, pc)
 	_draw_note_at(900)
 	draw_string(font, Vector2(0, 970), "Up/Down row   Left/Right page   X (A) card   A buy   B back", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
+
+
+## a Perry shop row: name, hint, owned / why it is locked, price in gold
+func _draw_perry_row(i: int, r: Rect2, col: Color) -> void:
+	var pid := _perry_row_id(i)
+	var y := r.position.y + 30
+	var owned := PerryUnlocks.owned(pid)
+	var hint := "+%d max HP, up to %d" % [Tuning.PERRY_HP_STEP, Tuning.PERRY_HP_CAP] if pid == PerryUnlocks.POWDER_ID else String(PerryUnlocks.by_id(pid)["hint"])
+	draw_string(font, Vector2(r.position.x + 16, y), _shop_name(i), HORIZONTAL_ALIGNMENT_LEFT, 480, 24, Color(0.6, 1.0, 0.65) if owned else col)
+	draw_string(font, Vector2(r.position.x + 510, y), hint, HORIZONTAL_ALIGNMENT_LEFT, 560, 18, Color(0.8, 0.8, 0.88))
+	var stat := _shop_stat(i)
+	draw_string(font, Vector2(r.position.x + 1080, y), stat, HORIZONTAL_ALIGNMENT_LEFT, 300, 20, Color(0.6, 1.0, 0.65) if owned else (Color(1.0, 0.5, 0.45) if stat.begins_with("Clear") else Color(0.85, 0.85, 0.9)))
+	if not owned or pid == PerryUnlocks.POWDER_ID:
+		var price := _shop_price(i)
+		draw_string(font, Vector2(r.position.x + 1380, y), "%d g" % price, HORIZONTAL_ALIGNMENT_RIGHT, 190, 24, Color(1.0, 0.8, 0.45) if Carry.gold >= price else Color(0.75, 0.45, 0.4))
 
 
 func _draw_update() -> void:

@@ -124,3 +124,43 @@ Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, 
 ## Gamepads on Android (v0.8 fix)
 - Godot's Android backend reports a **digital** L2/R2 (`KEYCODE_BUTTON_L2/R2`) as joypad **button 15/16** and the analog trigger as a **raw axis by device order**; the SDL mapping database then remaps known pads. Some cheap pads come out with L2 also mapped onto **Back** or **Start**, so one press fired the shield *and* opened the gallery or the controls overlay (the on-screen text the user saw on v0.4).
 - From v0.8: L2/R2 = trigger axes 4/5 **or** buttons 15/16, and nothing else may use those (a test checks that no two actions share a joypad button or axis direction). Joypad **Start/Select** are acted on ~100 ms (6 physics frames) later and **dropped if a trigger moved at the same moment** (`Controls.trigger_near`, `game.gd _menu_guard_tick`). Keyboard Enter/Tab are unaffected; Start on the Game Over screen restarts at once.
+
+
+## Perry (Stage 3, playable once Stage 2 is cleared)
+On the level select, **X (the A key)** switches between Mera and Perry. She is locked until Moonlit Sanctum (level 11, index 10) is cleared; the line under the cards says why. The choice is saved. She plays every level like Mera: same pickups, chests, allies and exit. Her own shop pages (Left / Right in the shop, pages 3 and 4) sell her unlocks for gold.
+
+Perry's buttons are Mera's buttons of the same name (Xbox names; the keyboard key is in brackets, see the keyboard table above: A = Z, B = X key, X = A key, Y = S, L1 = Q, R1 = W, L2 = 1, R2 = 2). Her base moves are free; everything else must be bought first, and a move she does not own does nothing (the press falls back to the plain move). Dash, double jump (always on), duck, block and parry are free.
+
+| Input | Move | Needs |
+|---|---|---|
+| Left / Right | walk (300 px/s) | |
+| Up | jump (about 200 px). Up again in the air: double jump (to 400 px). Down, then Up within 0.4 s: sky dash | sky dash: Sky Dash |
+| Down | duck | |
+| **A** (Z) | slash | |
+| Hold the way she faces + A | lunging thrust | Lunging Thrust |
+| The other direction + A | spin attack (hits both sides) | |
+| Down + A | ducking upswing | Ducking Upswing |
+| Hold B + A | heavy horizontal (steps forward 50) | Heavy Horizontal |
+| A, A, A, A, A | attack chain (slash, three chain strikes, then the chop for 20 energy). A x4 then B: energy burst | Attack Chain, Burst Chain |
+| Hold A after a slash | charge, release: heavy overhead chop | Heavy Overhead Chop |
+| A in the air, 180+ px up | jumping crash (30 energy) | Jumping Crash |
+| **X** (A key) | dash (free, invulnerable for most of it) | |
+| X + A (A key + Z) | dash thrust. Double tap forward, then hold X + A and let go: energy dash thrust | Dash Thrust, Energy Dash Thrust |
+| X + Y (A key + S) | taunt | Taunt |
+| **B** (X key) tap | **parry**: a hit within 0.26 s does no damage and stuns the attacker for 2 s (it takes a little damage and slides back) | |
+| **B** (X key) hold | **block**: no damage, a small slide | |
+| B x5 (taps) | meteor shower (full super: 100 rage, all of it spent) | Meteor Shower |
+| Down x4, then A | earthquake (full super) | Earthquake |
+| A, B, A, B, A, B | rainbow guard (5 s invulnerable). A, B, A, B, then Up: flight | Rainbow Guard, Flight |
+| L1 (Q) | push kick. Without it, L1 drinks a green potion (heals 15 HP). Down + L1 always drinks one | Push Kick |
+| Hold B + L1, release | energy kick | Energy Kick |
+| Hold L2 (1), release | energy burst | Energy Burst |
+| Hold R2 (2), release | energy wave | Energy Wave |
+| A + L2 / A + L1 / A + R2 | cloud beam / laser beam / fire beam (energy per tick; the cloud beam repeats while A is held) | Cloud, Laser, Fire Beam |
+| A + R1 (W) | empowerment beam (empower per tick) | Empowerment Beam |
+| R1 tap | summon an ally (as Mera). Hold R1: kneel and heal (empower) | Recover |
+| Hold L1 + R1 | meter charge: every meter she owns fills slowly | Meter Charge |
+| A x4, then L1 + L2 + R1 + R2 together | ultimate chain: taunt, then the four beams | Ultimate Chain |
+| E / L3 | drink a mana potion (+30 energy and +30 empower) | |
+
+A charged move (energy kick, burst, wave, energy dash thrust, chop) draws 20 energy per second of charge, up to 1 s; a release before 0.25 s does nothing, and a partial charge hits at 50 % to 100 % power. Chord moves (X + A, A + shoulder, X + Y, hold B + A) use Mera's 67 ms chord window and convert the first move retroactively, so every button still acts on the frame it is pressed. Perry has no Fury, lightning, bubbles or freeze slash (L2 / R2 alone are her energy burst / wave, or nothing).

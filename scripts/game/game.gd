@@ -129,8 +129,8 @@ func _ready() -> void:
 	world = Node2D.new()
 	world.name = "World"
 	add_child(world)
-	mera = Mera.new()
-	mera.name = "Mera"
+	mera = PerryPlayer.new() if Carry.perry_selected() else Mera.new()     # Stage 3: the title menu's character choice
+	mera.name = "Perry" if mera is PerryPlayer else "Mera"
 	mera.game = self
 	mera.ground_y = GROUND_Y
 	mera.position = Vector2(760, GROUND_Y)

@@ -380,6 +380,8 @@ func _tex_now() -> Texture2D:
 
 
 func _place() -> void:
+	if pa == "":
+		_set_anim("idle")
 	var m := _m(pa)
 	var fr: Array = m["frames"]
 	pk = clampi(pk, 0, fr.size() - 1)
@@ -447,7 +449,7 @@ func _place_beam() -> void:
 	var ox := (HILT.x - float(m["ao"]))              # native, from the body centre
 	var oy := HILT.y
 	var h := float(info["h"])
-	var tex := frames_tex(String(info["anim"]), 1)[0]
+	var tex: Texture2D = frames_tex(String(info["anim"]), 1)[0]
 	beam_spr.texture = tex
 	beam_spr.region_rect = Rect2(float(int(float(info["w"]) - fmod(now * 0.45, float(info["w"])))), 0, blen, h)
 	beam_spr.offset = Vector2(0, -h / 2.0)
@@ -540,7 +542,7 @@ func _physics_process(delta: float) -> void:
 	_advance_pose(delta)
 	_place()
 	if state == "move":
-		_do_hits(delta)
+		_perry_hits(delta)
 	for a in TRACK:
 		_prev_held[a] = bool(held[a])
 	if game != null:
@@ -552,6 +554,7 @@ func _log_presses() -> void:
 		if not e.has("seen"):
 			e["seen"] = true
 			hist.append({"a": e["a"], "t": e["t"]})
+			_press_sequences(e)
 	while hist.size() > 24 or (hist.size() > 0 and now - float(hist[0]["t"]) > 3000.0):
 		hist.pop_front()
 	if _prev_held.get("down", false) and not held["down"]:
@@ -564,6 +567,30 @@ func _log_presses() -> void:
 			_tap_dir = dk
 			_tap_t = now
 		_dir_prev[dk] = on
+
+
+## sequences are read the moment the last press lands, in any state (a queued press would miss its window)
+func _press_sequences(e: Dictionary) -> void:
+	if state in ["dead", "hurt"]:
+		return
+	var a := String(e["a"])
+	if a == "btn_b" and _own("rainbow") and _tail(["btn_a", "btn_b", "btn_a", "btn_b", "btn_a", "btn_b"]):
+		_use(e)
+		rainbow_t = Tuning.PERRY_RAINBOW_S
+		invuln = maxf(invuln, rainbow_t)
+		Sfx.play("heal", 0.7)
+		return
+	if state not in ["ground", "air", "move"] or not charging.is_empty():
+		return
+	if a == "btn_b" and _has("meteor_shower") and _tail(["btn_b", "btn_b", "btn_b", "btn_b", "btn_b"]) and state != "air":
+		_use(e)
+		_super("meteor_shower")
+	elif a == "btn_a" and _has("earthquake") and _tail(["down", "down", "down", "down", "btn_a"]) and state != "air":
+		_use(e)
+		_super("earthquake")
+	elif a == "up" and _own("fly") and _tail(["btn_a", "btn_b", "btn_a", "btn_b", "up"]):
+		_use(e)
+		_flight()
 
 
 func _timers(delta: float) -> void:
@@ -765,7 +792,7 @@ func _chords() -> bool:
 
 func _ult_ready() -> bool:
 	for k in SHOULDER_KEYS:
-		if not _btn_on(k) or not _near(k):
+		if not _btn_on(k) or now - _last_t(k) > Tuning.BUFFER_MS:
 			return false
 	var fresh := false
 	var lo := 1e18
@@ -882,9 +909,6 @@ func _a_action() -> bool:
 	var d := _dir()
 	var was := facing
 	_face(d)
-	# earthquake: Down four times, then A
-	if _has("earthquake") and _tail(["down", "down", "down", "down", "btn_a"]):
-		return _super("earthquake")
 	if pressed("down") and _has("upswing"):
 		return _start("upswing", {"chord_ok": true, "src": "btn_a"})
 	# hold the way she is already facing (walking): the lunge; press the other way together with A: the spin (base move)
@@ -911,13 +935,6 @@ func _a_action() -> bool:
 
 
 func _b_action() -> bool:
-	if _own("rainbow") and _tail(["btn_a", "btn_b", "btn_a", "btn_b", "btn_a", "btn_b"]):
-		rainbow_t = Tuning.PERRY_RAINBOW_S
-		invuln = maxf(invuln, rainbow_t)
-		Sfx.play("heal", 0.7)
-		return false
-	if _has("meteor_shower") and _tail(["btn_b", "btn_b", "btn_b", "btn_b", "btn_b"]):
-		return _super("meteor_shower")
 	if _own("chain_burst") and int(chain["n"]) == 4 and now - float(chain["t"]) <= Tuning.PERRY_CHAIN_MS:
 		chain = {"n": 0, "t": -1e9}
 		if stamina < 1.0:
@@ -946,8 +963,6 @@ func _sky_dash() -> bool:
 func _jump_press() -> bool:
 	if _own("sky_dash") and now - down_rel_t <= Tuning.PERRY_SEQ_MS and not held["down"]:
 		return _sky_dash()
-	if _own("fly") and _tail(["btn_a", "btn_b", "btn_a", "btn_b", "up"]):
-		return _flight()
 	if on_ground and state == "ground":
 		on_ground = false
 		state = "air"
@@ -960,8 +975,11 @@ func _jump_press() -> bool:
 
 
 func _flight() -> bool:
-	if state != "ground" and state != "air":
+	if state == "move":
+		_cancel_move_state()
+	elif state != "ground" and state != "air":
 		return false
+	charging = {}
 	state = "air"
 	on_ground = false
 	var h := Tuning.PERRY_SKY_H * S
@@ -1047,6 +1065,11 @@ func _end_move() -> void:
 
 
 func _begin_charge(id: String, keys: Array) -> void:
+	if state == "move":                                  # a chord converted a move that had just started
+		_cancel_move_state()
+		state = "ground"
+	vel.x = 0.0
+	block_hold = false
 	charging = {"move": id, "keys": keys, "ms": 0.0}
 	pa = ""
 	_set_anim("charge")
@@ -1131,10 +1154,6 @@ func _air_tick(delta: float) -> void:
 		if e["used"] or now - float(e["t"]) > Tuning.BUFFER_MS:
 			continue
 		var a := String(e["a"])
-		if a == "up" and _own("fly") and _tail(["btn_a", "btn_b", "btn_a", "btn_b", "up"]):
-			_use(e)
-			_flight()
-			return
 		if a == "up" and not dbl_used:
 			var room := Tuning.PERRY_DBL_H * S - air_height()
 			if room > 8.0:
@@ -1253,7 +1272,7 @@ func _beam_tick(delta: float, key: String) -> void:
 		pt = 0.0
 
 
-func _do_hits(delta: float) -> void:
+func _perry_hits(delta: float) -> void:
 	if game == null:
 		return
 	var key := String(mv.get("key", ""))

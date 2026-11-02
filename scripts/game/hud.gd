@@ -151,16 +151,20 @@ func _draw_ui() -> void:
 	var pip_w := 40.0 if cap <= 6 else 30.0
 	var panel_w := maxf(560.0, 190.0 + float(cap) * step + 24.0)
 	ui.draw_rect(Rect2(20 + hx, 16, panel_w, 196), Color(0.04, 0.03, 0.07, 0.55))
-	_txt(Vector2(36 + hx, 52), "SIZE  %dx" % m.size, 34)
-	for i in cap:
-		var on := i < m.size
-		var r := Rect2(200 + hx + float(i) * step, 28, pip_w, 26)
-		ui.draw_rect(r, Color(0.98, 0.66, 0.33) if on else Color(0.2, 0.16, 0.22))
-		ui.draw_rect(r, Color(0.05, 0.03, 0.06), false, 3.0)
-	if m.size > cap:
-		_txt(Vector2(200 + hx + float(cap) * step, 52), "+%d" % (m.size - cap), 22)
+	var perry: bool = m.get("is_perry") == true          # Stage 3: Perry shows an HP bar instead of the size pips
+	if perry:
+		PerryHud.draw_hp(ui, font, m, hx)
+	else:
+		_txt(Vector2(36 + hx, 52), "SIZE  %dx" % m.size, 34)
+		for i in cap:
+			var on := i < m.size
+			var r := Rect2(200 + hx + float(i) * step, 28, pip_w, 26)
+			ui.draw_rect(r, Color(0.98, 0.66, 0.33) if on else Color(0.2, 0.16, 0.22))
+			ui.draw_rect(r, Color(0.05, 0.03, 0.06), false, 3.0)
+		if m.size > cap:
+			_txt(Vector2(200 + hx + float(cap) * step, 52), "+%d" % (m.size - cap), 22)
 	# rage / fury
-	_txt(Vector2(36 + hx, 100), "FURY" if m.fury else "RAGE", 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
+	_txt(Vector2(36 + hx, 100), "FURY" if m.fury else ("SUPER" if perry else "RAGE"), 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
 	var w := 330.0
 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.15, 0.03, 0.06))
 	var fc := Color(0.86, 0.08, 0.12) if m.fury else (Color(1.0, 0.25, 0.2) if m.rage >= 100.0 else Color(0.7, 0.12, 0.14))
@@ -168,7 +172,7 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140 + hx, 78, w * clampf(rage_frac, 0.0, 1.0), 26), fc)
 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482 + hx, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
-	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
+	if m.rage >= 100.0 and not m.fury and not perry and int(Time.get_ticks_msec() / 300) % 2 == 0:
 		_txt(Vector2(140 + hx, 136), "R2 LIGHTNING   ·   L2+R2 FURY   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
 		_txt(Vector2(200 + hx, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
@@ -209,7 +213,7 @@ func _draw_ui() -> void:
 		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
 	if _flash == "stamina" and _flash_t > 0.0:
 		sc = Color(1, 0.3, 0.3)
-	_txt(Vector2(36 + hx, 194), "MANA", 26, Color(0.6, 0.8, 1.0))
+	_txt(Vector2(36 + hx, 194), "ENERGY" if perry else "MANA", 26, Color(0.6, 0.8, 1.0))
 	ui.draw_rect(Rect2(140 + hx, 172, sw, 22), Color(0.04, 0.08, 0.18))
 	ui.draw_rect(Rect2(140 + hx, 172, sw * m.stamina / maxf(m.stamina_max, 1.0), 22), sc)
 	ui.draw_rect(Rect2(140 + hx, 172, sw, 22), Color(0.05, 0.03, 0.06), false, 3.0)

@@ -53,7 +53,7 @@ Mera's camera only scrolls sideways (it stays at y 540), so a Changeling map is 
 | 0 | This plan | Opus | done |
 | 1 | Puzzle chests: remove keys; pipes, enemy-portrait match-3 and stop-the-needle mini games (`scripts/puzzles/`), touch and pad controls, tests | Sonnet, reviewed by Opus | done (565 pass) |
 | 2 | Changeling art: copy the LPC sheets, tiles and credits; cut the frames into `assets/characters/changeling/<id>/<anim>/` (`tools/build_changeling.py`) | Haiku, reviewed by Opus | done |
-| 3 | Playable Perry: character select, `perry_player.gd`, her moves and inputs, Perry shop page with her unlocks in gold, tests | Sonnet, reviewed by Opus | in progress: art, player script and unlock list pushed; wiring and tests pending |
+| 3 | Playable Perry: character select, `perry_player.gd`, her moves and inputs, Perry shop page with her unlocks in gold, tests | Sonnet, reviewed by Opus | done (599 pass) |
 | 4 | Ladders and run-time platforms (world objects, Mera climbing, one-way landing) | Sonnet | |
 | 5 | Stage 3 maps: `tools/build_stage3.py` renders the 8 tile grids into level art, surfaces and ladders; levels.json and thumbs; menu page 3 | Haiku (art), Sonnet (conversion rules) | |
 | 6 | Stage 3 enemies (grunt, mud revenant, rat king, archer, Warlord, and the four faces as enemies) in `Roster.DEFS`, waves, bosses | Opus | |
@@ -61,6 +61,6 @@ Mera's camera only scrolls sideways (it stays at y 540), so a Changeling map is 
 | 8 | Full tests, export list, credits, docs, release | Opus | |
 
 ## Resume notes (for the next session)
-- Phase 3: the move frames are pushed (`tools/build_perry_player.py`, `assets/perry/perry_player.json`), along with `scripts/game/perry_player.gd`, `perry_unlocks.gd` and `perry_hud.gd`. None of it is wired into the game yet. The wiring (the player switch in `game.gd`, the character choice and Perry shop page in `menu.gd`, the Perry fields in `carry.gd`, `hud.gd`) and the tests were in progress when this note was written. If they are not on main, redo them from the Phase 3 spec above.
+- Phase 3 is done (v0.14.0). Earlier note: the move frames are pushed (`tools/build_perry_player.py`, `assets/perry/perry_player.json`), along with `scripts/game/perry_player.gd`, `perry_unlocks.gd` and `perry_hud.gd`. None of it is wired into the game yet. The wiring (the player switch in `game.gd`, the character choice and Perry shop page in `menu.gd`, the Perry fields in `carry.gd`, `hud.gd`) and the tests were in progress when this note was written. If they are not on main, redo them from the Phase 3 spec above.
 - Phases 4 to 8 are not started. The Changeling art for them is on main.
 - Open design question for the owner: should a chest need a button press (Up) to open its puzzle, instead of opening when Mera walks into it?
