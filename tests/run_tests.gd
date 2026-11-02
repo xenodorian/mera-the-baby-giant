@@ -1410,12 +1410,19 @@ func _run() -> void:
 						if e.state in ["idle", "move"] and e.hurt_cd <= 0.0:
 							break
 						await physics_frame
+					e.hp = maxi(e.hp, 2)                                   # a weak one must live through the flinch
 					e.take_damage(1, m.global_position.x)
 					for f in 40:
 						await physics_frame
+						if is_instance_valid(e):
+							for a in e.played:
+								used[a] = true
 				if is_instance_valid(e) and e.alive() and e.d.has("death"):    # and plays its death animation as it falls
 					e.take_damage(e.hp, m.global_position.x)
 					await physics_frame
+					if is_instance_valid(e):
+						for a in e.played:
+							used[a] = true
 				if is_instance_valid(e):
 					for a in e.played:
 						used[a] = true
