@@ -1,0 +1,417 @@
+diff --git a/scripts/game/carry.gd b/scripts/game/carry.gd
+index 385e154..90a01fa 100644
+--- a/scripts/game/carry.gd
++++ b/scripts/game/carry.gd
+@@ -62,6 +62,12 @@ static var clears: Dictionary = {}   # level index (as a string key) -> times cl
+ const CLEAR_GOLD_FIRST := 15         # first clear of a level
+ const CLEAR_GOLD_REPEAT := 5         # each clear after that
+ 
++## Stage 3 phase 3 (docs/STAGE3_PLAN.md): Perry becomes playable once Stage 2 is cleared (level index 10, Moonlit Sanctum)
++const PERRY_CLEAR_LEVEL := 10
++static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
++static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
++static var perry_hp_max := Tuning.PERRY_HP_START
++
+ 
+ static func ensure() -> void:
+ 	if ready:
+@@ -110,6 +116,14 @@ static func _read(d: Dictionary) -> void:
+ 	rage = clampf(float(d.get("rage", 0.0)), 0.0, rage_max)
+ 	size = clampi(int(d.get("size", 2)), 1, scale_cap)
+ 	unlocked = maxi(int(d.get("unlocked", 0)), 0)
++	character = "perry" if String(d.get("character", "mera")) == "perry" else "mera"     # old saves: no Perry fields
++	perry_hp_max = clampi(int(d.get("perry_hp_max", Tuning.PERRY_HP_START)), Tuning.PERRY_HP_START, Tuning.PERRY_HP_CAP)
++	perry_owned = {}
++	var po = d.get("perry_owned", {})
++	if po is Dictionary:
++		for k in po:
++			if bool(po[k]) and PerryUnlocks.by_id(String(k)) != null:
++				perry_owned[String(k)] = true
+ 	clears = {}
+ 	var rc = d.get("clears", {})
+ 	if rc is Dictionary:
+@@ -146,6 +160,9 @@ static func pack() -> Dictionary:
+ 		"clears": clears.duplicate(),
+ 		"moves": moves.duplicate(),
+ 		"summon_tier": summon_tier,
++		"character": character,
++		"perry_owned": perry_owned.duplicate(),
++		"perry_hp_max": perry_hp_max,
+ 	}
+ 
+ 
+@@ -174,6 +191,9 @@ static func reset() -> void:
+ 	clears = {}
+ 	moves = {}
+ 	summon_tier = 0
++	character = "mera"
++	perry_owned = {}
++	perry_hp_max = Tuning.PERRY_HP_START
+ 	ready = true
+ 	save()
+ 	if FileAccess.file_exists(RUN_PATH):
+@@ -249,6 +269,27 @@ static func record_clear(level: int) -> int:
+ 	return pay
+ 
+ 
++## Perry is playable once Stage 2's last level has been cleared
++static func perry_unlocked() -> bool:
++	ensure()
++	return int(clears.get(str(PERRY_CLEAR_LEVEL), 0)) > 0
++
++
++## the title menu's choice, only while Perry is unlocked
++static func perry_selected() -> bool:
++	return character == "perry" and perry_unlocked()
++
++
++## "mera" or "perry"; a locked Perry falls back to Mera
++static func set_character(who: String) -> bool:
++	ensure()
++	if who == "perry" and not perry_unlocked():
++		return false
++	character = "perry" if who == "perry" else "mera"
++	save()
++	return true
++
++
+ static func add_gold(n: int) -> void:
+ 	ensure()
+ 	gold = maxi(0, gold + n)
+@@ -353,6 +394,8 @@ static func buy(what: String, ally_id: String = "") -> String:
+ 		return _buy_move(what.substr(5))
+ 	if what.begins_with("summon:"):
+ 		return _buy_summon(int(what.substr(7)))
++	if what.begins_with("perry:"):
++		return PerryUnlocks.buy(what.substr(6))
+ 	match what:
+ 		"potion_cap":
+ 			if potion_cap >= POTION_CAP_MAX:
+diff --git a/scripts/game/game.gd b/scripts/game/game.gd
+index 3c9b79c..cd3f09f 100644
+--- a/scripts/game/game.gd
++++ b/scripts/game/game.gd
+@@ -129,8 +129,8 @@ func _ready() -> void:
+ 	world = Node2D.new()
+ 	world.name = "World"
+ 	add_child(world)
+-	mera = Mera.new()
+-	mera.name = "Mera"
++	mera = PerryPlayer.new() if Carry.perry_selected() else Mera.new()     # Stage 3: the title menu's character choice
++	mera.name = "Perry" if mera is PerryPlayer else "Mera"
+ 	mera.game = self
+ 	mera.ground_y = GROUND_Y
+ 	mera.position = Vector2(760, GROUND_Y)
+diff --git a/scripts/game/hud.gd b/scripts/game/hud.gd
+index 7f6aa6b..eeaf21c 100644
+--- a/scripts/game/hud.gd
++++ b/scripts/game/hud.gd
+@@ -151,16 +151,20 @@ func _draw_ui() -> void:
+ 	var pip_w := 40.0 if cap <= 6 else 30.0
+ 	var panel_w := maxf(560.0, 190.0 + float(cap) * step + 24.0)
+ 	ui.draw_rect(Rect2(20 + hx, 16, panel_w, 196), Color(0.04, 0.03, 0.07, 0.55))
+-	_txt(Vector2(36 + hx, 52), "SIZE  %dx" % m.size, 34)
+-	for i in cap:
+-		var on := i < m.size
+-		var r := Rect2(200 + hx + float(i) * step, 28, pip_w, 26)
+-		ui.draw_rect(r, Color(0.98, 0.66, 0.33) if on else Color(0.2, 0.16, 0.22))
+-		ui.draw_rect(r, Color(0.05, 0.03, 0.06), false, 3.0)
+-	if m.size > cap:
+-		_txt(Vector2(200 + hx + float(cap) * step, 52), "+%d" % (m.size - cap), 22)
++	var perry: bool = m.get("is_perry") == true          # Stage 3: Perry shows an HP bar instead of the size pips
++	if perry:
++		PerryHud.draw_hp(ui, font, m, hx)
++	else:
++		_txt(Vector2(36 + hx, 52), "SIZE  %dx" % m.size, 34)
++		for i in cap:
++			var on := i < m.size
++			var r := Rect2(200 + hx + float(i) * step, 28, pip_w, 26)
++			ui.draw_rect(r, Color(0.98, 0.66, 0.33) if on else Color(0.2, 0.16, 0.22))
++			ui.draw_rect(r, Color(0.05, 0.03, 0.06), false, 3.0)
++		if m.size > cap:
++			_txt(Vector2(200 + hx + float(cap) * step, 52), "+%d" % (m.size - cap), 22)
+ 	# rage / fury
+-	_txt(Vector2(36 + hx, 100), "FURY" if m.fury else "RAGE", 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
++	_txt(Vector2(36 + hx, 100), "FURY" if m.fury else ("SUPER" if perry else "RAGE"), 26, Color(1, 0.35, 0.3) if m.fury else Color(0.95, 0.92, 0.88))
+ 	var w := 330.0
+ 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.15, 0.03, 0.06))
+ 	var fc := Color(0.86, 0.08, 0.12) if m.fury else (Color(1.0, 0.25, 0.2) if m.rage >= 100.0 else Color(0.7, 0.12, 0.14))
+@@ -168,7 +172,7 @@ func _draw_ui() -> void:
+ 	ui.draw_rect(Rect2(140 + hx, 78, w * clampf(rage_frac, 0.0, 1.0), 26), fc)
+ 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
+ 	_txt(Vector2(482 + hx, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
+-	if m.rage >= 100.0 and not m.fury and int(Time.get_ticks_msec() / 300) % 2 == 0:
++	if m.rage >= 100.0 and not m.fury and not perry and int(Time.get_ticks_msec() / 300) % 2 == 0:
+ 		_txt(Vector2(140 + hx, 136), "R2 LIGHTNING   ·   L2+R2 FURY   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
+ 	if _flash == "rage" and _flash_t > 0.0:
+ 		_txt(Vector2(200 + hx, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
+@@ -209,7 +213,7 @@ func _draw_ui() -> void:
+ 		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
+ 	if _flash == "stamina" and _flash_t > 0.0:
+ 		sc = Color(1, 0.3, 0.3)
+-	_txt(Vector2(36 + hx, 194), "MANA", 26, Color(0.6, 0.8, 1.0))
++	_txt(Vector2(36 + hx, 194), "ENERGY" if perry else "MANA", 26, Color(0.6, 0.8, 1.0))
+ 	ui.draw_rect(Rect2(140 + hx, 172, sw, 22), Color(0.04, 0.08, 0.18))
+ 	ui.draw_rect(Rect2(140 + hx, 172, sw * m.stamina / maxf(m.stamina_max, 1.0), 22), sc)
+ 	ui.draw_rect(Rect2(140 + hx, 172, sw, 22), Color(0.05, 0.03, 0.06), false, 3.0)
+diff --git a/scripts/game/tuning.gd b/scripts/game/tuning.gd
+index 657c92f..58b7ff2 100644
+--- a/scripts/game/tuning.gd
++++ b/scripts/game/tuning.gd
+@@ -208,3 +208,70 @@ const DRAGON_BOLT_MIN_DX := 160.0  # the target is at least this far in front of
+ const DRAGON_BOLT_DMG := 2         # never scales with the dragon's size (enemies never scale damage)
+ const DRAGON_BOLT_R := 170.0       # explosion radius
+ 
++
++# ---------------------------------------------------------------- Stage 3 phase 3: playable Perry (scripts/game/perry_player.gd)
++# Perry Riposte's numbers (web/game/05_health.js, 03_state.js, 00_core.js) times PERRY_DMG_SCALE, so she kills at about
++# Mera's pace at 3x (slash 25 -> 3, like a 3x Mera's 1x attack). Enemy damage to her: 1 point = PERRY_HP_PER_DMG HP.
++const PERRY_SCALE := 2.0              # art scale (integer, pixel art); her size never changes
++const PERRY_HP_START := 50
++const PERRY_HP_CAP := 200
++const PERRY_HP_STEP := 25             # Bone Powder
++const PERRY_HP_PER_DMG := 10          # 1 enemy damage point = this many HP
++const PERRY_POTION_HP := 15           # a green potion (pickup or L1) heals this much
++const PERRY_IFRAMES_S := 1.2
++const PERRY_WALK := 300.0             # px/s
++const PERRY_AIR_SPEED := 430.0        # steering in the air (px/s); 640 after the double jump
++const PERRY_AIR_SPEED_DBL := 640.0
++const PERRY_JUMP_H := 100.0           # native px: the plain jump (280 ms to the apex)
++const PERRY_JUMP_APEX_S := 0.28
++const PERRY_DBL_H := 200.0            # double jump: at most this high above the starting surface
++const PERRY_SKY_H := 300.0            # flight / sky dash arc
++const PERRY_SKY_APEX_S := 0.42
++const PERRY_SKY_LIFT := 0.6           # the sky dash move's own 492 px climb is scaled by this
++const PERRY_CRASH_MIN := 180.0        # native px: A in the air does nothing below this height
++const PERRY_CRASH_COST := 30.0
++const PERRY_CHARGE_COST := 20.0       # energy for a full charge (1 s), drawn while holding
++const PERRY_CHARGE_FULL_MS := 1000.0
++const PERRY_MIN_FIRE_MS := 250.0      # a charge released sooner does nothing
++const PERRY_TAP_MS := 150.0
++const PERRY_SEQ_MS := 400.0           # sequence window (Down Down Down Down A, B B B B B, A B A B Up ...)
++const PERRY_CHAIN_MS := 750.0         # mash A window
++const PERRY_ULT_MS := 150.0           # the four shoulders together
++const PERRY_PARRY_MS := 260.0         # a hit within this long of tapping B is parried
++const PERRY_PARRY_DMG := 10           # original points, x PERRY_DMG_SCALE
++const PERRY_PARRY_STUN_S := 2.0
++const PERRY_PARRY_KNOCK_PX := 200.0
++const PERRY_BLOCK_SLIDE_PX := 40.0
++const PERRY_DASH_IFRAME := 0.6        # fraction of the dash that cannot be hit
++const PERRY_RAINBOW_S := 5.0
++const PERRY_HEAL_EVERY_S := 0.35      # recover: HP per tick and empower per tick
++const PERRY_HEAL_AMOUNT := 5
++const PERRY_EMPOWER_START := 50.0
++const PERRY_EMPOWER_COST := 1.0
++const PERRY_EMPOWER_REGEN := 1.0      # per second, up to the max
++const PERRY_METER_CHARGE_S := 0.5     # L1 + R1: +1 of every owned meter per tick
++const PERRY_SUPER_NEED := 100.0       # rage needed for the earthquake and the meteor shower (all of it is spent)
++const PERRY_SUPER_SCALE := 0.3        # the supers hit every enemy on screen repeatedly: scaled down again
++const PERRY_BEAM_LEN := 500.0         # native px
++const PERRY_BEAM_TICK_S := 0.1
++const PERRY_WAVE_R := 75.0
++const PERRY_DMG_SCALE := 0.12
++const PERRY_DMG_ORIG := {"slash": 25, "heavy_horizontal": 50, "thrust": 15, "upswing": 15, "push_kick": 10, "heavy_kick": 25,
++	"energy_kick": 30, "energy_burst": 50, "dash_thrust": 25, "energy_dash_thrust": 50, "spin_attack": 20, "wave_blast": 50,
++	"earthquake": 250, "meteor_shower": 200, "chain2": 15, "chain3": 18, "chain4": 22, "heavy": 200, "heavy_aoe": 150, "jump_crash": 300,
++	"cloud": 5, "fire": 15, "laser": 15, "plasma": 0}
++const PERRY_BEAM_COST := {"cloud": 1.0, "fire": 3.0, "laser": 5.0, "plasma": 5.0}     # per tick; plasma pays empower, the rest energy
++const PERRY_BEAM_PUSH := {"cloud": 0.0, "fire": 5.0, "laser": 20.0, "plasma": 30.0}   # native px per tick
++const PERRY_KNOCK := {"heavy": 25.0, "slash": 25.0, "heavy_horizontal": 50.0, "push_kick": 100.0, "energy_kick": 200.0, "energy_burst": 100.0}   # native px
++const PERRY_REHIT_MS := {"earthquake": 250.0, "meteor_shower": 300.0}
++
++
++## Perry's damage for a move: the original number x PERRY_DMG_SCALE, at least 1 (the plasma beam is 0)
++static func perry_dmg(id: String) -> int:
++	var o: int = int(PERRY_DMG_ORIG.get(id, 15))
++	if o <= 0:
++		return 0
++	var v := float(o) * PERRY_DMG_SCALE
++	if id in ["earthquake", "meteor_shower"]:
++		v *= PERRY_SUPER_SCALE
++	return maxi(1, roundi(v))
+diff --git a/scripts/menu.gd b/scripts/menu.gd
+index 581965c..dcdd742 100644
+--- a/scripts/menu.gd
++++ b/scripts/menu.gd
+@@ -178,7 +178,32 @@ const SHOP_PAGES := [
+ 
+ 
+ func _rows() -> Array:
+-	return SHOP_PAGES[shop_page]
++	if shop_page < SHOP_PAGES.size():
++		return SHOP_PAGES[shop_page]
++	var ids := _perry_ids()                                  # Stage 3: Perry's pages (two, once she is unlocked)
++	var half := 14
++	var chunk: Array = ids.slice(0, half) if shop_page == SHOP_PAGES.size() else ids.slice(half)
++	return chunk.map(func(id): return "perry:" + String(id))
++
++
++func _perry_ids() -> Array:
++	var ids: Array = [PerryUnlocks.POWDER_ID]
++	for u in PerryUnlocks.LIST:
++		ids.append(String(u["id"]))
++	return ids
++
++
++func _page_count() -> int:
++	return SHOP_PAGES.size() + (2 if Carry.perry_unlocked() else 0)
++
++
++func _perry_page() -> bool:
++	return shop_page >= SHOP_PAGES.size()
++
++
++func _perry_row_id(i: int) -> String:
++	var w := _shop_what(i)
++	return w.substr(6) if w.begins_with("perry:") else ""
+ 
+ 
+ func _shop_what(i: int) -> String:
+@@ -191,6 +216,9 @@ func _ally_id() -> String:
+ 
+ 
+ func _shop_name(i: int) -> String:
++	var pid := _perry_row_id(i)
++	if pid != "":
++		return "Bone Powder  (+%d max HP)" % Tuning.PERRY_HP_STEP if pid == PerryUnlocks.POWDER_ID else String(PerryUnlocks.by_id(pid)["name"])
+ 	match _shop_what(i):
+ 		"potion_cap":
+ 			return "Health potion slots"
+@@ -232,6 +260,13 @@ func _shop_name(i: int) -> String:
+ 
+ func _shop_stat(i: int) -> String:
+ 	var w := _shop_what(i)
++	if w.begins_with("perry:"):
++		var pid := w.substr(6)
++		if pid == PerryUnlocks.POWDER_ID:
++			return "%d / %d HP" % [Carry.perry_hp_max, Tuning.PERRY_HP_CAP]
++		if PerryUnlocks.owned(pid):
++			return "owned"
++		return PerryUnlocks.locked_reason(pid) if PerryUnlocks.locked_reason(pid) != "" else "for sale"
+ 	if w.begins_with("move:"):
+ 		if Carry.owns(w.substr(5)):
+ 			return "owned"
+@@ -268,6 +303,8 @@ func _shop_stat(i: int) -> String:
+ 
+ func _shop_price(i: int) -> int:
+ 	var w := _shop_what(i)
++	if w.begins_with("perry:"):
++		return PerryUnlocks.price(w.substr(6))
+ 	if w.begins_with("move:"):
+ 		return int(Carry.PRICE_MOVE.get(w.substr(5), 0))
+ 	if w.begins_with("summon:"):
+@@ -294,6 +331,8 @@ func _shop_price(i: int) -> int:
+ 
+ 
+ func _shop_row_rect(i: int) -> Rect2:
++	if _perry_page():
++		return Rect2(160, 244 + i * 46, 1600, 42)
+ 	return Rect2(160, 248 + i * 68, 1600, 62)
+ 
+ 
+@@ -321,6 +360,9 @@ func _shop_buy() -> void:
+ 	elif result == "full":
+ 		note = "Card slots full."
+ 		Sfx.play("swipe", 0.8, -10.0)
++	elif result == "locked":
++		note = PerryUnlocks.locked_reason(what.substr(6))
++		Sfx.play("swipe", 0.8, -10.0)
+ 	else:
+ 		note = "Can't buy that."
+ 		Sfx.play("swipe", 0.8, -10.0)
+@@ -339,7 +381,7 @@ func _shop_input(e: InputEvent) -> void:
+ 		shop_i = (shop_i + 1) % n
+ 		Sfx.play("swipe", 1.2, -8.0)
+ 	elif e.is_action_pressed("left") or e.is_action_pressed("right"):
+-		shop_page = 1 - shop_page
++		shop_page = posmod(shop_page + (-1 if e.is_action_pressed("left") and _page_count() > 2 else 1), _page_count())
+ 		shop_i = mini(shop_i, _rows().size() - 1)
+ 		Sfx.play("swipe", 1.4, -8.0)
+ 	elif e.is_action_pressed("btn_x"):
+@@ -357,6 +399,25 @@ func _shop_input(e: InputEvent) -> void:
+ 				return
+ 
+ 
++## Stage 3: X (the A key) on the level select switches between Mera and Perry. Perry opens once Moonlit Sanctum is cleared.
++func _toggle_character() -> void:
++	Carry.ensure()
++	if not Carry.perry_unlocked():
++		note = "Perry is locked: clear Stage 2, Moonlit Sanctum (level %d), first." % (Carry.PERRY_CLEAR_LEVEL + 1)
++		note_t = 4.0
++		Sfx.play("swipe", 0.7, -8.0)
++		return
++	Carry.set_character("mera" if Carry.character == "perry" else "perry")
++	Sfx.play("swipe", 1.4, -8.0)
++
++
++func _character_text() -> String:
++	Carry.ensure()
++	if not Carry.perry_unlocked():
++		return "CHARACTER: MERA     Perry is locked: clear Stage 2, Moonlit Sanctum (level %d)" % (Carry.PERRY_CLEAR_LEVEL + 1)
++	return "CHARACTER: %s     X (A key): change" % ("PERRY" if Carry.perry_selected() else "MERA")
++
++
+ func _move(d: int) -> void:
+ 	sel = (sel + d + thumbs.size()) % thumbs.size()
+ 	Sfx.play("swipe", 1.4, -8.0)
+@@ -410,7 +471,9 @@ func _unhandled_input(e: InputEvent) -> void:
+ 		return
+ 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _click_buttons(_to_design(e.position)):
+ 		return
+-	if e.is_action_pressed("left"):
++	if e.is_action_pressed("btn_x"):
++		_toggle_character()
++	elif e.is_action_pressed("left"):
+ 		_move(-1)
+ 	elif e.is_action_pressed("right"):
+ 		_move(1)
+@@ -464,6 +527,7 @@ func _draw() -> void:
+ 		draw_string(font, Vector2(r.position.x, r.end.y + 86), sub, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18,
+ 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
+ 	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: Shop / Reset / updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
++	draw_string(font, Vector2(0, 896), _character_text(), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(1.0, 0.85, 0.5) if Carry.perry_selected() else Color(0.8, 0.85, 1.0))
+ 	if mode == "menu":
+ 		_draw_note_at(930)
+ 	for i in 4:
+@@ -539,7 +603,8 @@ func _draw_shop() -> void:
+ 	Carry.ensure()
+ 	_panel(Rect2(120, 60, 1680, 960))
+ 	draw_string(font, Vector2(0, 150), "SHOP", HORIZONTAL_ALIGNMENT_CENTER, 1920, 50, Color(1.0, 0.8, 0.45))
+-	draw_string(font, Vector2(0, 220), "Gold: %d      page %d / 2  %s" % [Carry.gold, shop_page + 1, "stats" if shop_page == 0 else "moves and summon time"], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
++	var page_name := "stats" if shop_page == 0 else ("moves and summon time" if shop_page == 1 else "Perry %d" % (shop_page - 1))
++	draw_string(font, Vector2(0, 220), "Gold: %d      page %d / %d  %s" % [Carry.gold, shop_page + 1, _page_count(), page_name], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
+ 	var rows := _rows()
+ 	for i in rows.size():
+ 		var r := _shop_row_rect(i)
+@@ -547,6 +612,9 @@ func _draw_shop() -> void:
+ 		if on:
+ 			draw_rect(r, Color(0.3, 0.15, 0.05, 0.8))
+ 		var col := Color(1, 0.9, 0.6) if on else Color(0.95, 0.9, 1.0)
++		if _perry_page():
++			_draw_perry_row(i, r, col)
++			continue
+ 		var y := r.position.y + 44
+ 		draw_string(font, Vector2(r.position.x + 24, y), _shop_name(i), HORIZONTAL_ALIGNMENT_LEFT, 860, 28, col)
+ 		draw_string(font, Vector2(r.position.x + 900, y), _shop_stat(i), HORIZONTAL_ALIGNMENT_LEFT, 340, 28, col)
+@@ -557,6 +625,21 @@ func _draw_shop() -> void:
+ 	draw_string(font, Vector2(0, 970), "Up/Down row   Left/Right page   X (A) card   A buy   B back", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
+ 
+ 
++## a Perry shop row: name, hint, owned / why it is locked, price in gold
++func _draw_perry_row(i: int, r: Rect2, col: Color) -> void:
++	var pid := _perry_row_id(i)
++	var y := r.position.y + 30
++	var owned := PerryUnlocks.owned(pid)
++	var hint := "+%d max HP, up to %d" % [Tuning.PERRY_HP_STEP, Tuning.PERRY_HP_CAP] if pid == PerryUnlocks.POWDER_ID else String(PerryUnlocks.by_id(pid)["hint"])
++	draw_string(font, Vector2(r.position.x + 16, y), _shop_name(i), HORIZONTAL_ALIGNMENT_LEFT, 480, 24, Color(0.6, 1.0, 0.65) if owned else col)
++	draw_string(font, Vector2(r.position.x + 510, y), hint, HORIZONTAL_ALIGNMENT_LEFT, 560, 18, Color(0.8, 0.8, 0.88))
++	var stat := _shop_stat(i)
++	draw_string(font, Vector2(r.position.x + 1080, y), stat, HORIZONTAL_ALIGNMENT_LEFT, 300, 20, Color(0.6, 1.0, 0.65) if owned else (Color(1.0, 0.5, 0.45) if stat.begins_with("Clear") else Color(0.85, 0.85, 0.9)))
++	if not owned or pid == PerryUnlocks.POWDER_ID:
++		var price := _shop_price(i)
++		draw_string(font, Vector2(r.position.x + 1380, y), "%d g" % price, HORIZONTAL_ALIGNMENT_RIGHT, 190, 24, Color(1.0, 0.8, 0.45) if Carry.gold >= price else Color(0.75, 0.45, 0.4))
++
++
+ func _draw_update() -> void:
+ 	var r := Rect2(360, 300, 1200, 440)
+ 	_panel(r)
