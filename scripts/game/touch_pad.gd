@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Android on-screen pad. Shown unless a gamepad is connected, then it fades out.
 ## Grayscale. Xbox diamond (Y top, B right, A bottom, X left), not Xbox colors.
-## The phone's volume buttons pause and open the controls list. There is no Start button.
+## The PAUSE button (top centre) sends the start action, so it pauses like the gamepad Start button. Volume buttons do nothing.
 
 ## Positions copied from the 2128x912 mockup, then scaled to the live viewport.
 const MOCK_W := 2128.0
@@ -19,6 +19,7 @@ const LAYOUT := [
 	["btn_y", 1810.0, 462.0, 100.0, 100.0, true],
 	["btn_a", 1812.0, 678.0, 100.0, 100.0, true],
 	["btn_b", 1920.0, 570.0, 100.0, 100.0, true],
+	["start", 932.0, 40.0, 264.0, 98.0, false],     # pause: sends the start action, the same as the gamepad Start button
 ]
 
 var _root: Control
@@ -27,7 +28,6 @@ var _fingers := {}
 var _down := {}
 var _pad := false
 var _alpha := 1.0
-var _vol_ms := 0
 var _font: Font
 var _box: StyleBoxFlat
 var _box_down: StyleBoxFlat
@@ -89,6 +89,7 @@ func _label(action: String) -> String:
 	match action:
 		"l1": return "L1"
 		"l2": return "L2"
+		"start": return "PAUSE"
 		"r1": return "R1"
 		"r2": return "R2"
 		"btn_a": return "A"
@@ -167,10 +168,6 @@ func _scan_pads() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode in [KEY_VOLUMEUP, KEY_VOLUMEDOWN]:
-		_volume_pause()
-		get_viewport().set_input_as_handled()
-		return
 	if _pad or _alpha < 0.35:
 		return
 	if event is InputEventScreenTouch:
@@ -215,12 +212,3 @@ func _release_all() -> void:
 			_hold(String(action), false)
 	_fingers.clear()
 
-
-func _volume_pause() -> void:
-	var now := Time.get_ticks_msec()
-	if now - _vol_ms < 350:
-		return
-	_vol_ms = now
-	var scene := get_tree().current_scene
-	if scene and scene.has_method("toggle_pause"):
-		scene.toggle_pause()

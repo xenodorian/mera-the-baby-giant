@@ -44,7 +44,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. Volume keys do this on Android. Restart after Game Over |
 | Back (Share) | nothing. The animation gallery is not bound to any key or button |
 
-**Chest puzzles.** Touching a chest pauses the game on a puzzle (see `docs/GAME_RULES.md`, Puzzle chests). Start and the volume keys do nothing while it is open. The on-screen pad is hidden on Android so taps reach the puzzle; a **GIVE UP** button sits at the top right of every puzzle.
+**Chest puzzles.** Touching a chest pauses the game on a puzzle (see `docs/GAME_RULES.md`, Puzzle chests). Start and the PAUSE button do nothing while it is open. The on-screen pad is hidden on Android so taps reach the puzzle; a **GIVE UP** button sits at the top right of every puzzle.
 
 | Puzzle | Keyboard / pad | Touch |
 |---|---|---|
