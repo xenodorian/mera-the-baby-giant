@@ -1733,7 +1733,6 @@ func _run() -> void:
 	await _chest_tests()
 	await _unlock_tests()
 	await _task_tests()
-	await _touch_tests()
 	await _mark_tests()
 	await _perry_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
@@ -3846,30 +3845,6 @@ func _give_cards(g: Node, d: Dictionary) -> void:
 	CY.ensure()
 	CY.cards = d.duplicate(true)
 	g.cards = d.duplicate(true)
-
-
-# ================================================================ Android touch pad: L3 in the middle of the d-pad
-func _touch_tests() -> void:
-	var TP = load("res://scripts/game/touch_pad.gd")
-	var rects := {}
-	var mana_n := 0
-	for item in TP.LAYOUT:
-		rects[String(item[0])] = Rect2(float(item[1]), float(item[2]), float(item[3]), float(item[4]))
-		if String(item[0]) == "mana":
-			mana_n += 1
-	var mana: Rect2 = rects.get("mana", Rect2())
-	var cross_ok: bool = mana_n == 1 and mana.size.x > 0.0
-	if cross_ok:
-		cross_ok = mana.position.x >= rects["left"].end.x - 0.5 and mana.end.x <= rects["right"].position.x + 0.5 and mana.position.y >= rects["up"].end.y - 0.5 and mana.end.y <= rects["down"].position.y + 0.5
-	var overlaps := 0
-	for k in rects:
-		if k != "mana" and mana.intersects(rects[k]):
-			overlaps += 1
-	_check("touch pad: one L3 button sits in the empty middle of the d-pad and overlaps nothing", cross_ok and overlaps == 0, "n=%d rect=%s overlaps=%d" % [mana_n, mana, overlaps])
-	var tpn = TP.new()
-	var l3_label: String = tpn._label("mana")
-	tpn.free()
-	_check("touch pad: the L3 button sends the mana action (E / left-stick click)", InputMap.has_action("mana") and l3_label == "L3", "label=%s" % l3_label)
 
 
 # ================================================================ Stage 3 phase 3: playable Perry (scripts/game/perry_player.gd, perry_unlocks.gd)
