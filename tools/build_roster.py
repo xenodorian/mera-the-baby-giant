@@ -127,6 +127,34 @@ if os.path.exists(PERRY_META):
         for _pid, _m in json.load(fh).items():
             E[_pid] = (_m["facing"], False, {_n: ("perry/%s/%s" % (_pid, _n), _a["fps"], _a["loop"], _a["pivot"])
                                              for _n, _a in _m["anims"].items() if _n not in PERRY_DROP.get(_pid, ())})
+# Stage 2 (2026-11-02): free frame-animated creatures. Luiz Melo CC0, chierit CC-BY 4.0 (docs/CREDITS.md).
+LM = "itch/luizmelo/"
+CH2 = "itch/chierit/"
+E.update({
+    "x_fire_worm": (1, False, {"idle": (LM + "fire_worm/idle", 8, True), "walk": (LM + "fire_worm/walk", 10, True),
+                               "attack": (LM + "fire_worm/attack", 12, False), "hurt": (LM + "fire_worm/hurt", 10, False),
+                               "death": (LM + "fire_worm/death", 10, False), "fireball": (LM + "fire_worm/fireball", 12, True)}),
+    "x_bat": (1, True, {"fly": (LM + "bat/fly", 12, True), "attack": (LM + "bat/attack", 12, False),
+                        "hurt": (LM + "bat/hurt", 10, False), "death": (LM + "bat/death", 8, False)}),
+    "x_slime": (1, False, {"idle": (LM + "slime/idle", 10, True), "walk": (LM + "slime/walk", 8, True),
+                           "attack": (LM + "slime/attack", 14, False), "hurt": (LM + "slime/hurt", 10, False),
+                           "death": (LM + "slime/death", 10, False)}),
+    "x_mimic": (1, False, {"idle": (LM + "mimic/idle", 8, True), "walk": (LM + "mimic/walk", 8, True),
+                           "attack": (LM + "mimic/attack", 14, False), "hurt": (LM + "mimic/hurt", 10, False),
+                           "death": (LM + "mimic/death", 8, False)}),
+    "x_rat": (1, False, {"idle": (LM + "rat/idle", 10, True), "run": (LM + "rat/run", 14, True),
+                         "attack": (LM + "rat/attack", 14, False), "hurt": (LM + "rat/hurt", 10, False),
+                         "death": (LM + "rat/death", 10, False)}),
+    "x_dark_wizard": (1, False, {"idle": (LM + "evil_wizard_3/idle", 8, True), "walk": (LM + "evil_wizard_3/walk", 10, True),
+                                 "attack": (LM + "evil_wizard_3/attack", 12, False), "hurt": (LM + "evil_wizard_3/hurt", 10, False),
+                                 "death": (LM + "evil_wizard_3/death", 12, False), "bolt": (LM + "evil_wizard_3/bolt", 14, True)}),
+    "x_frost_guardian": (-1, False, {"idle": (CH2 + "frost_guardian/idle", 8, True), "walk": (CH2 + "frost_guardian/walk", 10, True),
+                                     "attack": (CH2 + "frost_guardian/attack", 12, False), "hurt": (CH2 + "frost_guardian/hurt", 12, False),
+                                     "death": (CH2 + "frost_guardian/death", 12, False)}),
+    "x_demon_slime": (-1, False, {"idle": (CH2 + "demon_slime/idle", 8, True), "walk": (CH2 + "demon_slime/walk", 12, True),
+                                  "attack": (CH2 + "demon_slime/attack", 14, False), "hurt": (CH2 + "demon_slime/hurt", 12, False),
+                                  "death": (CH2 + "demon_slime/death", 12, False)}),
+})
 WP = "chierit/water-priestess/png/"
 LR = "chierit/leaf-ranger/animations/PNG/"
 BG = "ansimuz/brawler-girl/skin-recolor/sprites/"
@@ -200,7 +228,7 @@ def main():
             ent = anim_entry(eid, name, src, fps, loop, flyer, explicit)
             # same frame size as the first animation -> share its pivot so poses don't jump (explicit pivots are kept)
             if (explicit is None and base is not None and ent["size"] == base["size"]
-                    and name not in ("fireball", "arrow", "arrow_hit")):
+                    and name not in ("fireball", "arrow", "arrow_hit", "bolt")):
                 ent = anim_entry(eid, name, src, fps, loop, flyer, base["pivot"])
             if base is None:
                 base = ent

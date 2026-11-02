@@ -108,9 +108,27 @@ const DEFS := {
 		"pick": "cycle", "hurt": "blockIn", "spawn": "up",
 		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 2, "tell": 0.4, "near": -999.0, "far": 200.0, "cd": 1.0, "mode": "frames", "active": [3, 4]},
 			{"anim": "up", "kind": "ranged", "dmg": 2, "tell": 0.6, "near": 200.0, "far": 1100.0, "cd": 2.4, "mode": "shot", "shot": "energy", "shot_frame": 2, "shot_speed": 900.0, "shot_tight": true}]},
+	# Stage 2: free frame-animated creatures (Luiz Melo CC0, chierit CC-BY 4.0). Frames: assets/characters/itch/.
+	"x_fire_worm": {"k": 4.0, "hp": 8, "speed": 90.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 4.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "ranged", "dmg": 1, "tell": 0.45, "near": -999.0, "far": 900.0, "cd": 2.2, "mode": "shot", "shot": "fireball", "shot_frame": 11, "shot_speed": 640.0, "shot_tight": true}]},
+	"x_bat": {"k": 4.0, "hp": 4, "speed": 240.0, "ai": "flyer", "hover": 300.0, "idle": "fly", "move": "fly", "rage": 3.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "rush", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 500.0, "cd": 1.5, "mode": "contact", "vx": 760.0, "dur": 0.8}]},
+	"x_slime": {"k": 6.0, "hp": 6, "speed": 90.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 3.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 130.0, "cd": 1.4, "mode": "frames", "active": [10, 14]}]},
+	"x_mimic": {"k": 5.0, "hp": 10, "speed": 150.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 5.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 150.0, "cd": 1.6, "mode": "frames", "active": [11, 13]}]},
+	"x_rat": {"k": 5.0, "hp": 4, "speed": 340.0, "ai": "charger", "idle": "idle", "move": "run", "rage": 3.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "rush", "dmg": 1, "tell": 0.35, "near": -999.0, "far": 160.0, "cd": 1.1, "mode": "frames", "active": [7, 11]}]},
+	"x_dark_wizard": {"k": 4.0, "hp": 9, "speed": 80.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 5.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "ranged", "dmg": 2, "tell": 0.5, "near": 150.0, "far": 1000.0, "cd": 2.4, "mode": "shot", "shot": "bolt", "shot_frame": 8, "shot_speed": 820.0, "shot_tight": true}]},
+	"x_frost_guardian": {"k": 4.0, "hp": 24, "speed": 80.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 10.0, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": -999.0, "far": 230.0, "cd": 1.8, "mode": "frames", "active": [6, 8]}]},
+	"x_demon_slime": {"k": 4.0, "hp": 60, "speed": 110.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 22.0, "boss": true, "hurt": "hurt", "death": "death",
+		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 3, "tell": 0.6, "near": -999.0, "far": 290.0, "cd": 1.5, "mode": "frames", "active": [9, 11]},
+			{"anim": "walk", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 300.0, "far": 800.0, "cd": 2.2, "mode": "contact", "vx": 700.0, "dur": 0.6}]},
 	# the final boss: Perry herself, at Mera's art scale, with her own moves from Perry Riposte
 	"perry": {"k": 5.0, "hp": 180, "speed": 230.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
-		"pick": "cycle", "hurt": "recover", "spawn": "taunt",
+		"pick": "order", "hurt": "recover", "spawn": "taunt",
 		"attacks": [{"anim": "energy_wave", "kind": "ranged", "dmg": 2, "tell": 0.55, "near": 300.0, "far": 1400.0, "cd": 2.2, "mode": "shot", "shot": "wave_fx", "shot_frame": 3, "shot_speed": 850.0, "shot_k": 0.6, "shot_tight": true},
 			{"anim": "meteor_shower", "kind": "ranged", "dmg": 2, "tell": 0.6, "near": 400.0, "far": 1600.0, "cd": 3.0, "mode": "shot", "shot": "meteor_fx", "shot_frame": 6, "shot_speed": 700.0, "shot_k": 0.5, "shot_tight": true},
 			{"anim": "sky_dash", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 200.0, "far": 900.0, "cd": 2.0, "mode": "contact", "vx": 1300.0, "dur": 0.4},
@@ -134,18 +152,18 @@ const LEVELS := {
 	1: ["wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur"],
 	2: ["skeleton", "hell_gato", "ghost", "death", "nightmare"],
 	4: ["hell_hound", "fire_skull", "hell_beast", "demon"],
-	6: ["p_goblin", "p_orc", "lm_goblin", "lm_mushroom", "lm_eye"],
-	7: ["p_orc", "p_goblin", "p_firemage", "minotaur", "hell_hound"],
-	8: ["p_goblin", "p_orc", "p_firemage", "werewolf", "mutant_toad", "lm_skeleton"],
-	9: ["p_orc", "p_firemage", "p_goblin", "sx_zombie", "sx_witch", "ghost"],
-	10: ["p_orc", "p_firemage", "p_goblin", "demon", "death", "lm_skeleton"],
+	6: ["p_goblin", "p_orc", "x_slime", "x_bat", "x_rat"],
+	7: ["p_orc", "x_fire_worm", "p_goblin", "x_mimic", "x_rat"],
+	8: ["p_goblin", "x_slime", "p_firemage", "x_bat", "x_mimic", "p_orc"],
+	9: ["p_orc", "x_dark_wizard", "x_fire_worm", "x_frost_guardian", "x_slime", "p_goblin"],
+	10: ["p_orc", "p_firemage", "x_dark_wizard", "x_frost_guardian", "x_mimic", "x_bat"],
 }
-## the end boss of a level. 5 has no waves (boss only); 6, 8, 9 and 10 are wave levels whose boss waits near the exit (7 has none).
-const BOSSES := {5: "dragon", 6: "p_clubogre", 8: "p_mirrormax", 9: "p_percy", 10: "perry"}
+## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
+const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 10: "perry"}
 ## levels whose boss ends a stage with a victory card (level index -> what falls). Other bosses only open the exit.
 const FINALE := {5: "the Cavern Dragon", 10: "Perry"}
 ## display names of the bosses (exit lock text)
-const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry"}
+const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
 const RUN_POOL := [
 	"wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur",
@@ -154,6 +172,7 @@ const RUN_POOL := [
 	"lm_goblin", "lm_goblin", "lm_mushroom", "lm_mushroom", "lm_skeleton", "lm_skeleton", "lm_eye", "lm_eye",
 	"sx_zombie", "sx_zombie", "sx_skeleton", "sx_skeleton", "sx_witch", "sx_witch",
 	"p_goblin", "p_goblin", "p_orc", "p_orc", "p_firemage", "p_firemage",
+	"x_fire_worm", "x_bat", "x_slime", "x_mimic", "x_rat", "x_dark_wizard", "x_frost_guardian",
 ]
 const RUN_START := 3           # enemies on the first map
 const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then the exit opens. No more after that.

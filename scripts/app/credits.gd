@@ -2,9 +2,9 @@ extends RefCounted
 ## v0.9 in-game credits (title menu -> CREDITS). Keep in sync with docs/CREDITS.md.
 
 const ENTRIES := [
-	{"who": "chierit", "what": "Fire Knight, Water Priestess, Leaf Ranger (Elementals), Minotaur", "lic": "CC-BY 4.0", "url": "https://chierit.itch.io"},
+	{"who": "chierit", "what": "Fire Knight, Water Priestess, Leaf Ranger (Elementals), Minotaur, Frost Guardian, Demon Slime", "lic": "CC-BY 4.0", "url": "https://chierit.itch.io"},
 	{"who": "Luis Zuno (ansimuz)", "what": "Gothicvania / Legacy Collection: enemies, dragon, levels, VFX, allies, tilesets", "lic": "CC0", "url": "https://ansimuz.itch.io"},
-	{"who": "LuizMelo", "what": "Monsters Creatures Fantasy: goblin, mushroom, skeleton, flying eye", "lic": "CC0", "url": "https://luizmelo.itch.io/monsters-creatures-fantasy"},
+	{"who": "LuizMelo", "what": "Monsters Creatures Fantasy 1 and 2, Fire Worm, Evil Wizard 3: goblin, mushroom, skeleton, flying eye, bat, slime, mimic, rat, fire worm, wizard", "lic": "CC0", "url": "https://luizmelo.itch.io/monsters-creatures-fantasy"},
 	{"who": "Stealthix", "what": "Animated Monsters: zombie, skeleton, witch", "lic": "CC0", "url": "https://stealthix.itch.io/animated-monsters"},
 	{"who": "Merakintsugi", "what": "Mera: Platformer Character Pack (main character, licensed)", "lic": "Licensed", "url": "https://merakintsugi.itch.io/platformer-character-pack"},
 	{"who": "HydroGene", "what": "High Quality 8-bit / Chiptune Musics (cemetery, woods, town, caverns)", "lic": "CC0", "url": "https://hydrogene.itch.io/high-quality-8-bit-musics"},

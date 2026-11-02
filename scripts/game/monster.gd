@@ -56,6 +56,7 @@ var history: Array = []
 var played := {}                        # every animation that has been shown (tests: "uses all its animations")
 var hits_landed := 0
 var atk_i := 0                          # "pick": "cycle" defs: where the next attack search starts
+var backoff_t := 0.0                    # "pick": "order": seconds spent backing off for the next attack
 var hurt_cd := 0.0                      # defs with a "hurt" anim: bosses flinch at most this often
 # v0.8 (S4) juggles and corpse launch (docs/GAME_RULES.md "Juggles")
 var juggle_n := 0                      # air hits in the current juggle (gravity grows with it)
@@ -723,6 +724,25 @@ func _ai(m: Node2D, delta: float) -> void:
 	var face := 1 if dx > 0.0 else -1
 	# 1) an attack in range
 	if cooldown <= 0.0 and doused_t <= 0.0 and _may_attack():
+		if String(d.get("pick", "")) == "order":             # Perry: every attack in turn, backing off for the ranged ones
+			var a: Dictionary = attacks[atk_i % attacks.size()]
+			if gap >= float(a["near"]) and gap <= float(a["far"]):
+				atk_i = (atk_i + 1) % attacks.size()
+				backoff_t = 0.0
+				_start_tell(a, face)
+				return
+			if gap < float(a["near"]):
+				backoff_t += delta
+				if backoff_t > 2.0:                            # cornered: skip this one
+					atk_i = (atk_i + 1) % attacks.size()
+					backoff_t = 0.0
+					return
+				_face(-face)
+				vx = -face * speed
+				if state != "move" or sprite.animation != _cur_move():
+					_set_state("move")
+					_play(_cur_move())
+				return
 		var cyc := String(d.get("pick", "")) == "cycle"      # Stage 2: take turns through every attack in range
 		for j in attacks.size():
 			var ai_j := (atk_i + j) % attacks.size() if cyc else j

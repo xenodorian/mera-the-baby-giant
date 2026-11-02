@@ -60,3 +60,14 @@ This repo is **public** and contains `assets/`, including the original source pa
 
 ## In-game credits (v0.9)
 The title menu has a CREDITS screen (`scripts/app/credits.gd`) listing every author above with license and link, plus Godot Engine (MIT, https://godotengine.org/license). Keep both lists in sync.
+
+## Stage 2 creatures
+Frame-by-frame animated creatures for Stage 2, cut unchanged from the original sprite strips or PNG frames into `assets/characters/itch/<author>/<creature>/<anim>/` (licence files next to them as `LICENSE_<pack>.txt`).
+
+| Creature | Author | Pack | URL | License |
+|---|---|---|---|---|
+| Fire Worm (fire_worm, fireball) | **Luiz Melo** | Fire Worm | https://luizmelo.itch.io/fire-worm | CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) |
+| Bat, Slime, Mimic, Rat | **Luiz Melo** | Monsters Creatures Fantasy 2 | https://luizmelo.itch.io/monsters-creatures-fantasy-2 | CC0 1.0 |
+| Evil Wizard (evil_wizard_3, bolt) | **Luiz Melo** | Evil Wizard 3 | https://luizmelo.itch.io/evil-wizard-3 | CC0 1.0 |
+| Frost Guardian | **chierit** | Boss: Frost Guardian (free version) | https://chierit.itch.io/boss-frost-guardian | CC-BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Credit "chierit" |
+| Demon Slime (demon form) | **chierit** | Boss: Demon Slime (free version) | https://chierit.itch.io/boss-demon-slime | CC-BY 4.0. Credit "chierit" |

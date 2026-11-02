@@ -1378,7 +1378,7 @@ func _run() -> void:
 				var k0: float = e.k
 				var tell_len := 0
 				var run_f := 420                                    # Stage 2 "cycle" enemies get time for every attack
-				if String(RO.def(eid).get("pick", "")) == "cycle":
+				if String(RO.def(eid).get("pick", "")) in ["cycle", "order"]:
 					run_f = maxi(420, RO.def(eid)["attacks"].size() * 150)
 				for f in run_f:
 					await physics_frame

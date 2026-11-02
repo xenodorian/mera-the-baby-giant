@@ -1,0 +1,6 @@
+Monsters Creatures Fantasy 2 by Luiz Melo (Bat, Slime, Mimic, Rat used here)
+Source: https://luizmelo.itch.io/monsters-creatures-fantasy-2
+License (from the page, no license file in the archive): CC0 1.0 Universal (Creative Commons Zero).
+The page says: "This package can be used in commercial and non-commercial projects. License: CC0 (Creative Commons Zero). Credits are not required, but greatly appreciated!"
+License text: https://creativecommons.org/publicdomain/zero/1.0/
+Frames are cut unchanged from the original sprite strips.

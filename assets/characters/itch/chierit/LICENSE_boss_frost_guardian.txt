@@ -1,0 +1,6 @@
+Boss: Frost Guardian (FREE v1.0) by chierit
+Source: https://chierit.itch.io/boss-frost-guardian
+License (from the page): Creative Commons Attribution 4.0 International (CC-BY 4.0).
+The page says: "CC-BY 4.0 - can be edited to fit your game (aseprite file included), can also be used commercially, only credit "chierit" in your game's credits or add a link somewhere to my itch page. Please don't resell."
+License text: https://creativecommons.org/licenses/by/4.0/legalcode
+Attribution: chierit (https://chierit.itch.io). Frames are the original individual PNGs, unchanged.
