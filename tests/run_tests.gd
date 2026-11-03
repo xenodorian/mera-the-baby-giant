@@ -6485,6 +6485,27 @@ func _slideshow_timer_blast_tests() -> void:
 	LVS.current = 0
 
 
+func _wiz_ok() -> bool:
+	for id in ["p_firemage", "x_lightning_mage", "x_wanderer_mage"]:
+		var d: Dictionary = Roster.def(id)
+		var art: Dictionary = Roster.art(id)
+		var shot := false
+		var melee := false
+		var heavy := false
+		for a in d["attacks"]:
+			shot = shot or String(a["mode"]) == "shot"
+			melee = melee or String(a["kind"]) == "melee"
+			heavy = heavy or String(a["kind"]) == "heavy"
+			if not art["anims"].has(String(a["anim"])):
+				return false
+		if not (shot and melee and heavy and art["anims"].has("bolt") and art["anims"].has("blast") and art["anims"].has("death")):
+			return false
+	var waves: Array = []
+	for lv in Roster.LEVELS.values():
+		waves.append_array(lv)
+	return "x_lightning_mage" in waves and "x_wanderer_mage" in waves and "p_firemage" in waves
+
+
 ## speaker portraits, prisoner table fields, the firemage's impact animation, restart keeping size
 func _speaker_impact_restart_tests() -> void:
 	var CUT = load("res://scripts/game/cutscene.gd")
@@ -6535,8 +6556,9 @@ func _speaker_impact_restart_tests() -> void:
 	await process_frame
 	CUT.suppressed = true
 	# firemage: bolt flies, blast plays at the hit
-	var fm: Dictionary = Roster.def("p_firemage")["attacks"][0]
+	var fm: Dictionary = Roster.def("p_firemage")["attacks"][2]            # the fireball (0 and 1 are the swings, 3 the flame jet)
 	var art: Dictionary = Roster.art("p_firemage")
+	_check("wizards: the three Craftpix wizards (fire, lightning, wanderer) each have a swing, a shot with bolt and blast, and a long attack; they are in waves", _wiz_ok(), "")
 	_check("firemage: the fireball attack is a shot 'bolt' with 'blast' as its impact, both animations exist", String(fm["shot"]) == "bolt" and String(fm.get("impact", "")) == "blast" and art["anims"].has("bolt") and art["anims"].has("blast"), "")
 	var shot: Node2D = load("res://scripts/game/enemy_shot.gd").new()
 	shot.setup(g, "p_firemage", "bolt", Vector2(5000.0, 600.0), Vector2.ZERO, 1, 3.0, true)

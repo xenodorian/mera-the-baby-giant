@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.19.0-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.19.0_Windows.exe
+- Android: Mera_Playable_v0.19.0_Android.apk
+- **Three new wizard enemies** from the Craftpix free wizard pack. The **Fire Wizard replaces the fire mage** (it was drawn from this same sprite): it now walks up and mixes two staff swings, a fireball that explodes where it lands, and a long flame jet. The **Lightning Mage** (a spark, a lightning ball, an overhead lightning strike and a long beam) joins Mire Wood, the Hall of Faces and the endless run. The **Wanderer Magician** (a wand burst, a magic star, a fast arrow and a frost wave) joins Sunstone Canyon and the endless run.
+- Tests: 941 pass, 0 fail.
+
 ## v0.18.1-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.18.1_Windows.exe

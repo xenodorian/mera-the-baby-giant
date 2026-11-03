@@ -8911,468 +8911,623 @@
   ]
  },
  "p_firemage": {
-  "facing": -1,
+  "facing": 1,
   "flyer": false,
   "anims": {
    "idle": {
     "frames": [
-     "res://assets/characters/perry/p_firemage/idle/idle_1.png"
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_6.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/idle/idle_7.png"
     ],
-    "fps": 7,
+    "fps": 8,
     "loop": true,
     "size": [
-     241,
-     160
+     128,
+     128
     ],
     "pivot": [
-     120.0,
-     160
+     49.0,
+     128.0
     ],
     "boxes": [
      [
-      -35.0,
-      -131,
-      35.0,
-      -1
+      -13.0,
+      -66.0,
+      15.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -66.0,
+      15.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -66.0,
+      15.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -66.0,
+      17.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -66.0,
+      15.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -66.0,
+      15.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -66.0,
+      15.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/p_firemage/walk/walk_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/walk/walk_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/walk/walk_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/walk/walk_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/walk/walk_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/walk/walk_6.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     49.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      0.0,
+      -66.0,
+      20.0,
+      0.0
+     ],
+     [
+      2.0,
+      -66.0,
+      21.0,
+      0.0
+     ],
+     [
+      3.0,
+      -66.0,
+      29.0,
+      0.0
+     ],
+     [
+      2.0,
+      -66.0,
+      20.0,
+      0.0
+     ],
+     [
+      0.0,
+      -66.0,
+      21.0,
+      0.0
+     ],
+     [
+      -1.0,
+      -66.0,
+      25.0,
+      0.0
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/p_firemage/slash/slash_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/slash/slash_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/slash/slash_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/slash/slash_4.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     49.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -58.0,
+      24.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -58.0,
+      24.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -57.0,
+      64.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -57.0,
+      39.0,
+      0.0
+     ]
+    ]
+   },
+   "spark": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/p_firemage/spark/spark_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/spark/spark_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/spark/spark_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/spark/spark_4.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     49.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -60.0,
+      24.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -59.0,
+      24.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -55.0,
+      69.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -55.0,
+      73.0,
+      0.0
      ]
     ]
    },
    "fireball": {
     "frames": [
-     "res://assets/characters/perry/p_firemage/fireball/fireball_1.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_2.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_3.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_4.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_5.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_6.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_7.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_8.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_9.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_10.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_11.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_12.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_13.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_14.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_15.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_16.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_17.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_18.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_19.png",
-     "res://assets/characters/perry/p_firemage/fireball/fireball_20.png"
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_6.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_7.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/fireball/fireball_8.png"
     ],
-    "fps": 7,
+    "fps": 10,
     "loop": false,
     "size": [
-     241,
-     160
+     128,
+     128
     ],
     "pivot": [
-     120.0,
-     160
+     49.0,
+     128.0
     ],
     "boxes": [
      [
-      -35.0,
-      -131,
-      35.0,
-      -1
+      -17.0,
+      -65.0,
+      18.0,
+      0.0
      ],
      [
-      -40.0,
-      -131,
-      35.0,
-      -1
+      -17.0,
+      -65.0,
+      20.0,
+      0.0
      ],
      [
-      -42.0,
-      -131,
+      -20.0,
+      -65.0,
+      22.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -65.0,
+      22.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -69.0,
+      15.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -70.0,
       43.0,
-      -1
-     ],
-     [
-      -43.0,
-      -131,
-      49.0,
-      -1
-     ],
-     [
-      -42.0,
-      -131,
-      43.0,
-      -1
-     ],
-     [
-      -43.0,
-      -131,
-      49.0,
-      -1
-     ],
-     [
-      -42.0,
-      -131,
-      43.0,
-      -1
-     ],
-     [
-      -43.0,
-      -131,
-      49.0,
-      -1
+      0.0
      ],
      [
       -27.0,
-      -140,
-      49.0,
-      0
+      -67.0,
+      44.0,
+      0.0
      ],
      [
-      -85.0,
-      -141,
-      55.0,
-      0
+      -29.0,
+      -69.0,
+      47.0,
+      0.0
+     ]
+    ]
+   },
+   "flame": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_6.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_7.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_8.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_9.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_10.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_11.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_12.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_13.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/flame/flame_14.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     49.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -25.0,
+      -66.0,
+      13.0,
+      0.0
      ],
      [
-      -86.0,
-      -135,
-      57.0,
-      0
+      -21.0,
+      -64.0,
+      4.0,
+      0.0
      ],
      [
-      -91.0,
-      -124,
+      -30.0,
+      -63.0,
+      16.0,
+      0.0
+     ],
+     [
+      -37.0,
+      -58.0,
       37.0,
-      -1
+      0.0
      ],
      [
-      -86.0,
-      -135,
-      57.0,
-      0
+      -37.0,
+      -67.0,
+      59.0,
+      0.0
      ],
      [
-      -91.0,
-      -124,
-      37.0,
-      -1
+      -37.0,
+      -67.0,
+      77.0,
+      0.0
      ],
      [
-      -86.0,
-      -135,
-      57.0,
-      0
+      -37.0,
+      -71.0,
+      78.0,
+      0.0
      ],
      [
-      -85.0,
-      -141,
-      55.0,
-      0
+      -37.0,
+      -79.0,
+      78.0,
+      0.0
      ],
      [
-      -27.0,
-      -140,
-      49.0,
-      0
+      -37.0,
+      -81.0,
+      78.0,
+      0.0
      ],
      [
-      -43.0,
-      -131,
-      49.0,
-      -1
+      -37.0,
+      -77.0,
+      78.0,
+      0.0
      ],
      [
-      -42.0,
-      -131,
-      43.0,
-      -1
+      -37.0,
+      -77.0,
+      78.0,
+      0.0
      ],
      [
-      -40.0,
-      -131,
-      35.0,
-      -1
+      -37.0,
+      -61.0,
+      74.0,
+      0.0
+     ],
+     [
+      -37.0,
+      -59.0,
+      72.0,
+      0.0
+     ],
+     [
+      -37.0,
+      -66.0,
+      68.0,
+      0.0
      ]
     ]
    },
    "hurt": {
     "frames": [
-     "res://assets/characters/perry/p_firemage/hurt/hurt_1.png",
-     "res://assets/characters/perry/p_firemage/hurt/hurt_2.png",
-     "res://assets/characters/perry/p_firemage/hurt/hurt_3.png"
+     "res://assets/characters/craftpix_wizards/p_firemage/hurt/hurt_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/hurt/hurt_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/hurt/hurt_3.png"
     ],
-    "fps": 7,
+    "fps": 10,
     "loop": false,
     "size": [
-     241,
-     160
+     128,
+     128
     ],
     "pivot": [
-     120.0,
-     160
+     49.0,
+     128.0
     ],
     "boxes": [
      [
-      -29.0,
-      -102,
-      31.0,
-      0
+      -15.0,
+      -51.0,
+      15.0,
+      0.0
      ],
      [
-      -29.0,
-      -104,
-      35.0,
-      0
+      -17.0,
+      -52.0,
+      15.0,
+      0.0
      ],
      [
-      -29.0,
-      -102,
-      31.0,
-      0
+      -15.0,
+      -51.0,
+      15.0,
+      0.0
      ]
     ]
    },
    "death": {
     "frames": [
-     "res://assets/characters/perry/p_firemage/death/death_1.png",
-     "res://assets/characters/perry/p_firemage/death/death_2.png",
-     "res://assets/characters/perry/p_firemage/death/death_3.png",
-     "res://assets/characters/perry/p_firemage/death/death_4.png",
-     "res://assets/characters/perry/p_firemage/death/death_5.png",
-     "res://assets/characters/perry/p_firemage/death/death_6.png"
+     "res://assets/characters/craftpix_wizards/p_firemage/death/death_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/death/death_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/death/death_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/death/death_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/death/death_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/death/death_6.png"
     ],
-    "fps": 4,
+    "fps": 8,
     "loop": false,
     "size": [
-     241,
-     160
+     128,
+     128
     ],
     "pivot": [
-     120.0,
-     160
+     49.0,
+     128.0
     ],
     "boxes": [
      [
-      -36.0,
-      -114,
-      37.0,
-      0
+      -21.0,
+      -57.0,
+      15.0,
+      0.0
      ],
      [
-      -33.0,
-      -112,
-      35.0,
-      0
+      -19.0,
+      -56.0,
+      15.0,
+      0.0
      ],
      [
-      -35.0,
-      -108,
-      35.0,
-      0
-     ],
-     [
-      -43.0,
-      -88,
-      33.0,
-      0
-     ],
-     [
-      -60.0,
-      -42,
-      48.0,
-      0
-     ],
-     [
-      -61.0,
-      -22,
-      63.0,
-      0
-     ]
-    ]
-   },
-   "blast": {
-    "frames": [
-     "res://assets/characters/perry/p_firemage/blast/blast_1.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_2.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_3.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_4.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_5.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_6.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_7.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_8.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_9.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_10.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_11.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_12.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_13.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_14.png",
-     "res://assets/characters/perry/p_firemage/blast/blast_15.png"
-    ],
-    "fps": 16,
-    "loop": false,
-    "size": [
-     100,
-     96
-    ],
-    "pivot": [
-     50.0,
-     48.0
-    ],
-    "boxes": [
-     [
-      -39.0,
       -20.0,
+      -54.0,
+      15.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -44.0,
+      20.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -21.0,
       36.0,
-      44.0
+      0.0
      ],
      [
-      -42.0,
-      -25.0,
-      41.0,
-      48.0
-     ],
-     [
-      -40.0,
-      -28.0,
-      48.0,
-      39.0
-     ],
-     [
-      -40.0,
-      -33.0,
-      48.0,
-      48.0
-     ],
-     [
-      -40.0,
-      -48.0,
-      50.0,
-      48.0
-     ],
-     [
-      -50.0,
-      -45.0,
-      50.0,
-      43.0
-     ],
-     [
-      -50.0,
-      -48.0,
-      50.0,
-      44.0
-     ],
-     [
-      -50.0,
-      -46.0,
-      50.0,
-      48.0
-     ],
-     [
-      -50.0,
-      -48.0,
-      43.0,
-      48.0
-     ],
-     [
-      -50.0,
-      -48.0,
-      46.0,
-      48.0
-     ],
-     [
-      -47.0,
-      -48.0,
-      48.0,
-      47.0
-     ],
-     [
-      -50.0,
-      -48.0,
-      45.0,
-      46.0
-     ],
-     [
-      -50.0,
-      -48.0,
-      42.0,
-      46.0
-     ],
-     [
-      -50.0,
-      -48.0,
-      41.0,
-      48.0
-     ],
-     [
-      -32.0,
-      -48.0,
-      32.0,
-      -19.0
+      -18.0,
+      -11.0,
+      44.0,
+      0.0
      ]
     ]
    },
    "bolt": {
     "frames": [
-     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_1.png",
-     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_2.png",
-     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_3.png",
-     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_4.png",
-     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_5.png",
-     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_6.png"
+     "res://assets/characters/craftpix_wizards/p_firemage/bolt/bolt_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/bolt/bolt_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/bolt/bolt_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/bolt/bolt_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/bolt/bolt_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/bolt/bolt_6.png"
     ],
-    "fps": 12,
+    "fps": 14,
     "loop": true,
     "size": [
-     46,
-     46
+     64,
+     64
     ],
     "pivot": [
-     22.0,
-     29.0
+     32.0,
+     32.0
     ],
     "boxes": [
      [
       -9.0,
       -12.0,
-      9.0,
-      0.0
+      26.0,
+      6.0
      ],
      [
-      -6.0,
-      -12.0,
-      9.0,
-      1.0
+      8.0,
+      -5.0,
+      26.0,
+      7.0
      ],
      [
-      -6.0,
-      -13.0,
-      9.0,
-      1.0
+      6.0,
+      -4.0,
+      26.0,
+      6.0
      ],
      [
+      -4.0,
+      -5.0,
+      26.0,
+      7.0
+     ],
+     [
+      -7.0,
+      -5.0,
+      26.0,
+      7.0
+     ],
+     [
+      10.0,
       -8.0,
-      -13.0,
-      9.0,
-      0.0
+      26.0,
+      10.0
+     ]
+    ]
+   },
+   "blast": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/p_firemage/blast/blast_1.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/blast/blast_2.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/blast/blast_3.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/blast/blast_4.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/blast/blast_5.png",
+     "res://assets/characters/craftpix_wizards/p_firemage/blast/blast_6.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     32.0,
+     32.0
+    ],
+    "boxes": [
+     [
+      11.0,
+      -12.0,
+      26.0,
+      13.0
      ],
      [
-      -9.0,
-      -11.0,
-      9.0,
-      0.0
+      3.0,
+      -19.0,
+      26.0,
+      20.0
+     ],
+     [
+      -1.0,
+      -17.0,
+      23.0,
+      19.0
      ],
      [
       -10.0,
-      -11.0,
-      9.0,
-      0.0
+      -25.0,
+      14.0,
+      7.0
+     ],
+     [
+      -13.0,
+      -29.0,
+      4.0,
+      -2.0
+     ],
+     [
+      -26.0,
+      -31.0,
+      -13.0,
+      -8.0
      ]
     ]
    }
   },
   "body": [
-   -35.0,
-   -131,
-   35.0,
-   -1
+   -10.0,
+   -66.0,
+   10.0,
+   0.0
   ]
  },
  "x_fire_worm": {
@@ -23020,6 +23175,1316 @@
    -43.5,
    -126.0,
    43.5,
+   0.0
+  ]
+ },
+ "x_lightning_mage": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_5.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_6.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/idle/idle_7.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -63.0,
+      13.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -63.0,
+      13.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -63.0,
+      12.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -63.0,
+      12.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -63.0,
+      12.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -63.0,
+      12.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -63.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_5.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_6.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/walk/walk_7.png"
+    ],
+    "fps": 9,
+    "loop": true,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -3.0,
+      -64.0,
+      18.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -64.0,
+      18.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -64.0,
+      18.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -64.0,
+      19.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -64.0,
+      18.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -64.0,
+      19.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -64.0,
+      18.0,
+      0.0
+     ]
+    ]
+   },
+   "strike": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_5.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_6.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_7.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_8.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_9.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/strike/strike_10.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -28.0,
+      -62.0,
+      20.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -62.0,
+      20.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -70.0,
+      20.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -80.0,
+      20.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -67.0,
+      40.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -66.0,
+      46.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -85.0,
+      43.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -80.0,
+      41.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -79.0,
+      70.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -76.0,
+      69.0,
+      0.0
+     ]
+    ]
+   },
+   "spark": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/spark/spark_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/spark/spark_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/spark/spark_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/spark/spark_4.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -31.0,
+      -63.0,
+      49.0,
+      0.0
+     ],
+     [
+      -30.0,
+      -64.0,
+      48.0,
+      0.0
+     ],
+     [
+      -52.0,
+      -56.0,
+      57.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -56.0,
+      55.0,
+      0.0
+     ]
+    ]
+   },
+   "ball": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_5.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_6.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/ball/ball_7.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -2.0,
+      -63.0,
+      22.0,
+      0.0
+     ],
+     [
+      -2.0,
+      -63.0,
+      21.0,
+      0.0
+     ],
+     [
+      -4.0,
+      -63.0,
+      32.0,
+      0.0
+     ],
+     [
+      -5.0,
+      -63.0,
+      32.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -63.0,
+      32.0,
+      0.0
+     ],
+     [
+      -5.0,
+      -63.0,
+      32.0,
+      0.0
+     ],
+     [
+      -3.0,
+      -63.0,
+      32.0,
+      0.0
+     ]
+    ]
+   },
+   "beam": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_5.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_6.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_7.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_8.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_9.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_10.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_11.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_12.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/beam/beam_13.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -41.0,
+      -63.0,
+      -7.0,
+      0.0
+     ],
+     [
+      -41.0,
+      -63.0,
+      -5.0,
+      0.0
+     ],
+     [
+      -47.0,
+      -63.0,
+      -3.0,
+      0.0
+     ],
+     [
+      -41.0,
+      -63.0,
+      -7.0,
+      0.0
+     ],
+     [
+      -43.0,
+      -63.0,
+      44.0,
+      0.0
+     ],
+     [
+      -43.0,
+      -62.0,
+      74.0,
+      0.0
+     ],
+     [
+      -45.0,
+      -62.0,
+      74.0,
+      0.0
+     ],
+     [
+      -43.0,
+      -65.0,
+      74.0,
+      0.0
+     ],
+     [
+      -42.0,
+      -62.0,
+      76.0,
+      0.0
+     ],
+     [
+      -40.0,
+      -62.0,
+      75.0,
+      0.0
+     ],
+     [
+      -40.0,
+      -62.0,
+      74.0,
+      0.0
+     ],
+     [
+      -40.0,
+      -62.0,
+      72.0,
+      0.0
+     ],
+     [
+      -40.0,
+      -62.0,
+      67.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/hurt/hurt_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/hurt/hurt_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/hurt/hurt_3.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -52.0,
+      20.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -51.0,
+      20.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -52.0,
+      20.0,
+      0.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/death/death_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/death/death_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/death/death_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/death/death_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/death/death_5.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     52.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -58.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -56.0,
+      16.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -46.0,
+      8.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -26.0,
+      24.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -10.0,
+      40.0,
+      0.0
+     ]
+    ]
+   },
+   "bolt": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/bolt/bolt_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/bolt/bolt_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/bolt/bolt_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/bolt/bolt_4.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/bolt/bolt_5.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/bolt/bolt_6.png"
+    ],
+    "fps": 14,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     32.0,
+     32.0
+    ],
+    "boxes": [
+     [
+      -4.0,
+      -5.0,
+      6.0,
+      5.0
+     ],
+     [
+      -6.0,
+      -13.0,
+      12.0,
+      16.0
+     ],
+     [
+      -5.0,
+      -13.0,
+      11.0,
+      11.0
+     ],
+     [
+      -4.0,
+      -11.0,
+      10.0,
+      10.0
+     ],
+     [
+      -4.0,
+      -4.0,
+      5.0,
+      4.0
+     ],
+     [
+      -4.0,
+      -9.0,
+      5.0,
+      7.0
+     ]
+    ]
+   },
+   "blast": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/blast/blast_1.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/blast/blast_2.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/blast/blast_3.png",
+     "res://assets/characters/craftpix_wizards/x_lightning_mage/blast/blast_4.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     32.0,
+     32.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -16.0,
+      11.0,
+      14.0
+     ],
+     [
+      -9.0,
+      -12.0,
+      10.0,
+      12.0
+     ],
+     [
+      -9.0,
+      -13.0,
+      9.0,
+      12.0
+     ],
+     [
+      -9.0,
+      -4.0,
+      5.0,
+      4.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -9.0,
+   -63.0,
+   9.0,
+   0.0
+  ]
+ },
+ "x_wanderer_mage": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_6.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_7.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/idle/idle_8.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -66.0,
+      18.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -66.0,
+      18.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -65.0,
+      18.0,
+      0.0
+     ],
+     [
+      -27.0,
+      -65.0,
+      18.0,
+      0.0
+     ],
+     [
+      -29.0,
+      -66.0,
+      18.0,
+      0.0
+     ],
+     [
+      -34.0,
+      -66.0,
+      18.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -66.0,
+      18.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -66.0,
+      18.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_6.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/walk/walk_7.png"
+    ],
+    "fps": 9,
+    "loop": true,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -66.0,
+      17.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -66.0,
+      27.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -66.0,
+      23.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -66.0,
+      17.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -66.0,
+      14.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -66.0,
+      11.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -66.0,
+      15.0,
+      0.0
+     ]
+    ]
+   },
+   "sparkle": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_6.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/sparkle/sparkle_7.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -32.0,
+      -64.0,
+      9.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -63.0,
+      7.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -66.0,
+      32.0,
+      0.0
+     ],
+     [
+      -41.0,
+      -83.0,
+      43.0,
+      0.0
+     ],
+     [
+      -42.0,
+      -87.0,
+      47.0,
+      0.0
+     ],
+     [
+      -41.0,
+      -99.0,
+      57.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -66.0,
+      34.0,
+      0.0
+     ]
+    ]
+   },
+   "star": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_6.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_7.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_8.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/star/star_9.png"
+    ],
+    "fps": 11,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -33.0,
+      -64.0,
+      5.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -63.0,
+      4.0,
+      0.0
+     ],
+     [
+      -33.0,
+      -63.0,
+      11.0,
+      0.0
+     ],
+     [
+      -32.0,
+      -66.0,
+      23.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -66.0,
+      28.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -66.0,
+      29.0,
+      0.0
+     ],
+     [
+      -41.0,
+      -66.0,
+      51.0,
+      0.0
+     ],
+     [
+      -42.0,
+      -73.0,
+      61.0,
+      0.0
+     ],
+     [
+      -36.0,
+      -73.0,
+      61.0,
+      0.0
+     ]
+    ]
+   },
+   "arrow": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/arrow/arrow_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/arrow/arrow_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/arrow/arrow_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/arrow/arrow_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/arrow/arrow_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/arrow/arrow_6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -26.0,
+      -63.0,
+      13.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -63.0,
+      19.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      28.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      28.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      28.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      28.0,
+      0.0
+     ]
+    ]
+   },
+   "frost": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_6.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_7.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_8.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_9.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_10.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_11.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_12.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_13.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_14.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_15.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/frost/frost_16.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -31.0,
+      -63.0,
+      9.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -63.0,
+      16.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      34.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      34.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      35.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      36.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      36.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -66.0,
+      33.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      32.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      34.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -65.0,
+      35.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -64.0,
+      35.0,
+      0.0
+     ],
+     [
+      -35.0,
+      -66.0,
+      40.0,
+      0.0
+     ],
+     [
+      -39.0,
+      -64.0,
+      28.0,
+      0.0
+     ],
+     [
+      -39.0,
+      -64.0,
+      35.0,
+      0.0
+     ],
+     [
+      -30.0,
+      -64.0,
+      28.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/hurt/hurt_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/hurt/hurt_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/hurt/hurt_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/hurt/hurt_4.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -58.0,
+      20.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -58.0,
+      16.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -58.0,
+      15.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -58.0,
+      20.0,
+      0.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/death/death_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/death/death_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/death/death_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/death/death_4.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     128,
+     128
+    ],
+    "pivot": [
+     63.0,
+     128.0
+    ],
+    "boxes": [
+     [
+      -30.0,
+      -58.0,
+      9.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -56.0,
+      7.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -40.0,
+      27.0,
+      0.0
+     ],
+     [
+      -31.0,
+      -10.0,
+      31.0,
+      0.0
+     ]
+    ]
+   },
+   "bolt": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/bolt/bolt_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/bolt/bolt_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/bolt/bolt_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/bolt/bolt_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/bolt/bolt_5.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/bolt/bolt_6.png"
+    ],
+    "fps": 14,
+    "loop": true,
+    "size": [
+     64,
+     128
+    ],
+    "pivot": [
+     32.0,
+     64.0
+    ],
+    "boxes": [
+     [
+      8.0,
+      -2.0,
+      13.0,
+      3.0
+     ],
+     [
+      0.0,
+      -3.0,
+      16.0,
+      3.0
+     ],
+     [
+      -6.0,
+      -3.0,
+      17.0,
+      2.0
+     ],
+     [
+      -10.0,
+      -3.0,
+      17.0,
+      1.0
+     ],
+     [
+      -10.0,
+      -3.0,
+      17.0,
+      2.0
+     ],
+     [
+      -11.0,
+      -3.0,
+      17.0,
+      2.0
+     ]
+    ]
+   },
+   "blast": {
+    "frames": [
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/blast/blast_1.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/blast/blast_2.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/blast/blast_3.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/blast/blast_4.png",
+     "res://assets/characters/craftpix_wizards/x_wanderer_mage/blast/blast_5.png"
+    ],
+    "fps": 16,
+    "loop": false,
+    "size": [
+     64,
+     128
+    ],
+    "pivot": [
+     32.0,
+     64.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -8.0,
+      24.0,
+      7.0
+     ],
+     [
+      -21.0,
+      -17.0,
+      24.0,
+      16.0
+     ],
+     [
+      -15.0,
+      -18.0,
+      23.0,
+      24.0
+     ],
+     [
+      -18.0,
+      -22.0,
+      32.0,
+      24.0
+     ],
+     [
+      -32.0,
+      -17.0,
+      9.0,
+      22.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -16.0,
+   -66.0,
+   16.0,
    0.0
   ]
  }

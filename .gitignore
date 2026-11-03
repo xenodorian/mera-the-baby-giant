@@ -35,3 +35,4 @@ build/
 # Owner decision (2026-11-01): nothing is private. The Android signing key is tracked on purpose.
 !assets/_keys/android/mera-release.keystore
 assets/_source/craftpix_platformer/
+assets/_source/craftpix_wizards/

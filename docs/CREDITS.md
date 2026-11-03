@@ -126,3 +126,8 @@ DCSS tiles (`assets/changeling/source/tiles/`, licence file `LICENSE_DCSS.txt`):
 | Slash effects (`assets/characters/king/fx/`) | drawn for the game by `tools/build_king_forms.py` | | | Owner |
 
 Originals: `assets/_source/king/MedievalKingPack2.zip`, `king_stage2_reaper.gif`, `king_stage3_giant.gif`. Frames are cut by `tools/build_king_forms.py`. The earlier Foozle Lucifer Necromancer art (`assets/characters/itch/foozle/`, CC0, `tools/build_nero.py`) is no longer used by the game.
+
+## Wizards (Stage 2 and 3 enemies)
+| Creature | Author | Pack | URL | License |
+|---|---|---|---|---|
+| Fire Wizard (p_firemage, replaces Perry Riposte's fire mage), Lightning Mage (x_lightning_mage), Wanderer Magician (x_wanderer_mage) | Craftpix | Free Wizard Sprite Sheets Pixel Art (bought/downloaded by the owner) | https://craftpix.net/file-licenses/ | Craftpix free licence (the pack's licence file only links to that page). The raw sheets are not committed (`assets/_source/craftpix_wizards/` is git-ignored); frames are cut by `tools/build_wizards.py` |

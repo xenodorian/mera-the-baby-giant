@@ -73,7 +73,7 @@ SPR = {
     "stal_l": ("stalactites", (34, 1792, 63, 1843)), "stal_xl": ("stalactites", (34, 32, 63, 96)),
     "spike_a": ("Spikes", (128, 0, 160, 64)), "spike_b": ("Spikes", (160, 0, 192, 64)),   # base row is 50
     "cave_entrance": ("cave_entrance", (0, 0, 192, 128)), "chest": ("chest", (0, 0, 64, 64)),
-    "key": ("key", (0, 0, 32, 32)),
+    "key": ("key", (0, 0, 32, 32)), "entrance_mid": ("cave_entrance", (0, 32, 192, 64)),
 }
 SPIKE_BASE = 50
 # BGIMG: the 960x540 backdrops (the "÷2" folder), tile horizontally
@@ -133,9 +133,9 @@ def recolor(im: Image.Image, variant: str) -> Image.Image:
         out[:, :, :3] *= 0.86
     elif variant == "jungle":          # saturated green leaves, mossy mud rock
         out[:, :, 0] = np.where(grass, r * 0.42, np.where(bluerock, r * 0.78, r * 1.0))
-        out[:, :, 1] = np.where(grass, g * 0.92, np.where(bluerock, g * 1.25, g * 1.06))
+        out[:, :, 1] = np.where(grass, g * 1.0, np.where(bluerock, g * 1.25, g * 1.06))
         out[:, :, 2] = np.where(grass, b * 0.9 + 8, np.where(bluerock, b * 0.72, b * 0.62))
-        out[:, :, :3] *= 0.92
+        out[:, :, :3] *= 0.96
     elif variant == "sky_isles":       # pale lavender stone, mint grass
         out[:, :, 0] = np.where(grass, r * 0.55, 34 + r * 1.30)
         out[:, :, 1] = np.where(grass, g * 1.02 + 6, 32 + g * 1.30)
@@ -152,13 +152,22 @@ class Skin:
         self._t = {}
         self._s = {}
 
-    def tile(self, name: str, flip: bool = False) -> Image.Image:
-        key = (name, flip)
+    def tile(self, name: str, flip: bool = False, vflip: bool = False) -> Image.Image:
+        key = (name, flip, vflip)
         if key not in self._t:
             src, r, c = TILE[name]
             im = _png(src).crop((c * TS, r * TS, c * TS + TS, r * TS + TS))
+            if name.startswith("base_"):                 # the pack's base tiles carry leaf wings of the grass beside them
+                a = np.asarray(im).copy()
+                rr, gg, bb = (a[:, :, i].astype(int) for i in range(3))
+                a[(gg - bb > 25) & (gg >= rr * 0.9) & (gg > 60), 3] = 0
+                im = Image.fromarray(a, "RGBA")
             im = recolor(im, self.variant)
-            self._t[key] = im.transpose(Image.FLIP_LEFT_RIGHT) if flip else im
+            if flip:
+                im = im.transpose(Image.FLIP_LEFT_RIGHT)
+            if vflip:
+                im = im.transpose(Image.FLIP_TOP_BOTTOM)
+            self._t[key] = im
         return self._t[key]
 
     def sprite(self, name: str, flip: bool = False) -> Image.Image:
@@ -236,28 +245,30 @@ def _plan(x: _Ctx) -> None:
 
 def _draw_segment(x: _Ctx, c: int, yt: int, yb: int, floating: bool) -> None:
     sk, X = x.sk, x.cx(c)
-    ty = yt - SURF
+    ty = yt if floating else yt - SURF                   # floating scenery blocks have no grass
     k = 0
     while ty < yb and ty < IMG_ROWS:
         yref = max(ty + 16, yt + 6)
         le = not x.solid(c - 1, yref)
         re = not x.solid(c + 1, yref)
-        last = floating and ty + TS >= yb
-        if k == 0:
+        if k == 0 and floating:
+            name = "base_l" if le else ("base_r" if re else "base_m")
+        elif k == 0:
             if le and re:
                 name = "pillar_top"
             else:
                 name = "grass_top_l" if le else ("grass_top_r" if re else "grass_top_m")
-        elif last:
-            name = "base_l" if le else ("base_r" if re else "base_m")
+        elif le and re:
+            name = "pillar_body"
         else:
-            if le and re:
-                name = "pillar_body"
-            else:
-                name = "wall_l" if le else ("wall_r" if re else "wall_m")
-        t = sk.tile(name)
-        if last:
-            put(x.img, t, X, yb - TS)
+            name = "wall_l" if le else ("wall_r" if re else "wall_m")
+        t = sk.tile(name, vflip=(k == 0 and floating))
+        last = floating and ty + TS >= yb
+        if last:                                         # clip, then the rounded bottom edge of a base tile
+            keep = max(yb - ty - 6, 1)
+            put(x.img, t.crop((0, 0, TS, min(keep, TS))), X, ty)
+            b = sk.tile("base_l" if le else ("base_r" if re else "base_m"))
+            put(x.img, b.crop((0, TS - 7, TS, TS)), X, yb - 7)
         else:
             put(x.img, t, X, ty)
         if name == "wall_m" and x.rng.rand() < 0.5:     # rock blobs break up the flat fill
@@ -293,10 +304,10 @@ def _strip(x: _Ctx, c0: int, c1: int, y: int, under: bool) -> None:
             name = "plat_m2"
         if name == "plat_r" and x.solid(c + 1, y + 4):
             name = "plat_m2"
-        put(x.img, sk.tile(name), x.cx(c), y - SURF + (1 if name == "plat_one" else 0))
+        put(x.img, sk.tile(name), x.cx(c), y - (6 if name == "plat_one" else 4))
         if under and x.v == "sky_isles" and x.rng.rand() < 0.45:     # hanging rock under floating isles
             s = sk.sprite(("stal_s", "stal_m", "stal_l")[x.rng.randint(0, 3)], bool(x.rng.randint(0, 2)))
-            put(x.img, s, x.cx(c) + 1, y - SURF + 24)
+            put(x.img, s, x.cx(c) + 1, y - 4 + 24)
 
 
 def _decor_on(x: _Ctx, c: int, y: int, p: float) -> None:
@@ -385,7 +396,7 @@ def _pit(x: _Ctx, c: int) -> None:
     put(img, Image.new("RGBA", (TS, 1), (30, 24, 28, 255) if v == "meadow" else (20, 28, 40, 255)), X, FLOOR_ROW)
     if v == "cave":                                      # spikes in the dark
         s = x.sk.sprite("spike_a")
-        put(img, s, X, IMG_ROWS + 6 - SPIKE_BASE)
+        put(img, s, X, IMG_ROWS + 10 - SPIKE_BASE)
 
 
 def _props(x: _Ctx) -> None:
@@ -433,7 +444,7 @@ def _ceiling(x: _Ctx) -> None:
     fill = sk.tile("fill")
     for px in range(0, W, TS):
         put(img, fill, px, -TS + 10)
-        put(img, sk.tile("ceil_jag", (px // TS) % 2 == 1), px, -2)
+        put(img, sk.tile("ceil_jag", bool((px // TS * 7 + px // TS // 3) % 2)), px, -2)
     n = 0
     for px in range(0, W - 40, 38):
         if x.rng.rand() < 0.55:
@@ -443,37 +454,42 @@ def _ceiling(x: _Ctx) -> None:
 
 
 def _entrance(x: _Ctx) -> None:
-    """the pack's cave mouth behind the start tile"""
+    """the pack's cave mouth as a stone gate round the start tile: its two cobbled jambs, floor to ceiling"""
     sc = next((c for r in range(x.nr) for c in range(x.nc) if x.rows[r][c] == "S"), 2)
-    c0 = max(0, sc - 1)
-    s = x.sk.sprite("cave_entrance")
-    put(x.img, s, x.cx(c0) - 16, FLOOR_ROW - 98)
+    X = x.cx(max(0, sc - 1)) - 16
+    src = _png("cave_entrance")
+    for col, dx in ((0, 0), (5, 160)):
+        jamb = recolor(src.crop((col * TS, TS, col * TS + TS, 2 * TS)), "cave")
+        jamb = _shift(jamb, mul=(0.85, 0.85, 0.9))
+        ty = FLOOR_ROW - 6
+        while ty > 8 - TS:
+            ty -= TS
+            put(x.img, jamb, X + dx, ty)
 
 
 def _mist(x: _Ctx) -> None:
-    """cloud puffs round the foot of the high cliff (in front of the floor edge, behind Mera)"""
-    clouds = _bg("Clouds")
+    """pixel cloud puffs hugging the floor line of the high cliff (below the walking line, behind Mera)"""
     rng = np.random.RandomState(5)
-    boxes = [(202, 137, 443, 231), (338, 240, 529, 323), (595, 245, 781, 305), (0, 189, 115, 251)]
+    h, w = 22, x.img.width
+    puff = np.zeros((h, w, 4))
     px = 0
-    while px < x.img.width:
-        b = boxes[rng.randint(0, len(boxes))]
-        piece = clouds.crop(b)
-        piece = recolor(piece, "meadow")
-        a = np.asarray(piece).copy()
-        a[:, :, 3] = (a[:, :, 3] * 0.9).astype(np.uint8)
-        piece = Image.fromarray(a, "RGBA")
-        h = piece.height
-        # only the upper rim of the puff is allowed above the floor line (5 rows), the rest hangs under the screen
-        put(x.img, piece, px - 40, IMG_ROWS - 8 - rng.randint(0, 5))
-        px += 120 + rng.randint(0, 90)
+    while px < w:
+        r = rng.randint(6, 11)
+        cx, cy = px + r, h - 1 + rng.randint(0, 3)
+        yy, xx = np.mgrid[0:h, 0:w]
+        d = (xx - cx) ** 2 + (yy - cy) ** 2
+        m = d <= r * r
+        puff[m] = (246, 250, 255, 255)
+        sh = m & (d > (r - 3) ** 2) & (yy > cy - r // 2)
+        puff[sh] = (205, 224, 246, 255)
+        px += int(r * 1.3) + rng.randint(0, 8)
+    for c in x.pits:                                     # the gaps stay clear so they read as gaps
+        x0 = x.cx(c)
+        puff[:, max(x0, 0):x0 + TS, 3] = 0
+    put(x.img, _img(puff), 0, IMG_ROWS - 3 - (h - 1 - 5))
 
 
 # ------------------------------------------------------------------ parallax layers
-def _seamless(im: Image.Image, f: int = 48) -> Image.Image:
-    return im
-
-
 def _shift(im: Image.Image, mul=None, add=None, mix=None, mix_a=0.0) -> Image.Image:
     a = _arr(im)
     if mul is not None:
@@ -517,17 +533,17 @@ def _save(im: Image.Image, dest: Path, name: str) -> None:
 
 
 def _cave_wall(w: int, h: int) -> Image.Image:
-    """the dark blotchy cave interior from cave_entrance.png, mirrored tiles so the joins vanish"""
-    sk = Skin("cave")
-    names = ["cave_wall_a", "cave_wall_b", "cave_wall_c", "cave_wall_d"]
+    """the dark blotchy cave interior of cave_entrance.png (the seamless 4x3 tile patch), mirrored so the
+    patch borders vanish"""
+    patch = recolor(_png("cave_entrance").crop((TS, 0, 5 * TS, 3 * TS)), "cave")
+    pw, ph = patch.size
     out = Image.new("RGBA", (w, h))
-    rng = np.random.RandomState(11)
-    for ty in range(0, h, TS):
-        for tx in range(0, w, TS):
-            t = sk.tile(names[rng.randint(0, 4)])
-            if rng.rand() < 0.5:
+    for iy, ty in enumerate(range(0, h, ph)):
+        for ix, tx in enumerate(range(0, w, pw)):
+            t = patch
+            if ix % 2:
                 t = t.transpose(Image.FLIP_LEFT_RIGHT)
-            if rng.rand() < 0.5:
+            if iy % 2:
                 t = t.transpose(Image.FLIP_TOP_BOTTOM)
             out.paste(t, (tx, ty))
     return out
@@ -557,8 +573,8 @@ def _hang(w: int, h: int, seed: int, up: bool, n: int, tint, sizes) -> Image.Ima
 
 def make_layers(variant: str, dest_dir, level_id: str) -> list:
     """save the parallax PNGs into dest_dir and return their levels.json dicts (lowest first).
-    sky.png is always written; ground.png is the caller's. Textures are native pixel (the game draws them at x5),
-    so a 960 px wide image has period and w 4800."""
+    sky.png is always written; ground.png is the caller's. Textures are native pixels (the game draws every layer
+    at x5), so the 960 px wide backdrops have period and w 4800 (they tile horizontally)."""
     assert variant in VARIANTS, variant
     dest = Path(dest_dir)
     dest.mkdir(parents=True, exist_ok=True)
@@ -570,46 +586,49 @@ def make_layers(variant: str, dest_dir, level_id: str) -> list:
         _save(im, dest, name)
         layers.append(_layer(level_id, name, scroll, y, z, im.width))
 
-    sky = _bg("Sky")
-    clouds = _bg("Clouds")
-    f1 = _bg("Flora1")
-    f2 = _bg("Flora2")
+    def window(im, top_row, screen_row):
+        """world y that puts image row top_row on native screen row screen_row (rows above it are off screen)"""
+        return (screen_row - top_row) * ART
+
+    sky, clouds, f1, f2 = _bg("Sky"), _bg("Clouds"), _bg("Flora1"), _bg("Flora2")
     if variant == "meadow":
         base = _crop_h(sky, 0, SKY_H)
         ramp = _gradient(W, SKY_H, (96, 148, 226), (196, 214, 240))
         base = Image.blend(base.convert("RGB"), ramp.convert("RGB"), 0.55).convert("RGBA")
         add(base, "sky", 0.06, -40, -40)
-        cl = _crop_h(clouds, 0, 170)
-        add(_shift(cl, mul=(1.1, 1.1, 1.1)), "clouds", 0.16, 0, -36)
-        far = _crop_h(f1, 340, 540)
-        add(far, "flora_far", 0.32, SCREEN_H - far.height * ART, -30)
-        near = _crop_h(f2, 430, 540)
-        add(near, "flora_near", 0.55, SCREEN_H - near.height * ART, -24)
+        add(_shift(clouds, mul=(1.1, 1.1, 1.1)), "clouds", 0.16, window(clouds, 14, 0), -36)
+        far = _crop_h(f1, 130, 540)
+        add(far, "flora_far", 0.32, 0, -30)
+        near = _crop_h(f2, 200, 540)
+        add(near, "flora_near", 0.55, window(near, 40, 60 // 1 - 0 + 0), -24)
     elif variant == "jungle":
         base = _crop_h(sky, 0, SKY_H)
-        ramp = _gradient(W, SKY_H, (30, 70, 56), (150, 190, 120))
-        base = Image.blend(base.convert("RGB"), ramp.convert("RGB"), 0.8).convert("RGBA")
+        ramp = _gradient(W, SKY_H, (22, 54, 44), (96, 140, 96))
+        base = Image.blend(base.convert("RGB"), ramp.convert("RGB"), 0.85).convert("RGBA")
         add(base, "sky", 0.06, -40, -40)
-        mist = _alpha(_shift(_crop_h(clouds, 90, 300), mul=(0.75, 1.1, 0.8)), 0.45)
-        add(mist, "mist", 0.14, 40, -36)
-        far = _crop_h(f1, 300, 540)
-        far = _shift(far, mul=(0.55, 0.95, 0.62), mix=(40, 86, 62), mix_a=0.25)
-        add(far, "flora_far", 0.30, SCREEN_H - far.height * ART, -30)
-        near = _crop_h(f2, 380, 540)
-        near = _shift(near, mul=(0.42, 0.78, 0.5))
-        add(near, "flora_near", 0.58, SCREEN_H - near.height * ART, -24)
+        mist = _alpha(_shift(clouds, mul=(0.6, 0.9, 0.65)), 0.35)
+        add(mist, "mist", 0.14, window(mist, 40, 0), -36)
+        far = _crop_h(f1, 130, 540)
+        far = _shift(far, mul=(0.4, 0.68, 0.46))
+        add(far, "flora_far", 0.30, 0, -30)
+        near = _crop_h(f2, 200, 540)
+        near = _shift(near, mul=(0.26, 0.5, 0.3))
+        add(near, "flora_near", 0.58, window(near, 40, 60), -24)
     elif variant == "sky_isles":
         base = _gradient(W, SKY_H, (58, 116, 214), (186, 222, 248))
-        wisps = _alpha(_crop_h(sky, 0, SKY_H), 1.0)
+        wisps = _crop_h(sky, 0, SKY_H)
         base = Image.blend(base.convert("RGB"), _shift(wisps, mul=(1.0, 1.05, 1.2)).convert("RGB"), 0.18).convert("RGBA")
         add(base, "sky", 0.05, -40, -40)
-        hi = _shift(_crop_h(clouds, 0, 200), mul=(1.18, 1.18, 1.14))
-        add(hi, "clouds", 0.14, 10, -36)
-        far = _shift(_crop_h(f1, 380, 540), mul=(0.8, 1.0, 1.25), mix=(176, 212, 240), mix_a=0.55)
-        add(far, "far_isles", 0.26, SCREEN_H - far.height * ART - 60, -30)
-        low = _shift(_crop_h(clouds, 236, 334), mul=(1.2, 1.2, 1.15))
-        low = _alpha(low, 0.95)
-        add(low, "cloud_sea", 0.5, SCREEN_H - low.height * ART, -24)
+        hi = _shift(clouds, mul=(1.18, 1.18, 1.14))
+        add(hi, "clouds", 0.14, window(hi, 6, 0), -36)
+        far = _shift(_crop_h(f1, 150, 275), mul=(0.8, 1.0, 1.25), mix=(176, 212, 240), mix_a=0.6)
+        fa = _arr(far)
+        fa[:, :, 3] *= np.clip((np.arange(far.height)[::-1] / 40.0), 0, 1)[:, None]   # the distant treetops fade into cloud
+        add(_img(fa), "far_isles", 0.26, 90 * ART, -30)
+        sea = _shift(clouds.transpose(Image.FLIP_LEFT_RIGHT), mul=(1.2, 1.2, 1.15))
+        sa = _arr(sea)
+        sea = _img(sa)
+        add(sea, "cloud_sea", 0.5, window(sea, 150, 112), -24)
     else:                                               # cave
         wall = _cave_wall(W, SKY_H)
         wall = _shift(wall, mul=(0.62, 0.74, 0.98))
@@ -617,8 +636,8 @@ def make_layers(variant: str, dest_dir, level_id: str) -> list:
         wa = _arr(wall)
         wa[:, :, :3] *= shade
         add(_img(wa), "sky", 0.08, -40, -40)
-        fog = _alpha(_shift(_crop_h(clouds, 150, 335), mul=(0.35, 0.62, 0.8)), 0.30)
-        add(fog, "fog", 0.16, 300, -36)
+        fog = _alpha(_shift(clouds, mul=(0.35, 0.62, 0.8)), 0.30)
+        add(fog, "fog", 0.16, window(fog, 120, 0), -36)
         st = _hang(W, 100, 3, False, 16, (0.34, 0.42, 0.62), ("stal_m", "stal_l", "stal_xl"))
         add(st, "stalactites_far", 0.28, -20, -32)
         sg = _hang(W, 72, 4, True, 20, (0.5, 0.6, 0.85), ("stal_s", "stal_m", "stal_l"))
@@ -636,11 +655,11 @@ TEST_MAP = [
     "..................=====..................",
     "...............................T.....c..",
     ".....................==....########......",
-    "...........====.......x....#######.....c",
+    "...........====............#######.....c",
     "...........________..i.....#######..p..F",
     "..S....k..g..j.^^^.....T...######..m....",
     "========.....=====..=====#######======..",
-    "########..#########.###########=#######.",
+    "########..####x####.###########=#######.",
     "########^^#########^###########.########",
 ]
 
