@@ -62,7 +62,7 @@ A `scripts/game/prisoner.gd` node. Draw a simple cage (bars in `_draw`) over any
 | 1 Misty Woods | The king emptied the jails into these woods. Take this, and keep growing. | gold 20 + one `break_drop` |
 | 4 Infernal Caverns | His soldiers wear his spell like a collar. Break the caster, not only the blade. | gold 25 + one drop |
 | 8 Sunset Shore | Perry is his blood and his weapon. She does not fight like the others. | gold 25 + one drop |
-| 11 Perry's Arena, x ≈ 480 | Parry Perry is nearly unbeatable unless you stun her first. Earthquake. Down and Y. | gold 20, and **grant `Carry.moves["earthquake"]`** if she does not already own it (add a small `give_move` if needed). Still one drop. |
+| 11 Perry's Arena, x ≈ 480 | Perry is hard to beat without being stunned. Parry her attacks, or purchase Earthquake from the shop. | gold 20, and no free move (changed in v0.17.3: the earthquake is bought in the shop). Still one drop. |
 | 15 Rotting Marsh | Past the changeling is his own court. He will not come out until the warlord falls. | gold 30 + one drop |
 | 18 Hall of Faces | Free us and we will tell the others. The king waits alone. | gold 30 + one drop |
 

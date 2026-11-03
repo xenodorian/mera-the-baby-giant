@@ -254,7 +254,7 @@ func melee_reach(anims: Array, cap: float) -> float:
 		best = minf(best, float(fx[key]))
 	if best == INF:
 		return cap
-	return minf(cap, maxf(best * k * 0.8, 24.0))
+	return minf(cap, maxf(maxf(best * k * 0.8, cap * 0.7), 24.0))
 
 
 func _enemies() -> Array:
@@ -566,7 +566,7 @@ func _ai(_delta: float) -> void:
 				combo_i += 1
 				_attack(r[0], int(r[1]), int(r[2]))
 			return
-		if gap < 60.0 and on_ground:
+		if gap < minf(60.0, melee_reach(_melee_names(), float(MELEE_REACH[id])) * 0.6) and on_ground:      # backs off only inside her own sword's reach
 			_dodge(-face)
 			return
 	# 5) melee in reach (every 4th attack the special, if she has one)

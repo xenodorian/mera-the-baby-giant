@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.17.3-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.17.3_Windows.exe
+- Android: Mera_Playable_v0.17.3_Android.apk
+- **Perry's Arena has music again in the exe and apk.** Its track (and the Stage 3 and king tracks: Bramble Hollow, the Warlord's Throne, Nerochilde's Court) was missing from the export lists, so those stages played silent in builds, though not in the editor. All are in the lists now.
+- **The Captain's advice before Perry's fight** now reads: "Perry is hard to beat without being stunned. Parry her attacks, or purchase Earthquake from the shop." He no longer gives the earthquake free; it is bought in the shop (120 gold).
+- Ranger and Mirror Max attack-range tweaks after the v0.17.2 reach change; the test suite is extended (943+ checks).
+
 ## v0.17.2-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.17.2_Windows.exe

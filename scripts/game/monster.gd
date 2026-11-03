@@ -324,7 +324,7 @@ func far_of(a: Dictionary) -> float:
 				var b: Array = boxes[mini(int(f), boxes.size() - 1)]
 				tip = maxf(tip, float(b[2]) if native > 0 else -float(b[0]))
 		_far_cache[key] = tip
-	return minf(far, maxf(float(_far_cache[key]) * k - body_w() * 0.5, 30.0) * 0.9)
+	return minf(far, maxf(maxf(float(_far_cache[key]) * k - body_w() * 0.5, far * 0.7), 30.0) * 0.9)
 
 
 func gap_to(m: Node2D) -> float:
