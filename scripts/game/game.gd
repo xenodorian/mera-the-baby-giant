@@ -677,16 +677,19 @@ func _blast_props(c: Vector2, r: float, src: Node2D) -> void:
 			pr.blast_hit(Props.BARREL_CHAIN_S)
 
 
-## Q+W+1+2 at 100 rage: freeze the world and mark up to 9 nearest enemies. Costs 100. Does not start Fury.
+## R3 / numpad 5 / a tap at 100 rage: freeze the world and mark every enemy on screen (plus the boss). Costs 100. Does not start Fury.
 func begin_mark() -> bool:
 	if mark_lock or marker == null:
 		return false
-	var pool: Array = enemies()
+	var view := Rect2(cam.position.x - 960.0, cam.position.y - 540.0, 1920.0, 1080.0)
+	var pool: Array = []
+	for e in enemies():
+		if e.has_method("hurt_rect") and e.hurt_rect().intersects(view):
+			pool.append(e)
+	if boss != null and is_instance_valid(boss) and boss.alive() and not pool.has(boss):
+		pool.append(boss)
 	if pool.is_empty():
 		return false
-	pool.sort_custom(func(a, b): return mera.global_position.distance_squared_to(a.global_position) < mera.global_position.distance_squared_to(b.global_position))
-	if pool.size() > 9:
-		pool = pool.slice(0, 9)
 	Controls.clear_gestures()
 	marker.open(pool, Controls.prompt_arrows())
 	mark_lock = true

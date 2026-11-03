@@ -2671,8 +2671,8 @@ func _mark_tests() -> void:
 	m.fury = true
 	m.fury_left = 4.0
 	var mobs: Array = []
-	for i in 10:
-		var w: Node2D = g.spawn_enemy("wolf", m.global_position.x + 500.0 + i * 80.0)
+	for i in 12:
+		var w: Node2D = g.spawn_enemy("wolf", m.global_position.x + 300.0 + i * 55.0)
 		w.cooldown = 99.0
 		mobs.append(w)
 	await physics_frame
@@ -2680,24 +2680,53 @@ func _mark_tests() -> void:
 	C.r3_frame = Engine.get_physics_frames()
 	await _drive(g, [], 8)
 	var nums := {}
+	var cnt := {}
 	for mk in g.marker.marks:
 		nums[int(mk["n"])] = true
-	_check("the freeze slash costs 100 even during Fury, and marks at most 9", g.mark_lock and m.fury and absf(m.rage - 50.0) < 0.1 and g.marker.arrows and g.marker.marks.size() == 9 and nums.size() == 9, "n=%d rage=%f" % [g.marker.marks.size(), m.rage])
-	var mk0: Dictionary = g.marker.marks[0]
-	var foe: Node2D = mk0["e"]
-	var fn: int = int(mk0["n"])
-	foe.hp = 400
-	foe.hp_max = 400
-	var fhp: int = foe.hp
-	if fn == 5:
+		cnt[int(mk["n"])] = int(cnt.get(int(mk["n"]), 0)) + 1
+	var spread_ok := true
+	for k in cnt:
+		spread_ok = spread_ok and int(cnt[k]) <= 2
+	_check("the freeze slash costs 100 even during Fury, marks all 12 enemies on screen with 1-9 spread evenly", g.mark_lock and m.fury and absf(m.rage - 50.0) < 0.1 and g.marker.arrows and g.marker.marks.size() == 12 and nums.size() == 9 and spread_ok, "n=%d rage=%f nums=%s" % [g.marker.marks.size(), m.rage, cnt])
+	var hps := {}
+	for mk in g.marker.marks:
+		mk["e"].hp = 400
+		mk["e"].hp_max = 400
+		hps[mk["e"]] = 400
+	var first_n: int = int(g.marker.marks[0]["n"])
+	if first_n == 5:
 		C.r3_pending = true
 	else:
-		C.joy_r = C.vector_for(fn)
+		C.joy_r = C.vector_for(first_n)
 		C.armed = true
 	await physics_frame
 	C.joy_r = Vector2.ZERO
 	await physics_frame
-	_check("a right-stick flick in that direction deals the flat 15", foe.hp == fhp - 15 and g.marker.slashed == 1, "hp %d->%d n=%d" % [fhp, foe.hp, fn])
+	var hit_ok := true
+	var want_hits := 0
+	for mk in g.marker.marks:
+		var same: bool = int(mk["n"]) == first_n
+		want_hits += 1 if same else 0
+		hit_ok = hit_ok and (mk["e"].hp == (385 if same else 400))
+	_check("one input flicks every enemy with that number for the flat 15 at once", hit_ok and g.marker.slashed == want_hits and want_hits >= 1 and g.mark_lock, "slashed=%d want=%d lock=%s" % [g.marker.slashed, want_hits, g.mark_lock])
+	# enter every other distinct number: the lock must end the same physics frame as the last one
+	var left_n: Array = nums.keys()
+	left_n.erase(first_n)
+	for j in left_n.size():
+		var nn: int = left_n[j]
+		C.clear_gestures()
+		if nn == 5:
+			C.r3_pending = true
+			C.r3_frame = Engine.get_physics_frames()
+		else:
+			C.joy_r = C.vector_for(nn)
+			C.armed = true
+		await physics_frame
+		C.joy_r = Vector2.ZERO
+		if j < left_n.size() - 1:
+			_check("the world stays frozen until the last number is in", g.mark_lock, "j=%d" % j)
+			await physics_frame
+	_check("after all distinct numbers are entered the world unfreezes in that same frame, all 12 hit for 15, slashes still playing", not g.mark_lock and g.marker.slashed == 12 and not g.marker.on and g.marker.slashes.size() > 0 and g.world.process_mode == Node.PROCESS_MODE_INHERIT, "lock=%s slashed=%d on=%s sl=%d" % [g.mark_lock, g.marker.slashed, g.marker.on, g.marker.slashes.size()])
 	g.queue_free()
 	await physics_frame
 	C.scheme = "key"

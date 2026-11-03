@@ -1,7 +1,8 @@
 extends Node2D
-## Freeze slash (R3, numpad 5 or a screen tap). Up to 9 enemies get a unique 1-9. Keyboard shows the digit.
+## Freeze slash (R3, numpad 5 or a screen tap). Every enemy on screen gets a 1-9 (spread evenly, repeated past 9). Keyboard shows the digit.
 ## A pad, the numpad or a touch shows the matching arrow (5 is a dot: R3, numpad 5, or a tap).
-## The matching input draws a slash over that enemy, plays the slice, and deals Tuning.MARK_DMG (15) flat.
+## The matching input slashes every enemy with that number at once for Tuning.MARK_DMG (15) flat.
+## Once every number shown has been entered the world unfreezes at once (the slash lines keep playing).
 
 var game: Node = null
 var on := false
@@ -23,10 +24,14 @@ func open(pool: Array, scheme_arrows: bool) -> void:
 	slashes.clear()
 	slashed = 0
 	arrows = scheme_arrows
-	var bag := [1, 2, 3, 4, 5, 6, 7, 8, 9]
-	bag.shuffle()
-	for i in mini(pool.size(), 9):
-		marks.append({"e": pool[i], "n": bag[i], "done": false})
+	pool = pool.duplicate()
+	pool.sort_custom(func(a, b): return a.global_position.x < b.global_position.x)
+	var bag: Array = []
+	for i in pool.size():
+		if bag.is_empty():
+			bag = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+			bag.shuffle()
+		marks.append({"e": pool[i], "n": bag.pop_back(), "done": false})
 	left = Tuning.MARK_S
 	on = true
 	queue_redraw()
@@ -66,7 +71,7 @@ func _hit(n: int) -> void:
 		m["done"] = true
 		var e: Node2D = m["e"]
 		if not is_instance_valid(e) or not e.alive():
-			return
+			continue
 		e.take_damage(Tuning.MARK_DMG, e.global_position.x, "melee")
 		Sfx.play("swipe")
 		var d := Controls.vector_for(n)
@@ -74,7 +79,6 @@ func _hit(n: int) -> void:
 			d = Vector2(0.7, -0.7)
 		slashes.append({"p": e.hurt_rect().get_center(), "d": d.normalized(), "t": 0.35})
 		slashed += 1
-		return
 
 
 func _finish() -> void:
@@ -87,11 +91,22 @@ func _finish() -> void:
 func _draw() -> void:
 	if not on and slashes.is_empty():
 		return
+	var shown: Array = []
 	for m in marks:
-		if m["done"] or not is_instance_valid(m["e"]) or not m["e"].alive():
+		if not on or m["done"] or not is_instance_valid(m["e"]) or not m["e"].alive():
 			continue
 		var r: Rect2 = m["e"].hurt_rect()
-		var p := Vector2(r.get_center().x, r.position.y - 70.0)
+		var p := Vector2(r.get_center().x, r.position.y - 210.0)
+		if game and game.cam:
+			var c: Vector2 = game.cam.position
+			p.x = clampf(p.x, c.x - 960.0 + 300.0, c.x + 960.0 - 300.0)
+			p.y = clampf(p.y, c.y - 540.0 + 300.0, c.y + 540.0 - 300.0)
+		var k := 0
+		for q in shown:
+			if absf(q.x - p.x) < 120.0 and absf(q.y - p.y) < 120.0:
+				k += 1
+		shown.append(p)
+		p += Vector2(40.0, -30.0) * float(k)
 		if arrows:
 			_arrow(p, int(m["n"]))
 		else:
@@ -107,25 +122,25 @@ func _draw() -> void:
 
 func _num(p: Vector2, n: int) -> void:
 	var s := str(n)
-	for o in [Vector2(-4, 0), Vector2(4, 0), Vector2(0, -4), Vector2(0, 4)]:
-		draw_string(font, p + o + Vector2(-34, 28), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 88, Color(0.05, 0.02, 0.04))
-	draw_string(font, p + Vector2(-34, 28), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 88, Color(1, 0.95, 0.9))
+	for o in [Vector2(-12, 0), Vector2(12, 0), Vector2(0, -12), Vector2(0, 12)]:
+		draw_string(font, p + o + Vector2(-102, 84), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 264, Color(0.05, 0.02, 0.04))
+	draw_string(font, p + Vector2(-102, 84), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 264, Color(1, 0.95, 0.9))
 
 
-## big prompt icons: the arrow is 2.4x what it was (a 5 is a ring with a dot: R3, numpad 5 or a tap)
+## big prompt icons: 3x the size, 2x the line width of v0.9.x (a 5 is a ring with a dot: R3, numpad 5 or a tap)
 func _arrow(p: Vector2, n: int) -> void:
 	if n == 5:
-		draw_circle(p, 20.0, Color(0.05, 0.02, 0.04))
-		draw_circle(p, 16.0, Color(1, 0.95, 0.9))
-		draw_arc(p, 40.0, 0, TAU, 28, Color(0.05, 0.02, 0.04), 12.0)
-		draw_arc(p, 40.0, 0, TAU, 28, Color(1, 0.35, 0.28), 7.0)
+		draw_circle(p, 60.0, Color(0.05, 0.02, 0.04))
+		draw_circle(p, 48.0, Color(1, 0.95, 0.9))
+		draw_arc(p, 120.0, 0, TAU, 40, Color(0.05, 0.02, 0.04), 24.0)
+		draw_arc(p, 120.0, 0, TAU, 40, Color(1, 0.35, 0.28), 14.0)
 		return
 	var v := Controls.vector_for(n).normalized()
-	var tail := p - v * 44.0
-	var tip := p + v * 62.0
-	var side := Vector2(-v.y, v.x) * 22.0
-	var head := PackedVector2Array([tip + v * 34.0, tip - v * 10.0 + side, tip - v * 10.0 - side])
-	draw_line(tail, tip, Color(0.05, 0.02, 0.04), 20.0)
-	draw_line(tail, tip, Color(1, 0.95, 0.9), 10.0)
-	draw_colored_polygon(PackedVector2Array([head[0] + v * 6.0, head[1] + side * 0.4 - v * 4.0, head[2] - side * 0.4 - v * 4.0]), Color(0.05, 0.02, 0.04))
+	var tail := p - v * 132.0
+	var tip := p + v * 186.0
+	var side := Vector2(-v.y, v.x) * 66.0
+	var head := PackedVector2Array([tip + v * 102.0, tip - v * 30.0 + side, tip - v * 30.0 - side])
+	draw_line(tail, tip, Color(0.05, 0.02, 0.04), 40.0)
+	draw_line(tail, tip, Color(1, 0.95, 0.9), 20.0)
+	draw_colored_polygon(PackedVector2Array([head[0] + v * 18.0, head[1] + side * 0.4 - v * 12.0, head[2] - side * 0.4 - v * 12.0]), Color(0.05, 0.02, 0.04))
 	draw_colored_polygon(head, Color(1, 0.35, 0.28))

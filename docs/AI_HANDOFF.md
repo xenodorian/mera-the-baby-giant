@@ -47,7 +47,7 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 | `props.gd`, `prop.gd` | v0.8 prop kinds/numbers/layouts/secrets (`Props` data) and one prop node (breakables, barrel, chandelier, wall, lever, door, plank, ledge) |
 | `dragon.gd`, `dragon_bolt.gd` | v0.8 Infernal Dragon boss (extends `monster.gd`): size = health, flight phases, lobbed bolts. The flight plays `fly` (4-frame wing loop) and lobs on `spit` (breath without the plume, `tools/build_dragon_spit.py`). Lob spots come from `_next_spot()` / `Tuning.DRAGON_FLY_SPOTS`. The ground breath is the roster attack and keeps the plume |
 | `controls.gd` | autoload `Controls`: the input map in code, the Android trigger guard, and which device was used last (`scheme`: key / pad / touch). Numpad 1–9 is the right stick (5 = R3); only the top-row 1 and 2 are L2 and R2 |
-| `mark_slash.gd` | R3 / numpad 5 / a screen tap at full meter or during Fury: freezes the world, marks up to 9 enemies, slash for a flat 15 |
+| `mark_slash.gd` | R3 / numpad 5 / a screen tap at full meter or during Fury: freezes the world, marks every enemy on screen (1-9, repeated), one input slashes all with that number, unfreezes when all are entered |
 
 - Level maps are built by `tools/build_levels.py` into `assets/levels/<id>/*.png`, `thumb.png` and `levels.json`. Re-run it after changing a level, then add any new PNG to the export list.
 - Enemy art manifest: `python3 tools/build_roster.py` writes `assets/enemies/roster.json`: every frame path, its fps and loop, the pivot, and the opaque box of each frame. Hit boxes come from those boxes. Re-run it after changing an enemy pack, then add new frame paths to the export list.

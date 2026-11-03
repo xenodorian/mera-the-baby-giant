@@ -45,7 +45,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
 - **Three rage attacks, each costs 100.** A meter raised past 100 keeps the rest.
   - **R2 alone: lightning.** One bolt per enemy on screen, left to right, 0.08 s apart. Costs 100 rage. With nobody on screen, one bolt lands in front of her.
   - **L2+R2: Fury** (bought in the shop, page 2) for 12 s. The red bar during Fury is the timer, not the leftover rage. She cannot be hit while it lasts.
-  - **R3 / numpad 5 / screen tap: freeze slash.** Needs 100 rage (even during Fury). Costs 100. It does not start Fury. Up to 9 nearest enemies are marked; cut each for a flat 3.
+  - **R3 / numpad 5 / screen tap: freeze slash.** Needs 100 rage (even during Fury). Costs 100. It does not start Fury. Every enemy on screen is marked (numbers repeat past 9, one input cuts all with that number); the world unfreezes the moment every number shown is entered.
 - **Fury aura (v0.4: particles):**
   - Two CPU particle layers of pixel flame tongues (`CPUParticles2D`, world space, so emitted flames stay where they were born):
     - a back layer of 160 flames, dark red → red → orange;
@@ -63,7 +63,7 @@ Damage dealt = base damage × Mera's current size (1x does 1×, 3x does 3×).
   - Red aura; all spell fx, beams, explosions and lightning turn deep red.
   - Sfx are pitched down (×0.72) through a low-pass + overdrive bus.
   - Flight: Up in the air takes off; R2 or Down at ground level lands. **R2 alone is lightning**, not Fury.
-- **Freeze slash:** R3 on a pad, numpad 5 on a keyboard, a tap on the screen on mobile (it replaced the four-button chord) at **100 rage or more**. It costs **100 rage** and does **not** start Fury. Mera and the whole world stop for up to 8 s. Up to 9 nearest living enemies each get one unique mark from 1 to 9. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. It ends when every mark is cut or the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
+- **Freeze slash:** R3 on a pad, numpad 5 on a keyboard, a tap on the screen on mobile (it replaced the four-button chord) at **100 rage or more**. It costs **100 rage** and does **not** start Fury. Mera and the whole world stop for up to 8 s. Every living enemy on screen (and the boss) gets a mark from 1 to 9, spread evenly and repeated past 9; the arrows and digits are drawn 3x larger. A keyboard shows the digit; a gamepad or the touchscreen shows the arrow (numpad layout, 5 is a dot). The matching top-row number, numpad key, right-stick flick, swipe, or a tap / R3 cuts that enemy for a **flat 3** (not × size), with the knife-slice sound and a slash drawn on them. One input cuts every enemy with that number; the world unfreezes the moment every number shown has been entered, or when the 8 s run out. Top-row 1 and 2 are still L2 and R2 outside the freeze; the numpad is only the right stick.
 
 ## Mana (v0.4, renamed v0.9.4)
 - 60 / 60 at the start, regenerating 1 per second. HUD: the MANA bar under rage.
