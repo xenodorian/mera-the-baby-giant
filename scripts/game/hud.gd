@@ -39,7 +39,7 @@ const CONTROLS := [
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
 	["Any button in a bubble", "", "drops that bubble and does the move. L1 drinks and the bubble stays"],
-	["{MARK} (100 rage)", "Numpad 5", "freeze slash: R3 on a pad, numpad 5 on a keyboard, a tap on the screen on mobile (the one shown is the input you are using). Marks up to 9 enemies, cut each for 15. Costs 100 rage"],
+	["{MARK} (100 rage)", "Numpad 5", "freeze slash: R3 on a pad, numpad 5 on a keyboard, a tap on the screen on mobile (the one shown is the input you are using). Marks every enemy on screen; one input cuts all with that number for 15 and the world unfreezes when every shown number is entered. Costs 100 rage"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands", "mera:fury_mode"],
 	["Start", "Enter / F1", "pause: continue, restart, title, controls, or quit. B or Start continues"],

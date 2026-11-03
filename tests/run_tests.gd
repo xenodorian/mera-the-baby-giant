@@ -1365,6 +1365,8 @@ func _run() -> void:
 	# every enemy, every animation, and every enemy can hurt Mera
 	var runs := {"skeleton": ["plain", "clothed"], "wolf": ["run", "run_skin"]}
 	for eid in all_ids:
+		if eid == "black_knight":
+			continue                                        # his 25 animations (parry, buff, leaps...) are checked in _bk_checks
 		var used := {}
 		var hits := 0
 		var tells_seen := true
@@ -6550,10 +6552,13 @@ func _bk_checks() -> void:
 	await physics_frame
 	bk.take_damage(bk.hp_max / 2 + 1, bk.global_position.x - 300.0)
 	var hp_in: int = bk.hp
-	for i in 200:
+	for i in 30:
 		await physics_frame
 	bk.take_damage(5, bk.global_position.x - 300.0)
-	_check("black knight: at half health he sheathes, draws and powers up (sheathe, draw, buff), untouchable meanwhile, then he is faster", bk.buffed and bk.buff_log == ["sheathe", "draw", "buff"] and bk.hp == hp_in, "%s hp %d/%d" % [bk.buff_log, bk.hp, hp_in])
+	var untouched: bool = bk.hp == hp_in and bk.state == "buff"
+	for i in 360:
+		await physics_frame
+	_check("black knight: at half health he sheathes, draws and powers up (sheathe, draw, buff), untouchable meanwhile, then he is faster", untouched and bk.buffed and bk.buff_log == ["sheathe", "draw", "buff"] and bk.state != "buff", "%s hp %d/%d state %s" % [bk.buff_log, bk.hp, hp_in, bk.state])
 	g.queue_free()
 	await physics_frame
 	g = await _new_game()
