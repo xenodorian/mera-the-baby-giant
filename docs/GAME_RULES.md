@@ -242,21 +242,21 @@ The data lives in `scripts/game/roster.gd` (AttackData) and the colours in `scri
   - A summon uses one card.
   - At most 2 allies at once, one of each type.
   - Allies stay **30 s** by default, then leave. The shop sells longer times: 60 s, 90 s and 120 s, bought in that order. The dancer still dances **5 s** of that time.
-  - Enemy attacks hurt allies too, and allies can be beaten.
+  - Enemy attacks hurt allies too (same damage as against Mera, same hit windows, never while an ally arrives or leaves), and allies can be beaten. **Every summon has 10 hp and a health bar over its head, except the Dancing Girl: 1 hp, no bar, and only bosses can hurt her.**
 
 | Ally | Colour | What she does (every animation is used) |
 |---|---|---|
 | **Water Priestess** (chierit) | blue | Surfs in and **heals Mera back up to 6x** as soon as she arrives, then once more just before she leaves. Water attacks 1/2/3 (3-4 damage) and the special (6) every 4th attack; jump + air attack against flyers. Guards (defend) against wind-ups and tumbles away from rushes. Walks, surfs long distances, take-hit, death |
 | **Leaf Ranger** (chierit) | green | Leaps in (jump). Shoots arrows (1st/2nd attack, chierit arrow + arrow-hit sprites) from range, kicks (3rd attack) up close, leaf beam (special) every 4th attack; jump-up/air attack/jump-down against flyers. Guard pose during an enemy wind-up, then the defend block. Rolls away from rushes and when crowded, runs, slides (slide + slide loop) to catch up, take-hit, death |
 | **Brawler Girl** (ansimuz, skin recolour) | orange | Chases the nearest enemy at a run (the walk cycle sped up; the pack has no run). With nobody to fight she goes to the right side of the screen and waits between 200 and 400 px from the edge. She does not walk off it. Enemies stay on Mera |
-| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen, bosses included, drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Nobody attacks while she dances. After the 5 s she stops, and she leaves with the others when the ally's time runs out. If she is about to leave the view she runs back to Mera and dances again |
+| **Dancing Girl** (ansimuz; v0.8 natural-skin recolour, `tools/recolor_dancer_skin.py`) | pink | Walks out **in front of Mera**, stops, and dances for **5 s** (hips, snap, balancing, slide). **Every enemy on screen except the bosses drops what it is doing, rushes to her side and jumps up and down**; flyers bob in place. Bosses are not lured: they attack her (a boss picks her as its target when she is closer than Mera, and any boss blow that overlaps her kills her in one hit). Ordinary enemies never hurt her. After the 5 s she stops, and she leaves with the others when the ally's time runs out. If she is about to leave the view she runs back to Mera and dances again |
 
 ### Ally summons: the playable faces (Stage 3)
 Five more allies, one for every playable character that was not one yet. Cards work like the others (R1 summons, the 30/60/90/120 s tiers, two allies out at most, one of each type, a picker when several types are held). Numbers are in `allies.gd` and `ally_faces.gd`.
-- **Knight** (22 hp): melee tank, slash 4 and thrust 5. Non-boss enemies near him pick him as their target instead of Mera.
+- **Knight** (10 hp): melee tank, slash 4 and thrust 5. Non-boss enemies near him pick him as their target instead of Mera.
 - **Mage** (8 hp): stays 260 to 1000 px away and casts a bolt (4) that hurts the first enemy it meets.
 - **Weaver** (10 hp): spinning bone shot (3) from 220 to 900 px, a slash (2) when cornered.
-- **Perry** (16 hp): fast melee: slash 3, thrust 3, spin 4, and every 4th attack an energy wave (5) that passes through enemies. Her hit frames are her real ones.
+- **Perry** (10 hp): fast melee: slash 3, thrust 3, spin 4, and every 4th attack an energy wave (5) that passes through enemies. Her hit frames are her real ones.
 - **Changeling Ranger** (10 hp): arrows (3). A flyer within 1500 px is her target before any ground enemy. If it hangs more than 240 px above her feet she builds a stair (at most 3 planks and 2 ladders, each plank at most `Tuning.PLATFORM_STEP_H` above the last, a ladder for any taller rise, 25 s) and climbs it before shooting. Mera and Perry can use the stair too. The planner is `ranger_planner.gd`.
 - **Cards**: the enemies Knight, Ranger, Weaver, Mage and the boss Perry always drop a card of their own face (`Allies.DROPS`). With a full hand the card stays on the floor until there is room. The face cards can also come from chests and the shop, and lie on Stage 3 maps (`Allies.CARDS`).
 

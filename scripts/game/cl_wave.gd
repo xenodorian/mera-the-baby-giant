@@ -41,9 +41,9 @@ func _physics_process(delta: float) -> void:
 			shooter.hits_landed += 1
 	if game.has_method("allies"):
 		for a in game.allies():
-			if a.alive() and not hit_ids.has(a.get_instance_id()) and rect().intersects(a.hurt_rect()):
+			if not hit_ids.has(a.get_instance_id()) and a.hit_by(rect(), shooter):
 				hit_ids[a.get_instance_id()] = true
-				a.take_hit(dmg, global_position.x)
+				a.take_hit(dmg, global_position.x, shooter)
 
 
 func _draw() -> void:

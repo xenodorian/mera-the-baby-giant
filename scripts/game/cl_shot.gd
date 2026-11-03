@@ -74,8 +74,8 @@ func _splash() -> void:
 			shooter.hits_landed += 1
 	if game.has_method("allies"):
 		for a in game.allies():
-			if a.alive() and r.intersects(a.hurt_rect()):
-				a.take_hit(dmg, position.x)
+			if a.hit_by(r, shooter):
+				a.take_hit(dmg, position.x, shooter)
 	var pud := Node2D.new()
 	pud.position = Vector2(position.x, float(game.GROUND_Y) - 4.0)
 	var rad := 4.0 * k * 2.0

@@ -835,6 +835,7 @@ func _step_tick(delta: float, m: Node2D) -> void:
 		fx_node.frame = clampi(st_i, 0, fx_node.sprite_frames.get_frame_count(fx_node.animation) - 1)
 	_root(h, m)
 	_hits(h, m)
+	_hits_allies(h)
 
 
 func _enter_frame(h: String, m: Node2D) -> void:
@@ -1016,6 +1017,53 @@ func _hits(h: String, m: Node2D) -> void:
 			st_hits[st_win] = true
 			hit_mera(dmg, global_position.x, float(st.get("shove", 0.0)), 0.25)
 			return
+
+
+## Mera's allies (the dancing girl too: bosses hurt her) take the same blow in the same window, each at most once per window
+func _hits_allies(h: String) -> void:
+	var dmg := int(st.get("dmg", 0))
+	if dmg <= 0 or game == null or state != "atk":
+		return
+	var rs: Array = []
+	var tag := "w%d" % st_i
+	if h == "sky":
+		if st_retreat or st_i < 1 or st_i > 3:
+			return
+		rs = [hurt_rect()]
+		tag = "c"
+	elif h == "burst":
+		rs = _hit_rects()
+		tag = "b"
+	else:
+		rs = _hit_rects()
+		tag = "w%d" % (st_win if st_win >= 0 else st_i)
+	if rs.is_empty():
+		return
+	for a in game.allies():
+		var key := "a%s:%d" % [tag, a.get_instance_id()]
+		if st_hits.has(key):
+			continue
+		for r in rs:
+			if a.hit_by(r, self):
+				st_hits[key] = true
+				hits_landed += 1
+				a.take_hit(dmg, global_position.x, self)
+				break
+
+
+## an area effect of hers (beam, meteor, quake, reflected bolt) hurts the allies it overlaps; `done` holds the ones already hit
+func hit_allies_in(r: Rect2, dmg: int, from_x: float, done: Dictionary) -> bool:
+	var any := false
+	if game == null or dmg <= 0:
+		return false
+	for a in game.allies():
+		if done.has(a.get_instance_id()):
+			continue
+		if a.hit_by(r, self):
+			done[a.get_instance_id()] = true
+			a.take_hit(dmg, from_x, self)
+			any = true
+	return any
 
 
 func _step_end() -> void:

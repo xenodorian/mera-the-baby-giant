@@ -1606,7 +1606,6 @@ func _run() -> void:
 	g.snap_camera()
 	m.set_size(4, true)
 	var watchers: Array = [g.spawn_enemy("hell_hound", 12700.0), g.spawn_enemy("fire_skull", 11300.0), g.spawn_enemy("demon", 12500.0)]
-	var drg: Node2D = g.spawn_enemy("dragon", 12900.0)
 	await _drive(g, [], 20)
 	_give_cards(g, {"dancer": 1})
 	var dz: Node2D = g.summon_type("dancer")
@@ -1623,7 +1622,7 @@ func _run() -> void:
 	for w in watchers:
 		if w.state == "tell" or w.state == "atk":
 			tells += 1
-	_check("Dancing Girl: every on-screen enemy, the boss included, gathers and jumps, no attacks", dz.dancing() and near_ok and hop_ok and tells == 0 and drg.distracted_t > 0.0, "near=%s hop=%s tells=%d boss=%f" % [near_ok, hop_ok, tells, drg.distracted_t])
+	_check("Dancing Girl: every on-screen ordinary enemy gathers and jumps, no attacks (bosses are not lured, see the ally hurt tests)", dz.dancing() and near_ok and hop_ok and tells == 0, "near=%s hop=%s tells=%d" % [near_ok, hop_ok, tells])
 	g.queue_free()
 	await process_frame
 	g = await _new_game()
@@ -1749,6 +1748,7 @@ func _run() -> void:
 	await _cl_tests()
 	await _ladder_tests()
 	await _face_summon_tests()
+	await _ally_hurt_tests()
 	await _session_tests()
 	await _stage3_map_tests()
 	await _craft_hazard_tests()
@@ -6583,7 +6583,7 @@ func _craft_hazard_tests() -> void:
 	var g: Node = await _s4_new(15)
 	var m: Node = g.mera
 	m.set_size(5, true)
-	var pr: Array = g.pits[0]
+	var pr: Array = g.pits[3]                       # the long flooded stretch (no secret wall near its middle)
 	m.global_position = Vector2((float(pr[0]) + float(pr[1])) * 0.5, g.GROUND_Y)
 	m.invuln = 0.0
 	await physics_frame
@@ -6594,7 +6594,7 @@ func _craft_hazard_tests() -> void:
 	await physics_frame
 	await physics_frame
 	_check("hazards: crossing the same pit in the air is safe", g.pit_falls == 1 and m.size == 4, "falls %d size %d" % [g.pit_falls, m.size])
-	var sp: Array = g.spikes[0]
+	var sp: Array = g.spikes[1]
 	m.invuln = 0.0
 	m.global_position = Vector2((float(sp[0]) + float(sp[1])) * 0.5, g.GROUND_Y)
 	await physics_frame
@@ -6752,3 +6752,148 @@ func _test_bubble_exit_once() -> void:
 		_check("full bubble exit plays once (%s)" % cname, n == 1 and not g.mera.barrier_on and g.mera.state == "ground", "heal starts=%d log=%s" % [n, g.mera.move_log])
 		g.queue_free()
 		await process_frame
+
+
+# ================================================================ enemies hurt summons: 10 hp, health bars, the dancer only for bosses
+func _ally_hurt_tests() -> void:
+	var AL = load("res://scripts/game/allies.gd")
+	var LV = load("res://scripts/game/levels.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var ES = load("res://scripts/game/enemy_shot.gd")
+	var CW = load("res://scripts/game/cl_wave.gd")
+	C.reset()
+	C.test_all = true
+	LV.current = 1
+	var g: Node = await _new_game()
+	var m: Node2D = g.mera
+	m.position.x = 6000.0
+	m.facing = 1
+	g.snap_camera()
+	# ---- hp: 10 for every summon, 1 for the dancing girl
+	var hp_ok := true
+	var hp_info := ""
+	for id in AL.IDS:
+		var want := 1 if id == "dancer" else 10
+		_give_cards(g, {id: 1})
+		var a0: Node2D = g.summon_type(id)
+		if int(AL.HP[id]) != want or a0.hp != want or a0.hp_max != want:
+			hp_ok = false
+			hp_info += "%s=%d " % [id, a0.hp]
+		g.allies_on.erase(a0)
+		a0.queue_free()
+	_check("summons: every ally has 10 hp, the dancing girl 1", hp_ok, hp_info)
+	# ---- an ordinary enemy's melee hurts an ally by its damage; the dancer is untouched
+	_give_cards(g, {"brawler": 1, "dancer": 1})
+	var br: Node2D = g.summon_type("brawler")
+	var dz: Node2D = g.summon_type("dancer")
+	for a in [br, dz]:
+		a.state = "idle"
+		a.stay = 1e9
+		a.vx = 0.0
+	br.position.x = 5800.0
+	dz.position.x = 5800.0
+	var wolf: Node2D = g.spawn_enemy("wolf", 5400.0)
+	var ogre: Node2D = g.spawn_enemy("p_clubogre", 3000.0)
+	wolf.cooldown = 99.0
+	ogre.cooldown = 99.0
+	wolf.atk = wolf.attacks[0]
+	var wd := int(wolf.atk["dmg"])
+	wolf._hit_allies(br.hurt_rect(), 0)
+	wolf._hit_allies(br.hurt_rect(), 0)
+	wolf._hit_allies(Rect2(dz.global_position.x - 60.0, dz.global_position.y - 200.0, 120.0, 200.0), 0)
+	_check("enemy melee hurts a summon by its damage, once per window (%d of 10 hp)" % wd, br.hp == 10 - wd and br.state == "hit", "hp %d state %s" % [br.hp, br.state])
+	_check("an ordinary enemy's blow does not hurt the dancing girl", dz.hp == 1 and dz.alive(), "hp %d" % dz.hp)
+	_check("the dancer has no hurt box for ordinary enemies but one for bosses", dz.hurt_rect().size.x == 0.0 and dz.hurt_rect_for(wolf).size.x == 0.0 and dz.hurt_rect_for(ogre).size.x > 0.0, "")
+	g.mobs.erase(wolf)             # off the target list, so the allies do not wander off after them
+	g.mobs.erase(ogre)
+	# ---- shots: ordinary shots hit a summon (not the dancer), a boss shot kills her
+	br.hp = 10
+	br.state = "idle"
+	var bc: Vector2 = br.hurt_rect().get_center()
+	var shot: Node2D = ES.new()
+	shot.setup(g, "hell_beast", "fireball", bc + Vector2(-400.0, 0.0), Vector2(700.0, 0.0), 2, 4.0)
+	g.world.add_child(shot)
+	for f in 45:
+		await physics_frame
+		br.position.x = 5800.0            # (she would walk off to her waiting spot)
+	_check("an enemy shot hurts the first summon it meets (2 damage)", br.hp == 8, "hp %d" % br.hp)
+	var dc: Vector2 = Rect2(dz.global_position.x - 40.0, dz.global_position.y - 120.0, 80.0, 120.0).get_center()
+	var shot2: Node2D = ES.new()
+	shot2.setup(g, "hell_beast", "fireball", Vector2(dc.x - 400.0, dc.y), Vector2(700.0, 0.0), 2, 4.0)
+	shot2.shooter = wolf
+	g.world.add_child(shot2)
+	await _drive(g, [], 30)
+	_check("an ordinary enemy's shot passes the dancing girl", dz.hp == 1 and dz.alive(), "hp %d" % dz.hp)
+	if is_instance_valid(shot2):
+		shot2.queue_free()
+	# ---- the Warlord's slam wave (a boss) kills her, a wave from an ordinary enemy does not
+	var w1: Node2D = CW.new()
+	w1.setup(g, dz.global_position.x - 40.0, 1.0, 2, wolf)
+	g.world.add_child(w1)
+	await _drive(g, [], 8)
+	var ordinary_ok: bool = dz.hp == 1
+	var w2: Node2D = CW.new()
+	w2.setup(g, dz.global_position.x - 40.0, 1.0, 2, ogre)
+	g.world.add_child(w2)
+	await _drive(g, [], 8)
+	_check("a shockwave from an ordinary enemy spares the dancer, one from a boss kills her (1 hp)", ordinary_ok and not dz.alive(), "hp %d" % dz.hp)
+	# ---- health bars
+	_check("health bar: the brawler has one over her head, above her name tag", br.bar != null and br.bar.visible and br.bar.position.y < br.tag.position.y and br.bar_width() >= 40.0 and br.bar_width() <= 120.0, "")
+	_check("health bar: the dancing girl has none", dz.bar == null, "")
+	var bk: float = br.k
+	br.k = 1.5
+	br._place_tag()
+	_check("health bar: it follows the ally's size (tag and bar move with k)", absf(br.bar.position.y - (br.tag.position.y - 15.0)) < 0.01 and br.bar_width() <= 120.0, "")
+	br.k = bk
+	br.hp = 1
+	br.take_hit(5, 5000.0)
+	_check("health bar: it is hidden once the ally is dead", not br.alive() and not br.bar.visible, "")
+	g.queue_free()
+	await process_frame
+	# ---- a boss attacking the dancer for real (tell, then the active frames), and bosses picking her as prey
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 6000.0
+	m.facing = 1
+	g.snap_camera()
+	_give_cards(g, {"dancer": 1, "priestess": 1})
+	var dn: Node2D = g.summon_type("dancer")
+	dn.state = "idle"
+	dn.stay = 1e9
+	dn.position.x = 6400.0
+	var pr: Node2D = g.summon_type("priestess")
+	pr.state = "idle"
+	pr.stay = 1e9
+	pr.position.x = 5800.0
+	var bo: Node2D = g.spawn_enemy("p_clubogre", 6600.0)
+	await _drive(g, [], 5)
+	_check("a boss takes the dancing girl as its target when she is closer than Mera", bo._prey() == dn, "%s" % bo._prey())
+	var og2: Node2D = g.spawn_enemy("wolf", 6700.0)
+	_check("an ordinary enemy never takes the dancing girl as its target", og2._prey() == m, "")
+	g.mobs.erase(og2)
+	og2.queue_free()
+	bo.cooldown = 99.0
+	bo._start_tell(bo.attacks[0], -1)
+	for f in 140:
+		await physics_frame
+		m.invuln = 1.0
+		for a in [dn, pr]:
+			if is_instance_valid(a) and a.alive():
+				a.state = "idle" if a.state != "dead" else a.state
+				a.position.x = 6400.0 if a == dn else 5800.0
+		if not dn.alive():
+			break
+	_check("a boss swing (forced tell, then active frames) kills the dancing girl in one hit", not dn.alive(), "dancer hp %d boss state %s" % [dn.hp, bo.state])
+	_check("a boss swing far from the priestess does not hurt her", pr.hp == 10, "hp %d" % pr.hp)
+	# ---- Perry as the boss: her area effects reach allies, the dancer included
+	var dn2: Node2D = null
+	_give_cards(g, {"dancer": 1})
+	dn2 = g.summon_type("dancer")
+	dn2.state = "idle"
+	dn2.position.x = 7000.0
+	var pb: Node2D = g.spawn_enemy("perry", 7600.0)
+	await _drive(g, [], 3)
+	var any: bool = pb.hit_allies_in(Rect2(6900.0, 800.0, 200.0, 300.0), 1, 7000.0, {})
+	_check("perry boss: a beam / meteor / quake box over the dancer kills her", any and not dn2.alive(), "hp %d" % dn2.hp)
+	g.queue_free()
+	await process_frame

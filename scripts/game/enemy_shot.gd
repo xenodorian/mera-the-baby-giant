@@ -89,8 +89,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if game.has_method("allies"):
 		for a in game.allies():
-			if a.alive() and rect().intersects(a.hurt_rect()):
-				a.take_hit(dmg, global_position.x)
+			if a.hit_by(rect(), shooter):
+				a.take_hit(dmg, global_position.x, shooter)
 				if is_instance_valid(shooter):
 					shooter.hits_landed += 1
 				_impact()

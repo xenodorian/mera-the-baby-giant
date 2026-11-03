@@ -2,6 +2,16 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.21.0-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.21.0_Windows.exe
+- Android: Mera_Playable_v0.21.0_Android.apk
+- **Four Stage 3 maps rebuilt on the Craftpix platformer tileset**, so Stage 3 no longer repeats one look: **Greenwood Road** (sunny meadow terraces), **Bramble Hollow** (a cave with a stalactite ceiling, a spike tunnel, a shaft with ladders and an upper gallery), **Old Watchtower** (floating islands among clouds with many archers) and **Rotting Marsh** (a jungle with predator plants, pits and a long flooded stretch crossed on planks). New layouts, art and parallax backdrops; Hall of Faces, Castle Gate, Undercroft and the Throne keep their looks.
+- **Real pits and spikes** on those maps: walking into a pit on the floor costs 1 size and puts you back at its near edge (jump it, or use a ledge); a spike bed costs 1 on touch. Cards, the marsh prisoner and the props were moved off the hazards.
+- **Summons have 10 HP and health bars.** Every summon has 10 HP (the dancing girl 1) and a health bar over its head (none for the dancer). Enemies now hurt summons on every attack that hurts Mera, including Perry's boss moves and the Fire Knight, which missed them before. Ordinary enemies still leave the dancing girl alone, but **bosses attack her** (one hit) and can choose her as their target.
+- **Perry's heavy overhead chop is devastating every time.** Every chop (charged or not) has the black and white impact frame, a camera rumble and a real earthquake that stuns grounded enemies on screen, and every enemy within 620 px of where the blade lands takes the chop's full damage.
+- Tests: 976 pass, 0 fail.
+
 ## v0.20.0-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.20.0_Windows.exe

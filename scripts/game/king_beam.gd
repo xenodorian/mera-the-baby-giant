@@ -153,13 +153,15 @@ func _hit_check() -> void:
 				break
 	if game != null and game.has_method("allies"):
 		for a in game.allies():
-			if not is_instance_valid(a) or not a.alive() or hit_done.has(a.get_instance_id()):
+			if not is_instance_valid(a) or not a.hittable(owner_node) or hit_done.has(a.get_instance_id()):
 				continue
-			var abox: Rect2 = a.hurt_rect().grow(r)
+			var abox: Rect2 = a.hurt_rect_for(owner_node).grow(r)
+			if abox.size.x <= 2.0 * r:
+				continue
 			for p in pts:
 				if abox.has_point(p):
 					hit_done[a.get_instance_id()] = true
-					a.take_hit(dmg, global_position.x)
+					a.take_hit(dmg, global_position.x, owner_node)
 					break
 
 

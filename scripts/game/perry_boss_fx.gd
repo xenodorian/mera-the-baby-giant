@@ -17,6 +17,7 @@ class Beam extends Node2D:
 	var reach := 0.0
 	var dmg := 1
 	var hit := false
+	var hit_ids := {}
 	var tile_w := 98.0
 	var tile_h := 44.0
 	var spr: Sprite2D
@@ -65,6 +66,7 @@ class Beam extends Node2D:
 		if not hit and m.state != "dead" and rect().intersects(m.hurt_rect()):
 			hit = true
 			boss.hit_mera(dmg, position.x)
+		boss.hit_allies_in(rect(), dmg, position.x, hit_ids)
 
 
 ## a meteor: a ring on the floor warns where it lands, then it falls and bursts
@@ -96,6 +98,7 @@ class Meteor extends Node2D:
 		var m: Node2D = game.mera
 		if m.state != "dead" and Rect2(position.x - r, position.y - r * 1.6, r * 2.0, r * 1.6).intersects(m.hurt_rect()):
 			boss.hit_mera(Tuning.PERRY_BOSS_METEOR_DMG, position.x)
+		boss.hit_allies_in(Rect2(position.x - r, position.y - r * 1.6, r * 2.0, r * 1.6), Tuning.PERRY_BOSS_METEOR_DMG, position.x, {})
 		queue_free()
 
 	func _draw() -> void:
@@ -120,6 +123,7 @@ class Quake extends Node2D:
 	var dir := 1
 	var t := 0.0
 	var hit := false
+	var hit_ids := {}
 
 	func setup(g: Node, b: Node, x: float, d: int) -> void:
 		game = g
@@ -142,6 +146,7 @@ class Quake extends Node2D:
 		if not hit and m.state != "dead" and rect().intersects(m.hurt_rect()):
 			hit = true
 			boss.hit_mera(Tuning.PERRY_BOSS_QUAKE_DMG, position.x - dir * 60.0)
+		boss.hit_allies_in(rect(), Tuning.PERRY_BOSS_QUAKE_DMG, position.x - dir * 60.0, hit_ids)
 
 	func _draw() -> void:
 		var h := Tuning.PERRY_BOSS_QUAKE_H
@@ -188,6 +193,9 @@ class Reflect extends Node2D:
 			queue_free()
 			return
 		var m: Node2D = game.mera
+		if boss.hit_allies_in(rect(), dmg, global_position.x - signf(vel.x) * 50.0, {}):
+			queue_free()
+			return
 		if m.state != "dead" and rect().intersects(m.hurt_rect()):
 			if m.has_method("try_parry_shot") and m.try_parry_shot(self):
 				game.explode(global_position, 0.8, false)

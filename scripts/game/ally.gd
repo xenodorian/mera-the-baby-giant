@@ -52,6 +52,7 @@ var history: Array = []
 var hits_landed := 0
 var sprite: AnimatedSprite2D
 var tag: Node2D
+var bar: Node2D                  # health bar over the head (null for the dancing girl)
 
 
 func setup(g: Node, ally_id: String) -> void:
@@ -95,6 +96,11 @@ func _ready() -> void:
 	tag.position = Vector2(0, float(art["body"][1]) * k - 22.0)
 	tag.draw.connect(_draw_tag)
 	add_child(tag)
+	if id != "dancer":
+		bar = Node2D.new()
+		bar.draw.connect(_draw_bar)
+		add_child(bar)
+	_place_tag()
 	_arrive()
 
 
@@ -161,7 +167,7 @@ func _fit_size(delta: float) -> void:
 	if absf(want - k) > 0.001:
 		k = move_toward(k, want, maxf(absf(want - k), 0.5) * 4.0 * delta)
 		_face(0)
-		tag.position = Vector2(0, float(art["body"][1]) * k - 22.0)
+		_place_tag()
 
 
 func _face(d: int) -> void:
@@ -183,9 +189,41 @@ func _box(b: Array) -> Rect2:
 func hurt_rect() -> Rect2:
 	if id == "dancer":
 		return Rect2()
+	return _body_rect()
+
+
+func _body_rect() -> Rect2:
 	var b: Array = art["body"]
 	var w := float(b[2]) - float(b[0])
 	return _box([float(b[0]) + w * 0.15, b[1], float(b[2]) - w * 0.15, b[3]])
+
+
+## Dancing-girl rule: ordinary enemies never hurt her (her hurt_rect() is empty, they ignore her except for the lure). BOSSES do:
+## the boss monsters (monster.gd `boss`: the dragon, Perry, Nero, the Warlord, the Black Knight, the p_ and x_ bosses) and the Fire Knight.
+## Every enemy attack path asks hit_by(rect, source) / hurt_rect_for(source) instead of hurt_rect().
+static func is_boss(src) -> bool:
+	if src == null or not is_instance_valid(src):
+		return false
+	return src.get("boss") == true or (src is FireKnight and src.variant == "fire")
+
+
+func hurt_rect_for(src) -> Rect2:
+	if id == "dancer":
+		return _body_rect() if is_boss(src) else Rect2()
+	return _body_rect()
+
+
+## can an attack from `src` hurt this ally now? (not while arriving, leaving or dead)
+func hittable(src = null) -> bool:
+	return alive() and state != "arrive" and state != "leave" and (id != "dancer" or is_boss(src))
+
+
+## does the attack box `r` of `src` overlap this ally's hurt box (and is she hittable)
+func hit_by(r: Rect2, src = null) -> bool:
+	if not hittable(src):
+		return false
+	var hb := hurt_rect_for(src)
+	return hb.size.x > 0.0 and r.intersects(hb)
 
 
 func alive() -> bool:
@@ -316,19 +354,23 @@ func leave() -> void:
 	position.y = gy
 
 
-## enemies hit allies too (monster.gd); the priestess / ranger block while defending
-func take_hit(dmg: int, from_x: float) -> void:
-	if not alive() or state == "leave" or state == "arrive" or state == "dodge" or id == "dancer":
+## enemies hit allies too (monster.gd); the priestess / ranger block while defending. The dancing girl only takes a boss's hit.
+func take_hit(dmg: int, from_x: float, src = null) -> void:
+	if not alive() or state == "leave" or state == "arrive" or state == "dodge" or (id == "dancer" and not is_boss(src)):
 		return
 	if state == "defend":
 		Sfx.play("block", 1.2)
 		return
 	hp -= dmg
 	flash = 0.12
+	if bar != null:
+		bar.queue_redraw()
 	_face(1 if from_x > global_position.x else -1)
 	vx = 0.0
 	if hp <= 0:
 		hp = 0
+		if bar != null:
+			bar.visible = false
 		if id == "brawler":
 			_go("dead", "hurt")
 		else:
@@ -384,6 +426,9 @@ func _physics_process(delta: float) -> void:
 	if game == null:
 		return
 	_fit_size(delta)
+	if bar != null:
+		bar.visible = alive()
+		bar.queue_redraw()
 	if id in AL.FACE_IDS:
 		AllyFaces.gravity(self, delta)
 	else:
@@ -798,6 +843,29 @@ func _arrow() -> void:
 	get_parent().add_child(s)
 	played["arrow"] = true
 	Sfx.play("cast", 1.4, -8.0)
+
+
+## the name tag square sits 22 px over the head; the health bar sits right above it and follows the ally's size k
+func _place_tag() -> void:
+	tag.position = Vector2(0, float(art["body"][1]) * k - 22.0)
+	if bar != null:
+		bar.position = tag.position + Vector2(0, -15.0)
+		bar.queue_redraw()
+
+
+func bar_width() -> float:
+	var b: Array = art["body"]
+	return clampf((float(b[2]) - float(b[0])) * k * 0.9, 40.0, 120.0)
+
+
+func _draw_bar() -> void:
+	if hp <= 0 or state == "dead":
+		return
+	var w := bar_width()
+	var h := 8.0
+	bar.draw_rect(Rect2(-w / 2.0 - 2.0, -h - 2.0, w + 4.0, h + 4.0), Color(0, 0, 0, 0.7))
+	bar.draw_rect(Rect2(-w / 2.0, -h, w * clampf(float(hp) / float(maxi(hp_max, 1)), 0.0, 1.0), h), Color(0.9, 0.2, 0.2))
+	bar.draw_rect(Rect2(-w / 2.0 - 2.0, -h - 2.0, w + 4.0, h + 4.0), Color(1, 1, 1, 0.55), false, 1.0)
 
 
 func _draw_tag() -> void:

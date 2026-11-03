@@ -367,10 +367,10 @@ func _hazard_tick() -> void:
 		if p.x > float(pr[0]) + 50.0 and p.x < float(pr[1]) - 50.0:
 			pit_falls += 1
 			var left: bool = absf(p.x - float(pr[0])) < absf(p.x - float(pr[1]))
+			mera.global_position.x = float(pr[0]) - 170.0 if left else float(pr[1]) + 170.0       # back to the near edge first: the hit's knock slides from where she stands
+			mera.vel = Vector2.ZERO
 			mera.take_hit(1, (float(pr[0]) + float(pr[1])) * 0.5)
 			if mera.state != "dead":
-				mera.global_position.x = float(pr[0]) - 170.0 if left else float(pr[1]) + 170.0
-				mera.vel = Vector2.ZERO
 				mera.invuln = maxf(mera.invuln, 1.2)
 			shake(8.0, 0.2)
 			return
@@ -1833,7 +1833,8 @@ func _impact_tick() -> void:
 		_impact_show(false, 0.0)
 		if impact_quake_only:
 			impact_quake_only = false
-			shake(Tuning.PERRY_HEAVY_QUAKE_SHAKE, Tuning.PERRY_HEAVY_QUAKE_S)      # the original's 1 s rumble, a camera shake only
+			shake(Tuning.PERRY_HEAVY_QUAKE_SHAKE, Tuning.PERRY_HEAVY_QUAKE_S)      # the 1 s rumble ...
+			earthquake()                                                             # ... and a real earthquake: grounded enemies on screen are stunned
 		else:
 			_super_quake_go()
 

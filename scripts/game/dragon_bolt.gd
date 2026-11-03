@@ -212,8 +212,12 @@ func _explode() -> void:
 					dragon.bolt_hit()
 	if game.has_method("allies"):
 		for a in game.allies():
-			if is_instance_valid(a) and absf(a.global_position.x - c.x) <= r:
-				a.take_hit(Tuning.DRAGON_BOLT_DMG, c.x)
+			if not is_instance_valid(a) or not a.hittable(dragon):
+				continue
+			var ar: Rect2 = a.hurt_rect_for(dragon)
+			var an := Vector2(clampf(c.x, ar.position.x, ar.end.x), clampf(c.y, ar.position.y, ar.end.y))
+			if ar.size.x > 0.0 and (an.distance_to(c) <= r or absf(a.global_position.x - c.x) <= r):
+				a.take_hit(Tuning.DRAGON_BOLT_DMG, c.x, dragon)
 	for pr in game.props:
 		if is_instance_valid(pr) and pr.alive() and pr.hurt_rect().get_center().distance_to(c) <= r:
 			pr.take_damage(Tuning.DRAGON_BOLT_DMG, c.x, "explosion")

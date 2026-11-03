@@ -469,10 +469,10 @@ func _last_beam_frame() -> bool:
 	return pk + 1 >= fr.size() or (fr[pk + 1]["beam"] as Dictionary).is_empty()
 
 
-## a frame's length. The original's black and white frame of the heavy chop lasts 110 ms on a full charge and is skipped on a lite one
+## a frame's length. The heavy chop's black and white impact frame always lasts 110 ms (the original skipped it on an uncharged chop; the owner wants it every time)
 func _frame_ms(fr: Array, i: int) -> float:
 	if String(mv.get("key", "")) == "heavy" and String(fr[i]["name"]) == "impactbw":
-		return Tuning.PERRY_HEAVY_BW_MS if bool(mv.get("full", false)) else 0.0
+		return Tuning.PERRY_HEAVY_BW_MS
 	return float(fr[i]["ms"])
 
 
@@ -1351,13 +1351,15 @@ func _perry_hits(delta: float) -> void:
 		_hit_target(e, key, dmg)
 	if key == "heavy" and fname == "impact" and not mv.has("aoe"):
 		mv["aoe"] = true
-		if bool(mv.get("full", false)):                        # only a full charge gets the impact frame and the rumble (the original's lite chop passes over them)
-			game.heavy_slam()
-		var grown := (rects[0] as Rect2).grow(25.0 * S)       # where the blade lands it also blasts every other foe close by
-		for e in game.enemies():
-			if not done.has(e.get_instance_id()) and e.alive() and grown.intersects(e.hurt_rect()):
+		game.heavy_slam()                                      # every chop: the impact frame, then a camera rumble and an earthquake
+		var blade: Vector2 = (rects[0] as Rect2).get_center()
+		var dmg_aoe := Tuning.perry_dmg("heavy")
+		for e in game.enemies():                               # big area damage to every enemy near where the blade lands
+			if not e.alive() or done.has(e.get_instance_id()):
+				continue
+			if e.hurt_rect().get_center().distance_to(blade) <= Tuning.PERRY_HEAVY_AOE_R:
 				done[e.get_instance_id()] = true
-				_strike(e, Tuning.perry_dmg("heavy_aoe"), position.x, "melee")
+				_strike(e, dmg_aoe, position.x, "melee")
 
 
 func _hit_target(e: Node, key: String, dmg: int) -> void:

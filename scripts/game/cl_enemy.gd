@@ -136,7 +136,7 @@ func _fire(m: Node2D) -> void:
 	if what == "mud":
 		s.setup_drawn(game, "mud", p, Vector2.ZERO, int(atk["dmg"]), sk, aim.global_position.x)
 	else:
-		var dir: Vector2 = (aim.hurt_rect().get_center() - p).normalized()
+		var dir: Vector2 = (_rect_of(aim).get_center() - p).normalized()
 		if absf(dir.y) > 0.6:
 			dir = Vector2(facing, signf(dir.y) * 0.6).normalized()
 		s.setup_drawn(game, "bone", p, dir * float(atk.get("shot_speed", 1000.0)), int(atk["dmg"]), sk)

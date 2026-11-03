@@ -379,6 +379,12 @@ func _physics_process(delta: float) -> void:
 		if not hits_done.has(w) and m.state != "dead" and r.intersects(m.hurt_rect()):
 			hits_done[w] = true
 			m.take_hit(damage_for(atk), global_position.x, self)     # fixed sizes per hit, never multiplied
+		if game.has_method("allies"):                          # Mera's allies take the same blow once per window (the dancer only from the Fire Knight)
+			for a in game.allies():
+				var akey := "a%d:%d" % [w, a.get_instance_id()]
+				if not hits_done.has(akey) and a.hit_by(r, self):
+					hits_done[akey] = true
+					a.take_hit(damage_for(atk), global_position.x, self)
 	match state:
 		"stun":
 			stun_t -= delta
@@ -448,8 +454,8 @@ func _gy() -> float:
 
 ## the dancer is performing: drop the fight, run to her, and hop. Otherwise the knight chases Mera.
 func _watch_dancer(_delta: float) -> bool:
-	if game == null or not game.has_method("dancer") or state in ["death", "hit", "stun"]:
-		return false
+	if game == null or not game.has_method("dancer") or state in ["death", "hit", "stun"] or variant == "fire":
+		return false                                 # the Fire Knight is a boss: not lured, his blows hurt the dancer (ally.gd)
 	var dn: Node2D = game.dancer()
 	if dn == null or absf(global_position.x - game.cam_x) > 1100.0:
 		return false

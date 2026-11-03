@@ -29,7 +29,8 @@ const BLURB := {
 const STAY_S := {"priestess": 30.0, "ranger": 30.0, "brawler": 30.0, "dancer": 30.0, "cl_knight": 30.0, "cl_ranger": 30.0, "cl_weaver": 30.0, "perry": 30.0}      # v0.12.2 base; see Carry.summon_s()
 const DANCE_S := 5.0          # she walks ahead, then dances this long (the lure), then waits out the rest of the 60 s
 const K := {"priestess": 4.0, "ranger": 4.0, "brawler": 4.0, "dancer": 4.0, "cl_knight": 4.0, "cl_ranger": 4.0, "cl_weaver": 4.0, "perry": 2.0}
-const HP := {"priestess": 10, "ranger": 10, "brawler": 12, "dancer": 1, "cl_knight": 22, "cl_ranger": 10, "cl_weaver": 10, "perry": 16}
+## every summon has 10 hp, except the dancing girl: 1 (only bosses attack her, see ally.gd hurt_rect_for)
+const HP := {"priestess": 10, "ranger": 10, "brawler": 10, "dancer": 1, "cl_knight": 10, "cl_ranger": 10, "cl_weaver": 10, "perry": 10}
 const SPEED := {"priestess": 240.0, "ranger": 330.0, "brawler": 300.0, "dancer": 260.0, "cl_knight": 250.0, "cl_ranger": 300.0, "cl_weaver": 240.0, "perry": 380.0}
 const HEAL_CD := 30.0          # the priestess heals Mera up to 6x at most once per this many seconds
 const HEAL_TO := 6

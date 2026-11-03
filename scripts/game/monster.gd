@@ -327,8 +327,13 @@ func far_of(a: Dictionary) -> float:
 	return minf(far, maxf(maxf(float(_far_cache[key]) * k - body_w() * 0.5, far * 0.85), 30.0) * 0.9)
 
 
+## the hurt box of a target as THIS enemy sees it (the dancing girl only has one for bosses, ally.gd hurt_rect_for)
+func _rect_of(n: Node2D) -> Rect2:
+	return n.hurt_rect_for(self) if n.has_method("hurt_rect_for") else n.hurt_rect()
+
+
 func gap_to(m: Node2D) -> float:
-	var mr: Rect2 = m.hurt_rect()
+	var mr: Rect2 = _rect_of(m)
 	return absf(mr.get_center().x - global_position.x) - mr.size.x / 2.0 - body_w() / 2.0
 
 
@@ -663,7 +668,7 @@ func _physics_process(delta: float) -> void:
 			_play(_cur_idle())
 	var m: Node2D = game.mera
 	_physics(delta)
-	if (state == "tell" or state == "atk") and game.has_method("dancer") and game.dancer() != null and absf(global_position.x - game.cam_x) <= 1100.0:
+	if not boss and (state == "tell" or state == "atk") and game.has_method("dancer") and game.dancer() != null and absf(global_position.x - game.cam_x) <= 1100.0:
 		swoop_v = Vector2.ZERO           # the dancing girl starts: wind-ups and attacks are dropped to go watch her
 		_to_idle(0.0)
 	match state:
@@ -702,13 +707,14 @@ func _physics_process(delta: float) -> void:
 	_ai(_prey(), delta)
 
 
-## the dancer is out: every enemy on screen, bosses included, runs to her and jumps. Otherwise they chase Mera.
+## the dancer is out: every non-boss enemy on screen runs to her and jumps. Otherwise they chase Mera.
+## Bosses are not lured: they attack her (she has 1 hp; _prey picks her when she is closer than Mera).
 var distracted_t := 0.0
 var cheer_hops := 0
 
 
 func _distracted(delta: float) -> bool:
-	if game == null or not game.has_method("dancer"):
+	if game == null or not game.has_method("dancer") or boss:        # bosses are not lured: they hit her (ally.gd, _prey)
 		return false
 	var dn: Node2D = game.dancer()
 	if dn == null or absf(global_position.x - game.cam_x) > 1100.0 or absf(dn.global_position.x - global_position.x) > 1600.0:
@@ -782,6 +788,10 @@ func _physics(delta: float) -> void:
 
 
 func _prey() -> Node2D:
+	if boss and game.has_method("dancer"):              # bosses are not lured by the dancing girl: they attack her when she is closer than Mera
+		var dn: Node2D = game.dancer()
+		if dn != null and dn.state in ["idle", "dance", "run_back"] and absf(dn.global_position.x - global_position.x) < minf(absf(game.mera.global_position.x - global_position.x), 1100.0):
+			return dn
 	if not boss and game.has_method("taunter"):         # the Changeling Knight ally draws non-boss enemies to himself
 		var tk: Node2D = game.taunter()
 		if tk != null and absf(tk.global_position.x - global_position.x) < 900.0:
@@ -912,7 +922,7 @@ func _start_active(m: Node2D) -> void:
 			sprite.speed_scale = float(atk.get("anim_speed", 1.6))     # a long leap spreads its jump anim over the airtime (cl_rat_king)
 			var v := float(atk.get("vx", 600.0))
 			if flyer:
-				var mc: Vector2 = m.hurt_rect().get_center()
+				var mc: Vector2 = _rect_of(m).get_center()
 				swoop_v = (mc - global_position).normalized() * v
 			else:
 				vx = facing * v
@@ -964,9 +974,9 @@ func _hit_allies(r: Rect2, w: int) -> void:
 		return
 	for a in game.allies():
 		var key := "a%d:%d" % [w, a.get_instance_id()]
-		if not hits_done.has(key) and a.get("id") != "dancer" and r.intersects(a.hurt_rect()):
+		if not hits_done.has(key) and a.hit_by(r, self):          # the dancing girl only for bosses (ally.gd hurt_rect_for)
 			hits_done[key] = true
-			a.take_hit(int(atk["dmg"]), global_position.x)
+			a.take_hit(int(atk["dmg"]), global_position.x, self)
 
 
 func _finish_attack() -> void:
@@ -985,7 +995,7 @@ func _fire(_m: Node2D) -> void:
 	var p := Vector2(global_position.x + facing * hr.size.x * 0.4, hr.get_center().y - hr.size.y * 0.15)
 	if atk.has("shot_y"):                  # the shot leaves at this height above the feet (art px): a sword's, not the chest's
 		p.y = global_position.y - float(atk["shot_y"]) * k
-	var dir: Vector2 = (aim.hurt_rect().get_center() - p).normalized()
+	var dir: Vector2 = (_rect_of(aim).get_center() - p).normalized()
 	if absf(dir.y) > 0.6:
 		dir = Vector2(facing, signf(dir.y) * 0.6).normalized()
 	s.setup(game, id, String(atk["shot"]), p, dir * float(atk.get("shot_speed", 700.0)), int(atk["dmg"]), k * float(atk.get("shot_k", 1.0)), bool(atk.get("shot_tight", false)))
