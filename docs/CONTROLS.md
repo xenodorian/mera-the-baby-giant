@@ -41,7 +41,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
 | Fury flight | Up in the air takes off. 8-way movement; Mera tilts head-first toward where she flies and eases upright when hovering. Raised-arms pose while moving, tucked hover while idle. Down at ground level, or R2, lands |
-| Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. Volume keys do this on Android. Restart after Game Over |
+| Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. On Android the on-screen PAUSE button does this (the volume keys do not). Restart after Game Over |
 | Back (Share) | nothing. The animation gallery is not bound to any key or button |
 
 **Chest puzzles.** Touching a chest pauses the game on a puzzle (see `docs/GAME_RULES.md`, Puzzle chests). Start and the PAUSE button do nothing while it is open. The on-screen pad is hidden on Android so taps reach the puzzle; a **GIVE UP** button sits at the top right of every puzzle.
@@ -127,40 +127,51 @@ Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, 
 
 
 ## Perry (Stage 3, playable once Stage 2 is cleared)
-On the level select, **X (the A key)** switches between Mera and Perry. She is locked until Moonlit Sanctum (level 11, index 10) is cleared; the line under the cards says why. The choice is saved. She plays every level like Mera: same pickups, chests, allies and exit. Her own shop pages (Left / Right in the shop, pages 3 and 4) sell her unlocks for gold.
+On the title screen, the large **MERA | PERRY** toggle sits under the level cards. Down from the cards reaches it, then A, Start or a click switches the character. There is no X shortcut. The shop shows the selected character's pages (Left / Right in the shop). Perry is locked until Moonlit Sanctum (level 11, index 10) is cleared; the line under the cards says why. The choice is saved. She plays every level like Mera: same pickups, chests, allies and exit.
 
-Perry's buttons are Mera's buttons of the same name (Xbox names; the keyboard key is in brackets, see the keyboard table above: A = Z, B = X key, X = A key, Y = S, L1 = Q, R1 = W, L2 = 1, R2 = 2). Her base moves are free; everything else must be bought first, and a move she does not own does nothing (the press falls back to the plain move). Dash, double jump (always on), duck, block and parry are free.
+Perry's buttons are Mera's buttons of the same name (Xbox names; the keyboard key is in brackets: A = Z, B = X key, X = A key, Y = S, L1 = Q, R1 = W, L2 = 1, R2 = 2, L3 = E; the right stick is the numpad: 8, 2, 4, 6, and 5 for a click). Her base moves are free; everything else must be bought first, and a move she has not bought does nothing. Walk, double jump (always on), duck, block, parry and dash are free.
 
 | Input | Move | Needs |
 |---|---|---|
 | Left / Right | walk (300 px/s) | |
-| Up | jump (about 200 px). Up again in the air: double jump (to 400 px). Down, then Up within 0.4 s: sky dash | sky dash: Sky Dash |
+| Up | jump (about 200 px). Up again in the air: double jump (to 400 px) | |
 | Down | duck | |
+| Down, then Up | sky dash | Sky Dash |
 | **A** (Z) | slash | |
-| Hold the way she faces + A | lunging thrust | Lunging Thrust |
-| The other direction + A | spin attack (hits both sides) | |
+| A + the way she faces | lunging thrust | Lunging Thrust |
+| A + the other way | spin attack (hits both sides) | |
 | Down + A | ducking upswing | Ducking Upswing |
-| Hold B + A | heavy horizontal (steps forward 50) | Heavy Horizontal |
-| A, A, A, A, A | attack chain (slash, three chain strikes, then the chop for 20 energy). A x4 then B: energy burst | Attack Chain, Burst Chain |
-| Hold A after a slash | charge, release: heavy overhead chop | Heavy Overhead Chop |
+| A, A, A, A, A | attack chain: slash, three chain strikes, then the chop (20 energy) | Attack Chain |
+| A, A, A, A, then B | energy burst (Burst Chain) | Attack Chain, Burst Chain |
+| Hold A after a slash, release | charge, release: heavy overhead chop | Heavy Overhead Chop |
 | A in the air, 180+ px up | jumping crash (30 energy) | Jumping Crash |
+| **Y** (S) | spin attack (hits both sides) | |
 | **X** (A key) | dash (free, invulnerable for most of it) | |
 | X + A (A key + Z) | dash thrust. Double tap forward, then hold X + A and let go: energy dash thrust | Dash Thrust, Energy Dash Thrust |
 | X + Y (A key + S) | taunt | Taunt |
 | **B** (X key) tap | **parry**: a hit within 0.26 s does no damage and stuns the attacker for 2 s (it takes a little damage and slides back) | |
 | **B** (X key) hold | **block**: no damage, a small slide | |
+| Hold B + A | heavy horizontal (steps forward 50) | Heavy Horizontal |
 | B x5 (taps) | meteor shower (full super: 100 rage, all of it spent) | Meteor Shower |
 | Down x4, then A | earthquake (full super) | Earthquake |
 | A, B, A, B, A, B | rainbow guard (5 s invulnerable). A, B, A, B, then Up: flight | Rainbow Guard, Flight |
-| L1 (Q) | push kick. Without it, L1 drinks a green potion (heals 15 HP). Down + L1 always drinks one | Push Kick |
+| A x4, then all four shoulders (L1 + L2 + R1 + R2) | ultimate chain: taunt, then the four beams | Ultimate Chain |
+| L1 (Q) | push kick. A + L1 = laser beam | Push Kick |
 | Hold B + L1, release | energy kick | Energy Kick |
-| Hold L2 (1), release | energy burst | Energy Burst |
-| Hold R2 (2), release | energy wave | Energy Wave |
+| Hold L2 (1), release | energy burst. A + L2 = cloud beam | Energy Burst |
+| Hold R2 (2), release | energy wave. A + R2 = fire beam | Energy Wave |
 | A + L2 / A + L1 / A + R2 | cloud beam / laser beam / fire beam (energy per tick; the cloud beam repeats while A is held) | Cloud, Laser, Fire Beam |
 | A + R1 (W) | empowerment beam (empower per tick) | Empowerment Beam |
-| R1 tap | summon an ally (as Mera). Hold R1: kneel and heal (empower) | Recover |
-| Hold L1 + R1 | meter charge: every meter she owns fills slowly | Meter Charge |
-| A x4, then L1 + L2 + R1 + R2 together | ultimate chain: taunt, then the four beams | Ultimate Chain |
-| E / L3 | drink a mana potion (+30 energy and +30 empower) | |
+| Hold R1 (W) | kneel and heal (empower) | Recover |
+| Hold L1 + R1 (Q + W) | meter charge: every meter she owns fills slowly | Meter Charge |
+| Right stick flick up (numpad 8) | drink a health potion | |
+| Right stick flick down (numpad 2) | drink a mana potion | |
+| Right stick flick left or right, or click (numpad 4 / 6, numpad 5) | summon an ally (a picker if several cards). No usable card: fail cue | |
+| L3 (E) | drink a mana potion (+30 energy and +30 empower) | |
+| Start (Enter / F1) | pause. On Android the on-screen PAUSE button also pauses; the phone's volume buttons do not | |
+
+On touch screens the right-stick flicks are swipes; an empty-screen tap does nothing for Perry.
 
 A charged move (energy kick, burst, wave, energy dash thrust, chop) draws 20 energy per second of charge, up to 1 s; a release before 0.25 s does nothing, and a partial charge hits at 50 % to 100 % power. Chord moves (X + A, A + shoulder, X + Y, hold B + A) use Mera's 67 ms chord window and convert the first move retroactively, so every button still acts on the frame it is pressed. Perry has no Fury, lightning, bubbles or freeze slash (L2 / R2 alone are her energy burst / wave, or nothing).
+
+**Why this layout.** Perry Riposte had no potions or summons, so every button was an attack. Mera's L1 (potion) and R1 (summon) landed on Perry's push kick, recover and empower beam, and Y had lost its original job (the spin). Items therefore moved to the right stick, which Perry never uses, and Y got the spin back. R1 tap no longer summons and L1 no longer drinks.

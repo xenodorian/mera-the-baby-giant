@@ -832,7 +832,7 @@ func collect_card(c: Node2D) -> void:
 	if Carry.give_card(c.ally_id):
 		cards = Carry.cards.duplicate(true)
 		Sfx.play("sphere", 0.8)
-		hud.flash("pickup:%s card  (R1: summon)" % Allies.NAMES[c.ally_id])
+		hud.flash("pickup:%s card  (%s: summon)" % [Allies.NAMES[c.ally_id], summon_key()])
 	else:
 		Carry.add_gold(1)
 		hud.flash("pickup:card slots full  +1 gold")
@@ -876,6 +876,11 @@ func summonable() -> Array:
 		if int(cards.get(aid, 0)) > 0 and not here.has(aid):
 			out.append(aid)
 	return out
+
+
+## the control that summons an ally, for hint text: Perry uses the right stick, Mera R1
+func summon_key() -> String:
+	return "right stick" if is_instance_valid(mera) and mera.get("is_perry") == true else "R1"
 
 
 ## R1 (mera.gd): one type -> summon it; several -> the picker; none -> false (fail cue)
@@ -1872,6 +1877,7 @@ func toggle_pause() -> void:
 			hud.pause_controls = false
 			hud.overlay = false
 	get_tree().paused = paused_play
+	Controls.clear_gestures()                        # a stick flick made during the pause must not fire when play resumes
 
 
 func _menu_action(a: String) -> void:

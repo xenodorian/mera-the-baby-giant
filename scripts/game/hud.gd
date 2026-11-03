@@ -45,6 +45,14 @@ const CONTROLS := [
 ]
 
 
+## Perry's list while she is the character in play; Mera's otherwise
+func _controls_table() -> Array:
+	var m = game.mera
+	if is_instance_valid(m) and m.get("is_perry") == true:
+		return PerryHud.CONTROLS
+	return CONTROLS
+
+
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -183,7 +191,7 @@ func _draw_ui() -> void:
 	if m.counter_active():
 		_txt(Vector2(800, 360), "COUNTER  x%d" % Tuning.PARRY_COUNTER_MULT, 36, Color(1.0, 0.8, 0.4))
 	if _flash == "ally" and _flash_t > 0.0:
-		_txt(Vector2(260, 146), "R1: no ally card to use (or that ally / two allies are already out)", 22, Color(0.6, 0.85, 1.0))
+		_txt(Vector2(260, 146), "%s: no ally card to use (or that ally / two allies are already out)" % game.summon_key(), 22, Color(0.6, 0.85, 1.0))
 	# potions
 	var pc := Color(0.45, 0.95, 0.45)
 	if _flash == "potions" and _flash_t > 0.0:
@@ -210,7 +218,7 @@ func _draw_ui() -> void:
 		_txt(Vector2(cx + 46, 284), "%d" % n, 24, cc)
 		cx += 96.0
 	if cx > 36.0 + hx:
-		_txt(Vector2(cx + 4, 280), "R1: summon", 20, Color(0.8, 0.85, 0.95))
+		_txt(Vector2(cx + 4, 280), "%s: summon" % game.summon_key(), 20, Color(0.8, 0.85, 0.95))
 	if _flash == "stamina" and _flash_t > 0.0:
 		sc = Color(1, 0.3, 0.3)
 	_txt(Vector2(36 + hx, 194), "ENERGY" if perry else "MANA", 26, Color(0.6, 0.8, 1.0))
@@ -225,7 +233,7 @@ func _draw_ui() -> void:
 	# state line
 	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
 	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
-	_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "volume: pause" if OS.get_name() == "Android" else "F1 / Start: pause"], 22, Color(0.8, 0.8, 0.85))
+	_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "PAUSE button: pause" if OS.get_name() == "Android" else "F1 / Start: pause"], 22, Color(0.8, 0.8, 0.85))
 	var bs = game.boss                                          # untyped: may be a freed instance
 	if bs != null and is_instance_valid(bs) and bs.alive():        # v0.6 boss bar
 		ui.draw_rect(Rect2(460, 1000, 1000, 34), Color(0.05, 0.02, 0.03, 0.85))
@@ -247,14 +255,15 @@ func _draw_ui() -> void:
 		_txt(Vector2(180, 175), "CONTROLS  (pad: Xbox names; PS4: A = Cross, B = Circle, X = Square, Y = Triangle)", 26, Color(1, 0.8, 0.5))
 		_txt(Vector2(180, 215), "GAMEPAD", 20, Color(1, 0.75, 0.45))
 		_txt(Vector2(530, 215), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
-		for i in CONTROLS.size():
+		var table := _controls_table()
+		for i in table.size():
 			var y := 250 + i * 35
-			var pad_name := String(CONTROLS[i][0])
+			var pad_name := String(table[i][0])
 			if pad_name == "Start" and OS.get_name() == "Android":
-				pad_name = "Volume up / down"
+				pad_name = "Start / PAUSE button"
 			_txt(Vector2(180, y), pad_name, 20, Color(1, 0.75, 0.45))
-			_txt(Vector2(530, y), String(CONTROLS[i][1]), 20, Color(0.55, 0.85, 1.0))
-			_txt(Vector2(760, y), String(CONTROLS[i][2]), 20)
+			_txt(Vector2(530, y), String(table[i][1]), 20, Color(0.55, 0.85, 1.0))
+			_txt(Vector2(760, y), String(table[i][2]), 20)
 		ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if game.over and game.over_t > 0.9:
 		var o := _origin()
@@ -333,14 +342,15 @@ func _draw_pause() -> void:
 		_txt(Vector2(180, 130), "CONTROLS", 48, Color(1.0, 0.82, 0.45))
 		_txt(Vector2(180, 180), "GAMEPAD", 20, Color(1, 0.75, 0.45))
 		_txt(Vector2(530, 180), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
-		for i in CONTROLS.size():
+		var table := _controls_table()
+		for i in table.size():
 			var y := 214 + i * 30
-			var pad_name := String(CONTROLS[i][0])
+			var pad_name := String(table[i][0])
 			if pad_name == "Start" and OS.get_name() == "Android":
-				pad_name = "Volume up / down"
+				pad_name = "Start / PAUSE button"
 			_txt(Vector2(180, y), pad_name, 18, Color(1, 0.75, 0.45))
-			_txt(Vector2(530, y), String(CONTROLS[i][1]), 18, Color(0.55, 0.85, 1.0))
-			_txt(Vector2(760, y), String(CONTROLS[i][2]), 18)
+			_txt(Vector2(530, y), String(table[i][1]), 18, Color(0.55, 0.85, 1.0))
+			_txt(Vector2(760, y), String(table[i][2]), 18)
 		_center(o.y + 980, "A / B / Start: back to pause", 26, Color(0.85, 0.85, 0.9))
 		ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return

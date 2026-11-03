@@ -521,6 +521,7 @@ func _physics_process(delta: float) -> void:
 		vel = Vector2.ZERO
 		return
 	_timers(delta)
+	_items_tick()
 	if state == "move":
 		_early_chord()
 	match state:
@@ -830,9 +831,10 @@ func _single(e: Dictionary) -> bool:
 			return _b_action()
 		"btn_y":
 			_use(e)
-			if _own("sky_dash") and now - down_rel_t <= Tuning.PERRY_SEQ_MS:
-				return _sky_dash()
-			return false
+			if state == "air":
+				return false
+			_face(_dir())
+			return _start("spin_attack", {"chord_ok": true, "src": "btn_y"})   # Y is the spin attack (Perry Riposte); X + Y becomes the taunt
 		"down":
 			_use(e)
 			return false
@@ -843,9 +845,9 @@ func _single(e: Dictionary) -> bool:
 			_use(e)
 			if bool(held["r1"]) and _own("meter_charge"):
 				return false
-			if _has("push_kick") and _btn_on("l1") and not pressed("down"):
+			if _has("push_kick") and _btn_on("l1"):
 				return _start("push_kick", {"chord_ok": true, "src": "l1"})
-			return _drink_potion()
+			return false                               # items are on the right stick, so L1 is only her kick
 		"l2", "r2":
 			if now - float(e["t"]) < Tuning.CHORD_MS:
 				return false                           # wait out the chord window (a beam chord is A + L2 / R2)
@@ -868,13 +870,32 @@ func _single(e: Dictionary) -> bool:
 					_use(e)                            # held: kneel and heal instead of summoning
 					return false
 			_use(e)
-			if game and game.has_method("summon_ally") and game.summon_ally():
-				return false
-			Sfx.play("fail", 1.2, -4.0)
-			if game:
-				game.flash_hud("ally")
-			return false
+			return false                               # R1 is recover (hold), the empower beam and meter charge only
 	return false
+
+
+## Perry's items live on the right stick (it has no other job for her), so they never take an attack button:
+## flick up = health potion, flick down = mana potion, flick left / right or a stick click (R3) = summon an ally.
+## Touch swipes give the same flicks. A tap on an empty screen (Controls reports it as R3) is ignored on touch.
+func _items_tick() -> void:
+	var n: int = Controls.consume_flick()
+	var click: bool = Controls.consume_r3() and Controls.scheme != "touch"
+	if state == "dead":
+		return
+	if n == 7 or n == 8 or n == 9:
+		_drink_potion()
+	elif n == 1 or n == 2 or n == 3:
+		_drink_mana_p()
+	elif n == 4 or n == 6 or click:
+		_summon_p()
+
+
+func _summon_p() -> void:
+	if game and game.has_method("summon_ally") and game.summon_ally():
+		return
+	Sfx.play("fail", 1.2, -4.0)
+	if game:
+		game.flash_hud("ally")
 
 
 func _drink_mana_p() -> bool:
