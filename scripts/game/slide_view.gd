@@ -42,6 +42,7 @@ func show_slide(def: Variant, fade_in: bool = true) -> bool:
 		return false
 	slide = d
 	t = 0.0
+	running = true
 	_fade_t = 0.0 if fade_in else FADE_IN_S
 	modulate.a = 0.0 if fade_in else 1.0
 	if d.has("bg"):

@@ -5945,7 +5945,7 @@ func _king_story_tests() -> void:
 	var gold11: int = C.gold
 	p11._free()
 	var cs: Node = g.cutscene
-	_check("king prisoner: level 11 pays 20 gold and grants the earthquake move; the advice line opens as a cutscene", C.gold - gold11 == 20 and C.moves.get("earthquake", false) and cs != null and cs.pages.size() == 1 and cs.pages[0][0] == line11 and line11.find("Earthquake") >= 0, "")
+	_check("king prisoner: level 11 pays 20 gold and grants the earthquake move; the advice line opens as a cutscene", C.gold - gold11 == 20 and C.moves.get("earthquake", false) and cs != null and cs.pages.size() == 1 and cs.pages[0].size() == 2 and cs.pages[0][0] == p11.lore and cs.pages[0][1] == p11.tip and line11 == p11.lore + " " + p11.tip and line11.find("Earthquake") >= 0 and cs.extras[0]["speaker"] == "cl_knight" and cs._portrait != null, "")
 	if cs != null:
 		cs.skip()
 	await process_frame
