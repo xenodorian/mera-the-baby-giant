@@ -2,6 +2,17 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.20.0-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.20.0_Windows.exe
+- Android: Mera_Playable_v0.20.0_Android.apk
+- **The Black Knight** (Fellor's pack) is a new mini-boss at the end of the Hall of Faces (level 19 on screen); the exit stays locked until he falls. A four-hit sword combo, three heavy swings, a flame sweep weapon art, a roll, a leap and a hop (each with its jump, apex, fall and landing), a parry that turns aside a blow and counters (miss it and he is open), two flinches, and at half health he sheathes, redraws and powers up (untouchable while he does). Every armed animation of the pack is used. The placement is for the current stage layout and is one line in `Roster.BOSSES`.
+- **Freeze slash rework.** It now marks every enemy on screen (the numbers 1 to 9 repeat when there are more than 9, and one input cuts everyone carrying that number), and the world unfreezes the same frame the last needed input is entered. The arrows, digits and ring are 3x larger and the arrow lines 2x thicker.
+- **The full bubble's exit animation plays once.** Releasing L2 (or a chattering trigger) no longer replays the pose for each extra press edge.
+- **The mana bar** stops at the length of the HP and rage bars (330 px at 200 mana) instead of growing out of the HUD.
+- **Animation review of the new enemies** (six reviewers): attacks now play their whole animations (rat, grunt, witch lunges, the rat king's jump), the frost guardian and the fire demon play their full death, Percy gets a death pose, the wizards' hit windows and ranges match their art, the lightning ball and wanderer star work at close range, a bolt that flies its full life still bursts, and the one-eyed bat alternates its two swoops.
+- Tests: 956 pass, 0 fail.
+
 ## v0.19.2-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.19.2_Windows.exe
