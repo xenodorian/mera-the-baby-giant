@@ -494,7 +494,8 @@ func _enter_frame() -> void:
 		return
 	var f := _frame()
 	var rx := float(f["rx"])
-	position.x += facing * (rx - root_x) * S
+	var reach_k := Tuning.PERRY_DASH_REACH if String(mv.get("key", "")) == "dash" else 1.0
+	position.x += facing * (rx - root_x) * S * reach_k
 	root_x = rx
 	lift = float(f["ry"]) * S * lift_k
 	var key := String(mv.get("key", ""))
@@ -1343,11 +1344,18 @@ func _perry_hits(delta: float) -> void:
 		_hit_target(e, key, dmg)
 	if key == "heavy" and fname == "impact" and not mv.has("aoe"):
 		mv["aoe"] = true
+		game.heavy_slam()                                      # the original's impact frame, then an earthquake
 		var grown := (rects[0] as Rect2).grow(25.0 * S)
 		for e in game.enemies():
-			if not done.has(e.get_instance_id()) and e.alive() and grown.intersects(e.hurt_rect()):
+			if not e.alive():
+				continue
+			var near: bool = grown.intersects(e.hurt_rect())
+			var grounded: bool = e.get("flyer") != true and bool(e.get("on_ground"))
+			if near and not done.has(e.get_instance_id()):
 				done[e.get_instance_id()] = true
 				_strike(e, Tuning.perry_dmg("heavy_aoe"), position.x, "melee")
+			elif not near and grounded and absf(e.global_position.x - game.camera_x()) <= 1000.0:      # the shock reaches every grounded foe on screen
+				_strike(e, maxi(Tuning.perry_dmg("heavy_aoe") / 2, 1), position.x, "quake")
 
 
 func _hit_target(e: Node, key: String, dmg: int) -> void:

@@ -262,6 +262,8 @@ const PERRY_PARRY_DMG := 10           # original points, x PERRY_DMG_SCALE
 const PERRY_PARRY_STUN_S := 2.0
 const PERRY_PARRY_KNOCK_PX := 200.0
 const PERRY_BLOCK_SLIDE_PX := 40.0
+const PERRY_DASH_REACH := 2.6         # the dash's travel x this: the original was made for a much smaller screen
+const PERRY_HEAVY_QUAKE_SHAKE := 22.0 # the overhead chop's impact: screen shake, impact frame and a quake
 const PERRY_DASH_IFRAME := 0.6        # fraction of the dash that cannot be hit
 const PERRY_RAINBOW_S := 5.0
 const PERRY_HEAL_EVERY_S := 0.35      # recover: HP per tick and empower per tick
@@ -278,7 +280,7 @@ const PERRY_WAVE_R := 75.0
 const PERRY_DMG_SCALE := 0.12
 const PERRY_DMG_ORIG := {"slash": 25, "heavy_horizontal": 50, "thrust": 15, "upswing": 15, "push_kick": 10, "heavy_kick": 25,
 	"energy_kick": 30, "energy_burst": 50, "dash_thrust": 25, "energy_dash_thrust": 50, "spin_attack": 20, "wave_blast": 50,
-	"earthquake": 250, "meteor_shower": 200, "chain2": 15, "chain3": 18, "chain4": 22, "heavy": 200, "heavy_aoe": 150, "jump_crash": 300,
+	"earthquake": 250, "meteor_shower": 200, "chain2": 15, "chain3": 18, "chain4": 22, "heavy": 500, "heavy_aoe": 400, "jump_crash": 300,
 	"cloud": 5, "fire": 15, "laser": 15, "plasma": 0}
 const PERRY_BEAM_COST := {"cloud": 1.0, "fire": 3.0, "laser": 5.0, "plasma": 5.0}     # per tick; plasma pays empower, the rest energy
 const PERRY_BEAM_PUSH := {"cloud": 0.0, "fire": 5.0, "laser": 20.0, "plasma": 30.0}   # native px per tick

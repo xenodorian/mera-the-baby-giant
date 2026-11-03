@@ -1759,6 +1759,19 @@ func super_earthquake() -> void:
 	Sfx.play("boom_big", 0.4, 6.0)
 
 
+var impact_quake_only := false  # the running impact frame is Perry's overhead chop: a plain earthquake follows it, not the super one
+
+
+## Perry's heavy overhead chop lands: the impact frame (a short freeze, black and white), a big shake and an earthquake
+func heavy_slam() -> void:
+	impact_t = Tuning.IMPACT_FRAME_S
+	impact_quake_only = true
+	HitStop.impact(Tuning.IMPACT_FRAME_S * 1000.0)
+	_impact_show(true, 1.0)
+	shake(Tuning.PERRY_HEAVY_QUAKE_SHAKE, 0.8)
+	Sfx.play("boom_big", 0.6, 6.0)
+
+
 func _impact_show(on: bool, inv: float) -> void:
 	if impact_layer == null:
 		impact_layer = CanvasLayer.new()
@@ -1784,7 +1797,11 @@ func _impact_tick() -> void:
 	if impact_t <= 0.0:
 		impact_t = 0.0
 		_impact_show(false, 0.0)
-		_super_quake_go()
+		if impact_quake_only:
+			impact_quake_only = false
+			earthquake()
+		else:
+			_super_quake_go()
 
 
 func _super_quake_go() -> void:

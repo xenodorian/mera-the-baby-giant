@@ -11,6 +11,8 @@ const POWDER_ID := "bone_powder"
 const POWDER_PRICE := 90
 const SHOULDERS := ["L1", "L2", "R1", "R2", "R"]
 ## moves she has from the start (BASE_MOVES in 00_core.js); double_jump is always on
+## unlocks she has from the start (not for sale): the mash-A attack chain
+const FREE := ["chain"]
 const BASE_MOVES := ["idle", "walk_right", "walk_left", "duck", "block", "parry", "jump", "dash", "slash", "spin_attack"]
 
 const LIST := [
@@ -94,6 +96,8 @@ static func locked_reason(id: String) -> String:
 
 
 static func owned(id: String) -> bool:
+	if id in FREE:
+		return true
 	Carry.ensure()
 	return bool(Carry.perry_owned.get(id, false))
 

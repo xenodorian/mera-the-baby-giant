@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.17.4-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.17.4_Windows.exe
+- Android: Mera_Playable_v0.17.4_Android.apk
+- **Playable Perry: the mash-A attack chain is unlocked from the start** (and is no longer in the shop).
+- **The heavy overhead chop is devastating.** On the hit frame the game freezes on the black and white impact frame, the screen shakes hard and an earthquake follows (stunning grounded foes). Damage is 2.5x (60 for the chop, 48 around it), and the shock hits every grounded enemy on screen for half the area damage.
+- **The dash travels 2.6x as far**, since the original was built for a much smaller screen. Its invulnerable share is unchanged.
+
 ## v0.17.3-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.17.3_Windows.exe
