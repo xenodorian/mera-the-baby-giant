@@ -596,7 +596,7 @@ func _brain(delta: float, m: Node2D) -> void:
 		bursts += 1
 		start_move("energy_burst")
 		return
-	if not queue.is_empty():
+	if not queue.is_empty() and (cooldown <= 0.0 or bool(queue[0].get("now", false))):
 		var q: Dictionary = queue.pop_front()
 		start_move(String(q["id"]), q)
 		return
@@ -605,7 +605,7 @@ func _brain(delta: float, m: Node2D) -> void:
 		guard_cd = Tuning.PERRY_BOSS_GUARD_CD_S
 		start_move("rainbow_guard")
 		return
-	if ph >= 3 and float(hp) <= Tuning.PERRY_BOSS_ULT_HP * float(hp_max) and ult_cd <= 0.0:
+	if ph >= 3 and float(hp) <= Tuning.PERRY_BOSS_ULT_HP * float(hp_max) and ult_cd <= 0.0 and gap < 1100.0:
 		ult_cd = Tuning.PERRY_BOSS_ULT_CD_S
 		ults += 1
 		start_move("ultimate_chain")
@@ -1052,10 +1052,10 @@ func _end_move() -> void:
 	mcd[was] = float(c.get("mcd", 0.0))
 	var ph := phase_now()
 	if was == "energy_burst" or was == "burst_chain":
-		queue.append({"id": "sky_dash" if rng.randf() < 0.4 else "dash", "dir": -1})
+		queue.append({"id": "sky_dash" if rng.randf() < 0.4 else "dash", "dir": -1, "now": true})
 	elif was == "taunt":
 		var m: Node2D = game.mera
-		queue.append({"id": "dash_thrust" if gap_to(m) > 400.0 else "thrust"})
+		queue.append({"id": "dash_thrust" if gap_to(m) > 400.0 else "thrust", "now": true})
 	var cdv := rng.randf_range(float(Tuning.PERRY_BOSS_CD[0]), float(Tuning.PERRY_BOSS_CD[1])) * float(Tuning.PERRY_BOSS_CD_MUL[ph - 1])
 	_to_idle_p(cdv)
 	cooldown = cdv

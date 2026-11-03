@@ -5117,6 +5117,8 @@ func _pb_tests() -> void:
 	g = pk[0]; m = pk[1]; e = pk[2]
 	m.invuln = 99.0
 	e.phase_seen = 3
+	e.guard_cd = 99.0
+	e.ult_cd = 99.0
 	e.hp = 1
 	e.size = e.size_of_hp()
 	e.dmg_t = 0.0
@@ -5304,6 +5306,7 @@ func _pb_tests() -> void:
 	e.cooldown = 99.0
 	for i in 3:
 		e.take_damage(1, m.global_position.x + 50.0, "bolt")
+	await physics_frame
 	_check("perry boss: three quick hits with Mera in melee range arm the burst", e.burst_pending or "energy_burst" in e.move_log, "pending %s" % e.burst_pending)
 	var mx0: float = m.global_position.x
 	var max_back := 0.0
@@ -5364,7 +5367,7 @@ func _pb_tests() -> void:
 					p1_bad = true
 			_check("perry boss: a long scripted fight uses at least 14 distinct moves (%d: %s)" % [distinct.size(), distinct.keys()], distinct.size() >= 14, "")
 			_check("perry boss: no tell is shorter than %.2f s (%d tells, min %.2f) and no move repeats three times in a row" % [TE.MIN_TELL, e.tell_log.size(), tmin], tmin >= TE.MIN_TELL - 0.0001 and not triple and e.tell_log.size() > 20, "triple %s" % triple)
-			_check("perry boss: phase 1 uses only the basic pool; phases 2 and 3 started with a taunt feint (phases %s), the guard ran %d times and the ultimate %d" % [e.phase_log, e.guards, e.ults], not p1_bad and e.phase_log == [2, 3] and e.guards >= 1 and e.ults >= 1, "p1 %s" % p1.keys())
+			_check("perry boss: phase 1 uses only the basic pool; phases 2 and 3 started with a taunt feint (phases %s), the guard ran %d times and the ultimate %d" % [e.phase_log, e.guards, e.ults], not p1_bad and e.phase_log == [2, 3] and e.guards >= 1 and e.ults >= 1, "p1 %s" % [p1.keys()])
 		g.queue_free()
 		await process_frame
 	var same: bool = runs[0][0] == runs[1][0] and runs[0][1] == runs[1][1]
@@ -5406,21 +5409,33 @@ func _pb_tests() -> void:
 		for s in got:
 			seen_steps[s] = true
 	_check("perry boss: every move in the table runs to the end by itself and plays its steps in order (%d moves)" % tbl.size(), all_ok, bad)
-	# heal and walk for the last animations
+	# the quiet moments: kneeling to heal, walking up to Mera, a parry
 	_pb_idle(e)
 	e.hp = 10
 	e.dmg_t = 5.0
+	e.guard_cd = 99.0
+	e.ult_cd = 99.0
+	e.phase_seen = 3
 	m.position.x = e.global_position.x - 1500.0
 	for f in 40:
 		await physics_frame
 		m.invuln = 99.0
-	e.cooldown = 0.0
+		e.cooldown = 99.0
+	_pb_idle(e)
 	e.hp = e.hp_max
-	e.dmg_t = 0.0
+	e.cooldown = 5.0
 	m.position.x = e.global_position.x - 1200.0
-	for f in 60:
+	for f in 40:
 		await physics_frame
 		m.invuln = 99.0
+	_pb_idle(e)
+	for tr in 20:
+		e.rng.seed = 5 + tr
+		if not e.take_damage(1, m.global_position.x, "melee"):
+			break
+		e.hp = e.hp_max
+		e._to_idle_p(0.0)
+	await physics_frame
 	var miss: Array = []
 	for a in RO.art("perry")["anims"].keys():
 		if not e.played.has(a):
