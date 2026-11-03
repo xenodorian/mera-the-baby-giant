@@ -15,30 +15,33 @@ var _flash_t := 0.0
 
 const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "CONTROLS", "QUIT GAME"]
 
-## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does]
+## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does, optional gate]. A row with a gate shows only once
+## that ability is unlocked: "mera:<shop move id>" (Carry.owns) or "perry:<unlock id>" (PerryUnlocks.has).
 const CONTROLS := [
 	["D-pad / left stick", "arrows", "walk left / right, Up = jump, Down = crouch"],
 	["A (hold) + direction", "Z (hold) + arrow", "run      (Down + A = slide: breaks loot props, takes the drop)"],
 	["B", "X", "back dodge (free)   B then X = dodge attack   B then Y = FAST quick fire"],
 	["B+Y together", "X+S", "rising slash (fast windup), no dodge (free)    Y again during it = slam (free)"],
 	["X", "A", "1x attack.  X X X = 1x 2x 2x-2,  X X hold X = 1x 2x 2x-1"],
-	["X X Y", "A A S", "1x 2x 3x (with slash)     X X X Y = combo into beam, 20 mana"],
-	["Y", "S", "quick fire (bolt) 5 mana     X+Y together = rear explosion 12 mana"],
+	["X X Y", "A A S", "1x 2x 3x (with slash)"],
+	["X X X Y", "A A A S", "combo into beam, 20 mana", "mera:beam"],
+	["Y", "S", "quick fire (bolt) 5 mana"],
+	["X+Y together", "A+S", "rear explosion 12 mana", "mera:rear"],
 	["Up + Y", "Up + S", "three large bolts: up and both diagonals, 15 mana"],
 	["A+Y / Y while running", "Z+S", "ground dash (aerial dash animation), 6 mana"],
 	["In the air", "", "X = jump attack (X again: 2nd hit), Y = aerial dash 6 mana, Up = double jump"],
-	["Down + Y", "Down + S", "EARTHQUAKE: hold Down and press Y, even together. 1 s quake, grounded enemies stunned 5 s (20 mana)"],
+	["Down + Y", "Down + S", "EARTHQUAKE: hold Down and press Y, even together. 1 s quake, grounded enemies stunned 5 s (20 mana)", "mera:earthquake"],
 	["L1", "Q", "heal: drink a green potion, +1 size, up to the size cap. One drawing per frame"],
 	["L2", "1", "full bubble while held (3 mana + 4/s). Pulls every item on screen. L1 drinks and it stays"],
 	["R2 (100 rage)", "2", "LIGHTNING: one bolt per enemy on screen, in a quick row. Costs 100 rage"],
-	["L2 + R2 (100 rage)", "1 + 2", "Fury for 12 s. Costs 100 rage. She cannot be hit. In Fury, R2 takes off / lands"],
+	["L2 + R2 (100 rage)", "1 + 2", "Fury for 12 s. Costs 100 rage. She cannot be hit. In Fury, R2 takes off / lands", "mera:fury_mode"],
 	["Down hold", "Down hold", "small bubble, 3 s, subtracts 1 damage, pulls every item on screen. L1 drinks and it stays"],
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
 	["Any button in a bubble", "", "drops that bubble and does the move. L1 drinks and the bubble stays"],
 	["L1+R1+L2+R2 (100 rage)", "Q+W+1+2", "freeze slash: mark up to 9 enemies, cut each for 3. Costs 100 rage"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
-	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands"],
+	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands", "mera:fury_mode"],
 	["Start", "Enter / F1", "pause: continue, restart, title, controls, or quit. B or Start continues"],
 	["-", "F2", "debug: hit/hurt boxes, PageUp/PageDown or right stick = size 1x-19x"],
 	["Menus", "arrows, Z ok, X back", "level select, ally picker, level clear / Game Over (Esc quits, F11 fullscreen)"],
@@ -52,6 +55,18 @@ var controls_page := 0
 
 func _controls_pages() -> int:
 	return maxi(ceili(float(_controls_table().size()) / float(CTRL_PER_PAGE)), 1)
+
+
+## a row's gate ("mera:beam", "perry:thrust"; none = always shown) against what the player has unlocked
+static func gate_ok(row: Array) -> bool:
+	if row.size() < 4:
+		return true
+	var g := String(row[3])
+	if g.begins_with("mera:"):
+		return Carry.owns(g.substr(5))
+	if g.begins_with("perry:"):
+		return PerryUnlocks.has(g.substr(6))
+	return true
 
 
 func _draw_controls_panel() -> void:
@@ -81,9 +96,12 @@ func _draw_controls_panel() -> void:
 ## Perry's list while she is the character in play; Mera's otherwise
 func _controls_table() -> Array:
 	var m = game.mera
-	if is_instance_valid(m) and m.get("is_perry") == true:
-		return PerryHud.CONTROLS
-	return CONTROLS
+	var full: Array = PerryHud.CONTROLS if is_instance_valid(m) and m.get("is_perry") == true else CONTROLS
+	var out: Array = []
+	for row in full:
+		if gate_ok(row):
+			out.append(row)
+	return out
 
 
 func _ready() -> void:
