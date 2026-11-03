@@ -31,8 +31,12 @@ var _fit: Array = []                   # per line: [font size, line height] for 
 
 
 ## Builds the cutscene under `game`, pauses the tree, and returns it. Null when nothing is shown (see the file header).
+## tests set this so story cards never pause a game that is not under test (the suite turns it off for its own cutscene cases)
+static var suppressed := false
+
+
 static func play(game: Node, pages_in: Array, on_done_cb: Callable = Callable(), key_name: String = "") -> Cutscene:
-	if game == null or not is_instance_valid(game):
+	if suppressed or game == null or not is_instance_valid(game):
 		return null
 	if key_name != "" and Carry.seen(key_name):
 		if on_done_cb.is_valid():
