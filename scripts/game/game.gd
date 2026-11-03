@@ -230,6 +230,7 @@ func _start_music(lv: Dictionary) -> void:
 	if stream is AudioStreamOggVorbis:
 		stream.loop = true
 	var player := AudioStreamPlayer.new()
+	player.process_mode = Node.PROCESS_MODE_ALWAYS           # the music keeps playing while a chest puzzle pauses the game
 	player.stream = stream
 	player.volume_db = -8.0
 	add_child(player)
@@ -623,6 +624,8 @@ func end_mark() -> void:
 ## one roster enemy at x (opts: variant, seed)
 func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
 	var e: Node2D = (DRAGON if eid == "dragon" else MONSTER).new()     # v0.8: the dragon has its own boss script
+	opts = opts.duplicate()
+	opts["stage2"] = not run_mode and Levels.current >= Levels.STAGE2_FROM
 	e.setup(self, eid, clampf(x, Levels.EDGE, map_w - Levels.EDGE), opts)
 	e.facing = -1 if x > mera.global_position.x else 1
 	world.add_child(e)

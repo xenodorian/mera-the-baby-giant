@@ -5,9 +5,9 @@ extends "res://scripts/puzzles/puzzle_host.gd"
 ## Keyboard / pad: A picks a tile, then a direction swaps it (or A on a neighbour). Touch: drag a tile onto a neighbour, or tap two neighbours.
 
 const TILE := 96.0
-const SWAP_S := 0.14
-const CLEAR_S := 0.22
-const FALL_S := 0.26
+const SWAP_S := 0.08
+const CLEAR_S := 0.12
+const FALL_S := 0.14
 
 var cols := Tuning.MATCH_COLS
 var rows := Tuning.MATCH_ROWS
@@ -213,7 +213,7 @@ func _start_clear() -> void:
 		_end_turn()
 		return
 	chain += 1
-	var pts := int(round(float(m.size() * Tuning.MATCH_TILE_POINTS) * (1.0 + 0.5 * float(chain - 1))))
+	var pts := int(round(float(m.size() * Tuning.MATCH_TILE_POINTS) * (1.0 + Tuning.MATCH_CHAIN_STEP * float(chain - 1))))
 	score += pts
 	_pop_text = "+%d%s" % [pts, ("  x%d chain" % chain) if chain > 1 else ""]
 	_pop_t = 1.0
@@ -242,7 +242,10 @@ func _drop_tiles() -> void:
 				write -= 1
 		var n := write + 1                                   # empty cells at the top
 		for y in range(write, -1, -1):
-			board[y * cols + x] = rng.randi() % kinds.size()
+			var k := rng.randi() % kinds.size()
+			if y + 1 < rows and rng.randf() < Tuning.MATCH_CASCADE_BIAS:
+				k = board[(y + 1) * cols + x]               # copy the tile below: falling tiles line up into more chains
+			board[y * cols + x] = k
 			_fall_start[y * cols + x] = float(n) * TILE
 	for i in fall_off.size():
 		fall_off[i] = _fall_start[i]

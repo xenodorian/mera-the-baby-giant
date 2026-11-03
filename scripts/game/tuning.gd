@@ -130,6 +130,10 @@ const ENEMY_LOOT := [["sphere", 100.0]]
 const CHEST_COINS := [3, 5]       # a chest releases this many coins (inclusive) ...
 const CHEST_COIN_GOLD := 3        # ... and each of those coins is worth this much gold (a coin from a broken object is worth 1)
 const CHEST_ITEMS := [1, 3]       # ... and this many other items (potion, mana or card)
+# Stage 2 creatures (levels 6 to 10): size, HP and attack-rate multipliers (monster.gd _faster / setup)
+const STAGE2_SIZE_MUL := 2.0
+const STAGE2_HP_MUL := 2.0
+const STAGE2_CD_MUL := 0.5
 const PUZZLE_KINDS := ["pipes", "match3", "needle"]   # touching a chest opens one of these at random (drop RNG)
 const PUZZLE_RESULT_S := 0.9      # "SOLVED" / "FAILED" banner time before the puzzle closes
 const PUZZLE_RETRY_S := 1.0       # a failed chest ignores Mera this long, and until she steps off it
@@ -139,10 +143,12 @@ const PIPES_ROWS := 5
 const PIPES_MOVES_EXTRA := 14     # move limit = (rotations needed to solve) + this
 # match-3: portraits (distinct enemies), grid, win score and move limit. Each cleared tile is worth MATCH_TILE_POINTS, x(1 + 0.5 per earlier
 # cascade step). Simulated: a random-move player wins about 9 games in 10, a pure first-move player about 7 in 10.
-const MATCH_COLS := 7
-const MATCH_ROWS := 7
+const MATCH_COLS := 6
+const MATCH_ROWS := 6
 const MATCH_KINDS := 5
-const MATCH_TARGET := 350
+const MATCH_TARGET := 300
+const MATCH_CASCADE_BIAS := 0.4   # chance a refilled tile copies the tile below it, so falling tiles line up into chains
+const MATCH_CHAIN_STEP := 0.75    # each chain step multiplies a clear by 1 + this per step after the first (was 0.5)
 const MATCH_MOVES := 15
 const MATCH_TILE_POINTS := 5
 # needle: three stops in a row. Zone and speed per round (fractions of the gauge, gauge widths per second). Never under NEEDLE_ZONE_MIN.

@@ -90,6 +90,11 @@ func setup(g: Node, enemy_id: String, x: float, opts: Dictionary = {}) -> void:
 	idle_a = String(d["idle"])
 	move_a = String(d["move"])
 	attacks = d["attacks"]
+	if bool(opts.get("stage2", false)):                 # Stage 2 (levels 6 to 10): double size, HP and attack rate
+		k *= Tuning.STAGE2_SIZE_MUL
+		hp_max = int(round(float(hp_max) * Tuning.STAGE2_HP_MUL))
+		hp = hp_max
+		attacks = _faster(d["attacks"])
 	rng.seed = hash(str(get_instance_id())) if not opts.has("seed") else int(opts["seed"])
 	variant = String(opts.get("variant", ""))
 	if d.has("clothed") and (variant == "clothed" or (variant == "" and rng.randf() < 0.5)):
@@ -156,6 +161,16 @@ static func _frames(eid: String) -> SpriteFrames:
 			sf.add_frame(a, tx)
 	_cache[eid] = sf
 	return sf
+
+
+## Stage 2: the same attacks, each with a shorter wait before the next one (cd x STAGE2_CD_MUL)
+static func _faster(list: Array) -> Array:
+	var out: Array = []
+	for a in list:
+		var b: Dictionary = a.duplicate()
+		b["cd"] = float(a.get("cd", 1.0)) * Tuning.STAGE2_CD_MUL
+		out.append(b)
+	return out
 
 
 # ---------------------------------------------------------------- helpers
