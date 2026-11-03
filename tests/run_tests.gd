@@ -488,6 +488,7 @@ func _run() -> void:
 	_check("barrier blocks a hit", gb.mera.size == 2, "size=%d" % gb.mera.size)
 	await _drive(gb, [[2, "l2", false]], 40)
 	_check("L2 released -> barrier down", not gb.mera.barrier_on, "")
+	await _test_bubble_exit_once()
 	gb.queue_free()
 	await process_frame
 	var alb: Node = root.get_node("AnimLib")
@@ -6693,3 +6694,22 @@ func _speaker_impact_restart_tests() -> void:
 	C.reset()
 	C.test_all = true
 	LVS.current = 0
+
+
+## the full bubble's exit pose plays once per release, also when L2 chatters or is pressed again during the exit
+func _test_bubble_exit_once() -> void:
+	var cases := {
+		"one release": [[5, "l2", true], [80, "l2", false]],
+		"re-press during the exit": [[5, "l2", true], [80, "l2", false], [83, "l2", true], [86, "l2", false]],
+		"trigger chatter on release": [[5, "l2", true], [80, "l2", false], [81, "l2", true], [82, "l2", false], [83, "l2", true], [84, "l2", false]],
+	}
+	for cname in cases:
+		var g: Node = await _new_game()
+		await _drive(g, cases[cname], 200)
+		var n := 0
+		for k in g.mera.move_log:
+			if k == "heal":
+				n += 1
+		_check("full bubble exit plays once (%s)" % cname, n == 1 and not g.mera.barrier_on and g.mera.state == "ground", "heal starts=%d log=%s" % [n, g.mera.move_log])
+		g.queue_free()
+		await process_frame

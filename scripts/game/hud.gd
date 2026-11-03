@@ -263,7 +263,8 @@ func _draw_ui() -> void:
 	if _flash == "max" and _flash_t > 0.0:
 		_txt(Vector2(260 + hx, 146), "max size is %dx" % m.scale_cap(), 22, Color(1, 0.6, 0.4))
 	# stamina (v0.4): bar length grows with the max (60 -> 120)
-	var sw := minf(500.0, 330.0 * m.stamina_max / 60.0 * 0.5 + 165.0)
+	# 165 px at 60 mana growing to 330 px at 200: the same length as the HP and rage bars, so the full bar never leaves the HUD panel
+	var sw := clampf(165.0 + 165.0 * (m.stamina_max - 60.0) / 140.0, 165.0, 330.0)
 	var sc := Color(0.25, 0.6, 1.0)
 	# v0.7 ally cards held
 	var cx := 36.0 + hx

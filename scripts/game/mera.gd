@@ -1834,6 +1834,12 @@ func _move_tick(delta: float) -> void:
 					if game:
 						game.flash_hud("rage")
 				return
+			# the bubble is already coming down: L2 edges from here to the end of the exit (a trigger that chatters
+			# on release, a quick re-press) are swallowed, or each one buffers a new barrier that replays the pose
+			if mv.get("released", false) and not barrier_on:
+				for le in presses:
+					if le["a"] == "l2" and not le["used"]:
+						le["used"] = true
 			# letting go before the bubble forms just drops the pose. It is never a lightning tap.
 			if not barrier_on and not mv.get("released", false) and i < Tuning.L2_TAP_FRAMES and not pressed("l2"):
 				mv["released"] = true
