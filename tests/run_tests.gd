@@ -1383,6 +1383,8 @@ func _run() -> void:
 				var run_f := 420                                    # Stage 2 "cycle" enemies get time for every attack
 				if String(RO.def(eid).get("pick", "")) in ["cycle", "order"]:
 					run_f = maxi(420, RO.def(eid)["attacks"].size() * 150)
+				if eid == "perry":                                  # the boss has a 30-move table: a longer run here, every animation in the perry boss section
+					run_f = 900
 				for f in run_f:
 					await physics_frame
 					if f % 30 == 0:
@@ -1433,6 +1435,8 @@ func _run() -> void:
 				g.queue_free()
 				await process_frame
 		var want: Array = RO.art(eid)["anims"].keys()
+		if eid == "perry":
+			want = []                                                     # her 37 animations are all checked by the perry boss section
 		var miss_a: Array = []
 		for a in want:
 			if not used.has(a):
@@ -1736,6 +1740,7 @@ func _run() -> void:
 	await _touch_tests()
 	await _mark_tests()
 	await _perry_tests()
+	await _pb_tests()
 	await _cl_tests()
 	await _ladder_tests()
 	await _face_summon_tests()
@@ -5043,3 +5048,417 @@ func _face_summon_tests() -> void:
 	C.reset()
 	C.test_all = true
 	LV.current = 0
+
+
+# ===== perry boss (scripts/game/perry_boss.gd, perry_boss_fx.gd: Perry as the boss of Perry's Arena)
+func _pb_game(sd: int, gap: float = 900.0) -> Array:
+	var LV = load("res://scripts/game/levels.gd")
+	LV.current = 0
+	var g: Node = await _new_game()
+	var m: Node2D = g.mera
+	m.position.x = 6000.0
+	m.set_size(6, true)
+	g.snap_camera()
+	var e: Node2D = g.spawn_enemy("perry", 6000.0 + gap, {"seed": sd})
+	await physics_frame
+	e.queue.clear()
+	e.cooldown = 99.0
+	return [g, m, e]
+
+
+func _pb_idle(e: Node2D) -> void:
+	e._abort_move()
+	e._to_idle_p(0.0)
+	e.queue.clear()
+	e.cooldown = 99.0
+	e.parry_cd = 0.0
+	e.dmg_t = 0.0
+	e.burst_pending = false
+	e.hit_times.clear()
+	e.near_t = 0.0
+
+
+func _pb_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var RO = load("res://scripts/game/roster.gd")
+	var TE = load("res://scripts/game/telegraph.gd")
+	var LV = load("res://scripts/game/levels.gd")
+	var C = load("res://scripts/game/carry.gd")
+	# ---- data
+	_check("perry boss: she is boss 11 (Perry's Arena), Moonlit Sanctum (10) has no boss, no wave list for 11, finale on 11",
+		RO.BOSSES.get(11, "") == "perry" and not RO.BOSSES.has(10) and not RO.LEVELS.has(11) and RO.FINALE.get(11, "") == "Perry" and RO.NAMES.get("perry", "") == "Perry", "")
+	var tbl: Dictionary = T.PERRY_BOSS_MOVES
+	var tbl_ok := true
+	var tbl_info := ""
+	for id in tbl:
+		var mv: Dictionary = tbl[id]
+		var an := String(mv.get("anim", id))
+		var steps_ok := true
+		for s in mv.get("steps", []):
+			steps_ok = steps_ok and tbl.has(s) and RO.art("perry")["anims"].has(String(tbl[s].get("anim", s)))
+		if not TE.COLORS.has(String(mv["kind"])) or (not mv.has("steps") and not RO.art("perry")["anims"].has(an)) or not steps_ok or float(mv["tell"]) < 0.0 or (float(mv["tell"]) > 0.0 and float(mv["tell"]) < TE.MIN_TELL):
+			tbl_ok = false
+			tbl_info += id + " "
+	_check("perry boss: the move table (%d moves) has known colours, real animations and no tell between 0 and %.2f s" % [tbl.size(), TE.MIN_TELL], tbl_ok and tbl.size() >= 30, tbl_info)
+	# ---- spawn, hp, HUD
+	var pk: Array = await _pb_game(5, 300.0)
+	var g: Node = pk[0]
+	var m: Node2D = pk[1]
+	var e: Node2D = pk[2]
+	_check("perry boss: hp_max = 25 x %d, size 25, k 5 (her size is only the readout), a boss" % T.DRAGON_HP_PER_SIZE, e.hp_max == 25 * T.DRAGON_HP_PER_SIZE and e.hp == e.hp_max and e.size == 25 and e.hps == T.DRAGON_HP_PER_SIZE and e.k == 5.0 and e.boss and g.boss == e, "%d %d" % [e.hp_max, e.size])
+	_check("perry boss: spawned 300 px from Mera she is moved away (never inside Mera)", absf(e.global_position.x - m.global_position.x) >= 800.0, "%.0f" % absf(e.global_position.x - m.global_position.x))
+	_check("perry boss: the HUD reads PERRY with size, ticks every hps hp", g.hud._boss_name(e) == "PERRY" and e.get("size") != null and int(e.hp_max / e.hps) - 1 == 24, g.hud._boss_name(e))
+	e.take_damage(e.hps * 3, 0.0, "beam")
+	_check("perry boss: the size readout follows hp (3 sizes lost = 22x)", e.size == 22, "%d" % e.size)
+	g.queue_free()
+	await process_frame
+	# ---- heal
+	pk = await _pb_game(6, 1700.0)
+	g = pk[0]; m = pk[1]; e = pk[2]
+	m.invuln = 99.0
+	e.phase_seen = 3
+	e.hp = 1
+	e.size = e.size_of_hp()
+	e.dmg_t = 0.0
+	var hp0: int = e.hp
+	for f in 50:
+		await physics_frame
+	_check("perry boss: she does not heal in the first second after a hit", e.hp == hp0 and e.state != "heal", "hp %d state %s" % [e.hp, e.state])
+	var f_heal := 0
+	for f in 900:
+		await physics_frame
+		f_heal = f
+		if e.hp >= e.hp_max:
+			break
+	var heal_s: float = (50.0 + float(f_heal)) / 60.0
+	_check("perry boss: from empty to full takes about 6 s of kneeling (%.1f s total)" % heal_s, e.hp >= e.hp_max and heal_s >= 5.8 and heal_s <= 8.2, "hp %d t %.2f" % [e.hp, heal_s])
+	e.hp = 20
+	e.dmg_t = 5.0
+	for f in 40:
+		await physics_frame
+	_check("perry boss: undamaged, Mera far and passive: she kneels (recover) and the heal runs", e.state == "heal" and e.hp > 20 and e.sprite.animation == "recover", "state %s hp %d" % [e.state, e.hp])
+	e.take_damage(1, 0.0, "beam")
+	var hp1: int = e.hp
+	await physics_frame
+	await physics_frame
+	var st_after: String = e.state
+	for f in 30:
+		await physics_frame
+	_check("perry boss: the heal stops the instant she is hit and does not run for the next second", st_after != "heal" and e.hp <= hp1 and e.dmg_t < 1.0, "state %s hp %d -> %d" % [st_after, hp1, e.hp])
+	_pb_idle(e)
+	e.hp = 20
+	e.dmg_t = 5.0
+	e.cooldown = 99.0
+	m.position.x = e.global_position.x - 800.0
+	var hp2: int = e.hp
+	for f in 90:
+		if f % 25 == 0:                                   # a harmless Mera bolt in the air near her counts as "attacking"
+			g.spawn_bolt(m, Vector2(e.global_position.x - 300.0, e.global_position.y - 200.0), -1, 1.0, false)
+		await physics_frame
+		e.cooldown = 99.0
+	_check("perry boss: while Mera attacks (a move with a hit box active near her) she does not heal", e.hp == hp2, "hp %d -> %d" % [hp2, e.hp])
+	g.queue_free()
+	await process_frame
+	# ---- parry (melee): 20 seeded trials
+	pk = await _pb_game(1, 420.0)
+	g = pk[0]; m = pk[1]; e = pk[2]
+	var parried_n := 0
+	var staggered_n := 0
+	var counter_n := 0
+	for tr in 20:
+		_pb_idle(e)
+		e.hp = e.hp_max
+		e.position.x = m.global_position.x + 330.0
+		m.state = "ground"
+		m.invuln = 0.0
+		e.rng.seed = 1000 + tr * 7919
+		var rl: int = e.riposte_log.size()
+		var r: bool = e.take_damage(1, m.global_position.x, "melee")
+		if not r and e.hp == e.hp_max and e.state == "parry":
+			parried_n += 1
+			if m.state == "hurt":
+				staggered_n += 1
+			for f in 40:
+				m.invuln = 50.0
+				await physics_frame
+			if e.riposte_log.size() > rl:
+				counter_n += 1
+		for f in 50:
+			m.invuln = 50.0
+			await physics_frame
+	_check("perry boss: a point-blank Mera slash is parried (no damage) in at least 80 %% of 20 seeded trials (%d), Mera is staggered (%d) and she counters at once (%d)" % [parried_n, staggered_n, counter_n], parried_n >= 16 and staggered_n == parried_n and counter_n >= parried_n - 2, "")
+	# a fast flurry gets through between parries
+	_pb_idle(e)
+	e.hp = e.hp_max
+	e.rng.seed = 1000 + 7919 * 2
+	var landed := 0
+	for i in 3:
+		if e.take_damage(1, m.global_position.x, "melee"):
+			landed += 1
+		await physics_frame
+	_check("perry boss: three hits within 0.05 s: the first is parried, the others land between parries", e.parries >= 1 and landed >= 1 and e.hp < e.hp_max, "landed %d hp %d" % [landed, e.hp])
+	# not free: cannot parry while stunned or in the active frames of a move
+	_pb_idle(e)
+	e.hp = e.hp_max
+	e.start_move("slash")
+	for f in 80:
+		await physics_frame
+		if e.state == "atk":
+			break
+	var in_atk: bool = e.state == "atk"
+	var r2: bool = e.take_damage(1, m.global_position.x, "melee")
+	_check("perry boss: in the active frames of her own move she cannot parry (the hit lands)", in_atk and r2 and e.hp < e.hp_max, "state %s" % e.state)
+	g.queue_free()
+	await process_frame
+	# ---- projectiles are reflected at Mera; beams, allies and quakes are not parried
+	pk = await _pb_game(2, 1400.0)
+	g = pk[0]; m = pk[1]; e = pk[2]
+	m.position.x = e.global_position.x - 1400.0
+	m.set_size(6, true)
+	m.invuln = 0.0
+	var s0: int = m.size
+	var by: float = e.global_position.y - 260.0
+	g.spawn_bolt(m, Vector2(e.global_position.x - 900.0, by), 1, 3.0, true)
+	for f in 140:
+		await physics_frame
+		e.cooldown = 99.0
+	_check("perry boss: a Mera bolt fired at her is reflected (reflected %d), does not hurt her and hurts Mera by 1 size" % e.reflected, e.reflected >= 1 and e.hp == e.hp_max and m.size == s0 - 1, "refl %d size %d -> %d hp %d" % [e.reflected, s0, m.size, e.hp])
+	_pb_idle(e)
+	m.set_size(6, true)
+	m.invuln = 0.0
+	m.state = "ground"
+	var r0: int = e.reflected
+	for j in 3:
+		g.spawn_bolt(m, Vector2(e.global_position.x - 800.0 - 90.0 * j, by + 30.0 * (j - 1)), 1, 3.0, true)
+	for f in 160:
+		await physics_frame
+		e.cooldown = 99.0
+	_check("perry boss: a volley of 3 bolts is reflected whole (%d)" % (e.reflected - r0), e.reflected - r0 == 3 and e.hp == e.hp_max and e.reflected_hits >= 3, "refl %d hits %d" % [e.reflected - r0, e.reflected_hits])
+	_pb_idle(e)
+	var hpb: int = e.hp
+	var rb: bool = e.take_damage(2, m.global_position.x, "beam")
+	var rl2: bool = e.take_damage(2, m.global_position.x, "lightning")
+	var ra: bool = e.take_damage(2, m.global_position.x + 400.0, "melee")      # an ally's blow (not Mera's x)
+	var rq: bool = e.take_damage(2, m.global_position.x, "quake")
+	var rx: bool = e.take_damage(2, m.global_position.x, "explosion")
+	_check("perry boss: beams, lightning, an ally's attack, quakes and explosions are never parried (all land: %d hp)" % (hpb - e.hp), rb and rl2 and ra and rq and rx and e.parries == 0 and hpb - e.hp == 10, "%s %s %s %s %s hp %d" % [rb, rl2, ra, rq, rx, e.hp])
+	# ---- stun: earthquake
+	_pb_idle(e)
+	e.position.x = m.global_position.x + 900.0
+	e.hp = e.hp_max
+	e.healed = 0
+	g.earthquake()
+	for f in 20:
+		await physics_frame
+	var stunned: bool = e.state == "stun"
+	var mlog0: int = e.move_log.size()
+	var par0: int = e.parries
+	var hits_ok := true
+	for f in 60:
+		await physics_frame
+		if f % 10 == 0 and e.state == "stun":
+			hits_ok = hits_ok and e.take_damage(1, m.global_position.x, "melee")
+	_check("perry boss: the earthquake stuns her (stun %.1f s left), she takes every melee hit with no parry, no move, no heal while stunned" % e.stun_t, stunned and hits_ok and e.parries == par0 and e.move_log.size() == mlog0 and e.healed == 0 and e.stunned_total >= 1 and e.stun_t > 1.5, "state %s stunned %s" % [e.state, stunned])
+	for f in 400:
+		await physics_frame
+	_check("perry boss: the stun ends and she fights again", e.state != "stun", e.state)
+	# ---- no parry during the burst, the ultimate; the guard reduces damage; dash is invulnerable
+	_pb_idle(e)
+	e.hp = e.hp_max
+	e.start_move("energy_burst")
+	await physics_frame
+	var hb: int = e.hp
+	var rb1: bool = e.take_damage(1, m.global_position.x, "melee")
+	_check("perry boss: no parry in the burst's tell (the hit lands)", e.state == "tell" and rb1 and e.hp == hb - 1, "state %s" % e.state)
+	_pb_idle(e)
+	e.hp = e.hp_max
+	e.start_move("ultimate_chain")
+	await physics_frame
+	hb = e.hp
+	var ru: bool = e.take_damage(1, m.global_position.x, "melee")
+	_check("perry boss: no parry in the ultimate chain", ru and e.hp == hb - 1, "")
+	_pb_idle(e)
+	e.hp = e.hp_max
+	e.start_move("dash")
+	await physics_frame
+	await physics_frame
+	var rd: bool = e.take_damage(5, m.global_position.x, "beam")
+	_check("perry boss: the dash is invulnerable for its first 60 %", not rd and e.hp == e.hp_max, "")
+	_pb_idle(e)
+	e.hp = e.hp_max
+	e.start_move("rainbow_guard")
+	for f in 20:
+		await physics_frame
+	hb = e.hp
+	var rg: bool = e.take_damage(8, m.global_position.x, "beam")
+	_check("perry boss: the rainbow guard glows and she takes only 25 %% of the damage (8 -> %d)" % (hb - e.hp), rg and e.guard_t > 0.0 and hb - e.hp == 2, "guard %.2f" % e.guard_t)
+	g.queue_free()
+	await process_frame
+	# ---- burst: three quick hits with Mera in melee range
+	pk = await _pb_game(4, 260.0)
+	g = pk[0]; m = pk[1]; e = pk[2]
+	e.position.x = m.global_position.x + 330.0
+	m.invuln = 0.0
+	var sz0: int = m.size
+	_pb_idle(e)
+	e.cooldown = 99.0
+	for i in 3:
+		e.take_damage(1, m.global_position.x + 50.0, "bolt")
+	_check("perry boss: three quick hits with Mera in melee range arm the burst", e.burst_pending or "energy_burst" in e.move_log, "pending %s" % e.burst_pending)
+	var mx0: float = m.global_position.x
+	var max_back := 0.0
+	var seen_burst := false
+	for f in 150:
+		await physics_frame
+		e.cooldown = 99.0
+		if e.cur_id == "energy_burst":
+			seen_burst = true
+		max_back = maxf(max_back, absf(m.global_position.x - mx0))
+	_check("perry boss: her very next move is the energy burst; Mera loses 2 sizes and is thrown back %.0f px (>= 400)" % max_back, seen_burst and e.move_log.size() > 0 and e.move_log[0] == "energy_burst" and max_back >= 400.0 and m.size == sz0 - 2, "log %s back %.0f size %d" % [e.move_log, max_back, m.size])
+	var qn: bool = e.queue.is_empty() or true
+	for f in 120:
+		await physics_frame
+		e.cooldown = 99.0
+	_check("perry boss: after the burst she backs off (a dash or sky dash away), the burst cools down for 5 s", "dash" in e.move_log or "sky_dash" in e.move_log, "%s" % [e.move_log])
+	g.queue_free()
+	await process_frame
+	# ---- the long scripted fight: phases, distinct moves, tells, no triple repeats, determinism
+	var runs: Array = []
+	for rr in 2:
+		pk = await _pb_game(77, 900.0)
+		g = pk[0]; m = pk[1]; e = pk[2]
+		e.queue.clear()
+		e.cooldown = 0.5
+		var dists := [500.0, 900.0, 250.0, 1300.0, 140.0, 700.0]
+		var p1 := {}
+		for f in 5400:
+			await physics_frame
+			m.invuln = 99.0
+			m.state = "ground"
+			e.dmg_t = 0.0
+			e.hit_times.clear()
+			if f % 100 == 0:
+				m.position.x = clampf(e.global_position.x - e.facing * float(dists[(f / 100) % dists.size()]) - 0.0, 800.0, g.map_w - 800.0)
+			if f == 1500:
+				e.hp = int(e.hp_max * 0.6)
+			if f == 3300:
+				e.hp = int(e.hp_max * 0.25)
+			if f == 1499:
+				for id in e.move_log:
+					p1[id] = true
+		runs.append([e.move_log.duplicate(), e.tell_log.duplicate(), p1.duplicate(), e.phase_log.duplicate(), e.step_log.duplicate(), e.guards, e.ults, e.bursts])
+		if rr == 0:
+			var distinct := {}
+			for id in e.move_log:
+				distinct[id] = true
+			var triple := false
+			for i in range(2, e.move_log.size()):
+				if e.move_log[i] == e.move_log[i - 1] and e.move_log[i] == e.move_log[i - 2]:
+					triple = true
+			var tmin := 9.0
+			for tl in e.tell_log:
+				tmin = minf(tmin, float(tl))
+			var p1_bad := false
+			for id in ["beam_cloud", "beam_fire", "beam_laser", "beam_plasma", "meteor_shower", "rainbow_guard", "ultimate_chain", "burst_chain", "energy_kick", "chain_long", "energy_dash_thrust", "earthquake"]:
+				if p1.has(id):
+					p1_bad = true
+			_check("perry boss: a long scripted fight uses at least 14 distinct moves (%d: %s)" % [distinct.size(), distinct.keys()], distinct.size() >= 14, "")
+			_check("perry boss: no tell is shorter than %.2f s (%d tells, min %.2f) and no move repeats three times in a row" % [TE.MIN_TELL, e.tell_log.size(), tmin], tmin >= TE.MIN_TELL - 0.0001 and not triple and e.tell_log.size() > 20, "triple %s" % triple)
+			_check("perry boss: phase 1 uses only the basic pool; phases 2 and 3 started with a taunt feint (phases %s), the guard ran %d times and the ultimate %d" % [e.phase_log, e.guards, e.ults], not p1_bad and e.phase_log == [2, 3] and e.guards >= 1 and e.ults >= 1, "p1 %s" % p1.keys())
+		g.queue_free()
+		await process_frame
+	var same: bool = runs[0][0] == runs[1][0] and runs[0][1] == runs[1][1]
+	_check("perry boss: the same seed gives the same fight (%d moves)" % runs[0][0].size(), same and runs[0][0].size() > 40, "%d vs %d" % [runs[0][0].size(), runs[1][0].size()])
+	# ---- every move once, every roster animation played
+	pk = await _pb_game(9, 900.0)
+	g = pk[0]; m = pk[1]; e = pk[2]
+	var seen_steps := {}
+	var all_ok := true
+	var bad := ""
+	for id in tbl:
+		if tbl[id].has("data") and false:
+			continue
+		_pb_idle(e)
+		e.position.x = 6900.0
+		m.position.x = 6900.0 - (700.0 if float(tbl[id]["band"][0]) < 600.0 else 900.0)
+		if id in ["jump_crash", "sky_dash", "dash", "dash_thrust", "energy_dash_thrust", "energy_wave", "meteor_shower", "beam_cloud", "beam_fire", "beam_laser", "beam_plasma", "ultimate_chain"]:
+			m.position.x = 6200.0
+		e.hp = e.hp_max
+		e.mcd.clear()
+		var n0: int = e.step_log.size()
+		e.start_move(id)
+		var done := false
+		for f in 700:
+			await physics_frame
+			m.invuln = 99.0
+			m.state = "ground"
+			e.dmg_t = 0.0
+			e.cooldown = 99.0
+			e.queue.clear()
+			if e.state == "idle" and f > 10:
+				done = true
+				break
+		var want_steps: Array = tbl[id].get("steps", [id])
+		var got: Array = e.step_log.slice(n0)
+		if not done or got != want_steps:
+			all_ok = false
+			bad += "%s(%s %s) " % [id, done, got]
+		for s in got:
+			seen_steps[s] = true
+	_check("perry boss: every move in the table runs to the end by itself and plays its steps in order (%d moves)" % tbl.size(), all_ok, bad)
+	# heal and walk for the last animations
+	_pb_idle(e)
+	e.hp = 10
+	e.dmg_t = 5.0
+	m.position.x = e.global_position.x - 1500.0
+	for f in 40:
+		await physics_frame
+		m.invuln = 99.0
+	e.cooldown = 0.0
+	e.hp = e.hp_max
+	e.dmg_t = 0.0
+	m.position.x = e.global_position.x - 1200.0
+	for f in 60:
+		await physics_frame
+		m.invuln = 99.0
+	var miss: Array = []
+	for a in RO.art("perry")["anims"].keys():
+		if not e.played.has(a):
+			miss.append(a)
+	_check("perry boss: across those moves she plays every one of her %d roster animations" % RO.art("perry")["anims"].size(), miss.is_empty(), "missing %s" % [miss])
+	# death
+	_pb_idle(e)
+	e.hp = 3
+	e.size = e.size_of_hp()
+	var fired := [false]
+	e.defeated.connect(func(_x): fired[0] = true)
+	var kill: bool = e.take_damage(5, m.global_position.x + 300.0, "beam")
+	_check("perry boss: a hit that takes hp to 0 kills her (dead, defeated signal, the game sees the boss fall)", kill and e.hp == 0 and e.state == "dead" and fired[0] and g.boss_dead, "state %s" % e.state)
+	g.queue_free()
+	await process_frame
+	# ---- a boss-only arena: only she is ever on screen
+	if DirAccess.dir_exists_absolute("res://assets/levels/p_arena"):
+		LV.current = 11
+		C.reset()
+		g = await _new_game(true)
+		g.mera.position.x = 400.0
+		var solo := true
+		var seen_perry := false
+		for f in 2400:
+			await physics_frame
+			g.mera.invuln = 99.0
+			var n_alive := 0
+			for en in g.enemies():
+				if is_instance_valid(en) and en.alive():
+					n_alive += 1
+					if en.id != "perry":
+						solo = false
+					else:
+						seen_perry = true
+			if n_alive > 1:
+				solo = false
+		_check("perry boss: Perry's Arena holds Perry and nothing else for 40 s (no waves, no trickle)", solo and seen_perry and g.mobs.size() == 1, "mobs %d" % g.mobs.size())
+		g.queue_free()
+		await process_frame
+		LV.current = 0
+		C.reset()
