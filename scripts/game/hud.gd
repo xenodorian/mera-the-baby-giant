@@ -45,6 +45,39 @@ const CONTROLS := [
 ]
 
 
+## big text, so only CTRL_PER_PAGE entries fit; Left / Right turn the pages (the list is the selected character's)
+const CTRL_PER_PAGE := 4
+var controls_page := 0
+
+
+func _controls_pages() -> int:
+	return maxi(ceili(float(_controls_table().size()) / float(CTRL_PER_PAGE)), 1)
+
+
+func _draw_controls_panel() -> void:
+	var o := _origin()
+	ui.draw_set_transform(o, 0.0, Vector2.ONE)
+	ui.draw_rect(Rect2(140, 80, 1640, 920), Color(0.03, 0.02, 0.06, 0.96))
+	ui.draw_rect(Rect2(140, 80, 1640, 920), Color(1.0, 0.8, 0.45), false, 4.0)
+	var m = game.mera
+	var perry: bool = is_instance_valid(m) and m.get("is_perry") == true
+	_txt(Vector2(180, 150), "%s CONTROLS" % ("PERRY" if perry else "MERA"), 64, Color(1.0, 0.82, 0.45))
+	var table := _controls_table()
+	controls_page = clampi(controls_page, 0, _controls_pages() - 1)
+	var from := controls_page * CTRL_PER_PAGE
+	var y := 245.0
+	for i in range(from, mini(from + CTRL_PER_PAGE, table.size())):
+		var pad_name := String(table[i][0])
+		if pad_name == "Start" and OS.get_name() == "Android":
+			pad_name = "Start / PAUSE button"
+		_txt(Vector2(180, y), pad_name, 46, Color(1, 0.75, 0.45))
+		_txt(Vector2(180, y + 46), "Keyboard: %s" % String(table[i][1]), 32, Color(0.55, 0.85, 1.0))
+		ui.draw_multiline_string(font, Vector2(180, y + 92), String(table[i][2]), HORIZONTAL_ALIGNMENT_LEFT, 1440.0, 36, 2, Color(0.95, 0.92, 0.88))
+		y += 178.0
+	_center(985, "Page %d / %d      Left / Right: page      B / Start: back" % [controls_page + 1, _controls_pages()], 32, Color(0.85, 0.85, 0.9))
+	ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 ## Perry's list while she is the character in play; Mera's otherwise
 func _controls_table() -> Array:
 	var m = game.mera
@@ -83,12 +116,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	if game == null or not game.paused_play or event.is_echo():
 		return
 	if pause_controls:
-		if event.is_action_pressed("btn_a") or event.is_action_pressed("btn_b") or event.is_action_pressed("ui_accept") \
+		var last := controls_page >= _controls_pages() - 1
+		if event.is_action_pressed("left"):
+			controls_page = maxi(controls_page - 1, 0)
+		elif event.is_action_pressed("right") or ((event.is_action_pressed("btn_a") or event.is_action_pressed("ui_accept") \
+				or (event is InputEventMouseButton and event.pressed)) and not last):
+			controls_page = mini(controls_page + 1, _controls_pages() - 1)
+		elif event.is_action_pressed("btn_a") or event.is_action_pressed("btn_b") or event.is_action_pressed("ui_accept") \
 				or event.is_action_pressed("start") or (event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE) \
 				or (event is InputEventMouseButton and event.pressed):
 			pause_controls = false
 			overlay = false
-			get_viewport().set_input_as_handled()
+		else:
+			return
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("up"):
 		pause_sel = posmod(pause_sel - 1, PAUSE_ITEMS.size())
@@ -128,6 +169,7 @@ func _pause_confirm() -> void:
 		3:
 			pause_controls = true
 			overlay = true
+			controls_page = 0
 		4:
 			game.get_tree().quit()
 
@@ -248,23 +290,8 @@ func _draw_ui() -> void:
 			_txt(Vector2(470, 990), _boss_name(bs), 28, Color(1, 0.7, 0.5))
 	if m.debug:
 		_txt(Vector2(1300, 106), "DEBUG: boxes on, PageUp/PageDown size   x %d" % int(m.global_position.x), 22, Color(1, 1, 0.4))
-	if overlay:
-		var oo := _origin()
-		ui.draw_set_transform(oo, 0.0, Vector2.ONE)
-		ui.draw_rect(Rect2(140, 130, 1640, 900), Color(0.03, 0.02, 0.06, 0.92))
-		_txt(Vector2(180, 175), "CONTROLS  (pad: Xbox names; PS4: A = Cross, B = Circle, X = Square, Y = Triangle)", 26, Color(1, 0.8, 0.5))
-		_txt(Vector2(180, 215), "GAMEPAD", 20, Color(1, 0.75, 0.45))
-		_txt(Vector2(530, 215), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
-		var table := _controls_table()
-		for i in table.size():
-			var y := 250 + i * 35
-			var pad_name := String(table[i][0])
-			if pad_name == "Start" and OS.get_name() == "Android":
-				pad_name = "Start / PAUSE button"
-			_txt(Vector2(180, y), pad_name, 20, Color(1, 0.75, 0.45))
-			_txt(Vector2(530, y), String(table[i][1]), 20, Color(0.55, 0.85, 1.0))
-			_txt(Vector2(760, y), String(table[i][2]), 20)
-		ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if overlay and not pause_controls:
+		_draw_controls_panel()
 	if game.over and game.over_t > 0.9:
 		var o := _origin()
 		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
@@ -336,23 +363,7 @@ func _draw_pause() -> void:
 	var o := _origin()
 	ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.0, 0.0, 0.02, 0.72))
 	if pause_controls:
-		ui.draw_set_transform(o, 0.0, Vector2.ONE)
-		ui.draw_rect(Rect2(140, 80, 1640, 920), Color(0.03, 0.02, 0.06, 0.96))
-		ui.draw_rect(Rect2(140, 80, 1640, 920), Color(1.0, 0.8, 0.45), false, 4.0)
-		_txt(Vector2(180, 130), "CONTROLS", 48, Color(1.0, 0.82, 0.45))
-		_txt(Vector2(180, 180), "GAMEPAD", 20, Color(1, 0.75, 0.45))
-		_txt(Vector2(530, 180), "KEYBOARD", 20, Color(0.55, 0.85, 1.0))
-		var table := _controls_table()
-		for i in table.size():
-			var y := 214 + i * 30
-			var pad_name := String(table[i][0])
-			if pad_name == "Start" and OS.get_name() == "Android":
-				pad_name = "Start / PAUSE button"
-			_txt(Vector2(180, y), pad_name, 18, Color(1, 0.75, 0.45))
-			_txt(Vector2(530, y), String(table[i][1]), 18, Color(0.55, 0.85, 1.0))
-			_txt(Vector2(760, y), String(table[i][2]), 18)
-		_center(o.y + 980, "A / B / Start: back to pause", 26, Color(0.85, 0.85, 0.9))
-		ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		_draw_controls_panel()
 		return
 	var panel := Rect2(o.x + 520.0, o.y + 220.0, 880.0, 640.0)
 	ui.draw_rect(panel, Color(0.06, 0.03, 0.09, 0.96))

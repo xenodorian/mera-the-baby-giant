@@ -133,7 +133,8 @@ const CHEST_ITEMS := [1, 3]       # ... and this many other items (potion, mana 
 # Stage 2 creatures (levels 6 to 10): size, HP and attack-rate multipliers (monster.gd _faster / setup)
 const STAGE2_SIZE_MUL := 2.0
 const STAGE2_HP_MUL := 2.0
-const STAGE2_CD_MUL := 0.5
+const STAGE2_CD_MUL := 0.25      # the wait between attacks (was 0.5: attacks come four times as often as in stage 1)
+const STAGE2_SPEED_MUL := 2.0    # walking speed
 const PUZZLE_KINDS := ["pipes", "match3", "needle"]   # touching a chest opens one of these at random (drop RNG)
 const PUZZLE_RESULT_S := 0.9      # "SOLVED" / "FAILED" banner time before the puzzle closes
 const PUZZLE_RETRY_S := 1.0       # a failed chest ignores Mera this long, and until she steps off it

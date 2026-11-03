@@ -52,6 +52,7 @@ var history: Array = []      # last sounds (name, bus, pitch) for tests
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS          # sound effects keep playing while the game is paused (chest puzzles, the pause menu)
 	var idx := AudioServer.bus_count
 	AudioServer.add_bus(idx)
 	AudioServer.set_bus_name(idx, "Fury")

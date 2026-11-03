@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Android on-screen pad. Shown unless a gamepad is connected, then it fades out.
 ## Grayscale. Xbox diamond (Y top, B right, A bottom, X left), not Xbox colors.
+## The round L3 button in the middle of the d-pad drinks a mana potion (the "mana" action: E / left-stick click).
 ## The PAUSE button (top centre) sends the start action, so it pauses like the gamepad Start button. Volume buttons do nothing.
 
 ## Positions copied from the 2128x912 mockup, then scaled to the live viewport.
@@ -13,6 +14,7 @@ const LAYOUT := [
 	["up", 210.0, 442.0, 122.0, 116.0, false],
 	["down", 210.0, 680.0, 122.0, 116.0, false],
 	["right", 334.0, 562.0, 122.0, 116.0, false],
+	["mana", 210.0, 562.0, 122.0, 116.0, true],       # L3: the empty middle of the d-pad drinks a mana potion
 	["r2", 1774.0, 172.0, 264.0, 98.0, false],
 	["r1", 1784.0, 292.0, 254.0, 100.0, false],
 	["btn_x", 1702.0, 570.0, 100.0, 100.0, true],
@@ -89,6 +91,7 @@ func _label(action: String) -> String:
 	match action:
 		"l1": return "L1"
 		"l2": return "L2"
+		"mana": return "L3"
 		"start": return "PAUSE"
 		"r1": return "R1"
 		"r2": return "R2"

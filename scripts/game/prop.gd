@@ -38,6 +38,7 @@ var _boom_left := -1.0
 var _retry_t := 0.0             # chest: after a lost puzzle, ignores Mera for this long ...
 var _need_leave := false        # ... and until she has stepped off it
 var puzzle_tries := 0           # chest: puzzles started (tests)
+var prompt: Label = null        # chest: the "A: OPEN" prompt shown while Mera stands on it
 
 
 func setup(g: Node, kd: String, x: float, ex: Dictionary = {}) -> void:
@@ -327,6 +328,9 @@ func _physics_process(delta: float) -> void:
 # ---------------------------------------------------------------- puzzle chest
 func _chest_tick(delta: float) -> void:
 	_retry_t -= delta
+	if prompt == null:
+		_make_prompt()
+	prompt.visible = false
 	if state != "locked" or game == null or game.mera == null:
 		return
 	var m: Node2D = game.mera
@@ -335,8 +339,27 @@ func _chest_tick(delta: float) -> void:
 		if not touching:
 			_need_leave = false
 		return
-	if touching and _retry_t <= 0.0 and touch_opens:
+	if not touching or _retry_t > 0.0:
+		return
+	prompt.text = "%s: OPEN" % ("Z" if Controls.scheme == "key" else "A")
+	prompt.visible = true
+	if touch_opens and Input.is_action_just_pressed("btn_a"):          # standing on the chest, press A to open it
 		try_open()
+
+
+func _make_prompt() -> void:
+	prompt = Label.new()
+	prompt.text = "A: OPEN"
+	prompt.add_theme_font_size_override("font_size", 52)
+	prompt.add_theme_color_override("font_color", Color(1.0, 0.92, 0.3))
+	prompt.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	prompt.add_theme_constant_override("outline_size", 12)
+	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	prompt.size = Vector2(320, 64)
+	prompt.position = Vector2(-160.0, -hurt_rect().size.y - 90.0)
+	prompt.z_index = 30
+	prompt.visible = false
+	add_child(prompt)
 
 
 ## Starts a puzzle for this chest (also the test hook). False when it is not shut or a puzzle is already open.

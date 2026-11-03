@@ -45,6 +45,7 @@ var stun_t := 0.0
 var stunned_total := 0
 var flash := 0.0
 var speed := 100.0
+var speed_mul := 1.0                    # Stage 2: walking speed multiplier (Tuning.STAGE2_SPEED_MUL)
 var idle_a := "idle"
 var move_a := "walk"
 var attacks: Array = []
@@ -92,6 +93,8 @@ func setup(g: Node, enemy_id: String, x: float, opts: Dictionary = {}) -> void:
 	attacks = d["attacks"]
 	if bool(opts.get("stage2", false)):                 # Stage 2 (levels 6 to 10): double size, HP and attack rate
 		k *= Tuning.STAGE2_SIZE_MUL
+		speed_mul = Tuning.STAGE2_SPEED_MUL
+		speed *= speed_mul
 		hp_max = int(round(float(hp_max) * Tuning.STAGE2_HP_MUL))
 		hp = hp_max
 		attacks = _faster(d["attacks"])
@@ -323,13 +326,13 @@ func take_damage(amount: int, from_x: float, _kind: String = "melee") -> bool:
 		disarmed = true                                       # the ogre loses his club: unarmed idle / walk + shove
 		idle_a = String(d["disarm"]["idle"])
 		move_a = String(d["disarm"]["move"])
-		speed = float(d["disarm"]["speed"])
+		speed = float(d["disarm"]["speed"]) * speed_mul
 		attacks = d["attacks_disarmed"]
 	if d.has("lamp") and not lamp_lost:
 		lamp_lost = true                                      # Death drops his lamp and speeds up
 		idle_a = String(d["lamp"]["idle"])
 		move_a = String(d["lamp"]["move"])
-		speed = float(d["lamp"]["speed"])
+		speed = float(d["lamp"]["speed"]) * speed_mul
 	if d.has("douse"):
 		doused_t = float(d["douse"]["t"])                     # the fire skull's flame goes out for a while
 		if state != "atk":
@@ -776,10 +779,10 @@ func _ai(m: Node2D, delta: float) -> void:
 	var spd := speed
 	var anim_m := _cur_move()
 	if ai == "charger" and d.has("run") and gap < 600.0:     # the hell hound walks far off, runs once near
-		spd = float(d["run_speed"])
+		spd = float(d["run_speed"]) * speed_mul
 		anim_m = String(d["run"])
 	if doused_t > 0.0:
-		spd = float(d["douse"]["speed"])
+		spd = float(d["douse"]["speed"]) * speed_mul
 	if ai == "hopper":
 		if want and hop_cd <= 0.0 and on_ground:
 			_face(face)
