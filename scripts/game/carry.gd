@@ -67,6 +67,9 @@ const PERRY_CLEAR_LEVEL := 11
 static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
 static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
 static var perry_hp_max := Tuning.PERRY_HP_START
+static var story_seen: Dictionary = {}          # cutscene key -> true once shown (scripts/game/cutscene.gd)
+static var prisoners: Dictionary = {}           # level index (as a string key) -> true once freed (scripts/game/prisoner.gd)
+static var perry_freed := false                 # Perry was freed from the king's spell (free_perry, once)
 
 
 static func ensure() -> void:
@@ -139,6 +142,19 @@ static func _read(d: Dictionary) -> void:
 			if n > 0 and String(k) in ALLIES:
 				cards[String(k)] = n
 	_trim_cards()
+	story_seen = {}
+	var rs = d.get("story_seen", {})
+	if rs is Dictionary:
+		for k in rs:
+			if bool(rs[k]):
+				story_seen[String(k)] = true
+	prisoners = {}
+	var rp = d.get("prisoners", {})
+	if rp is Dictionary:
+		for k in rp:
+			if bool(rp[k]):
+				prisoners[String(k)] = true
+	perry_freed = bool(d.get("perry_freed", false))
 
 
 static func pack() -> Dictionary:
@@ -163,6 +179,9 @@ static func pack() -> Dictionary:
 		"character": character,
 		"perry_owned": perry_owned.duplicate(),
 		"perry_hp_max": perry_hp_max,
+		"story_seen": story_seen.duplicate(),
+		"prisoners": prisoners.duplicate(),
+		"perry_freed": perry_freed,
 	}
 
 
@@ -194,6 +213,9 @@ static func reset() -> void:
 	character = "mera"
 	perry_owned = {}
 	perry_hp_max = Tuning.PERRY_HP_START
+	story_seen = {}
+	prisoners = {}
+	perry_freed = false
 	ready = true
 	save()
 	if FileAccess.file_exists(RUN_PATH):
@@ -286,6 +308,56 @@ static func set_character(who: String) -> bool:
 	if who == "perry" and not perry_unlocked():
 		return false
 	character = "perry" if who == "perry" else "mera"
+	save()
+	return true
+
+
+## Cutscenes (scripts/game/cutscene.gd): a key is remembered once its scene has finished
+static func seen(key: String) -> bool:
+	ensure()
+	return key != "" and bool(story_seen.get(key, false))
+
+
+static func mark_seen(key: String) -> void:
+	ensure()
+	if key == "" or bool(story_seen.get(key, false)):
+		return
+	story_seen[key] = true
+	save()
+
+
+## Prisoners (scripts/game/prisoner.gd): one per level, freed once ever
+static func prisoner_freed(level_index: int) -> bool:
+	ensure()
+	return bool(prisoners.get(str(level_index), false))
+
+
+static func free_prisoner(level_index: int) -> void:
+	ensure()
+	if prisoner_freed(level_index):
+		return
+	prisoners[str(level_index)] = true
+	save()
+
+
+## Perry is freed from the king's spell, once: her bought unlocks go and her max HP goes back to the start.
+## Gold, Mera's moves and the level clears stay.
+static func free_perry() -> void:
+	ensure()
+	if perry_freed:
+		return
+	perry_freed = true
+	perry_owned = {}
+	perry_hp_max = Tuning.PERRY_HP_START
+	save()
+
+
+## grants a Mera move (a shop "move:" id, no price). True when it was newly granted.
+static func give_move(id: String) -> bool:
+	ensure()
+	if id not in MOVE_IDS or bool(moves.get(id, false)):
+		return false
+	moves[id] = true
 	save()
 	return true
 

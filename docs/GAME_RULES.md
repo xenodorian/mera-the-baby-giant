@@ -277,7 +277,8 @@ The four wave levels (1, 2, 3 and 5); the Moonlit Cemetery and the Dragon's Lair
 | Explosive barrel | 1 | the drop roll below; explodes |
 | Chandelier (Moonlit Town, Infernal Caverns) | 1 | none: falls |
 
-- **Drop roll** (candle, urn, crate and barrel): 40 % coin, 25 % health potion, 25 % mana potion, 10 % summon card. Chests: see Puzzle chests.
+- **Drop roll** (candle, urn, crate and barrel; `Tuning.BREAK_DROP_*`, `game.break_drop`): 40 % coin, 30 % health potion, 20 % mana potion, 10 % summon card. A full card hand gives 1 gold instead. Chests: see Puzzle chests.
+- **Perry's Arena** (level index 11) has exactly **20 breakables** (crates, urns and candles only, no barrels or chests), spread from x 700 to the last 1500 px, at least 150 px apart (`Props.ARENA_BREAKABLES`).
 - **Any projectile breaks what it hits** (v0.9.6): Mera's bolts and fireballs, the ranger's arrows, enemy shots, and the dragon's bolts. Every destructible except the cracked wall and the chest breaks in one hit. A chest opens only by solving a puzzle. A wall loses one hit per blow. A dragon bolt's blast breaks everything in the burst.
 - **Slide (Down+A):** her body breaks every destructible she passes through except a cracked wall and a chest, and she **takes the drop immediately** instead of leaving it behind. Walls still block her and still take one hit per kick.
 - **Explosive barrel:** **8 damage** (fixed, never × size) and a launch to every enemy within **300 px**; it pierces the Fire Knight's block (kind "explosion"); other barrels in the blast go off 0.14 s later (chains); chandeliers in range (1.8 × radius) drop; breakables in range break. Mera is not hurt.

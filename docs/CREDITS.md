@@ -116,3 +116,10 @@ Liberated Pixel Cup (LPC) art, authors:
 - Zi Ye
 
 DCSS tiles (`assets/changeling/source/tiles/`, licence file `LICENSE_DCSS.txt`): Dungeon Crawl Stone Soup, copyright 1997-2025 Linley Henzell, the dev team and the contributors. The licence file says most tiles are CC0 (https://creativecommons.org/publicdomain/zero/1.0/), and that some pieces carry other licences compatible with the GPL. Per-tile licences have not been checked. The Stage 3 level art (`tools/build_stage3.py`) draws with four of them: `brick_brown0` (walls and dungeon backgrounds), `grass0` (field ground), `grey_dirt0` (ledge and floor soil) and `tree1` (trees). Perry's Arena uses her own keep backgrounds (see the Perry Riposte entry).
+
+## Stage 4 boss: King Nerochilde
+| Creature | Author | Pack | URL | License |
+|---|---|---|---|---|
+| King Nerochilde (nero, final boss, `assets/characters/itch/foozle/lucifer_necromancer/`) | **Foozle** (art commissioned from Baldur) | Lucifer Necromancer (1.0) | https://foozlecc.itch.io/lucifer-necromancer | CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/). Attribution not required; credited anyway |
+
+Original zip: `assets/_source/king/Foozle_2DC0010_Lucifer_Necromancer_Pixel_Art.zip`, licence text `assets/_source/king/LICENSE_foozle.txt`, frames cut by `tools/build_nero.py`.

@@ -60,6 +60,7 @@ const SECRETS := {
 }
 const CHANDELIERS := {2: true, 4: true, 10: true, 16: true, 17: true, 18: true}   # Moonlit Town, Infernal Caverns and Moonlit Sanctum have something to hang them from
 const LEVER_BACK := 620.0                     # the lever for a door stands this far before it
+const ARENA_BREAKABLES := 20                  # Perry's Arena (p_arena): exactly this many breakables, all crate / urn / candle kinds
 
 
 ## every prop of a level: [[kind, x, extra], ...] (deterministic: seeded by the level)
@@ -68,7 +69,9 @@ static func layout(level: int, map_w: float) -> Array:
 	var id := ""
 	if level >= 0 and level < Levels.list().size():
 		id = String(Levels.list()[level].get("id", ""))
-	if id == "cemetery" or id == "dragon_lair" or id == "p_arena" or id == "ch_throne":
+	if id == "p_arena":
+		return _arena_breakables(level, map_w)
+	if id == "cemetery" or id == "dragon_lair" or id == "ch_throne":
 		return out
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7700 + level * 131
@@ -121,6 +124,21 @@ static func layout(level: int, map_w: float) -> Array:
 		while cx2 < map_w - 2000.0:
 			out.append(["chandelier", cx2, {}])
 			cx2 += rng.randf_range(3300.0, 4300.0)
+	return out
+
+
+## Perry's Arena: exactly ARENA_BREAKABLES breakables, x from 700 to map_w - 1500 (clear of the prisoner at x < 700
+## and of Perry's stand at the right end), 200 to 255 px apart (so never closer than 150). No barrels, chests or secrets.
+static func _arena_breakables(level: int, map_w: float) -> Array:
+	var out: Array = []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7700 + level * 131
+	var kinds := ["crate", "urn", "candle", "candle_b"]
+	var x := 700.0 + rng.randf_range(0.0, 50.0)
+	for i in ARENA_BREAKABLES:
+		if i > 0:
+			x += rng.randf_range(200.0, 255.0)
+		out.append([String(kinds[rng.randi() % kinds.size()]), minf(x, map_w - 1500.0), {}])
 	return out
 
 

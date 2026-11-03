@@ -200,11 +200,11 @@ const LEVELS := {
 	18: ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "cl_grunt"],
 }
 ## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
-const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", 19: "cl_warlord"}
+const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", 19: "cl_warlord", 20: "nero"}
 ## levels whose boss ends a stage with a victory card (level index -> what falls). Other bosses only open the exit.
-const FINALE := {5: "the Cavern Dragon", 11: "Perry", 19: "the Warlord"}
+const FINALE := {5: "the Cavern Dragon", 11: "Perry", 19: "the Warlord", 20: "King Nerochilde"}
 ## display names of the bosses (exit lock text)
-const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon", "cl_warlord": "Warlord"}
+const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon", "cl_warlord": "Warlord", "nero": "Nerochilde"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
 const RUN_POOL := [
 	"wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur",

@@ -91,7 +91,7 @@ func setup(g: Node, enemy_id: String, x: float, opts: Dictionary = {}) -> void:
 	idle_a = String(d["idle"])
 	move_a = String(d["move"])
 	attacks = d["attacks"]
-	if bool(opts.get("stage2", false)):                 # Stage 2 (levels 6 to 10): double size, HP and attack rate
+	if bool(opts.get("stage2", false)):                 # Stage 2 (levels 6 to 10): 1.5x size, 2x HP, 2x walking speed, attack waits x0.5
 		k *= Tuning.STAGE2_SIZE_MUL
 		speed_mul = Tuning.STAGE2_SPEED_MUL
 		speed *= speed_mul
@@ -710,6 +710,14 @@ func _distracted(delta: float) -> bool:
 	return true
 
 
+## the floor under a ground enemy: the ground, or a map ledge / built platform / solid prop top it stands on
+## (game.surface_under, the same lookup Mera uses; one-way: a surface above the feet is ignored)
+func _floor(from_y: float) -> float:
+	if game == null or flyer or not game.has_method("surface_under"):
+		return rest_y
+	return minf(float(game.surface_under(Vector2(position.x, from_y), from_y)), rest_y)
+
+
 func _physics(delta: float) -> void:
 	if flyer:
 		if state == "atk" and String(atk.get("mode", "")) == "contact":
@@ -721,15 +729,20 @@ func _physics(delta: float) -> void:
 			position.x += vx * delta
 		return
 	if not on_ground:
+		var prev_y := position.y
 		vy += GRAVITY * delta
 		position.y += vy * delta
 		if vy > 0.0 and state == "atk" and atk.has("fall") and sprite.animation != atk["fall"]:
 			_play(String(atk["fall"]))
-		if position.y >= rest_y:
-			position.y = rest_y
+		var fy := _floor(prev_y)
+		if vy >= 0.0 and position.y >= fy:               # lands on the highest surface under its feet (ground, ledge, platform)
+			position.y = fy
 			vy = 0.0
 			on_ground = true
 	position.x += vx * delta
+	if on_ground and position.y < _floor(position.y) - 1.0:     # walked off the edge of a ledge or platform: falls
+		on_ground = false
+		vy = 0.0
 
 
 func _prey() -> Node2D:

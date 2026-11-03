@@ -30,6 +30,8 @@ func _ready() -> void:
 		sel = Levels.STAGE2_FROM                      # just beat the dragon: open on stage 2
 	if Carry.unlocked >= Levels.STAGE3_FROM and Levels.current == Levels.STAGE3_FROM - 1:
 		sel = Levels.STAGE3_FROM                      # just beat Perry: open on stage 3
+	if Carry.unlocked >= Levels.STAGE4_FROM and Levels.current == Levels.STAGE4_FROM - 1:
+		sel = Levels.STAGE4_FROM                      # just beat the Warlord: open on the king's court
 	for lv in Levels.list():
 		thumbs.append(load("res://assets/levels/%s/thumb.png" % String(lv["id"])))
 	RenderingServer.set_default_clear_color(Color(0.02, 0.01, 0.04))
@@ -107,8 +109,9 @@ func _card(i: int) -> Rect2:
 		return Rect2(x0 + float(k % per_row) * (cw + cgap), 388.0 + float(floori(float(k) / float(per_row))) * 228.0, cw, chh)
 	var gap := 18.0
 	var margin := 28.0
-	var w := (1920.0 - margin * 2.0 - gap * float(n - 1)) / float(n)
-	return Rect2(margin + float(k) * (w + gap), 400, w, 168)
+	var w := minf((1920.0 - margin * 2.0 - gap * float(n - 1)) / float(n), 420.0)          # a page with one or two cards does not stretch them
+	var x0 := (1920.0 - (w * float(n) + gap * float(n - 1))) * 0.5
+	return Rect2(x0 + float(k) * (w + gap), 400, w, 168)
 
 
 func _button(i: int) -> Rect2:
@@ -564,7 +567,7 @@ func _draw() -> void:
 	draw_set_transform(_origin(), 0.0, Vector2.ONE)
 	draw_string(font, Vector2(0, 200), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
 	draw_string(font, Vector2(0, 280), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
-	var head: String = ["STAGE 1  SELECT A LEVEL", "STAGE 2: THE ISLAND  SELECT A LEVEL", "STAGE 3: CHANGELING  SELECT A LEVEL"][page_of(sel)]
+	var head: String = ["STAGE 1  SELECT A LEVEL", "STAGE 2: THE ISLAND  SELECT A LEVEL", "STAGE 3: CHANGELING  SELECT A LEVEL", "THE KING'S COURT  SELECT A LEVEL"][page_of(sel)]
 	draw_string(font, Vector2(0, 370), head, HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
 	var ls := Levels.list()
 	for i: int in page_levels(page_of(sel)):
@@ -584,7 +587,7 @@ func _draw() -> void:
 		var fs := 28 if lw > 300.0 else 24
 		draw_string(font, Vector2(lx, r.end.y + (40 if lw > r.size.x else 52)), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, lw, fs,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
-		if (i == Levels.STAGE2_FROM - 1 and ls.size() > Levels.STAGE2_FROM) or (i == Levels.STAGE3_FROM - 1 and ls.size() > Levels.STAGE3_FROM):       # the last level of a stage: the game goes on
+		if (i == Levels.STAGE2_FROM - 1 and ls.size() > Levels.STAGE2_FROM) or (i == Levels.STAGE3_FROM - 1 and ls.size() > Levels.STAGE3_FROM) or (i == Levels.STAGE4_FROM - 1 and ls.size() > Levels.STAGE4_FROM):       # the last level of a stage: the game goes on
 			var yel := Color(1.0, 0.92, 0.2)
 			var mid := r.position.y + r.size.y / 2.0 - 20.0
 			var tri := PackedVector2Array([Vector2(r.end.x - 8.0, mid), Vector2(r.end.x - 44.0, mid - 22.0), Vector2(r.end.x - 44.0, mid + 22.0)])

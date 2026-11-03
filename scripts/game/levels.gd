@@ -11,13 +11,16 @@ const EXIT_PAD := 360.0      # the exit gate stands this far from the right end
 
 const STAGE2_FROM := 6       # the first level index of stage 2
 const STAGE3_FROM := 12      # the first level index of stage 3 (the Changeling maps; 11 is Perry's Arena, the last of stage 2)
+const STAGE4_FROM := 20      # stage 4: the king's court (Nerochilde's Court, a solo boss arena)
 
 static var current := 0      # index into list()
 static var _data: Dictionary = {}
 
 
-## 0 for the levels of stage 1, 1 for stage 2, 2 for stage 3 (Changeling)
+## 0 for the levels of stage 1, 1 for stage 2, 2 for stage 3 (Changeling), 3 for the king's court
 static func stage_of(i: int) -> int:
+	if i >= STAGE4_FROM:
+		return 3
 	if i >= STAGE3_FROM:
 		return 2
 	return 1 if i >= STAGE2_FROM else 0

@@ -89,6 +89,8 @@ var mobs: Array = []
 var boss: Node2D = null
 var boss_spawned := false
 var boss_dead := false
+var mid_boss: Node2D = null       # the Warlord mid-boss of a Stage 3 level (levels 12 to 18); never game.boss, never locks the exit
+var mid_spawned := false          # one mid-boss per visit
 var wave_i := 0
 var wave_type_i := 0
 var trickle_t := 8.0
@@ -666,7 +668,7 @@ func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
 	e.facing = -1 if x > mera.global_position.x else 1
 	world.add_child(e)
 	mobs.append(e)
-	if e.boss:
+	if e.boss and not bool(opts.get("mid", false)):
 		boss = e
 		boss_spawned = true
 	return e
@@ -729,6 +731,15 @@ func _manage_roster(delta: float) -> void:
 				bx = minf(mera.global_position.x + 2200.0, bx)
 			spawn_enemy(Roster.BOSSES[Levels.current], bx)
 			Sfx.play("boom_big", 0.6)
+	# Stage 3 (levels 12 to 18): a smaller Warlord blocks the road once Mera is 42 % of the way along
+	if not mid_spawned and not run_mode and Levels.current >= Tuning.MID_BOSS_FROM and Levels.current <= Tuning.MID_BOSS_TO \
+			and mera.global_position.x > map_w * Tuning.MID_BOSS_AT:
+		mid_spawned = true
+		var mx := minf(mera.global_position.x + 1500.0, map_w - Levels.EDGE - 600.0)
+		mid_boss = spawn_enemy("cl_warlord", mx, {"mid": true})
+		shake(10.0, 0.3)
+		Sfx.play("boom_big", 0.6)
+		hud.flash("pickup:the Warlord's captain bars the road")
 
 
 ## the current level's roster list (tests)
@@ -783,6 +794,13 @@ func on_enemy_defeated(e: Node2D) -> void:
 		Sfx.play("boom_big", 0.5)
 		if Roster.FINALE.has(Levels.current):
 			_start_finale_victory()
+	elif e == mid_boss:                                  # the Warlord mid-boss: gold and one drop, no card, the exit never waited on him
+		mid_boss = null
+		shake(14.0, 0.5)
+		Sfx.play("boom_big", 0.5, -4.0)
+		Carry.add_gold(Tuning.MID_BOSS_GOLD)
+		hud.flash("pickup:the Warlord's captain falls  +%d gold" % Tuning.MID_BOSS_GOLD)
+		break_drop(p + Vector2(0, -10))
 	else:
 		Sfx.play("boom", 1.8, -10.0)
 
@@ -1039,8 +1057,10 @@ func exit_lock_text() -> String:
 		return "SLAY THE DRAGON"
 	if Levels.current == Levels.STAGE3_FROM - 1:
 		return "DEFEAT PERRY"
-	if Levels.current == Levels.list().size() - 1:
+	if Levels.current == Levels.STAGE4_FROM - 1:
 		return "DEFEAT THE WARLORD"
+	if Levels.current == Levels.list().size() - 1:
+		return "DEFEAT THE KING"
 	if Roster.BOSSES.has(Levels.current) and Roster.LEVELS.has(Levels.current):
 		if _waves_done() and not _roster_threat():
 			return "SLAY THE " + String(Roster.NAMES.get(Roster.BOSSES[Levels.current], "BOSS")).to_upper()
@@ -1382,17 +1402,18 @@ func _sync_carry() -> void:
 	})
 
 
-## one item from a broken prop. Always 40% gold, 25% health potion, 25% mana potion, 10% card,
+## one item from a broken prop. Chances are Tuning.BREAK_DROP_* (40 coin, 30 health potion, 20 mana, 10 card),
 ## even when the bar and the potion slots are already full. Fury orbs never come from these.
+## A card with no ally_id goes through collect(): a full hand gives 1 gold instead.
 func break_drop(p: Vector2) -> void:
 	Carry.ensure()
-	var roll := drop_rng.randf()
+	var roll := drop_rng.randf() * (Tuning.BREAK_DROP_COIN + Tuning.BREAK_DROP_POTION + Tuning.BREAK_DROP_MANA + Tuning.BREAK_DROP_CARD)
 	var kind := "coin"
-	if roll < 0.40:
+	if roll < Tuning.BREAK_DROP_COIN:
 		kind = "coin"
-	elif roll < 0.65:
+	elif roll < Tuning.BREAK_DROP_COIN + Tuning.BREAK_DROP_POTION:
 		kind = "potion"
-	elif roll < 0.90:
+	elif roll < Tuning.BREAK_DROP_COIN + Tuning.BREAK_DROP_POTION + Tuning.BREAK_DROP_MANA:
 		kind = "mana"
 	else:
 		kind = "card"

@@ -131,10 +131,22 @@ const CHEST_COINS := [3, 5]       # a chest releases this many coins (inclusive)
 const CHEST_COIN_GOLD := 3        # ... and each of those coins is worth this much gold (a coin from a broken object is worth 1)
 const CHEST_ITEMS := [1, 3]       # ... and this many other items (potion, mana or card)
 # Stage 2 creatures (levels 6 to 10): size, HP and attack-rate multipliers (monster.gd _faster / setup)
-const STAGE2_SIZE_MUL := 2.0
-const STAGE2_HP_MUL := 2.0
-const STAGE2_CD_MUL := 0.25      # the wait between attacks (was 0.5: attacks come four times as often as in stage 1)
-const STAGE2_SPEED_MUL := 2.0    # walking speed
+const STAGE2_SIZE_MUL := 1.5     # body scale: 1.5x stage 1
+const STAGE2_HP_MUL := 2.0       # max HP: 2x stage 1
+const STAGE2_CD_MUL := 0.5       # the wait between attacks: x0.5 of stage 1 (attacks come twice as often)
+const STAGE2_SPEED_MUL := 2.0    # walking speed: 2x stage 1
+# Stage 3 Warlord mid-boss (levels 12 to 18): appears when Mera passes 42 % of the map; a smaller, weaker Warlord (cl_warlord with opts.mid)
+const MID_BOSS_FROM := 12
+const MID_BOSS_TO := 18
+const MID_BOSS_AT := 0.42
+const MID_BOSS_HP := 90
+const MID_BOSS_K := 7.0
+const MID_BOSS_GOLD := 30
+# Broken objects (game.gd break_drop): chance per roll in percent, must add up to 100
+const BREAK_DROP_COIN := 40.0
+const BREAK_DROP_POTION := 30.0  # the green health potion ("potion")
+const BREAK_DROP_MANA := 20.0    # the blue mana potion ("mana")
+const BREAK_DROP_CARD := 10.0    # a summon card ("card"; a full hand gives 1 gold instead)
 const PUZZLE_KINDS := ["pipes", "match3", "needle"]   # touching a chest opens one of these at random (drop RNG)
 const PUZZLE_RESULT_S := 0.9      # "SOLVED" / "FAILED" banner time before the puzzle closes
 const PUZZLE_RETRY_S := 1.0       # a failed chest ignores Mera this long, and until she steps off it

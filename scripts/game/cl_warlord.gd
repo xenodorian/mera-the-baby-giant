@@ -16,10 +16,18 @@ var charge_stuns := 0
 var slams := 0
 var charges := 0
 var base_speed := 0.0
+var mid := false                     # the Stage 3 mid-boss: a smaller, weaker copy (Tuning.MID_BOSS_*)
+var mid_ratio := 1.0                 # its size / the full Warlord's size: attack distances shrink with it
 
 
 func setup(g: Node, enemy_id: String, x: float, opts: Dictionary = {}) -> void:
 	super(g, enemy_id, x, opts)
+	if bool(opts.get("mid", false)):
+		mid = true
+		mid_ratio = Tuning.MID_BOSS_K / k
+		k = Tuning.MID_BOSS_K
+		hp_max = Tuning.MID_BOSS_HP
+		hp = hp_max
 	base_speed = speed
 	attacks = _phase_attacks(1)
 
@@ -31,6 +39,10 @@ func _phase_attacks(ph: int) -> Array:
 		if int(a.get("phase", 1)) > ph:
 			continue
 		var b: Dictionary = a.duplicate()
+		if mid:                                            # a smaller body reaches less far
+			if float(b["near"]) > 0.0:
+				b["near"] = float(b["near"]) * mid_ratio
+			b["far"] = float(b["far"]) * mid_ratio
 		if ph >= 3:
 			b["tell"] = maxf(float(a["tell"]) * FAST_TELL, TELE.MIN_TELL)
 			b["cd"] = float(a["cd"]) * 0.75

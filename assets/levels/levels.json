@@ -2255,6 +2255,65 @@
      5670
     ]
    ]
+  },
+  {
+   "id": "king_court",
+   "name": "Nerochilde's Court",
+   "sub": "King Lucius waits alone",
+   "map_w": 7200,
+   "layers": [
+    {
+     "file": "res://assets/levels/p_arena/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/far.png",
+     "scroll": 0.3,
+     "y": 100,
+     "z": -30,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/near.png",
+     "scroll": 0.55,
+     "y": 100,
+     "z": -20,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    14,
+    3,
+    8
+   ],
+   "music": "res://assets/perry/music/boss3.ogg"
   }
  ]
 }
