@@ -2,6 +2,19 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.16.0-playable (2026-11-03)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.16.0_Windows.exe
+- Android: Mera_Playable_v0.16.0_Android.apk
+- **The story.** Mera is the small daughter of two giants who could change their size. King Lucius Nerochilde feared them and had them killed, by his own daughter, Perry Nerochilde ("Parry Perry"). Short story cards play at the start of the game, on first entering Stage 3, and in the king's court. Six caged **prisoners** (Misty Woods, Infernal Caverns, Sunset Shore, Perry's Arena, Rotting Marsh, Hall of Faces) give gold, a drop and advice; the one before Perry's fight also gives you the earthquake move and tells you to stun her with it.
+- **Perry is freed.** When Perry falls, the king's mind control breaks, and so does the magic that made her strong. She starts again from nothing: her shop resets once, and she stays unlocked as a playable character.
+- **King Nerochilde.** After the Warlord, a new solo stage: Nerochilde's Court (level 21), with a fourth page on the level select. The final boss is a dark lord (Foozle's Lucifer Necromancer, CC0): a staff swing, three dark bolts and a lunge, then a charge that stuns him on the wall, then a jump slam with floor shockwaves. Beating him plays the ending.
+- **Perry's Arena has 20 breakables** (crates, urns, candles) with the item drops, so her fight is easier without changing her AI. Broken objects now drop 40 % coins, 30 % health potions, 20 % mana potions and 10 % summon cards.
+- **Stage 2 retuned.** Creatures are 1.5x size (was 2x) and attack twice as often as in stage 1 (was four times). HP and walking speed stay at 2x.
+- **Warlord mid-boss.** On Stage 3 levels 13 to 19 a smaller Warlord (90 HP) blocks the road once you are 42 % along. He pays 30 gold and a drop; he never locks the exit.
+- **Enemies stand on surfaces.** Ground enemies land on ledges, built platforms and solid objects, and fall off their edges.
+- **Tests.** 875 pass, 0 fail.
+
 ## v0.15.0-playable (2026-11-03)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.15.0_Windows.exe

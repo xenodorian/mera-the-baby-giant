@@ -16,3 +16,4 @@ Multiple agents share this repo. Keep it safe and mergeable.
    keep the original zip in `assets/_source/<author>/`. Paid assets: never buy or sign up without the user's OK.
 10. Keep assets at native 1:1 scale; scale the whole game by integers only.
 11. **Notes for the next agent** go in `docs/AI_HANDOFF.md`, committed and pushed to `main` in the same turn. Keep it free of open tasks: finished work is recorded in `CHANGELOG.md`.
+12. **A finished prompt is a release.** When you have completed everything the owner asked for in a prompt (and the test suite is green), bump the version in `project.godot` (`config/version`) and `export_presets.cfg` (`version/name` and `version/code`), add the `CHANGELOG.md` entry, update the README release line, and push to `main`: that builds and publishes the exe and APK through GitHub Actions. Then confirm the release exists. Owner rule, 2026-11-03.
