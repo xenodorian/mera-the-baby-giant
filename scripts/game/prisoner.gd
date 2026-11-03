@@ -20,7 +20,7 @@ const TABLE := {
 	1: {"x": 4200.0, "gold": 20, "who": "cl_ranger", "name": "Woodsman",
 		"lore": "The king burned my village for hiding a giant's child. He calls it keeping the peace.",
 		"tip": "Green potions make you grow, and your size is your health. Break crates and urns on the road for more."},
-	4: {"x": 6100.0, "gold": 25, "who": "cl_mage", "name": "Court Mage",
+	4: {"x": 6100.0, "gold": 25, "who": "x_dark_wizard", "name": "Court Mage",
 		"lore": "I wove his mind spell myself. It takes a caster to hold it, and he holds it on his own daughter.",
 		"tip": "Time a parry just before a hit lands. It cancels the hit and sends shots back at whoever fired them."},
 	8: {"x": 3100.0, "gold": 25, "who": "cl_weaver", "name": "Old Guard",

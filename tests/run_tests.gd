@@ -4545,7 +4545,7 @@ func _cl_tests() -> void:
 	var C = load("res://scripts/game/carry.gd")
 	var RO = load("res://scripts/game/roster.gd")
 	var LV = load("res://scripts/game/levels.gd")
-	var ids := ["cl_grunt", "cl_mud", "cl_rat_king", "cl_archer", "cl_warlord", "cl_knight", "cl_ranger", "cl_weaver", "cl_mage"]
+	var ids := ["cl_grunt", "cl_mud", "cl_rat_king", "cl_archer", "cl_warlord", "cl_knight", "cl_ranger", "cl_weaver"]
 	var data_ok := true
 	var info := ""
 	for id in ids:
@@ -4554,7 +4554,7 @@ func _cl_tests() -> void:
 			info += id + " "
 	_check("changeling: all nine enemies are in Roster.DEFS and roster.json with an AI script", data_ok, info)
 	var faces_ok := true
-	for id in ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage"]:
+	for id in ["cl_knight", "cl_ranger", "cl_weaver"]:
 		if bool(RO.def(id).get("boss", false)) or int(RO.def(id)["hp"]) < 2 * int(RO.def("cl_grunt")["hp"]):
 			faces_ok = false
 	_check("changeling: the four faces are tough non-boss enemies; the Warlord is the boss", faces_ok and bool(RO.def("cl_warlord")["boss"]) and RO.BOSSES.get(19, "") == "cl_warlord" and not RO.LEVELS.has(19), "")
@@ -4585,14 +4585,14 @@ func _cl_tests() -> void:
 	await process_frame
 	# behaviours, one fresh game each
 	var beh := {}
-	for id in ["cl_grunt", "cl_rat_king", "cl_archer", "cl_mud", "cl_ranger", "cl_weaver", "cl_mage"]:
+	for id in ["cl_grunt", "cl_rat_king", "cl_archer", "cl_mud", "cl_ranger", "cl_weaver"]:
 		LV.current = 1
 		g = await _new_game()
 		m = g.mera
 		m.position.x = 6000.0
 		m.set_size(6, true)
 		g.snap_camera()
-		var gap := 150.0 if id in ["cl_ranger", "cl_weaver", "cl_mage"] else 700.0
+		var gap := 150.0 if id in ["cl_ranger", "cl_weaver"] else 700.0
 		var e: Node2D = g.spawn_enemy(id, 6000.0 + gap + e_half(RO, id), {"seed": 3})
 		var x0: float = e.global_position.x
 		var top := 0.0
@@ -4618,7 +4618,7 @@ func _cl_tests() -> void:
 	_check("changeling: the grunt lunges and the rat king hops (it leaves the ground)", beh["cl_grunt"]["hits"] > 0 and beh["cl_rat_king"]["top"] > 40.0, str(beh["cl_grunt"]) + str(beh["cl_rat_king"]))
 	_check("changeling: the archer stands still and fires arrows", beh["cl_archer"]["moved"] < 1.0 and beh["cl_archer"]["shots"] > 0, str(beh["cl_archer"]))
 	_check("changeling: the mud revenant lobs mud", beh["cl_mud"]["mud"], str(beh["cl_mud"]))
-	_check("changeling: the ranger hops back, the weaver backs off, the mage blinks", beh["cl_ranger"]["hops"] > 0 and beh["cl_weaver"]["moved"] > 100.0 and beh["cl_mage"]["blinks"] > 0, "%s %s %s" % [beh["cl_ranger"], beh["cl_weaver"], beh["cl_mage"]])
+	_check("changeling: the ranger hops back and the weaver backs off", beh["cl_ranger"]["hops"] > 0 and beh["cl_weaver"]["moved"] > 100.0, "%s %s" % [beh["cl_ranger"], beh["cl_weaver"]])
 	# the Warlord: phases, charge stun, slam waves
 	LV.current = 1
 	g = await _new_game()
@@ -4864,7 +4864,7 @@ func _face_summon_tests() -> void:
 	var RO = load("res://scripts/game/roster.gd")
 	var LV = load("res://scripts/game/levels.gd")
 	var AF = load("res://scripts/game/ally_faces.gd")
-	var faces := ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "perry"]
+	var faces := ["cl_knight", "cl_ranger", "cl_weaver", "perry"]
 	C.reset()
 	C.test_all = true
 	# ---- data
@@ -4878,7 +4878,7 @@ func _face_summon_tests() -> void:
 			info += id + " "
 	_check("face summons: all five are registered (names, colours, numbers, art, card face, options)", data_ok, info)
 	_check("face summons: the enemy and boss roster entries keep their own art (ally art is ally_<id>)", AL.art_id("perry") == "ally_perry" and AL.art_id("ranger") == "ranger" and RO.art("perry")["anims"].has("walk") != RO.art("ally_perry")["anims"].is_empty(), "")
-	_check("face summons: Allies.DROPS maps the five enemies to their own card", AL.DROPS == {"cl_knight": "cl_knight", "cl_ranger": "cl_ranger", "cl_weaver": "cl_weaver", "cl_mage": "cl_mage", "perry": "perry"}, "%s" % [AL.DROPS])
+	_check("face summons: Allies.DROPS maps the four enemies to their own card", AL.DROPS == {"cl_knight": "cl_knight", "cl_ranger": "cl_ranger", "cl_weaver": "cl_weaver", "perry": "perry"}, "%s" % [AL.DROPS])
 	# ---- the stair planner (pure)
 	var step := 72.0
 	var cases := [[0.0, 1060.0, 600.0, 900.0], [0.0, 1060.0, 700.0, 700.0], [500.0, 1060.0, 300.0, 520.0], [0.0, 1060.0, 100.0, 300.0], [0.0, 1060.0, 2000.0, -900.0], [0.0, 1060.0, 400.0, 1000.0]]
@@ -4938,12 +4938,12 @@ func _face_summon_tests() -> void:
 		await process_frame
 	var gl: Node = await _fs_game(1)
 	_give_cards(gl, {})
-	_check("an ally with no card cannot be summoned", gl.summon_type("cl_mage") == null and not gl.summon_ally() and gl.allies().is_empty(), "")
-	_give_cards(gl, {"cl_mage": 1, "cl_knight": 1, "perry": 1})
-	gl.summon_type("cl_mage")
+	_check("an ally with no card cannot be summoned", gl.summon_type("cl_weaver") == null and not gl.summon_ally() and gl.allies().is_empty(), "")
+	_give_cards(gl, {"cl_weaver": 1, "cl_knight": 1, "perry": 1})
+	gl.summon_type("cl_weaver")
 	gl.summon_type("cl_knight")
 	_check("two allies at once is the limit: R1 with a third card does nothing", gl.allies().size() == 2 and not gl.summon_ally() and gl.summonable().has("perry"), "")
-	_check("the same face cannot be called twice at once", not gl.summonable().has("cl_mage"), "")
+	_check("the same face cannot be called twice at once", not gl.summonable().has("cl_weaver"), "")
 	gl.queue_free()
 	await process_frame
 	for tier in [0, 1, 2, 3]:
@@ -5031,9 +5031,9 @@ func _face_summon_tests() -> void:
 		await _fs_run(gd, 2)
 	# a card walked over goes into the hand; a full hand leaves it on the floor
 	_give_cards(gd, {})
-	var pk: Node2D = gd.drop_ally_card("cl_mage", Vector2(gd.mera.global_position.x, float(gd.GROUND_Y)))
+	var pk: Node2D = gd.drop_ally_card("cl_weaver", Vector2(gd.mera.global_position.x, float(gd.GROUND_Y)))
 	await _fs_run(gd, 60)
-	_check("a face card is collected by touch: the hand holds the mage", int(gd.cards.get("cl_mage", 0)) == 1 and not is_instance_valid(pk), "cards %s" % [gd.cards])
+	_check("a face card is collected by touch: the hand holds the mage", int(gd.cards.get("cl_weaver", 0)) == 1 and not is_instance_valid(pk), "cards %s" % [gd.cards])
 	C.card_cap = 2
 	_give_cards(gd, {"priestess": 1, "dancer": 1})
 	var pk2: Node2D = gd.drop_ally_card("perry", Vector2(gd.mera.global_position.x, float(gd.GROUND_Y)))
@@ -6529,7 +6529,7 @@ func _speaker_impact_restart_tests() -> void:
 	var pr: Node = PRI.spawn_for_level(g, 4)
 	pr._free()
 	var csp: Node = g.cutscene
-	_check("prisoners: freeing one plays [lore, tip] with the prisoner as the speaker", csp != null and csp.pages[0] == [pr.lore, pr.tip] and csp.extras[0]["speaker"] == "cl_mage" and csp.extras[0]["name"] == "Court Mage" and csp._portrait != null and pr.line == pr.lore + " " + pr.tip, "")
+	_check("prisoners: freeing one plays [lore, tip] with the prisoner as the speaker", csp != null and csp.pages[0] == [pr.lore, pr.tip] and csp.extras[0]["speaker"] == "x_dark_wizard" and csp.extras[0]["name"] == "Court Mage" and csp._portrait != null and pr.line == pr.lore + " " + pr.tip, "")
 	if csp != null:
 		csp.skip()
 	await process_frame

@@ -1,6 +1,6 @@
 class_name AllyFaces
 extends RefCounted
-## Stage 3 phase 7: the AI of the face allies (cl_knight, cl_ranger, cl_weaver, cl_mage, perry). ally.gd (the one ally node)
+## Stage 3 phase 7: the AI of the face allies (cl_knight, cl_ranger, cl_weaver, perry). ally.gd (the one ally node)
 ## calls ai() / gravity() / windows() / fire() for these ids; the per-id numbers are the OPTS table below.
 ## Styles: "melee" (chase and swing a combo, an optional special every Nth swing) and "ranged" (keep a distance and shoot,
 ## back off when crowded). cl_ranger also climbs: with a flyer within FLYER_RANGE she targets it first and, when it is more
@@ -16,8 +16,6 @@ const OPTS := {
 	"cl_knight": {"style": "melee", "melee": [["atk1", 4], ["atk2", 5]], "reach": 150.0, "run": 1.4, "taunt": true},
 	"perry": {"style": "melee", "melee": [["atk1", 3], ["atk2", 3], ["atk3", 4]], "reach": 90.0, "run": 2.2,
 		"special": {"anim": "sp", "dmg": 5, "frame": 2, "every": 4, "proj": {"kind": "wave", "speed": 1100.0, "pierce": true, "life": 0.9}}},
-	"cl_mage": {"style": "ranged", "shots": [["cast", 4, 4]], "min_gap": 260.0, "max_gap": 1000.0, "cd": 0.5,
-		"proj": {"kind": "orb", "speed": 1300.0, "color": Color(0.7, 0.5, 1.0)}},
 	"cl_weaver": {"style": "ranged", "shots": [["shoot", 3, 9]], "min_gap": 220.0, "max_gap": 900.0, "cd": 0.5,
 		"proj": {"kind": "bone", "speed": 1200.0, "color": Color(0.93, 0.9, 0.78)}, "melee": [["atk1", 2]]},
 	"cl_ranger": {"style": "ranged", "shots": [["shoot", 3, 9]], "min_gap": 200.0, "max_gap": 1000.0, "cd": 0.4,

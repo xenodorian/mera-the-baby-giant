@@ -30,7 +30,7 @@ const PRICE_MANA_BAR := 50
 const PRICE_SCALE := 90
 const PRICE_KEY := 200
 
-const ALLIES := ["priestess", "ranger", "brawler", "dancer", "cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "perry"]
+const ALLIES := ["priestess", "ranger", "brawler", "dancer", "cl_knight", "cl_ranger", "cl_weaver", "perry"]
 
 ## v0.12.2 unlocks (shop page 2). Moves start locked; buy them in the shop.
 const MOVE_IDS := ["beam", "earthquake", "super_quake", "rear", "fury_mode", "homing"]

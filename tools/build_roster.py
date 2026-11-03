@@ -203,7 +203,6 @@ E.update({
     "cl_knight": _cl("knight", ["idle", "walk", "slash", "thrust", "hurt"]),
     "cl_ranger": _cl("ranger", ["idle", "walk", "shoot", "jump", "hurt"], {"arrow": (CL_ARROW, 1, True)}),
     "cl_weaver": _cl("weaver", ["idle", "walk", "shoot", "hurt"]),
-    "cl_mage": _cl("mage", ["idle", "walk", "spellcast", "jump", "hurt"], {"bolt": (CL_BOLT, 14, True)}),
 })
 WP = "chierit/water-priestess/png/"
 LR = "chierit/leaf-ranger/animations/PNG/"
@@ -257,7 +256,7 @@ def _perry_ally():
 
 
 ALLIES.update({"ally_cl_knight": _face_ally("knight"), "ally_cl_ranger": _face_ally("ranger"),
-               "ally_cl_weaver": _face_ally("weaver"), "ally_cl_mage": _face_ally("mage"), "ally_perry": _perry_ally()})
+               "ally_cl_weaver": _face_ally("weaver"), "ally_perry": _perry_ally()})
 BODY = {"death": "walk", "skeleton": "walk"}     # the hurt box / pivot comes from this animation's first frame
 FX = {"enemy_death": ("ansimuz/cemetery-enemydeath/Sprites", 12, False)}
 

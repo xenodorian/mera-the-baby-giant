@@ -164,9 +164,6 @@ const DEFS := {
 	"cl_weaver": {"k": 8.0, "hp": 42, "speed": 200.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0, "style": "weaver", "lo": 520.0, "hi": 820.0,
 		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
 		"attacks": [{"anim": "shoot", "kind": "ranged", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 1300.0, "cd": 1.0, "mode": "shot", "shot": "bone", "shot_frame": 9, "shot_speed": 1050.0}]},
-	"cl_mage": {"k": 7.5, "hp": 36, "speed": 170.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0, "style": "mage", "lo": 380.0, "hi": 760.0,
-		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
-		"attacks": [{"anim": "spellcast", "kind": "ranged", "dmg": 2, "tell": 0.45, "near": -999.0, "far": 1100.0, "cd": 0.8, "mode": "shot", "shot": "bolt", "shot_frame": 4, "shot_speed": 950.0, "shot_k": 0.8, "shot_tight": true}]},
 	# the Warlord (boss of Warlord's Throne): scripts/game/cl_warlord.gd. "phase" = the first of his 3 phases (hp 2/3 and 1/3) that uses the attack
 	"cl_warlord": {"k": 12.0, "hp": 240, "speed": 190.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
 		"pick": "cycle", "hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_warlord.gd",
@@ -220,7 +217,7 @@ const LEVELS := {
 	15: ["cl_mud", "cl_rat_king", "cl_mud", "cl_grunt", "cl_archer", "cl_rat_king"],
 	16: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_knight", "cl_ranger"],
 	17: ["cl_knight", "cl_grunt", "cl_mud", "cl_ranger", "cl_archer", "cl_rat_king", "cl_knight"],
-	18: ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "cl_grunt"],
+	18: ["cl_knight", "cl_ranger", "cl_weaver", "cl_grunt"],
 }
 ## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
 const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", 19: "cl_warlord", 20: "nero"}
