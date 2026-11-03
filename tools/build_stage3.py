@@ -458,14 +458,78 @@ def build_map(level_id, name, sub, theme, music, rows) -> dict:
     return entry
 
 
+# ------------------------------------------------------------------ the four Craftpix maps (v0.21: tools/craft_kit.py, tools/craft_maps/<id>.json)
+CRAFT_VARIANT = {"ch_greenwood": "meadow", "ch_bramble": "cave", "ch_watchtower": "sky_isles", "ch_marsh": "jungle"}
+
+
+def build_craft_map(level_id, name, sub, music) -> dict:
+    """Greenwood Road, Bramble Hollow, Old Watchtower and Rotting Marsh redesigned on the free Craftpix platformer tileset.
+    One ASCII column is 160 px (one 32 px native tile). The pits and spike beds are real hazards at run time ("pits", "spikes" in
+    levels.json: game.gd _hazard_tick); the old DCSS maps keep their art-only "hazards"."""
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    import craft_kit as K
+    variant = CRAFT_VARIANT[level_id]
+    data = json.loads((ROOT / "tools" / "craft_maps" / f"{level_id}.json").read_text())
+    rows = data["rows"]
+    colw = K.COLW
+    info = analyse(rows, colw)
+    map_w = info["nc"] * colw
+    assert map_w >= 9600, (level_id, map_w)
+    surfaces = info["surfaces"]
+    assert all(s[0] >= 1800 for s in surfaces), (level_id, surfaces[:2])
+    ladders = make_ladders(surfaces)
+    wpx = (map_w + 1024 + 1100) // ART + 1
+    dest = ROOT / "assets" / "levels" / level_id
+    dest.mkdir(parents=True, exist_ok=True)
+    K.draw_ground_craft(variant, rows, info, colw, wpx).save(dest / "ground.png")
+    layers = K.make_layers(variant, dest, level_id)
+    layers.append({"file": f"res://assets/levels/{level_id}/ground.png", "scroll": 1.0, "y": 0, "z": -10,
+                   "period": 0, "w": wpx * ART, "modulate": None})
+    bg = list(K.BG[variant])
+    assert res_path(music).is_file(), music
+    save_thumb(dest, bg, layers)
+    pits = [[a * colw, b * colw] for a, b in runs(sorted(info["pit_cols"]))]
+    spikes = [[a * colw, b * colw] for a, b in runs(sorted(info["spike_cols"]))]
+    entry = {"id": level_id, "name": name, "sub": sub, "layers": layers, "bg": bg, "music": music,
+             "surfaces": [s[:3] for s in surfaces], "ladders": ladders, "platforms": [],
+             "hazards": info["hazards"], "pits": pits, "spikes": spikes, "marks": info["marks"]}
+    print(f"{level_id:14s} {variant:9s} cols {info['nc']:3d} map_w {map_w:6d} surfaces {len(surfaces):2d} ladders {len(ladders):2d} "
+          f"pits {len(pits):2d} spikes {len(spikes):2d} marks {len(info['marks'])}")
+    return entry
+
+
+def main_craft() -> None:
+    """Rebuild only the four Craftpix maps (python3 tools/build_stage3.py --craft); every other level stays byte for byte."""
+    raw = LEVELS_JSON.read_text()
+    doc = json.loads(raw)
+    assert json.dumps(doc, indent=1) == raw, "levels.json is not in the expected format"
+    ids = [lv["id"] for lv in doc["levels"]]
+    for level_id, name, sub, js, theme, music in MAPS:
+        if level_id in CRAFT_VARIANT:
+            doc["levels"][ids.index(level_id)] = build_craft_map(level_id, name, sub, music)
+    for lv in doc["levels"]:
+        for L in lv["layers"]:
+            assert res_path(L["file"]).is_file(), L["file"]
+    LEVELS_JSON.write_text(json.dumps(doc, indent=1))
+    print(f"levels: {len(doc['levels'])}")
+
+
 def main() -> None:
+    import sys
+    if "--craft" in sys.argv:
+        main_craft()
+        return
     raw = LEVELS_JSON.read_text()
     doc = json.loads(raw)
     assert json.dumps(doc, indent=1) == raw, "levels.json is not in the expected format"
     maps = parse_maps()
     entries = [build_arena()]
     for level_id, name, sub, js, theme, music in MAPS:
-        entries.append(build_map(level_id, name, sub, theme, music, maps[js]))
+        if level_id in CRAFT_VARIANT:
+            entries.append(build_craft_map(level_id, name, sub, music))
+        else:
+            entries.append(build_map(level_id, name, sub, theme, music, maps[js]))
     ids = [lv["id"] for lv in doc["levels"]]
     for e in entries:
         if e["id"] in ids:

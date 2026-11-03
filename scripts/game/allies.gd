@@ -58,9 +58,9 @@ const CARDS := {
 	10: [[3400.0, "brawler"], [7000.0, "dancer"], [10600.0, "ranger"], [14600.0, "priestess"]],
 	# stage 3: the three Changeling faces and Perry (cards of the faces; 11 Perry's Arena and 19 the Throne have none)
 	12: [[2600.0, "cl_knight"], [4570.0, "cl_ranger"], [6950.0, "cl_weaver"], [8200.0, "cl_knight"]],
-	13: [[2600.0, "cl_ranger"], [7370.0, "cl_weaver"], [9630.0, "cl_ranger"], [13600.0, "cl_knight"]],
-	14: [[2600.0, "cl_weaver"], [5820.0, "cl_knight"], [8400.0, "cl_knight"], [11500.0, "cl_ranger"]],
-	15: [[2600.0, "cl_ranger"], [6420.0, "cl_knight"], [10880.0, "cl_ranger"], [15850.0, "cl_weaver"]],
+	13: [[2600.0, "cl_ranger"], [7370.0, "cl_weaver"], [9630.0, "cl_ranger"], [13760.0, "cl_knight"]],
+	14: [[2600.0, "cl_weaver"], [5820.0, "cl_knight"], [8400.0, "cl_knight"], [11540.0, "cl_ranger"]],
+	15: [[2720.0, "cl_ranger"], [6900.0, "cl_knight"], [13440.0, "cl_ranger"], [15850.0, "cl_weaver"]],
 	16: [[2600.0, "cl_knight"], [6720.0, "cl_ranger"], [10230.0, "cl_weaver"], [15250.0, "cl_ranger"]],
 	17: [[2600.0, "cl_ranger"], [6420.0, "cl_weaver"], [13580.0, "cl_knight"], [17200.0, "cl_knight"]],
 	18: [[2200.0, "cl_weaver"], [9520.0, "cl_ranger"], [13530.0, "cl_knight"], [17750.0, "cl_ranger"]],

@@ -60,6 +60,9 @@ var last_strike: Node2D = null
 var knight_calm_until := 0   # demo: frame before which the knight does not swing
 var layers: Array = []             # [Sprite2D, scroll, period] parallax layers of the level map
 var tile_surfaces: Array = []      # one-way tops: [x0, x1, y]
+var pits: Array = []               # the Craftpix maps' real pits [x0, x1]: the floor is gone (levels.json "pits")
+var spikes: Array = []             # ... and their spike beds [x0, x1] (levels.json "spikes")
+var pit_falls := 0                 # (tests)
 var built_surfaces: Array = []     # phase 4: run-time platform tops [x0, x1, y] (Platform.make); surface_under scans them too
 var ladders: Array = []            # phase 4: live Ladder nodes
 var map_w := 19200.0
@@ -252,6 +255,8 @@ func _build_background() -> void:
 	exit_gate.z_index = -5
 	add_child(exit_gate)
 	tile_surfaces = lv.get("surfaces", [])
+	pits = lv.get("pits", [])
+	spikes = lv.get("spikes", [])
 	_build_climbables(lv)
 	_start_music(lv)
 
@@ -349,12 +354,39 @@ func _parse_args() -> void:
 
 
 # ---------------------------------------------------------------- frame
+## Pits and spike beds of the Craftpix maps (levels.json "pits" / "spikes"; the old maps only have art strips). Walking on the floor into a pit
+## costs 1 and puts Mera back on the near edge (jump it, or use a ledge); a spike bed costs 1 on touch. Above the floor (jumping, on a ledge,
+## flying) is safe.
+func _hazard_tick() -> void:
+	if (pits.is_empty() and spikes.is_empty()) or mera == null or not is_instance_valid(mera) or mera.state in ["dead", "gallery"] or mera.flying:
+		return
+	var p: Vector2 = mera.global_position
+	if p.y < GROUND_Y - 6.0 or mera.invuln > 0.0:
+		return
+	for pr in pits:
+		if p.x > float(pr[0]) + 50.0 and p.x < float(pr[1]) - 50.0:
+			pit_falls += 1
+			var left: bool = absf(p.x - float(pr[0])) < absf(p.x - float(pr[1]))
+			mera.take_hit(1, (float(pr[0]) + float(pr[1])) * 0.5)
+			if mera.state != "dead":
+				mera.global_position.x = float(pr[0]) - 170.0 if left else float(pr[1]) + 170.0
+				mera.vel = Vector2.ZERO
+				mera.invuln = maxf(mera.invuln, 1.2)
+			shake(8.0, 0.2)
+			return
+	for sp in spikes:
+		if p.x > float(sp[0]) + 24.0 and p.x < float(sp[1]) - 24.0:
+			mera.take_hit(1, (float(sp[0]) + float(sp[1])) * 0.5)
+			return
+
+
 func _physics_process(delta: float) -> void:
 	_menu_guard_tick()
 	_impact_tick()
 	frame_n += 1
 	_run_demo()
 	mera.ground_y = surface_under(mera.global_position, mera.ground_y)
+	_hazard_tick()
 	if _trace and (mera.anim.key != _trace_k or (frame_n >= int(OS.get_environment("MERA_TRACE")) and frame_n < int(OS.get_environment("MERA_TRACE")) + 80)):
 		_trace_k = mera.anim.key
 		print("TRACE %d %s size=%d x=%.0f face=%d rage=%.0f" % [frame_n, _trace_k, mera.size, mera.global_position.x, mera.facing, mera.rage])

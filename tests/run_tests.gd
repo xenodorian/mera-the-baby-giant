@@ -1751,6 +1751,7 @@ func _run() -> void:
 	await _face_summon_tests()
 	await _session_tests()
 	await _stage3_map_tests()
+	await _craft_hazard_tests()
 	await _king_arc_tests()
 	await _slideshow_timer_blast_tests()
 	await _speaker_impact_restart_tests()
@@ -4773,7 +4774,7 @@ func _stage3_map_tests() -> void:
 		if id == "p_arena" or id == "ch_throne":
 			wide_ok = wide_ok and float(lv.get("map_w", 0)) == 7200.0
 		else:
-			var ground_w := float(lv["layers"][1]["w"])
+			var ground_w := _ground_w(lv)
 			wide_ok = wide_ok and ground_w >= 9600.0 + 1024.0
 		if id == "p_arena":
 			continue
@@ -4782,7 +4783,7 @@ func _stage3_map_tests() -> void:
 		arrays_ok = arrays_ok and lv.has("platforms") and (lv["platforms"] is Array) and not surfs.is_empty()
 		for sf in surfs:
 			arrays_ok = arrays_ok and sf.size() == 3 and float(sf[1]) > float(sf[0]) and float(sf[2]) < 1060.0 and float(sf[2]) >= 1060.0 - 130.0 * 6.0 - 1.0
-			arrays_ok = arrays_ok and float(sf[0]) >= 1800.0 and float(sf[1]) <= float(lv["layers"][1]["w"])
+			arrays_ok = arrays_ok and float(sf[0]) >= 1800.0 and float(sf[1]) <= _ground_w(lv)
 		for ld in ladders:
 			arrays_ok = arrays_ok and ld.size() == 3 and float(ld[1]) > float(ld[2]) and float(ld[1]) <= 1060.0
 		# every ledge is a step of at most 140 px: the floor or a lower surface within reach, or a ladder up to it
@@ -4869,7 +4870,7 @@ func _stage3_map_tests() -> void:
 	var props_ok := true
 	for i in range(12, 19):
 		var cards: Array = load("res://scripts/game/allies.gd").CARDS.get(i, [])
-		var mw: float = float(ls[i]["layers"][1]["w"]) - 1100.0 - 1024.0
+		var mw: float = _ground_w(ls[i]) - 1100.0 - 1024.0
 		props_ok = props_ok and cards.size() == 4 and load("res://scripts/game/props.gd").SECRETS.get(i, []).size() == 4
 		for c in cards:
 			props_ok = props_ok and float(c[0]) > 1720.0 and float(c[0]) < mw and String(c[1]).begins_with("cl_")
@@ -6575,6 +6576,44 @@ func _bk_checks() -> void:
 	_check("black knight: a blow into his raised guard does nothing and he counters (parry_log)", not took and bk.hp == hp0 and bk.parries == 1 and bk.state == "atk", "parries %d state %s" % [bk.parries, bk.state])
 	g.queue_free()
 	await physics_frame
+
+
+## the Craftpix maps' pits and spike beds are real: a pit on the floor costs 1 and puts Mera back at its edge; a jump clears it
+func _craft_hazard_tests() -> void:
+	var g: Node = await _s4_new(15)
+	var m: Node = g.mera
+	m.set_size(5, true)
+	var pr: Array = g.pits[0]
+	m.global_position = Vector2((float(pr[0]) + float(pr[1])) * 0.5, g.GROUND_Y)
+	m.invuln = 0.0
+	await physics_frame
+	await physics_frame
+	_check("hazards: walking into a pit on the floor costs 1 size and puts Mera back at its near edge, briefly protected", g.pit_falls == 1 and m.size == 4 and m.global_position.x < float(pr[0]) and m.invuln > 0.5, "falls %d size %d x %.0f" % [g.pit_falls, m.size, m.global_position.x])
+	m.invuln = 0.0
+	m.global_position = Vector2((float(pr[0]) + float(pr[1])) * 0.5, g.GROUND_Y - 150.0)
+	await physics_frame
+	await physics_frame
+	_check("hazards: crossing the same pit in the air is safe", g.pit_falls == 1 and m.size == 4, "falls %d size %d" % [g.pit_falls, m.size])
+	var sp: Array = g.spikes[0]
+	m.invuln = 0.0
+	m.global_position = Vector2((float(sp[0]) + float(sp[1])) * 0.5, g.GROUND_Y)
+	await physics_frame
+	await physics_frame
+	_check("hazards: touching a spike bed on the floor costs 1 size", m.size == 3, "size %d" % m.size)
+	g.queue_free()
+	await physics_frame
+	g = await _s4_new(16)
+	_check("hazards: the old maps are unchanged (their strips are art only: no run time pits or spikes)", g.pits.is_empty() and g.spikes.is_empty(), "")
+	g.queue_free()
+	await physics_frame
+
+
+## the width of a level's ground layer (the Craftpix maps carry extra backdrop layers below it, so it is not always layer 1)
+func _ground_w(lv: Dictionary) -> float:
+	for L in lv["layers"]:
+		if String(L["file"]).ends_with("/ground.png"):
+			return float(L["w"])
+	return 0.0
 
 
 func _wiz_ok() -> bool:

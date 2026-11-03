@@ -29,7 +29,7 @@ const TABLE := {
 	11: {"x": 480.0, "gold": 20, "who": "cl_knight", "name": "Captain",
 		"lore": "That is not Perry in there. His spell holds her mind and drives her arm. She cannot stop it.",
 		"tip": "Perry is hard to beat without being stunned. Parry her attacks, or purchase Earthquake from the shop."},
-	15: {"x": 7800.0, "gold": 30, "who": "cl_ranger", "name": "Scout",
+	15: {"x": 7520.0, "gold": 30, "who": "cl_ranger", "name": "Scout",
 		"lore": "He feeds the Changeling court our faces and sends us out as his monsters. Nothing here is what it was.",
 		"tip": "A Warlord's captain waits halfway along every road. Beat him for gold and a drop."},
 	18: {"x": 2400.0, "gold": 30, "who": "cl_weaver", "name": "Bone Scribe",

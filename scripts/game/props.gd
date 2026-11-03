@@ -93,12 +93,18 @@ static func layout(level: int, map_w: float) -> Array:
 				out.append(["ledge", cx, {"card": int(sec[0]), "h": LEDGE_H}])
 				out.append(["plank", cx - 300.0, {"h": STEP_H}])
 				taken.append(cx - 300.0)
+	var lv_haz: Array = []                         # the Craftpix maps' pits and spike beds: no prop stands over one
+	if level >= 0 and level < Levels.list().size():
+		lv_haz = (Levels.list()[level].get("pits", []) as Array) + (Levels.list()[level].get("spikes", []) as Array)
 	var x := 1500.0
 	var n := 0
 	while x < map_w - 1400.0:
 		var clear := true
 		for t in taken:
 			if absf(x - float(t)) < 420.0:
+				clear = false
+		for hz in lv_haz:
+			if x > float(hz[0]) - 220.0 and x < float(hz[1]) + 220.0:
 				clear = false
 		if clear:
 			var roll := rng.randf()
