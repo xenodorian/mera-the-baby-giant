@@ -193,13 +193,16 @@ func _crate_pieces(from: Vector2) -> void:
 
 
 # ---------------------------------------------------------------- barrel
-func _explode() -> void:
+func _explode(chest: bool = false) -> void:
 	state = "broken"
 	hp = 0
 	var c := global_position + Vector2(0, -spr.texture.get_height() * k * 0.5)
 	if game:
-		game.barrel_blast(c, self)
-		game.break_drop(global_position)
+		if chest:
+			game.chest_blast(c)                                   # a failed puzzle: the chest blows up, 1 damage to Mera, no loot
+		else:
+			game.barrel_blast(c, self)
+			game.break_drop(global_position)
 	var fx := AnimatedSprite2D.new()
 	var sf := SpriteFrames.new()
 	sf.set_animation_loop("default", false)
@@ -381,11 +384,9 @@ func _puzzle_done(won: bool) -> void:
 	if won:
 		_unlock()
 	else:
-		state = "locked"
-		_retry_t = Tuning.PUZZLE_RETRY_S
-		_need_leave = true
 		if game:
-			game.hud.flash("pickup:the chest stays shut  (try again)")
+			game.hud.flash("pickup:the chest explodes!  -1 size")
+		_explode(true)                                            # lose, time up or give up: it explodes and is gone
 
 
 func _unlock() -> void:

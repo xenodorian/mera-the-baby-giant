@@ -149,6 +149,7 @@ const BREAK_DROP_MANA := 20.0    # the blue mana potion ("mana")
 const BREAK_DROP_CARD := 10.0    # a summon card ("card"; a full hand gives 1 gold instead)
 const PUZZLE_KINDS := ["pipes", "match3", "needle"]   # touching a chest opens one of these at random (drop RNG)
 const PUZZLE_RESULT_S := 0.9      # "SOLVED" / "FAILED" banner time before the puzzle closes
+const CHEST_BLAST_R := 360.0        # a failed chest puzzle hurts Mera for 1 inside this radius
 const PUZZLE_RETRY_S := 1.0       # a failed chest ignores Mera this long, and until she steps off it
 # pipes: grid, and how many rotations the player may spend before it counts as a loss
 const PIPES_COLS := 5
@@ -162,7 +163,7 @@ const MATCH_KINDS := 5
 const MATCH_TARGET := 300
 const MATCH_CASCADE_BIAS := 0.4   # chance a refilled tile copies the tile below it, so falling tiles line up into chains
 const MATCH_CHAIN_STEP := 0.75    # each chain step multiplies a clear by 1 + this per step after the first (was 0.5)
-const MATCH_MOVES := 15
+const MATCH_TIME_S := 20.0         # real-time limit: out of time loses (there is no move limit any more)
 const MATCH_TILE_POINTS := 5
 # needle: three stops in a row. Zone and speed per round (fractions of the gauge, gauge widths per second). Never under NEEDLE_ZONE_MIN.
 const NEEDLE_ROUNDS := 3

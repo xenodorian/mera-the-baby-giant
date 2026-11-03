@@ -1,10 +1,10 @@
 extends "res://scripts/puzzles/puzzle_host.gd"
 ## Match three with enemy portraits. Tile kinds are the faces of a few distinct enemies (Roster.face).
 ## Swap two neighbouring tiles; runs of 3 or more clear, tiles fall, new ones drop in, and cascades pay more.
-## Reach Tuning.MATCH_TARGET points within Tuning.MATCH_MOVES swaps. Swaps that match nothing are undone and cost no move.
+## Reach Tuning.MATCH_TARGET points before the real-time clock (Tuning.MATCH_TIME_S seconds) runs out. Swaps that match nothing are undone.
 ## Keyboard / pad: A picks a tile, then a direction swaps it (or A on a neighbour). Touch: drag a tile onto a neighbour, or tap two neighbours.
 
-const TILE := 96.0
+const TILE := 128.0
 const SWAP_S := 0.08
 const CLEAR_S := 0.12
 const FALL_S := 0.14
@@ -17,7 +17,7 @@ var fall_off: Array = []           # per cell: pixels the tile still has to fall
 var cursor := Vector2i(3, 3)
 var sel := Vector2i(-1, -1)
 var score := 0
-var moves_left := Tuning.MATCH_MOVES
+var time_left := Tuning.MATCH_TIME_S
 var target := Tuning.MATCH_TARGET
 var chain := 0
 var busy := false
@@ -47,8 +47,16 @@ func hint_touch() -> String:
 	return "Drag a face onto a neighbour, or tap two neighbours   Give up: top right"
 
 
+func hint_size() -> int:
+	return 34
+
+
+func hint_y() -> float:
+	return 998.0
+
+
 func _setup() -> void:
-	origin_px = Vector2(PANEL.position.x + 70.0, 215.0)
+	origin_px = Vector2(PANEL.position.x + 50.0, 190.0)
 	var pool: Array = []
 	var ids: Array = Roster.ids()
 	ids.sort()
@@ -166,7 +174,6 @@ func try_swap(a: Vector2i, b: Vector2i) -> bool:
 		_bad_t = 0.25
 		Sfx.play("fail", 1.4, -12.0)
 		return false
-	moves_left -= 1
 	chain = 0
 	busy = true
 	_swap_a = a
@@ -180,6 +187,14 @@ func try_swap(a: Vector2i, b: Vector2i) -> bool:
 func _tick(dt: float) -> void:
 	_bad_t = maxf(_bad_t - dt, 0.0)
 	_pop_t = maxf(_pop_t - dt, 0.0)
+	if result == "":
+		time_left = maxf(time_left - dt, 0.0)                # real time: it keeps running through swaps and cascades
+		if time_left <= 0.0:
+			if score >= target:
+				win()
+			else:
+				lose("TIME UP")
+			return
 	if not busy:
 		return
 	_phase_t += dt
@@ -259,9 +274,6 @@ func _end_turn() -> void:
 	sel = Vector2i(-1, -1)
 	if score >= target:
 		win()
-		return
-	if moves_left <= 0:
-		lose("OUT OF MOVES")
 		return
 	if find_move().is_empty():
 		_reshuffle()
@@ -364,8 +376,6 @@ func solve() -> void:
 	var guard := 0
 	while result == "" and guard < 60:
 		guard += 1
-		if moves_left <= 1 and score < target:
-			score = target                                   # forced: the last swap must not run out of moves
 		var mv := best_move()
 		if mv.is_empty():
 			break
@@ -428,7 +438,7 @@ func _draw_puzzle() -> void:
 			var tex: Texture2D = Roster.face(String(kinds[k]))
 			if tex != null:
 				var ts := tex.get_size()
-				var sc := minf((r.size.x - 10.0) / ts.x, (r.size.y - 10.0) / ts.y)
+				var sc := minf((r.size.x - 16.0) / ts.x, (r.size.y - 16.0) / ts.y)     # 8 px margin inside the tile
 				var dsz := ts * sc
 				ui.draw_texture_rect(tex, Rect2(r.get_center() - dsz * 0.5, dsz), false)
 			ui.draw_rect(r, Color(0.55, 0.5, 0.65), false, 2.0)
@@ -436,16 +446,22 @@ func _draw_puzzle() -> void:
 				ui.draw_rect(r.grow(2.0), Color(1.0, 0.95, 0.6), false, 6.0)
 	ui.draw_rect(Rect2(o + Vector2(cursor) * TILE, Vector2(TILE, TILE)).grow(-1.0), GOLD, false, 4.0)
 	# side panel
-	var sx := board_r.end.x + 70.0
-	text(Vector2(sx, 290.0), "SCORE", 30, GOLD)
-	text(Vector2(sx, 345.0), "%d / %d" % [score, target], 50)
-	var bar := Rect2(sx, 370.0, 330.0, 26.0)
+	# right column: 60 px right of the board, 40 px inside the panel's right edge (1660 - 40 = 1620)
+	var sx := board_r.end.x + 60.0
+	text(Vector2(sx, 300.0), "SCORE", 44, GOLD)
+	text(Vector2(sx, 388.0), "%d / %d" % [score, target], 88)
+	var bar := Rect2(sx, 420.0, 480.0, 36.0)
 	ui.draw_rect(bar, Color(0.1, 0.06, 0.14))
 	ui.draw_rect(Rect2(bar.position, Vector2(bar.size.x * clampf(float(score) / float(target), 0.0, 1.0), bar.size.y)), Color(1.0, 0.8, 0.35))
 	ui.draw_rect(bar, Color(0.45, 0.4, 0.55), false, 2.0)
-	text(Vector2(sx, 470.0), "MOVES", 30, GOLD)
-	text(Vector2(sx, 525.0), "%d" % moves_left, 60, INK if moves_left > 4 else Color(1.0, 0.45, 0.4))
-	text(Vector2(sx, 600.0), "Clear 3 or more.", 24, Color(0.85, 0.85, 0.9))
-	text(Vector2(sx, 634.0), "Chains pay extra.", 24, Color(0.85, 0.85, 0.9))
+	text(Vector2(sx, 530.0), "TIME", 44, GOLD)
+	var low := time_left <= 5.0
+	text(Vector2(sx, 618.0), "%d" % ceili(time_left), 88, Color(1.0, 0.45, 0.4) if low else INK)
+	var tbar := Rect2(sx, 640.0, 480.0, 24.0)
+	ui.draw_rect(tbar, Color(0.1, 0.06, 0.14))
+	ui.draw_rect(Rect2(tbar.position, Vector2(tbar.size.x * clampf(time_left / Tuning.MATCH_TIME_S, 0.0, 1.0), tbar.size.y)), Color(1.0, 0.4, 0.35) if low else Color(0.5, 0.85, 1.0))
+	ui.draw_rect(tbar, Color(0.45, 0.4, 0.55), false, 2.0)
+	text(Vector2(sx, 722.0), "Clear 3 or more.", 36, Color(0.85, 0.85, 0.9))
+	text(Vector2(sx, 770.0), "Chains pay extra.", 36, Color(0.85, 0.85, 0.9))
 	if _pop_t > 0.0:
-		text(Vector2(sx, 700.0), _pop_text, 34, Color(0.6, 1.0, 0.6, minf(_pop_t * 2.0, 1.0)))
+		text(Vector2(sx, 830.0), _pop_text, 44, Color(0.6, 1.0, 0.6, minf(_pop_t * 2.0, 1.0)))

@@ -64,6 +64,15 @@ func hint_touch() -> String:
 	return "Tap to play"
 
 
+## footer hint: font size and baseline y (a puzzle may draw it larger or lower)
+func hint_size() -> int:
+	return 26
+
+
+func hint_y() -> float:
+	return 985.0
+
+
 func _setup() -> void:
 	pass
 
@@ -232,7 +241,7 @@ func _paint() -> void:
 	text(Vector2(GIVE_UP.position.x, GIVE_UP.position.y + 37.0), "GIVE UP", 26, Color(1.0, 0.8, 0.75), HORIZONTAL_ALIGNMENT_CENTER, GIVE_UP.size.x)
 	_draw_puzzle()
 	var hint := hint_touch() if Controls.scheme == "touch" else hint_keys()
-	text(Vector2(PANEL.position.x, 985.0), hint, 26, Color(0.85, 0.85, 0.9), HORIZONTAL_ALIGNMENT_CENTER, PANEL.size.x)
+	text(Vector2(PANEL.position.x, hint_y()), hint, hint_size(), Color(0.85, 0.85, 0.9), HORIZONTAL_ALIGNMENT_CENTER, PANEL.size.x)
 	if result != "":
 		var r := Rect2(PANEL.position.x, 440.0, PANEL.size.x, 200.0)
 		ui.draw_rect(r, Color(0.0, 0.0, 0.0, 0.82))

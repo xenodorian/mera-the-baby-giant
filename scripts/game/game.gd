@@ -92,6 +92,7 @@ var boss_dead := false
 var mid_boss: Node2D = null       # the Warlord mid-boss of a Stage 3 level (levels 12 to 18); never game.boss, never locks the exit
 var mid_spawned := false          # one mid-boss per visit
 var cutscene: Node = null         # the story card that is open (scripts/game/cutscene.gd sets and clears it)
+var music_player: AudioStreamPlayer = null     # the level music (a story slideshow mutes it while its own music plays)
 var wave_i := 0
 var wave_type_i := 0
 var trickle_t := 8.0
@@ -267,6 +268,7 @@ func _start_music(lv: Dictionary) -> void:
 	player.process_mode = Node.PROCESS_MODE_ALWAYS           # the music keeps playing while a chest puzzle pauses the game
 	player.stream = stream
 	player.volume_db = -8.0
+	music_player = player
 	add_child(player)
 	player.play()
 
@@ -650,6 +652,19 @@ func barrel_blast(c: Vector2, src: Node2D) -> void:
 		if ec.distance_to(c) <= Props.BARREL_R + e.hurt_rect().size.x * 0.4:
 			e.take_damage(Props.BARREL_DMG, c.x, "explosion")
 	_blast_props(c, Props.BARREL_R, src)
+
+
+## a failed chest puzzle: the chest explodes. Mera loses 1 (size, or HP for Perry) if she is close; the loot is gone
+func chest_blast(c: Vector2) -> void:
+	shake(22.0, 0.45)
+	HitStop.stop(Tuning.HITSTOP_HEAVY_MS)
+	Sfx.play("boom_big", 0.9)
+	var b := Blast.new()
+	b.setup("explosion", Vector2(c.x, GROUND_Y), 4.0)
+	world.add_child(b)
+	debris.spark(c, 5.0)
+	if mera != null and is_instance_valid(mera) and mera.state != "dead" and mera.hurt_rect().get_center().distance_to(c) <= Tuning.CHEST_BLAST_R:
+		mera.take_hit(1, c.x, null)
 
 
 func _blast_props(c: Vector2, r: float, src: Node2D) -> void:

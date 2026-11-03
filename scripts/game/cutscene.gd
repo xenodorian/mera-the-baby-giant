@@ -13,6 +13,9 @@ const H := 1080.0
 const TEXT_W := 1500.0
 const PAGE_GUARD_S := 0.3              # a button held over from the last page must not skip the next one
 const BLOCK_H := 320.0                 # the most vertical space one page's text may take
+const BLOCK_H_SLIDE := 170.0           # ... on a slide page: the text sits in the bar under the picture
+const BAND_Y := 40.0                   # the picture band (1920 x 804) starts here; black bars above and below
+const BAND_BOTTOM := 844.0
 const GOLD := Color(1.0, 0.82, 0.35)
 const PALE := Color(0.9, 0.92, 1.0)
 
@@ -28,6 +31,14 @@ var _closed := false
 var _was_paused := false
 var _page_age := 0.0
 var _fit: Array = []                   # per line: [font size, line height] for the current page
+var extras: Array = []                 # per page: {slide: id, music: path}, from Dictionary pages (slideshow)
+var has_slides := false
+var view: SlideView = null
+var _black: ColorRect = null
+var _cur_slide := "<none>"
+var _music: AudioStreamPlayer = null
+var _level_db := 0.0
+var _muted_level := false
 
 
 ## Builds the cutscene under `game`, pauses the tree, and returns it. Null when nothing is shown (see the file header).
@@ -54,6 +65,7 @@ static func play(game: Node, pages_in: Array, on_done_cb: Callable = Callable(),
 	var c := Cutscene.new()
 	c.game = game
 	c.pages = norm
+	c.extras = _extras(pages_in)
 	c.on_done = on_done_cb
 	c.key = key_name
 	c._begin()
@@ -61,7 +73,8 @@ static func play(game: Node, pages_in: Array, on_done_cb: Callable = Callable(),
 
 
 static func _busy(game: Node) -> bool:
-	if bool(game.get("paused_play")):
+	var pp = game.get("paused_play")
+	if pp != null and bool(pp):
 		return true
 	var pz = game.get("puzzle")
 	if pz != null and is_instance_valid(pz):
@@ -74,15 +87,34 @@ static func _busy(game: Node) -> bool:
 static func _normalise(pages_in: Array) -> Array:
 	var out: Array = []
 	for p in pages_in:
-		var lines: Array = []
-		if p is Array:
-			for s in p:
-				lines.append(String(s))
-		else:
-			lines.append(String(p))
-		lines = lines.slice(0, 2)
+		var lines := _lines_of(p)
 		if not lines.is_empty():
 			out.append(lines)
+	return out
+
+
+## the text lines of one page (a String, an Array of Strings, or a Dictionary with "text")
+static func _lines_of(p: Variant) -> Array:
+	var src: Variant = p.get("text", "") if p is Dictionary else p
+	var lines: Array = []
+	if src is Array:
+		for s in src:
+			lines.append(String(s))
+	else:
+		lines.append(String(src))
+	return lines.slice(0, 2) if not String("".join(lines)).is_empty() else []
+
+
+## per page (aligned with _normalise): {"slide": id, "music": path} for Dictionary pages, {} otherwise
+static func _extras(pages_in: Array) -> Array:
+	var out: Array = []
+	for p in pages_in:
+		if _lines_of(p).is_empty():
+			continue
+		var e := {}
+		if p is Dictionary:
+			e = {"slide": String(p.get("slide", "")), "music": String(p.get("music", ""))}
+		out.append(e)
 	return out
 
 
@@ -90,6 +122,20 @@ func _begin() -> void:
 	layer = 25                                              # over the HUD (20), under the touch pad (30)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	font = ThemeDB.fallback_font
+	for e in extras:
+		if String(e.get("slide", "")) != "":
+			has_slides = true
+	if has_slides:
+		_black = ColorRect.new()
+		_black.color = Color.BLACK
+		_black.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_black.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_black)
+		view = SlideView.new()
+		view.position = Vector2(0.0, BAND_Y)
+		view.size = SlideView.BAND
+		view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(view)
 	ui = Control.new()
 	ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -178,6 +224,7 @@ func _release() -> void:
 	if _closed:
 		return
 	_closed = true
+	_stop_music()
 	if game != null and is_instance_valid(game) and game.get("cutscene") == self:
 		game.set("cutscene", null)
 	_pad_hidden(false)
@@ -190,6 +237,7 @@ func _exit_tree() -> void:
 	if not _closed:
 		done = true
 		_closed = true
+		_stop_music()
 		if game != null and is_instance_valid(game) and game.get("cutscene") == self:
 			game.set("cutscene", null)
 		_pad_hidden(false)
@@ -220,25 +268,75 @@ func _layout_page() -> void:
 		for li in lines.size():
 			var sz: int = cand[li] if li < 2 else cand[1]
 			total += font.get_multiline_string_size(String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, TEXT_W, sz).y
-		if total <= BLOCK_H:
+		if total <= (BLOCK_H_SLIDE if has_slides else BLOCK_H):
 			chosen = cand
 			break
 	for li in lines.size():
 		var sz: int = chosen[li] if li < 2 else chosen[1]
 		var h := font.get_multiline_string_size(String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, TEXT_W, sz).y
 		_fit.append([sz, h])
+	_apply_slide()
+
+
+## the picture and music of the current page
+func _apply_slide() -> void:
+	if not has_slides or view == null or page_i >= extras.size():
+		return
+	var ex: Dictionary = extras[page_i]
+	var sid := String(ex.get("slide", ""))
+	if sid != _cur_slide:
+		_cur_slide = sid
+		view.show_slide(sid)
+	var mus := String(ex.get("music", ""))
+	if mus != "" and _music == null:
+		_start_music(mus)
+
+
+## the story's own music replaces the level music until the cutscene ends
+func _start_music(path: String) -> void:
+	var stream: AudioStream = load(path) as AudioStream
+	if stream == null:
+		return
+	if stream is AudioStreamOggVorbis:
+		stream.loop = true
+	_music = AudioStreamPlayer.new()
+	_music.stream = stream
+	_music.volume_db = -6.0
+	_music.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_music)
+	_music.play()
+	var lp = game.get("music_player") if game != null else null
+	if lp != null and is_instance_valid(lp):
+		_level_db = lp.volume_db
+		lp.volume_db = -80.0
+		_muted_level = true
+
+
+func _stop_music() -> void:
+	if _music != null and is_instance_valid(_music):
+		_music.stop()
+		_music.queue_free()
+		_music = null
+	if _muted_level and game != null and is_instance_valid(game):
+		var lp = game.get("music_player")
+		if lp != null and is_instance_valid(lp):
+			lp.volume_db = _level_db
+	_muted_level = false
 
 
 func _paint() -> void:
 	if page_i >= pages.size() or font == null:
 		return
 	var sz := ui.size if ui.size.x > 0.0 else Vector2(W, H)
-	ui.draw_rect(Rect2(Vector2.ZERO, sz), Color(0.0, 0.0, 0.02, 0.8))
+	if not has_slides:
+		ui.draw_rect(Rect2(Vector2.ZERO, sz), Color(0.0, 0.0, 0.02, 0.8))
 	var lines: Array = pages[page_i]
 	var total := 0.0
 	for f in _fit:
 		total += float(f[1])
 	var y := H * 0.5 - total * 0.5 - 20.0
+	if has_slides:                                          # the text sits in the bar under the picture
+		y = (BAND_BOTTOM + (H - 30.0 - BAND_BOTTOM) * 0.5) - total * 0.5 - 12.0
 	for li in lines.size():
 		var fsz: int = int(_fit[li][0])
 		var lh: float = float(_fit[li][1])
@@ -250,5 +348,6 @@ func _paint() -> void:
 	var next_key := "Z" if Controls.scheme == "key" else "A"
 	var skip_key := "X" if Controls.scheme == "key" else "B"
 	var hint := "%s: next    %s: skip" % [next_key, skip_key]
-	ui.draw_string(font, Vector2(2, 1012), hint, HORIZONTAL_ALIGNMENT_CENTER, W, 26, Color(0, 0, 0, 0.7))
-	ui.draw_string(font, Vector2(0, 1010), hint, HORIZONTAL_ALIGNMENT_CENTER, W, 26, Color(0.85, 0.85, 0.9))
+	var hint_y := 1068.0 if has_slides else 1010.0
+	ui.draw_string(font, Vector2(2, hint_y + 2), hint, HORIZONTAL_ALIGNMENT_CENTER, W, 26, Color(0, 0, 0, 0.7))
+	ui.draw_string(font, Vector2(0, hint_y), hint, HORIZONTAL_ALIGNMENT_CENTER, W, 26, Color(0.85, 0.85, 0.9))

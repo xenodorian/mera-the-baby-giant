@@ -272,10 +272,11 @@ func _draw_ui() -> void:
 		_txt(Vector2(140 + hx, 236), "not enough mana", 22, Color(1, 0.5, 0.4))
 	if _flash.begins_with("pickup:") and _flash_t > 0.0:
 		_txt(Vector2(140 + hx, 236), _flash.substr(7), 24, Color(0.6, 0.85, 1.0))
-	# state line
-	var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
-	_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
-	_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "PAUSE button: pause" if OS.get_name() == "Android" else "F1 / Start: pause"], 22, Color(0.8, 0.8, 0.85))
+	# state line: debug only (F2). A real level shows nothing in the top right.
+	if m.debug:
+		var mk: String = m.mv.get("key", m.state) if m.state == "move" else m.state
+		_txt(Vector2(1300, 46), "move: %s   anim: %s f%d" % [mk, m.anim.key, m.anim.idx], 22, Color(0.8, 0.8, 0.85))
+		_txt(Vector2(1300, 76), "defeated: %d    %s" % [game.defeated, "PAUSE button: pause" if OS.get_name() == "Android" else "F1 / Start: pause"], 22, Color(0.8, 0.8, 0.85))
 	var bs = game.boss                                          # untyped: may be a freed instance
 	if bs != null and is_instance_valid(bs) and bs.alive():        # v0.6 boss bar
 		ui.draw_rect(Rect2(460, 1000, 1000, 34), Color(0.05, 0.02, 0.03, 0.85))

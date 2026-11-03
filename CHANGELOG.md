@@ -2,6 +2,15 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.17.0-playable (2026-11-03)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.17.0_Windows.exe
+- Android: Mera_Playable_v0.17.0_Android.apk
+- **The opening is a slideshow.** The six story cards now play over pictures made from game art: Perry Riposte's story paintings (village meadow, sunset island, moonlit courtyard, snow temple, burning house, cave shrine) panning slowly, with Mera, the king, Perry (her parry animation) and the giants' and monsters' silhouettes animated on top, fire, torch flicker, shake and flashes. Perry Riposte's prologue music plays over it, and the level music returns afterwards. A advances, B skips. The slideshow engine (`slide_view.gd`, data in `story_slides.gd`) is ready for the other story cards.
+- **Match the foes fills the window.** The board is bigger (128 px tiles), with large score and time text, so it reads on a phone. The move limit is gone: a **real-time 20 second clock** runs instead, and time up loses (the score target is still 300).
+- **A failed puzzle chest explodes.** Lose, time up or give up on any of the three puzzles and the chest blows up: it is gone with no loot, and Mera loses 1 (a size, or 1 HP for Perry) if she is close.
+- **No debug text in play.** The "move: ... anim: ..." and "defeated: ..." lines in the top right only show in debug mode (F2).
+
 ## v0.16.0-playable (2026-11-03)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.16.0_Windows.exe
