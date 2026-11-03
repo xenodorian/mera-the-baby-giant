@@ -78,3 +78,6 @@ The test suite now forces Mera at the start of the run (`tests/run_tests.gd` `_r
 - Done: Phase 0 (plan), Phase 1 (puzzle chests), Phase 2 (Changeling art) and Phase 3 (playable Perry). Released as v0.14.0.
 - Next: Phase 4 (ladders and run-time platforms), then 5 (Stage 3 maps), 6 (Changeling enemies), 7 (face summons and the ranger's building), and 8 (tests, credits, release). Specs are in the phase table and the map conversion rule above.
 - Open question for the owner: should a chest wait for a button press (Up) before its puzzle opens, instead of opening on touch?
+
+## Status after v0.15.0 (2026-11-03)
+All phases are done and released in v0.15.0 (774 checks pass). Perry also has her own boss stage (index 11) before Stage 3, so Stage 3 is levels 12 to 19 by index (13 to 20 on screen). Open items: none. Ideas not built: a Warlord-style mid-boss for Stage 3 levels, enemies standing on built platforms (only the player and the ranger ally use the surface lookup).
