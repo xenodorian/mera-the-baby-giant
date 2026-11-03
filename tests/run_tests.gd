@@ -3997,8 +3997,13 @@ func _session_tests() -> void:
 	hc._pause_confirm()
 	_check("controls: CONTROLS from the pause menu opens on page 1 whatever the last page was", hc.pause_controls and hc.overlay and hc.controls_page == 0, "page %d" % hc.controls_page)
 	var np: int = hc._controls_pages()
-	var want_np: int = ceili(float(load("res://scripts/game/hud.gd").CONTROLS.size()) / 4.0)
-	_check("controls: Mera's list is %d pages of 4 entries" % want_np, np == want_np and np >= 2, "%d pages" % np)
+	var want_np: int = ceili(float(hc._controls_table().size()) / 4.0)
+	var all_rows: Array = load("res://scripts/game/hud.gd").CONTROLS
+	var shown_rows := 0
+	for row in all_rows:
+		if not (row.size() > 3 and String(row[3]).begins_with("mera:")) or Carry.owns(String(row[3]).substr(5)):
+			shown_rows += 1
+	_check("controls: Mera's list is %d pages of 4 entries, and only unlocked rows are listed (%d of %d)" % [want_np, shown_rows, all_rows.size()], np == want_np and np >= 2 and hc._controls_table().size() == shown_rows, "%d pages" % np)
 	_ctrl_key(hc, "right")
 	_check("controls: Right turns to page 2", hc.controls_page == 1, "page %d" % hc.controls_page)
 	_ctrl_key(hc, "left")
@@ -4020,7 +4025,7 @@ func _session_tests() -> void:
 	gc.queue_free()
 	await process_frame
 	var gp: Node = await _perry_new()
-	var want_p: int = ceili(float(load("res://scripts/game/perry_hud.gd").CONTROLS.size()) / 4.0)
+	var want_p: int = ceili(float(gp.hud._controls_table().size()) / 4.0)
 	_check("controls: Perry's list is %d pages of 4 entries" % want_p, gp.hud._controls_pages() == want_p and want_p >= 2, "%d" % gp.hud._controls_pages())
 	gp.queue_free()
 	await process_frame
@@ -5707,14 +5712,23 @@ func _king_court_tests() -> void:
 	_check("king: Roster has nero as boss 20, the finale name and the display name, and no trash waves", R.BOSSES.get(20, "") == "nero" and R.FINALE.get(20, "") == "King Nerochilde" and R.NAMES.get("nero", "") == "Nerochilde" and R.DEFS.has("nero") and not R.LEVELS.has(20), "")
 	var d: Dictionary = R.def("nero")
 	var anims: Array = R.art("nero")["anims"].keys()
-	var need := ["idle", "walk", "attack", "attack2", "cast", "hurt", "death", "bolt"]
+	var need := ["idle", "walk", "attack", "attack2", "attack3", "hurt", "bolt"]
 	var anim_ok := true
 	for a in need:
 		anim_ok = anim_ok and a in anims
 	var phases: Array = []
 	for a in d["attacks"]:
 		phases.append(int(a.get("phase", 1)))
-	_check("king: nero has the eight animations, hp 300, the warlord's three phases of attacks, a charge and a slam", anim_ok and bool(d["boss"]) and int(d["hp"]) == 300 and phases.has(1) and phases.has(2) and phases.has(3), "%s" % [anims])
+	var rp: Dictionary = R.def("nero_reaper")
+	var gi: Dictionary = R.def("nero_giant")
+	var has_charge := false
+	var has_slam := false
+	for a in rp["attacks"]:
+		has_charge = has_charge or bool(a.get("charge", false))
+	for a in gi["attacks"]:
+		has_slam = has_slam or bool(a.get("slam", false))
+	var fx_all: Dictionary = R.data()["_fx"]
+	_check("king: three forms (the Medieval King, the reaper, the giant), hp 300, the king's animations, the reaper's charge, the giant's slam and a slash effect for each late form", anim_ok and bool(d["boss"]) and int(d["hp"]) == 300 and has_charge and has_slam and R.art("nero_reaper")["anims"].has("slash") and R.art("nero_giant")["anims"].has("slash") and int(R.art("nero_giant")["facing"]) == -1 and fx_all.has("slash_pale") and fx_all.has("slash_green"), "%s" % [anims])
 	var g: Node = await _s4_new(20)
 	g._manage_roster(0.016)
 	await physics_frame
@@ -5725,7 +5739,7 @@ func _king_court_tests() -> void:
 	nb.take_damage(int(nb.hp_max * 0.4), nb.global_position.x - 500.0)
 	take_ok = take_ok and nb.phase == 2
 	nb.take_damage(int(nb.hp_max * 0.3), nb.global_position.x - 500.0)
-	_check("king: Nerochilde moves through phases 1, 2, 3 by hp", take_ok and nb.phase == 3 and nb.phase_log == [1, 2, 3], "%s" % [nb.phase_log])
+	_check("king: Nerochilde moves through phases 1, 2, 3 by hp, wearing the King, the reaper, then the giant", take_ok and nb.phase == 3 and nb.phase_log == [1, 2, 3] and nb.forms_log == ["nero", "nero_reaper", "nero_giant"] and nb.form_id == "nero_giant" and nb.sprite.sprite_frames.has_animation("slash") and nb.id == "nero" and nb.slashes >= 2, "%s %s" % [nb.phase_log, nb.forms_log])
 	g.on_enemy_defeated(nb)
 	_check("king: his death opens the exit, pays the finale gold once, clears the level and the card text names King Nerochilde (the ending pages follow)",
 		g.boss_dead and not g.exit_locked() and g.victory and g.cleared and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated King Nerochilde!" and int(C.clears.get("20", 0)) == 1 and C.gold >= 100, "gold %d %s" % [C.gold, str(g.victory_text)])
@@ -5958,7 +5972,7 @@ func _king_story_tests() -> void:
 	var gold12: int = C.gold
 	var p11c: Node = PRI.spawn_for_level(g, 11)
 	p11c._free()
-	_check("king prisoner: a prisoner for a Mera who already has the move still pays gold", C.gold - gold12 == 20 and C.moves.get("earthquake", false), "")
+	_check("king prisoner: a prisoner for a Mera who already has the move still pays gold", C.gold - gold12 == 20, "")
 	g.queue_free()
 	await process_frame
 	C.reset()

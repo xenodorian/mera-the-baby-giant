@@ -147,4 +147,4 @@ The ally picker and the map cards draw `Roster.frame_art`: the idle (or skip) po
 - **Shop:** `menu.gd` shows two extra pages when Perry is unlocked; rows are `perry:<id>` and go through `Carry.buy` to `PerryUnlocks.buy`. The meteor shower has no attack boxes in the source data, so it (and the earthquake) hit every enemy on screen. The heavy kick is in the data but the original never sells it, so it is cut but unused.
 
 ## roster.json rebuilds
-`tools/build_roster.py` rewrites `assets/enemies/roster.json` from scratch. After running it, re-run the merge tools in this order: `build_nero.py`, `build_ally_faces.py`, `build_perry_boss.py`, `build_firemage_bolt.py` (copies the fire worm fireball into p_firemage as the `bolt` anim).
+`tools/build_roster.py` rewrites `assets/enemies/roster.json` from scratch. After running it, re-run the merge tools in this order: `build_king_forms.py` (the three king forms; replaces build_nero.py), `build_ally_faces.py`, `build_perry_boss.py`, `build_firemage_bolt.py` (copies the fire worm fireball into p_firemage as the `bolt` anim).

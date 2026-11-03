@@ -176,16 +176,28 @@ const DEFS := {
 			{"anim": "jump", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 440.0, "far": 900.0, "cd": 1.2, "mode": "contact", "vx": 620.0, "jump": 1000.0, "phase": 1},
 			{"anim": "thrust", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "phase": 2},
 			{"anim": "jump", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 1.4, "mode": "contact", "vx": 360.0, "jump": 1500.0, "slam": true, "phase": 3}]},
-	# Stage 4, the final boss: King Lucius Nerochilde (Foozle's Lucifer Necromancer, CC0). Shaped like the Warlord (scripts/game/nero.gd extends
-	# cl_warlord.gd): phase 1 sword-staff swing, a volley of three dark bolts and a lunge; phase 2 adds a charge that stuns him on the wall;
-	# phase 3 adds a jump slam with floor shockwaves. He does not parry. His damage does not scale.
-	"nero": {"k": 11.0, "hp": 300, "speed": 170.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
-		"pick": "cycle", "hurt": "hurt", "death": "death", "script": "res://scripts/game/nero.gd",
-		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 300.0, "cd": 0.7, "mode": "frames", "active": [4, 6], "phase": 1},
-			{"anim": "cast", "kind": "ranged", "dmg": 1, "tell": 0.55, "near": 380.0, "far": 1500.0, "cd": 1.3, "mode": "shot", "shot": "bolt", "shot_frame": 4, "shot_speed": 1000.0, "shot_k": 0.35, "shot_tight": true, "chain": 3, "phase": 1},
-			{"anim": "attack2", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 200.0, "far": 520.0, "cd": 1.0, "mode": "contact", "vx": 700.0, "dur": 0.35, "phase": 1},
-			{"anim": "walk", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "phase": 2},
-			{"anim": "attack2", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 1.4, "mode": "contact", "vx": 360.0, "jump": 1500.0, "slam": true, "phase": 3}]},
+	# Stage 4, the final boss: King Lucius Nerochilde, in three forms on one health pool (scripts/game/nero.gd swaps them at 2/3 and 1/3 hp):
+	#   nero         the Medieval King (Luiz Melo's Medieval King Pack 2, bought by the owner): sword swings, a spin, an overhead chop, dark bolts, a lunge
+	#   nero_reaper  the skull-cloak reaper (owner's art): scythe slashes with slash arcs, a charge that stuns him on the wall, bolts
+	#   nero_giant   the skull giant (owner's art): wide green slashes, the charge, and a jump slam with floor shockwaves
+	# The two later forms are only ever worn by the nero node (they have no spawn of their own). He does not parry. His damage does not scale.
+	"nero": {"k": 9.0, "hp": 300, "speed": 190.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt", "script": "res://scripts/game/nero.gd",
+		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 330.0, "cd": 0.7, "mode": "frames", "active": [2, 2], "phase": 1},
+			{"anim": "attack", "kind": "ranged", "dmg": 1, "tell": 0.55, "near": 380.0, "far": 1500.0, "cd": 1.3, "mode": "shot", "shot": "bolt", "shot_frame": 2, "shot_speed": 1000.0, "shot_k": 0.35, "shot_tight": true, "chain": 3, "phase": 1},
+			{"anim": "attack3", "kind": "heavy", "dmg": 2, "tell": 0.55, "near": -999.0, "far": 330.0, "cd": 1.0, "mode": "frames", "active": [2, 2], "phase": 1},
+			{"anim": "attack2", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 260.0, "cd": 0.9, "mode": "frames", "active": [2, 2], "phase": 1},
+			{"anim": "walk", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 200.0, "far": 520.0, "cd": 1.0, "mode": "contact", "vx": 700.0, "dur": 0.35, "phase": 1}]},
+	"nero_reaper": {"k": 6.7, "hp": 300, "speed": 210.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt",
+		"attacks": [{"anim": "slash", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 380.0, "cd": 0.8, "mode": "frames", "active": [1, 3], "arc": true, "reach": 150.0, "fx": "slash_pale", "phase": 1},
+			{"anim": "slash", "kind": "ranged", "dmg": 1, "tell": 0.55, "near": 400.0, "far": 1500.0, "cd": 1.3, "mode": "shot", "shot": "bolt", "shot_frame": 2, "shot_speed": 1000.0, "shot_k": 0.35, "shot_tight": true, "chain": 3, "fx": "slash_pale", "phase": 1},
+			{"anim": "walk", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "fx": "slash_pale", "phase": 1}]},
+	"nero_giant": {"k": 6.0, "hp": 300, "speed": 170.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt",
+		"attacks": [{"anim": "slash", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 0.8, "mode": "frames", "active": [8, 14], "arc": true, "reach": 190.0, "fx": "slash_green", "phase": 1},
+			{"anim": "walk", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "fx": "slash_green", "phase": 1},
+			{"anim": "walk", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 1.4, "mode": "contact", "vx": 360.0, "jump": 1500.0, "slam": true, "fx": "slash_green", "phase": 1}]},
 }
 
 ## who appears where. 12 to 18 are Stage 3 (the Changeling levels, cl_* ids). 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns,
@@ -247,8 +259,16 @@ static func data() -> Dictionary:
 	return _data
 
 
+## the later bodies of King Nerochilde: worn by the nero node (nero.gd), never spawned on their own
+const FORM_ONLY := ["nero_reaper", "nero_giant"]
+
+
 static func ids() -> Array:
-	return DEFS.keys()
+	var out: Array = []
+	for k in DEFS.keys():
+		if k not in FORM_ONLY:
+			out.append(k)
+	return out
 
 
 static func def(id: String) -> Dictionary:

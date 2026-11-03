@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.18.0-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.18.0_Windows.exe
+- Android: Mera_Playable_v0.18.0_Android.apk
+- **King Nerochilde has three forms** on one health pool (300). Above two thirds he is the **Medieval King** (Medieval King Pack 2: sword swings, a spin, an overhead chop, dark bolts, a lunge). At two thirds he becomes the **skull-cloak reaper** (scythe slashes that throw an animated pale slash arc, bolts, and a charge that stuns him on the wall), and at one third the **skull giant** (wide green slash arcs, the charge, and the jump slam with floor shockwaves). Each change shakes the screen and gives you a breath. The reaper's background and moon were removed from the GIF; the giant was already transparent; the slash arcs are drawn for the game.
+- **Tests:** 942 pass, 0 fail (match-3 touch swap, controls screen, prisoner and Mirror Max checks updated; the king's forms are tested).
+- Housekeeping: in Perry's Arena and other cycle-attack bosses the hand-set attack ranges are kept; summons and plain melee enemies still read their reach from the hit boxes.
+
 ## v0.17.6-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.17.6_Windows.exe

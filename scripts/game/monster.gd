@@ -313,8 +313,8 @@ var _far_cache := {}
 
 func far_of(a: Dictionary) -> float:
 	var far := float(a["far"])
-	if String(a["mode"]) != "frames" or not art["anims"].has(a["anim"]):
-		return far
+	if String(a["mode"]) != "frames" or String(a.get("kind", "")) == "heavy" or String(d.get("pick", "")) != "" or not art["anims"].has(a["anim"]):
+		return far                                 # heavy blows (slams, spins) hit by their frames' own wide boxes, and the bosses that take turns through a hand-tuned attack list (pick cycle / order) keep their range
 	var key := String(a["anim"])
 	if not _far_cache.has(key):
 		var boxes: Array = art["anims"][key]["boxes"]
@@ -324,7 +324,7 @@ func far_of(a: Dictionary) -> float:
 				var b: Array = boxes[mini(int(f), boxes.size() - 1)]
 				tip = maxf(tip, float(b[2]) if native > 0 else -float(b[0]))
 		_far_cache[key] = tip
-	return minf(far, maxf(maxf(float(_far_cache[key]) * k - body_w() * 0.5, far * 0.7), 30.0) * 0.9)
+	return minf(far, maxf(maxf(float(_far_cache[key]) * k - body_w() * 0.5, far * 0.85), 30.0) * 0.9)
 
 
 func gap_to(m: Node2D) -> float:

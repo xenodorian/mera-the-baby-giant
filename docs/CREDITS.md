@@ -120,6 +120,9 @@ DCSS tiles (`assets/changeling/source/tiles/`, licence file `LICENSE_DCSS.txt`):
 ## Stage 4 boss: King Nerochilde
 | Creature | Author | Pack | URL | License |
 |---|---|---|---|---|
-| King Nerochilde (nero, final boss, `assets/characters/itch/foozle/lucifer_necromancer/`) | **Foozle** (art commissioned from Baldur) | Lucifer Necromancer (1.0) | https://foozlecc.itch.io/lucifer-necromancer | CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/). Attribution not required; credited anyway |
+| King Nerochilde, stage 1 (nero, `assets/characters/king/nero/`) | **Luiz Melo** | Medieval King Pack 2 (bought by the owner; the pack has no licence file) | https://luizmelo.itch.io/ | Owner purchase |
+| King Nerochilde, stage 2 (nero_reaper) | supplied by the owner (the artist is not named in the files) | the skull-cloak reaper GIF, background and moon removed by `tools/build_king_forms.py` | n/a | Owner supplied |
+| King Nerochilde, stage 3 (nero_giant) | supplied by the owner (the artist is not named in the files) | the skull giant GIF | n/a | Owner supplied |
+| Slash effects (`assets/characters/king/fx/`) | drawn for the game by `tools/build_king_forms.py` | | | Owner |
 
-Original zip: `assets/_source/king/Foozle_2DC0010_Lucifer_Necromancer_Pixel_Art.zip`, licence text `assets/_source/king/LICENSE_foozle.txt`, frames cut by `tools/build_nero.py`.
+Originals: `assets/_source/king/MedievalKingPack2.zip`, `king_stage2_reaper.gif`, `king_stage3_giant.gif`. Frames are cut by `tools/build_king_forms.py`. The earlier Foozle Lucifer Necromancer art (`assets/characters/itch/foozle/`, CC0, `tools/build_nero.py`) is no longer used by the game.

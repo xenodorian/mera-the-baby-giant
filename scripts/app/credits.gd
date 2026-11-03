@@ -17,7 +17,8 @@ const ENTRIES := [
 	{"who": "Reactorcore", "what": "Gore: Blood, Gibs, Meat Chunks", "lic": "CC0", "url": "https://opengameart.org/content/gore-blood-gibs-meat-chunks"},
 	{"who": "rubberduck", "what": "Pixel Art Castle Tileset (walls, chandelier, door, plank, flame)", "lic": "CC0", "url": "https://opengameart.org/content/pixel-art-castle-tileset"},
 	{"who": "vk", "what": "Candles, oil lamp and eye with varied stands (via opengameart.org)", "lic": "CC0", "url": "https://opengameart.org/content/candles-oil-lamp-and-eye-with-varied-stands"},
-	{"who": "Foozle", "what": "Lucifer Necromancer (art by Baldur): King Nerochilde", "lic": "CC0", "url": "https://foozlecc.itch.io/lucifer-necromancer"},
+	{"who": "Luiz Melo", "what": "Medieval King Pack 2: King Nerochilde, stage 1 (bought by the owner)", "lic": "Owner purchase", "url": "https://luizmelo.itch.io/"},
+	{"who": "xenodorian", "what": "King Nerochilde stages 2 and 3: the reaper and the skull giant (art supplied by the owner), with slash effects drawn for the game", "lic": "Owner", "url": "https://github.com/xenodorian/mera-the-baby-giant"},
 	{"who": "Godot Engine", "what": "Made with Godot. Godot is (c) the Godot Engine contributors and Juan Linietsky, Ariel Manzur; MIT license", "lic": "MIT", "url": "https://godotengine.org/license"},
 ]
 const FOOTER := "Game code and design: xenodorian. Source: github.com/xenodorian/mera-the-baby-giant, art and sound included."

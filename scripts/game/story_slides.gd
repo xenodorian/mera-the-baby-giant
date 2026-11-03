@@ -37,7 +37,7 @@ const SLIDES := {
 		"vignette": 0.5,
 		"tint": [0.7, 0.05, 0.05, 0.12],
 		"sprites": [
-			{"who": "nero", "anim": "idle", "pos": [1250, 540], "scale": 11, "flip": true, "fps": 0, "at": 0.0}
+			{"who": "nero", "anim": "idle", "pos": [1250, 540], "scale": 9, "flip": true, "fps": 0, "at": 0.0}
 		]
 	},
 	"intro_4": {
