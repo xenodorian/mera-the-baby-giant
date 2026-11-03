@@ -1068,27 +1068,16 @@ func _chord_convert(k: String) -> bool:
 	return true
 
 
-## L1+R1+L2+R2 together (Q+W+1+2): the freeze-frame slash. Costs 100 rage. It does not start Fury.
+## R3 (a pad), numpad 5 (a keyboard) or a tap on the screen (mobile): the freeze-frame slash. Costs 100 rage. It does not start Fury.
+## (It used to be L1+R1+L2+R2 together, which often fired the summon instead.)
 func _try_mark() -> bool:
-	if game == null or state in ["dead", "gallery"]:
+	var tapped := Controls.consume_r3_fresh()            # always taken, so a tap made below 100 rage does not wait around
+	if not tapped or game == null or state in ["dead", "gallery"]:
 		return false
 	if rage_spending or rage < FURY_COST:
 		return false
-	var got: Array = []
-	var newest := -1e9
-	for a in ["l1", "r1", "l2", "r2"]:
-		var e := _find(a, now - Tuning.MARK_CHORD_MS)
-		if e.is_empty() or not held[a]:
-			return false
-		got.append(e)
-		newest = maxf(newest, float(e["t"]))
-	for e in got:
-		if newest - float(e["t"]) > Tuning.MARK_CHORD_MS:
-			return false
 	if not game.begin_mark():
 		return false
-	for e in got:
-		_use(e)
 	pay_rage()
 	return true
 

@@ -2,6 +2,15 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.19.2-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.19.2_Windows.exe
+- Android: Mera_Playable_v0.19.2_Android.apk
+- **The freeze slash has a new trigger.** The four-button chord (L1+R1+L2+R2, Q+W+1+2) kept firing the summon instead, so it is gone. At 100 rage it is now **R3** on a controller, **numpad 5** on a keyboard, or a **tap on the screen** on mobile. The rage bar prompt and the controls screen show the one for the input you are using.
+- **Bigger prompt icons** over the marked enemies (the arrows and the ring are about 2.4x, and sit a little higher).
+- **Each marked slash deals 15 damage** (was 3).
+- Tests: 942 pass, 0 fail.
+
 ## v0.19.1-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.19.1_Windows.exe

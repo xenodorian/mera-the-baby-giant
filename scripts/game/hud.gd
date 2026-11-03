@@ -39,7 +39,7 @@ const CONTROLS := [
 	["X just as a shot arrives", "A just as a shot arrives", "reflect it (within 0.15 s of the hitbox): flies back and hurts them"],
 	["L2 just before a hit", "1 just before", "PARRY (within 0.15 s): no damage, attacker staggered and knocked back, shots fly back, x2 counter"],
 	["Any button in a bubble", "", "drops that bubble and does the move. L1 drinks and the bubble stays"],
-	["L1+R1+L2+R2 (100 rage)", "Q+W+1+2", "freeze slash: mark up to 9 enemies, cut each for 3. Costs 100 rage"],
+	["{MARK} (100 rage)", "Numpad 5", "freeze slash: R3 on a pad, numpad 5 on a keyboard, a tap on the screen on mobile (the one shown is the input you are using). Marks up to 9 enemies, cut each for 15. Costs 100 rage"],
 	["R1", "W", "summon an ally (needs an ally card; several cards: picker)"],
 	["Fury flight", "arrows", "8-way move, Down on the ground lands, R2 lands", "mera:fury_mode"],
 	["Start", "Enter / F1", "pause: continue, restart, title, controls, or quit. B or Start continues"],
@@ -85,6 +85,7 @@ func _draw_controls_panel() -> void:
 		var pad_name := String(table[i][0])
 		if pad_name == "Start" and OS.get_name() == "Android":
 			pad_name = "Start / PAUSE button"
+		pad_name = pad_name.replace("{MARK}", Controls.mark_name())
 		_txt(Vector2(180, y), pad_name, 46, Color(1, 0.75, 0.45))
 		_txt(Vector2(180, y + 46), "Keyboard: %s" % String(table[i][1]), 32, Color(0.55, 0.85, 1.0))
 		ui.draw_multiline_string(font, Vector2(180, y + 92), String(table[i][2]), HORIZONTAL_ALIGNMENT_LEFT, 1440.0, 36, 2, Color(0.95, 0.92, 0.88))
@@ -241,7 +242,7 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482 + hx, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
 	if m.rage >= 100.0 and not m.fury and not perry and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140 + hx, 136), "R2 LIGHTNING   ·   L2+R2 FURY   ·   Q+W+1+2 SLASH", 22, Color(1, 0.3, 0.25))
+		_txt(Vector2(140 + hx, 136), "R2 LIGHTNING   ·   L2+R2 FURY   ·   %s SLASH" % Controls.mark_name(), 22, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
 		_txt(Vector2(200 + hx, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
 	if _flash == "fury_chord" and _flash_t > 0.0:

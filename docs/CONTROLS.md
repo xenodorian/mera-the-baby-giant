@@ -72,7 +72,7 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **W** | R1 | summon an ally |
 | **1** (top row only) | L2 | hold = full bubble, just before a hit = parry |
 | **2** (top row only) | R2 | alone = lightning (costs 100 rage). **1 + 2** = Fury. Numpad 1 and 2 are not these |
-| **Q+W+1+2** together (within 150 ms, all held) at 100 rage or more | L1+R1+L2+R2 | **freeze slash**: costs **100 rage**. Freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s. This does not start Fury |
+| **Numpad 5** (keyboard), **R3** (pad) or a **tap on the screen** (mobile) at 100 rage or more | R3 | **freeze slash**: costs **100 rage**. Freezes Mera and every enemy. Up to 9 nearest enemies get a unique mark, 1–9. On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes that enemy for a flat 3 and plays the slice. Lasts until every mark is cut or 8 s. This does not start Fury |
 | Enter or F1 | Start | pause menu (continue, restart level, title, controls, quit). B / Start / Esc continues. Restarts after Game Over |
 | Tab or G | (unbound; the gallery does not open) | |
 | F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |

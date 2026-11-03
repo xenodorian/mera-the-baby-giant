@@ -56,6 +56,7 @@ var armed := true
 var flick_n := 0
 var pending_digit := 0
 var r3_pending := false
+var r3_frame := -1000                 # physics frame the R3 / numpad 5 / screen tap arrived (the freeze slash only accepts a fresh one)
 var _touch_i := -1
 var _touch_from := Vector2.ZERO
 var _touch_swiped := false
@@ -108,6 +109,7 @@ func _gesture(event: InputEvent) -> void:
 			scheme = "pad"
 			if event.button_index == JOY_BUTTON_RIGHT_STICK:
 				r3_pending = true
+				r3_frame = Engine.get_physics_frames()
 		return
 	if event is InputEventJoypadMotion:
 		if event.axis == JOY_AXIS_RIGHT_X:
@@ -128,6 +130,7 @@ func _gesture(event: InputEvent) -> void:
 			if event.pressed:
 				if int(NUMPAD[kc]) == 5:
 					r3_pending = true
+					r3_frame = Engine.get_physics_frames()
 				else:
 					pad_keys[kc] = true
 					if armed:
@@ -154,6 +157,7 @@ func _touch(event: InputEvent) -> void:
 		elif event.index == _touch_i:
 			if not _touch_swiped:
 				r3_pending = true
+				r3_frame = Engine.get_physics_frames()
 			_touch_i = -1
 	elif event is InputEventScreenDrag and event.index == _touch_i and not _touch_swiped:
 		var d: Vector2 = event.position - _touch_from
@@ -206,6 +210,24 @@ func consume_flick() -> int:
 	var n := flick_n
 	flick_n = 0
 	return n
+
+
+## the freeze slash trigger: R3, numpad 5 or a tap on the screen, pressed within the last few frames (an old tap from a menu or a cutscene does not count)
+func consume_r3_fresh() -> bool:
+	var fresh := r3_pending and Engine.get_physics_frames() - r3_frame <= 8
+	r3_pending = false
+	return fresh
+
+
+## the name of that trigger for the input the player is using right now (hud prompts and the controls screen)
+func mark_name() -> String:
+	match scheme:
+		"touch":
+			return "TAP"
+		"key":
+			return "NUMPAD 5"
+		_:
+			return "R3"
 
 
 func consume_r3() -> bool:

@@ -2624,8 +2624,10 @@ func _mark_tests() -> void:
 	var g: Node = await _new_game()
 	var m: Node = g.mera
 	m.rage = 40.0
-	await _drive(g, [[2, "l1", true], [2, "r1", true], [2, "l2", true], [2, "r2", true], [8, "l1", false], [8, "r1", false], [8, "l2", false], [8, "r2", false]], 12)
-	_check("Q+W+1+2 below a full meter does not freeze", not g.mark_lock and not m.fury, "lock=%s fury=%s" % [g.mark_lock, m.fury])
+	C.r3_pending = true
+	C.r3_frame = Engine.get_physics_frames()
+	await _drive(g, [], 12)
+	_check("numpad 5 / R3 / a tap below a full meter does not freeze (and the tap is used up)", not g.mark_lock and not m.fury, "lock=%s fury=%s" % [g.mark_lock, m.fury])
 	g.queue_free()
 	await physics_frame
 	g = await _new_game()
@@ -2633,14 +2635,18 @@ func _mark_tests() -> void:
 	var e: Node2D = g.spawn_enemy("werewolf", m.global_position.x + 420.0)
 	await physics_frame
 	e.cooldown = 99.0
+	e.hp = 400
+	e.hp_max = 400
 	var hp0: int = e.hp
 	var x0: float = e.global_position.x
 	m.rage = 100.0
-	await _drive(g, [[2, "l1", true], [2, "r1", true], [2, "l2", true], [2, "r2", true]], 3)
+	C.r3_pending = true
+	C.r3_frame = Engine.get_physics_frames()
+	await _drive(g, [], 3)
 	var x1: float = e.global_position.x
 	for i in 20:
 		await physics_frame
-	_check("100 rage + Q+W+1+2 freezes Mera and the enemy, costs 100, does not start Fury", g.mark_lock and not m.fury and m.rage == 0.0 and m.vel == Vector2.ZERO and absf(e.global_position.x - x1) < 0.5, "lock=%s rage=%f fury=%s" % [g.mark_lock, m.rage, m.fury])
+	_check("100 rage + a tap, R3 or numpad 5 freezes Mera and the enemy, costs 100, does not start Fury", g.mark_lock and not m.fury and m.rage == 0.0 and m.vel == Vector2.ZERO and absf(e.global_position.x - x1) < 0.5, "lock=%s rage=%f fury=%s" % [g.mark_lock, m.rage, m.fury])
 	_check("keyboard prompts are digits 1-9", g.marker.on and not g.marker.arrows and g.marker.marks.size() == 1 and int(g.marker.marks[0]["n"]) >= 1, "n=%s" % g.marker.marks[0]["n"])
 	var n: int = int(g.marker.marks[0]["n"])
 	if n == 5:
@@ -2653,7 +2659,7 @@ func _mark_tests() -> void:
 	await physics_frame
 	var sfx = root.get_node("Sfx")
 	var last_sfx: String = sfx.history[-1][0] if sfx.history.size() else ""
-	_check("the matching number slashes that enemy for a flat 3 and plays the slice", e.hp == hp0 - 3 and g.marker.slashed == 1 and not g.mark_lock and last_sfx == "swipe", "hp %d->%d slashed=%d lock=%s sfx=%s" % [hp0, e.hp, g.marker.slashed, g.mark_lock, last_sfx])
+	_check("the matching number slashes that enemy for a flat 15 and plays the slice", e.hp == hp0 - 15 and g.marker.slashed == 1 and not g.mark_lock and last_sfx == "swipe", "hp %d->%d slashed=%d lock=%s sfx=%s" % [hp0, e.hp, g.marker.slashed, g.mark_lock, last_sfx])
 	_check("she did not walk off while frozen", absf(m.global_position.x - 760.0) < 2.0, "x=%f" % m.global_position.x)
 	g.queue_free()
 	await physics_frame
@@ -2670,7 +2676,9 @@ func _mark_tests() -> void:
 		w.cooldown = 99.0
 		mobs.append(w)
 	await physics_frame
-	await _drive(g, [[2, "l1", true], [2, "r1", true], [2, "l2", true], [2, "r2", true], [6, "l1", false], [6, "r1", false], [6, "l2", false], [6, "r2", false]], 8)
+	C.r3_pending = true
+	C.r3_frame = Engine.get_physics_frames()
+	await _drive(g, [], 8)
 	var nums := {}
 	for mk in g.marker.marks:
 		nums[int(mk["n"])] = true
@@ -2678,6 +2686,8 @@ func _mark_tests() -> void:
 	var mk0: Dictionary = g.marker.marks[0]
 	var foe: Node2D = mk0["e"]
 	var fn: int = int(mk0["n"])
+	foe.hp = 400
+	foe.hp_max = 400
 	var fhp: int = foe.hp
 	if fn == 5:
 		C.r3_pending = true
@@ -2687,7 +2697,7 @@ func _mark_tests() -> void:
 	await physics_frame
 	C.joy_r = Vector2.ZERO
 	await physics_frame
-	_check("a right-stick flick in that direction deals the flat 3", foe.hp == fhp - 3 and g.marker.slashed == 1, "hp %d->%d n=%d" % [fhp, foe.hp, fn])
+	_check("a right-stick flick in that direction deals the flat 15", foe.hp == fhp - 15 and g.marker.slashed == 1, "hp %d->%d n=%d" % [fhp, foe.hp, fn])
 	g.queue_free()
 	await physics_frame
 	C.scheme = "key"

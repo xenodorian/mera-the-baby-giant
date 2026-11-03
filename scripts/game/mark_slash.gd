@@ -1,7 +1,7 @@
 extends Node2D
-## Fury mark (Q+W+1+2, or L1+R1+L2+R2). Up to 9 enemies get a unique 1-9. Keyboard shows the digit.
+## Freeze slash (R3, numpad 5 or a screen tap). Up to 9 enemies get a unique 1-9. Keyboard shows the digit.
 ## A pad, the numpad or a touch shows the matching arrow (5 is a dot: R3, numpad 5, or a tap).
-## The matching input draws a slash over that enemy, plays the slice, and deals Tuning.MARK_DMG flat.
+## The matching input draws a slash over that enemy, plays the slice, and deals Tuning.MARK_DMG (15) flat.
 
 var game: Node = null
 var on := false
@@ -91,7 +91,7 @@ func _draw() -> void:
 		if m["done"] or not is_instance_valid(m["e"]) or not m["e"].alive():
 			continue
 		var r: Rect2 = m["e"].hurt_rect()
-		var p := Vector2(r.get_center().x, r.position.y - 28.0)
+		var p := Vector2(r.get_center().x, r.position.y - 70.0)
 		if arrows:
 			_arrow(p, int(m["n"]))
 		else:
@@ -107,18 +107,25 @@ func _draw() -> void:
 
 func _num(p: Vector2, n: int) -> void:
 	var s := str(n)
-	for o in [Vector2(-2, 0), Vector2(2, 0), Vector2(0, -2), Vector2(0, 2)]:
-		draw_string(font, p + o + Vector2(-18, 14), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 42, Color(0.05, 0.02, 0.04))
-	draw_string(font, p + Vector2(-18, 14), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 42, Color(1, 0.95, 0.9))
+	for o in [Vector2(-4, 0), Vector2(4, 0), Vector2(0, -4), Vector2(0, 4)]:
+		draw_string(font, p + o + Vector2(-34, 28), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 88, Color(0.05, 0.02, 0.04))
+	draw_string(font, p + Vector2(-34, 28), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 88, Color(1, 0.95, 0.9))
 
 
+## big prompt icons: the arrow is 2.4x what it was (a 5 is a ring with a dot: R3, numpad 5 or a tap)
 func _arrow(p: Vector2, n: int) -> void:
 	if n == 5:
-		draw_circle(p, 8.0, Color(1, 0.95, 0.9))
-		draw_arc(p, 16.0, 0, TAU, 18, Color(1, 0.35, 0.28), 3.0)
+		draw_circle(p, 20.0, Color(0.05, 0.02, 0.04))
+		draw_circle(p, 16.0, Color(1, 0.95, 0.9))
+		draw_arc(p, 40.0, 0, TAU, 28, Color(0.05, 0.02, 0.04), 12.0)
+		draw_arc(p, 40.0, 0, TAU, 28, Color(1, 0.35, 0.28), 7.0)
 		return
 	var v := Controls.vector_for(n).normalized()
-	var tip := p + v * 26.0
-	draw_line(p - v * 18.0, tip, Color(1, 0.95, 0.9), 4.0)
-	var side := Vector2(-v.y, v.x) * 9.0
-	draw_colored_polygon(PackedVector2Array([tip + v * 14.0, tip - v * 4.0 + side, tip - v * 4.0 - side]), Color(1, 0.35, 0.28))
+	var tail := p - v * 44.0
+	var tip := p + v * 62.0
+	var side := Vector2(-v.y, v.x) * 22.0
+	var head := PackedVector2Array([tip + v * 34.0, tip - v * 10.0 + side, tip - v * 10.0 - side])
+	draw_line(tail, tip, Color(0.05, 0.02, 0.04), 20.0)
+	draw_line(tail, tip, Color(1, 0.95, 0.9), 10.0)
+	draw_colored_polygon(PackedVector2Array([head[0] + v * 6.0, head[1] + side * 0.4 - v * 4.0, head[2] - side * 0.4 - v * 4.0]), Color(0.05, 0.02, 0.04))
+	draw_colored_polygon(head, Color(1, 0.35, 0.28))
