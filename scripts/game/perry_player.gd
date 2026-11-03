@@ -469,13 +469,20 @@ func _last_beam_frame() -> bool:
 	return pk + 1 >= fr.size() or (fr[pk + 1]["beam"] as Dictionary).is_empty()
 
 
+## a frame's length. The original's black and white frame of the heavy chop lasts 110 ms on a full charge and is skipped on a lite one
+func _frame_ms(fr: Array, i: int) -> float:
+	if String(mv.get("key", "")) == "heavy" and String(fr[i]["name"]) == "impactbw":
+		return Tuning.PERRY_HEAVY_BW_MS if bool(mv.get("full", false)) else 0.0
+	return float(fr[i]["ms"])
+
+
 ## advance the animation; true when a non-looping one ran off its end (it holds its last frame)
 func _advance(delta: float) -> bool:
 	var m := _m(pa)
 	var fr: Array = m["frames"]
 	pt += delta * 1000.0
-	while pt >= float(fr[pk]["ms"]):
-		pt -= float(fr[pk]["ms"])
+	while pt >= _frame_ms(fr, pk):
+		pt -= _frame_ms(fr, pk)
 		if pk + 1 < fr.size():
 			pk += 1
 			_enter_frame()
@@ -499,7 +506,7 @@ func _enter_frame() -> void:
 	root_x = rx
 	lift = float(f["ry"]) * S * lift_k
 	var key := String(mv.get("key", ""))
-	if key == "heavy" and String(f["name"]) == "impact" or key == "earthquake" and String(f["name"]) == "slam" or key == "jump_crash" and String(f["name"]) == "crash":
+	if key == "earthquake" and String(f["name"]) == "slam" or key == "jump_crash" and String(f["name"]) == "crash":
 		if game:
 			game.shake(10.0, 0.45)
 		Sfx.play("boom", 0.8)
@@ -1118,7 +1125,7 @@ func _charge_tick(delta: float) -> void:
 		var id := String(charging["move"])
 		charging = {}
 		if ms >= Tuning.PERRY_MIN_FIRE_MS:
-			_start(id, {"power": 0.5 + 0.5 * minf(1.0, ms / Tuning.PERRY_CHARGE_FULL_MS)})
+			_start(id, {"power": 0.5 + 0.5 * minf(1.0, ms / Tuning.PERRY_CHARGE_FULL_MS), "full": ms >= Tuning.PERRY_CHARGE_FULL_MS})
 		else:
 			pa = ""
 		return
@@ -1344,22 +1351,18 @@ func _perry_hits(delta: float) -> void:
 		_hit_target(e, key, dmg)
 	if key == "heavy" and fname == "impact" and not mv.has("aoe"):
 		mv["aoe"] = true
-		game.heavy_slam()                                      # the original's impact frame, then an earthquake
-		var grown := (rects[0] as Rect2).grow(25.0 * S)
+		if bool(mv.get("full", false)):                        # only a full charge gets the impact frame and the rumble (the original's lite chop passes over them)
+			game.heavy_slam()
+		var grown := (rects[0] as Rect2).grow(25.0 * S)       # where the blade lands it also blasts every other foe close by
 		for e in game.enemies():
-			if not e.alive():
-				continue
-			var near: bool = grown.intersects(e.hurt_rect())
-			var grounded: bool = e.get("flyer") != true and bool(e.get("on_ground"))
-			if near and not done.has(e.get_instance_id()):
+			if not done.has(e.get_instance_id()) and e.alive() and grown.intersects(e.hurt_rect()):
 				done[e.get_instance_id()] = true
 				_strike(e, Tuning.perry_dmg("heavy_aoe"), position.x, "melee")
-			elif not near and grounded and absf(e.global_position.x - game.camera_x()) <= 1000.0:      # the shock reaches every grounded foe on screen
-				_strike(e, maxi(Tuning.perry_dmg("heavy_aoe") / 2, 1), position.x, "quake")
 
 
 func _hit_target(e: Node, key: String, dmg: int) -> void:
-	var amount := maxi(int(round(float(dmg) * float(mv.get("power", 1.0)))), 1 if dmg > 0 else 0)
+	var pw := 1.0 if key == "heavy" else float(mv.get("power", 1.0))       # the original chop's damage is flat: the charge no longer scales it
+	var amount := maxi(int(round(float(dmg) * pw)), 1 if dmg > 0 else 0)
 	if amount <= 0:
 		return
 	hit_count += 1

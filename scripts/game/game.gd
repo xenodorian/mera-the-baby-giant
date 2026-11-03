@@ -1759,16 +1759,15 @@ func super_earthquake() -> void:
 	Sfx.play("boom_big", 0.4, 6.0)
 
 
-var impact_quake_only := false  # the running impact frame is Perry's overhead chop: a plain earthquake follows it, not the super one
+var impact_quake_only := false  # the running impact frame is Perry's overhead chop: a camera rumble follows it, not the super quake
 
 
-## Perry's heavy overhead chop lands: the impact frame (a short freeze, black and white), a big shake and an earthquake
+## Perry's heavy overhead chop lands: the black and white impact frame (110 ms, as the original), then a 1 s rumble
 func heavy_slam() -> void:
-	impact_t = Tuning.IMPACT_FRAME_S
+	impact_t = Tuning.PERRY_HEAVY_BW_MS / 1000.0
 	impact_quake_only = true
-	HitStop.impact(Tuning.IMPACT_FRAME_S * 1000.0)
+	HitStop.impact(Tuning.PERRY_HEAVY_BW_MS)
 	_impact_show(true, 1.0)
-	shake(Tuning.PERRY_HEAVY_QUAKE_SHAKE, 0.8)
 	Sfx.play("boom_big", 0.6, 6.0)
 
 
@@ -1799,7 +1798,7 @@ func _impact_tick() -> void:
 		_impact_show(false, 0.0)
 		if impact_quake_only:
 			impact_quake_only = false
-			earthquake()
+			shake(Tuning.PERRY_HEAVY_QUAKE_SHAKE, Tuning.PERRY_HEAVY_QUAKE_S)      # the original's 1 s rumble, a camera shake only
 		else:
 			_super_quake_go()
 
