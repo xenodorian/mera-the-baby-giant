@@ -947,11 +947,16 @@ func _fire(_m: Node2D) -> void:
 	var s: Node2D = load("res://scripts/game/enemy_shot.gd").new()
 	var hr := hurt_rect()
 	var p := Vector2(global_position.x + facing * hr.size.x * 0.4, hr.get_center().y - hr.size.y * 0.15)
+	if atk.has("shot_y"):                  # the shot leaves at this height above the feet (art px): a sword's, not the chest's
+		p.y = global_position.y - float(atk["shot_y"]) * k
 	var dir: Vector2 = (aim.hurt_rect().get_center() - p).normalized()
 	if absf(dir.y) > 0.6:
 		dir = Vector2(facing, signf(dir.y) * 0.6).normalized()
 	s.setup(game, id, String(atk["shot"]), p, dir * float(atk.get("shot_speed", 700.0)), int(atk["dmg"]), k * float(atk.get("shot_k", 1.0)), bool(atk.get("shot_tight", false)))
 	s.shooter = self
+	s.home = float(atk.get("home", 0.0))
+	if s.home > 0.0:
+		s.size_px = Vector2(48.0, 48.0)     # it turns, so it hits as a square, not as a long streak
 	s.impact_id = id
 	s.impact_anim = String(atk.get("impact", ""))
 	played[String(atk["shot"])] = true

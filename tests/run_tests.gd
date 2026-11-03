@@ -6161,8 +6161,9 @@ func _slideshow_timer_blast_tests() -> void:
 			exp_missing.append(f)
 	_check("export: the slide scripts and every png / ogg the story data uses exist and are in all 3 presets (%d paths)" % seen_paths.size(), exp_missing.is_empty() and seen_paths.size() >= 7, "%s" % [exp_missing])
 
-	# ---------------- SlideView
-	var sv := SlideView.new()
+	# ---------------- SlideView (loaded, not named: naming it compiles it before the AnimLib autoload exists)
+	var SVC = load("res://scripts/game/slide_view.gd")
+	var sv = SVC.new()
 	root.add_child(sv)
 	_check("slideview: an unknown id shows nothing and returns false", not sv.show_slide("no_such_slide") and not sv.shown and sv.slide.is_empty(), "")
 	_check("slideview: an empty id clears the picture and returns false", not sv.show_slide("") and not sv.shown, "")
@@ -6184,11 +6185,11 @@ func _slideshow_timer_blast_tests() -> void:
 			dur_ends = false
 	_check("slideview: all six slides load their painting and every sprite (frames found)", spr_ok, "")
 	_check("slideview: set_time works at t = 0 and t = dur for every slide (holds still, fully visible)", dur_ends, "")
-	_check("slideview: the pan / zoom transform stays a function of time (scale 3x at the start, painting wider than the band)", sv.show_slide("intro_1", false) and is_equal_approx(float(sv._bg_xf(0.0)["s"]), SlideView.SCALE) and sv._bg.get_width() * SlideView.SCALE > SlideView.BAND.x, "")
+	_check("slideview: the pan / zoom transform stays a function of time (scale 3x at the start, painting wider than the band)", sv.show_slide("intro_1", false) and is_equal_approx(float(sv._bg_xf(0.0)["s"]), SVC.SCALE) and sv._bg.get_width() * SVC.SCALE > SVC.BAND.x, "")
 	sv.show_slide("intro_1", true)
 	_check("slideview: a fade-in starts transparent", sv.modulate.a == 0.0 and sv.running and sv.t == 0.0, "")
 	# move tweens: alpha starts at the colour's alpha, scale and position end on their target
-	_check("slideview: the ease is 0 at the start and 1 at the end", SlideView._ease(0.0) == 0.0 and SlideView._ease(1.0) == 1.0 and SlideView._ease(2.0) == 1.0 and SlideView._ease(-1.0) == 0.0, "")
+	_check("slideview: the ease is 0 at the start and 1 at the end", SVC._ease(0.0) == 0.0 and SVC._ease(1.0) == 1.0 and SVC._ease(2.0) == 1.0 and SVC._ease(-1.0) == 0.0, "")
 	var fade_ok := true
 	var n_fade := 0
 	var n_move := 0
@@ -6203,7 +6204,7 @@ func _slideshow_timer_blast_tests() -> void:
 					var a1 := float(mv["alpha"])
 					if a1 < 0.0 or a1 > 1.0 or is_equal_approx(a0, a1):
 						fade_ok = false
-					var k_end: float = SlideView._ease((float(mv["t"]) + float(mv["dur"]) - float(mv["t"])) / float(mv["dur"]))
+					var k_end: float = SVC._ease((float(mv["t"]) + float(mv["dur"]) - float(mv["t"])) / float(mv["dur"]))
 					if not is_equal_approx(lerpf(a0, a1, k_end), a1):
 						fade_ok = false
 	_check("slideview: alpha tweens start from the colour alpha and end on their target (%d tweens of %d)" % [n_fade, n_move], fade_ok and n_fade >= 6 and n_move >= 8, "")

@@ -12,6 +12,7 @@ var k := 4.0
 var size_px := Vector2(16, 12)
 var deflected := false
 var shooter: Node = null
+var home := 0.0                       # > 0: turns toward Mera at this many radians per second (a homing bolt; a parry still sends it back)
 var impact_id := ""                   # a shot that explodes where it lands: the shooter's roster id ...
 var impact_anim := ""                 # ... and the animation (of that id) played once at the hit; flies as a plain bolt until then
 
@@ -46,6 +47,12 @@ func rect() -> Rect2:
 
 func _physics_process(delta: float) -> void:
 	t += delta
+	if home > 0.0 and not deflected and game != null and game.mera != null and game.mera.state != "dead":
+		var want: float = (game.mera.hurt_rect().get_center() - global_position).angle()
+		var turn := clampf(angle_difference(vel.angle(), want), -home * delta, home * delta)
+		vel = vel.rotated(turn)
+		if spr != null:
+			spr.rotation = vel.angle() if spr.scale.x > 0.0 else vel.angle() + PI
 	position += vel * delta
 	if t > LIFE:
 		queue_free()

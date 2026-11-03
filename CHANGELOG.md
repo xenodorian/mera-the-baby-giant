@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.17.1-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.17.1_Windows.exe
+- Android: Mera_Playable_v0.17.1_Android.apk
+- **Percy fixed.** He is now the height of Mera at 4x (was about twice that). His slash hurts only on the frames where the sword is out in front, and its reach fits his new size. His red energy streak leaves at sword height and is shorter. New attack: a **homing red bolt** that turns toward Mera, so it can still hit her when she is tiny. A well-timed parry sends it back like any other shot.
+
 ## v0.17.0-playable (2026-11-03)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.17.0_Windows.exe
