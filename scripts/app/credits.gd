@@ -9,6 +9,7 @@ const ENTRIES := [
 	{"who": "Merakintsugi", "what": "Mera: Platformer Character Pack (main character, licensed)", "lic": "Licensed", "url": "https://merakintsugi.itch.io/platformer-character-pack"},
 	{"who": "HydroGene", "what": "High Quality 8-bit / Chiptune Musics (cemetery, woods, town, caverns)", "lic": "CC0", "url": "https://hydrogene.itch.io/high-quality-8-bit-musics"},
 	{"who": "xenodorian", "what": "Perry Riposte: Perry, Percy, Mirror Max, goblin, orc, club ogre, fire mage, Stage 2 maps and music", "lic": "Owner", "url": "https://github.com/xenodorian/BibooSGBA"},
+	{"who": "Dungeon Crawl Stone Soup contributors", "what": "Stage 3 map tiles: brick, grass, dirt, tree (brick_brown0, grass0, grey_dirt0, tree1)", "lic": "CC0", "url": "https://github.com/crawl/crawl"},
 	{"who": "Kenney", "what": "Sound effects: RPG Audio, Sci-fi Sounds, Impact Sounds", "lic": "CC0", "url": "https://kenney.nl"},
 	{"who": "Zane Little Music", "what": "Flowerbed Fields (Sunlit Country)", "lic": "CC0", "url": "https://opengameart.org/content/flowerbed-fields-loop"},
 	{"who": "Pixel Frog", "what": "Kings and Pigs (crate)", "lic": "CC0", "url": "https://pixelfrog-assets.itch.io/kings-and-pigs"},

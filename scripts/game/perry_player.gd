@@ -524,6 +524,7 @@ func _physics_process(delta: float) -> void:
 	_items_tick()
 	if state == "move":
 		_early_chord()
+	Climb.tick(self, delta)       # phase 4: Up grabs a ladder; state "climb" runs no branch below
 	match state:
 		"ground":
 			_ground_tick(delta)

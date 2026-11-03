@@ -28,6 +28,8 @@ func _ready() -> void:
 	sel = Levels.current
 	if Carry.unlocked >= Levels.STAGE2_FROM and Levels.current == Levels.STAGE2_FROM - 1:
 		sel = Levels.STAGE2_FROM                      # just beat the dragon: open on stage 2
+	if Carry.unlocked >= Levels.STAGE3_FROM and Levels.current == Levels.STAGE3_FROM - 1:
+		sel = Levels.STAGE3_FROM                      # just beat Perry: open on stage 3
 	for lv in Levels.list():
 		thumbs.append(load("res://assets/levels/%s/thumb.png" % String(lv["id"])))
 	RenderingServer.set_default_clear_color(Color(0.02, 0.01, 0.04))
@@ -76,7 +78,7 @@ func _to_design(p: Vector2) -> Vector2:
 	return p - _origin()
 
 
-## the level indices on the page that shows level i (stage 1: 0..5, stage 2: 6..)
+## the level indices on the page that shows level i (stage 1: 0..5, stage 2: 6..11, stage 3: 12..19)
 func page_levels(page: int) -> Array:
 	var out: Array = []
 	for i in thumbs.size():
@@ -89,10 +91,20 @@ func page_of(i: int) -> int:
 	return Levels.stage_of(i)
 
 
+const WIDE_PAGE := 6          # a page with more cards than this lays them out in two rows (stage 3: 8 cards)
+
+
 func _card(i: int) -> Rect2:
 	var pl := page_levels(page_of(i))
 	var n := maxi(pl.size(), 1)
 	var k := maxi(pl.find(i), 0)
+	if n > WIDE_PAGE:
+		var per_row := ceili(float(n) / 2.0)
+		var cw := 256.0
+		var chh := 144.0
+		var cgap := 60.0
+		var x0 := (1920.0 - (cw * float(per_row) + cgap * float(per_row - 1))) * 0.5
+		return Rect2(x0 + float(k % per_row) * (cw + cgap), 388.0 + float(floori(float(k) / float(per_row))) * 228.0, cw, chh)
 	var gap := 18.0
 	var margin := 28.0
 	var w := (1920.0 - margin * 2.0 - gap * float(n - 1)) / float(n)
@@ -552,7 +564,7 @@ func _draw() -> void:
 	draw_set_transform(_origin(), 0.0, Vector2.ONE)
 	draw_string(font, Vector2(0, 200), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
 	draw_string(font, Vector2(0, 280), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
-	var head := "STAGE 1  SELECT A LEVEL" if page_of(sel) == 0 else "STAGE 2: THE ISLAND  SELECT A LEVEL"
+	var head: String = ["STAGE 1  SELECT A LEVEL", "STAGE 2: THE ISLAND  SELECT A LEVEL", "STAGE 3: CHANGELING  SELECT A LEVEL"][page_of(sel)]
 	draw_string(font, Vector2(0, 370), head, HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
 	var ls := Levels.list()
 	for i: int in page_levels(page_of(sel)):
@@ -567,16 +579,19 @@ func _draw() -> void:
 		var open := Carry.stage_open(i)
 		if not open:
 			draw_rect(r, Color(0.02, 0.0, 0.04, 0.72))
-		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28,
+		var lw := r.size.x + (60.0 if page_levels(page_of(sel)).size() > WIDE_PAGE else 0.0)     # two-row pages have room between the cards
+		var lx := r.position.x - (lw - r.size.x) * 0.5
+		var fs := 28 if lw > 300.0 else 24
+		draw_string(font, Vector2(lx, r.end.y + (40 if lw > r.size.x else 52)), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, lw, fs,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
-		if i == Levels.STAGE2_FROM - 1 and ls.size() > Levels.STAGE2_FROM:       # the last level of stage 1: the game goes on
+		if (i == Levels.STAGE2_FROM - 1 and ls.size() > Levels.STAGE2_FROM) or (i == Levels.STAGE3_FROM - 1 and ls.size() > Levels.STAGE3_FROM):       # the last level of a stage: the game goes on
 			var yel := Color(1.0, 0.92, 0.2)
 			var mid := r.position.y + r.size.y / 2.0 - 20.0
 			var tri := PackedVector2Array([Vector2(r.end.x - 8.0, mid), Vector2(r.end.x - 44.0, mid - 22.0), Vector2(r.end.x - 44.0, mid + 22.0)])
 			draw_colored_polygon(tri, yel)
 			draw_string(font, Vector2(r.end.x - 86.0, r.end.y - 14.0), "CONTINUE", HORIZONTAL_ALIGNMENT_CENTER, 120, 22, yel)
 		var sub := "LOCKED" if not open else String(lv["sub"])
-		draw_string(font, Vector2(r.position.x, r.end.y + 86), sub, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18,
+		draw_string(font, Vector2(lx, r.end.y + (64 if lw > r.size.x else 86)), sub, HORIZONTAL_ALIGNMENT_CENTER, lw, 18,
 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
 	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: Shop / Reset / updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
 	_draw_char_toggle()

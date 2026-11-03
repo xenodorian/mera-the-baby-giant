@@ -733,6 +733,10 @@ func _physics(delta: float) -> void:
 
 
 func _prey() -> Node2D:
+	if not boss and game.has_method("taunter"):         # the Changeling Knight ally draws non-boss enemies to himself
+		var tk: Node2D = game.taunter()
+		if tk != null and absf(tk.global_position.x - global_position.x) < 900.0:
+			return tk
 	return game.mera
 
 

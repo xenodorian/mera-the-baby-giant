@@ -563,6 +563,7 @@ func _physics_process(delta: float) -> void:
 	_stamina_tick(delta)
 	_counter_tint()
 	aura_mat.set_shader_parameter("time_s", now / 1000.0)
+	Climb.tick(self, delta)       # phase 4: Up grabs a ladder; state "climb" runs no branch below
 	match state:
 		"ground":
 			_ground_tick(delta)

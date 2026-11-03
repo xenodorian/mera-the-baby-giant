@@ -49,8 +49,16 @@ const SECRETS := {
 	8: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
 	9: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
 	10: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
+	# stage 3 (Changeling, 12..18; Perry's Arena 11 and the Warlord's Throne 19 are bare arenas)
+	12: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
+	13: [[0, "door"], [1, "wall"], [2, "ledge"], [3, "wall"]],
+	14: [[0, "wall"], [1, "door"], [2, "wall"], [3, "ledge"]],
+	15: [[0, "wall"], [1, "wall"], [2, "door"], [3, "ledge"]],
+	16: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
+	17: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
+	18: [[0, "wall"], [1, "door"], [2, "ledge"], [3, "wall"]],
 }
-const CHANDELIERS := {2: true, 4: true, 10: true}   # Moonlit Town, Infernal Caverns and Moonlit Sanctum have something to hang them from
+const CHANDELIERS := {2: true, 4: true, 10: true, 16: true, 17: true, 18: true}   # Moonlit Town, Infernal Caverns and Moonlit Sanctum have something to hang them from
 const LEVER_BACK := 620.0                     # the lever for a door stands this far before it
 
 
@@ -60,7 +68,7 @@ static func layout(level: int, map_w: float) -> Array:
 	var id := ""
 	if level >= 0 and level < Levels.list().size():
 		id = String(Levels.list()[level].get("id", ""))
-	if id == "cemetery" or id == "dragon_lair":
+	if id == "cemetery" or id == "dragon_lair" or id == "p_arena" or id == "ch_throne":
 		return out
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7700 + level * 131

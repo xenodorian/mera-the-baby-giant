@@ -1035,6 +1035,1226 @@
     53
    ],
    "music": "res://assets/perry/music/level6.ogg"
+  },
+  {
+   "id": "p_arena",
+   "name": "Perry's Arena",
+   "sub": "Perry fights you alone",
+   "map_w": 7200,
+   "layers": [
+    {
+     "file": "res://assets/levels/p_arena/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/far.png",
+     "scroll": 0.3,
+     "y": 100,
+     "z": -30,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/near.png",
+     "scroll": 0.55,
+     "y": 100,
+     "z": -20,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/ground.png",
+     "scroll": 1.0,
+     "y": 100,
+     "z": -10,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/p_arena/fringe.png",
+     "scroll": 1.0,
+     "y": -80,
+     "z": -9,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    5,
+    3,
+    8
+   ],
+   "music": "res://assets/perry/music/boss6.ogg"
+  },
+  {
+   "id": "ch_greenwood",
+   "name": "Greenwood Road",
+   "sub": "A quiet road and a loud welcome",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_greenwood/sky.png",
+     "scroll": 0.15,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_greenwood/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 11845,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    127,
+    182,
+    224
+   ],
+   "music": "res://assets/music/country.ogg",
+   "surfaces": [
+    [
+     3780,
+     4320,
+     930
+    ],
+    [
+     4860,
+     5400,
+     930
+    ],
+    [
+     5670,
+     6750,
+     800
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [
+    [
+     1620,
+     1890
+    ],
+    [
+     8640,
+     9180
+    ]
+   ],
+   "marks": [
+    [
+     "k",
+     1012
+    ],
+    [
+     "g",
+     2767
+    ],
+    [
+     "k",
+     3037
+    ],
+    [
+     "g",
+     3982
+    ],
+    [
+     "g",
+     4657
+    ],
+    [
+     "c",
+     5197
+    ],
+    [
+     "g",
+     5602
+    ],
+    [
+     "c",
+     6142
+    ],
+    [
+     "p",
+     6547
+    ],
+    [
+     "m",
+     7087
+    ],
+    [
+     "p",
+     9517
+    ]
+   ]
+  },
+  {
+   "id": "ch_bramble",
+   "name": "Bramble Hollow",
+   "sub": "Thorns, spikes and a narrow shaft",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_bramble/sky.png",
+     "scroll": 0.15,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_bramble/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 18325,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    127,
+    182,
+    224
+   ],
+   "music": "res://assets/perry/music/level1.ogg",
+   "surfaces": [
+    [
+     5535,
+     6885,
+     930
+    ],
+    [
+     10125,
+     11205,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [
+    [
+     3645,
+     3915
+    ],
+    [
+     7965,
+     8235
+    ],
+    [
+     12285,
+     12555
+    ]
+   ],
+   "marks": [
+    [
+     "k",
+     1012
+    ],
+    [
+     "g",
+     2767
+    ],
+    [
+     "j",
+     4522
+    ],
+    [
+     "k",
+     5197
+    ],
+    [
+     "g",
+     6142
+    ],
+    [
+     "j",
+     8572
+    ],
+    [
+     "k",
+     8977
+    ],
+    [
+     "g",
+     9517
+    ],
+    [
+     "m",
+     11677
+    ],
+    [
+     "c",
+     13027
+    ],
+    [
+     "k",
+     13297
+    ],
+    [
+     "g",
+     13567
+    ],
+    [
+     "p",
+     14917
+    ],
+    [
+     "j",
+     14917
+    ]
+   ]
+  },
+  {
+   "id": "ch_watchtower",
+   "name": "Old Watchtower",
+   "sub": "Archers watch from the ledges",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_watchtower/sky.png",
+     "scroll": 0.15,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_watchtower/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 15625,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    127,
+    182,
+    224
+   ],
+   "music": "res://assets/perry/music/level3.ogg",
+   "surfaces": [
+    [
+     3510,
+     4185,
+     930
+    ],
+    [
+     4320,
+     4995,
+     800
+    ],
+    [
+     4860,
+     5400,
+     540
+    ],
+    [
+     5130,
+     5805,
+     800
+    ],
+    [
+     5940,
+     12285,
+     670
+    ],
+    [
+     6750,
+     7425,
+     540
+    ],
+    [
+     7425,
+     7830,
+     410
+    ],
+    [
+     7560,
+     8235,
+     540
+    ],
+    [
+     8370,
+     9045,
+     410
+    ],
+    [
+     9180,
+     9855,
+     280
+    ],
+    [
+     9990,
+     13500,
+     280
+    ],
+    [
+     12555,
+     12825,
+     410
+    ],
+    [
+     12960,
+     13500,
+     670
+    ]
+   ],
+   "ladders": [
+    [
+     4920,
+     800,
+     540
+    ],
+    [
+     5190,
+     1060,
+     800
+    ],
+    [
+     12615,
+     1060,
+     410
+    ],
+    [
+     13020,
+     1060,
+     670
+    ]
+   ],
+   "platforms": [],
+   "hazards": [
+    [
+     2025,
+     2295
+    ]
+   ],
+   "marks": [
+    [
+     "k",
+     1012
+    ],
+    [
+     "g",
+     2767
+    ],
+    [
+     "k",
+     3037
+    ],
+    [
+     "a",
+     3847
+    ],
+    [
+     "j",
+     4657
+    ],
+    [
+     "p",
+     5062
+    ],
+    [
+     "a",
+     5467
+    ],
+    [
+     "k",
+     6277
+    ],
+    [
+     "g",
+     7087
+    ],
+    [
+     "c",
+     7627
+    ],
+    [
+     "a",
+     7897
+    ],
+    [
+     "j",
+     8707
+    ],
+    [
+     "c",
+     8977
+    ],
+    [
+     "g",
+     9517
+    ],
+    [
+     "c",
+     10327
+    ],
+    [
+     "k",
+     10867
+    ],
+    [
+     "p",
+     12622
+    ],
+    [
+     "c",
+     13027
+    ]
+   ]
+  },
+  {
+   "id": "ch_marsh",
+   "name": "Rotting Marsh",
+   "sub": "Cracked walls and murky water",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_marsh/sky.png",
+     "scroll": 0.15,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_marsh/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 21025,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    120,
+    150,
+    110
+   ],
+   "music": "res://assets/music/mist.ogg",
+   "surfaces": [
+    [
+     6885,
+     7965,
+     930
+    ],
+    [
+     11340,
+     11745,
+     800
+    ],
+    [
+     11745,
+     12555,
+     930
+    ],
+    [
+     14445,
+     14985,
+     800
+    ],
+    [
+     16335,
+     17145,
+     930
+    ],
+    [
+     16470,
+     16875,
+     800
+    ]
+   ],
+   "ladders": [
+    [
+     14505,
+     1060,
+     800
+    ]
+   ],
+   "platforms": [],
+   "hazards": [
+    [
+     1755,
+     2025
+    ],
+    [
+     3510,
+     3780
+    ],
+    [
+     4185,
+     4455
+    ],
+    [
+     4590,
+     4860
+    ],
+    [
+     9585,
+     9855
+    ],
+    [
+     14175,
+     14445
+    ]
+   ],
+   "marks": [
+    [
+     "k",
+     742
+    ],
+    [
+     "g",
+     2767
+    ],
+    [
+     "k",
+     5197
+    ],
+    [
+     "m",
+     5467
+    ],
+    [
+     "j",
+     6142
+    ],
+    [
+     "g",
+     8167
+    ],
+    [
+     "c",
+     8707
+    ],
+    [
+     "a",
+     9247
+    ],
+    [
+     "m",
+     10462
+    ],
+    [
+     "k",
+     10867
+    ],
+    [
+     "c",
+     11542
+    ],
+    [
+     "m",
+     12892
+    ],
+    [
+     "j",
+     12892
+    ],
+    [
+     "k",
+     13702
+    ],
+    [
+     "p",
+     14647
+    ],
+    [
+     "g",
+     14917
+    ],
+    [
+     "m",
+     15997
+    ],
+    [
+     "c",
+     16672
+    ],
+    [
+     "m",
+     17617
+    ]
+   ]
+  },
+  {
+   "id": "ch_gate",
+   "name": "Castle Gate",
+   "sub": "The Warlord waits at the top",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_gate/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_gate/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 19675,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    23,
+    20,
+    31
+   ],
+   "music": "res://assets/music/cemetery.ogg",
+   "surfaces": [
+    [
+     3915,
+     4995,
+     930
+    ],
+    [
+     4185,
+     4590,
+     800
+    ],
+    [
+     8505,
+     9585,
+     930
+    ],
+    [
+     10530,
+     10935,
+     800
+    ],
+    [
+     12420,
+     13095,
+     670
+    ],
+    [
+     13635,
+     14985,
+     930
+    ]
+   ],
+   "ladders": [
+    [
+     10590,
+     1060,
+     800
+    ],
+    [
+     12480,
+     1060,
+     670
+    ]
+   ],
+   "platforms": [],
+   "hazards": [
+    [
+     3105,
+     3375
+    ],
+    [
+     6075,
+     6345
+    ],
+    [
+     11475,
+     11745
+    ]
+   ],
+   "marks": [
+    [
+     "k",
+     877
+    ],
+    [
+     "g",
+     2767
+    ],
+    [
+     "p",
+     4387
+    ],
+    [
+     "m",
+     4522
+    ],
+    [
+     "g",
+     5467
+    ],
+    [
+     "j",
+     6817
+    ],
+    [
+     "g",
+     7897
+    ],
+    [
+     "k",
+     9247
+    ],
+    [
+     "m",
+     10192
+    ],
+    [
+     "c",
+     10732
+    ],
+    [
+     "g",
+     12487
+    ],
+    [
+     "j",
+     13027
+    ],
+    [
+     "c",
+     14107
+    ],
+    [
+     "m",
+     14377
+    ],
+    [
+     "a",
+     15592
+    ],
+    [
+     "p",
+     15727
+    ],
+    [
+     "a",
+     15997
+    ]
+   ]
+  },
+  {
+   "id": "ch_undercroft",
+   "name": "Undercroft",
+   "sub": "Cold stone under the castle",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_undercroft/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_undercroft/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 22375,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    12,
+    23,
+    29
+   ],
+   "music": "res://assets/music/town.ogg",
+   "surfaces": [
+    [
+     3375,
+     4725,
+     930
+    ],
+    [
+     5400,
+     5805,
+     800
+    ],
+    [
+     6885,
+     7155,
+     930
+    ],
+    [
+     7290,
+     8235,
+     930
+    ],
+    [
+     8235,
+     9045,
+     800
+    ],
+    [
+     11475,
+     12015,
+     930
+    ],
+    [
+     12150,
+     12555,
+     800
+    ],
+    [
+     12150,
+     13095,
+     930
+    ],
+    [
+     16200,
+     16605,
+     670
+    ],
+    [
+     17685,
+     19845,
+     930
+    ]
+   ],
+   "ladders": [
+    [
+     5460,
+     1060,
+     800
+    ],
+    [
+     16260,
+     1060,
+     670
+    ]
+   ],
+   "platforms": [],
+   "hazards": [
+    [
+     14985,
+     15255
+    ]
+   ],
+   "marks": [
+    [
+     "g",
+     2497
+    ],
+    [
+     "j",
+     3847
+    ],
+    [
+     "p",
+     5602
+    ],
+    [
+     "g",
+     5737
+    ],
+    [
+     "k",
+     7492
+    ],
+    [
+     "m",
+     7627
+    ],
+    [
+     "a",
+     8707
+    ],
+    [
+     "k",
+     9517
+    ],
+    [
+     "g",
+     9787
+    ],
+    [
+     "m",
+     10327
+    ],
+    [
+     "a",
+     11947
+    ],
+    [
+     "c",
+     12352
+    ],
+    [
+     "k",
+     12352
+    ],
+    [
+     "j",
+     13567
+    ],
+    [
+     "g",
+     14107
+    ],
+    [
+     "a",
+     14242
+    ],
+    [
+     "a",
+     16267
+    ],
+    [
+     "j",
+     18427
+    ]
+   ]
+  },
+  {
+   "id": "ch_faces",
+   "name": "Hall of Faces",
+   "sub": "Every face has its throne",
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_faces/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_faces/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 23725,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    28,
+    16,
+    18
+   ],
+   "music": "res://assets/music/caverns.ogg",
+   "surfaces": [
+    [
+     2700,
+     3105,
+     800
+    ],
+    [
+     3105,
+     4185,
+     930
+    ],
+    [
+     6480,
+     9045,
+     930
+    ],
+    [
+     8100,
+     8505,
+     800
+    ],
+    [
+     10935,
+     12285,
+     930
+    ],
+    [
+     14040,
+     14445,
+     670
+    ],
+    [
+     14445,
+     16335,
+     930
+    ],
+    [
+     18225,
+     21600,
+     930
+    ]
+   ],
+   "ladders": [
+    [
+     14100,
+     1060,
+     670
+    ]
+   ],
+   "platforms": [],
+   "hazards": [],
+   "marks": [
+    [
+     "g",
+     2497
+    ],
+    [
+     "c",
+     2902
+    ],
+    [
+     "j",
+     3577
+    ],
+    [
+     "c",
+     3982
+    ],
+    [
+     "g",
+     5467
+    ],
+    [
+     "k",
+     6682
+    ],
+    [
+     "m",
+     7087
+    ],
+    [
+     "g",
+     7897
+    ],
+    [
+     "c",
+     8302
+    ],
+    [
+     "k",
+     8707
+    ],
+    [
+     "j",
+     10057
+    ],
+    [
+     "g",
+     11002
+    ],
+    [
+     "a",
+     11407
+    ],
+    [
+     "m",
+     13027
+    ],
+    [
+     "c",
+     14242
+    ],
+    [
+     "g",
+     15187
+    ],
+    [
+     "k",
+     16267
+    ],
+    [
+     "j",
+     17347
+    ],
+    [
+     "a",
+     18697
+    ],
+    [
+     "m",
+     19507
+    ]
+   ]
+  },
+  {
+   "id": "ch_throne",
+   "name": "Warlord's Throne",
+   "sub": "The Warlord of the Changeling",
+   "map_w": 7200,
+   "layers": [
+    {
+     "file": "res://assets/levels/ch_throne/sky.png",
+     "scroll": 0.12,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/ch_throne/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 9325,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    23,
+    20,
+    31
+   ],
+   "music": "res://assets/perry/music/boss5.ogg",
+   "surfaces": [
+    [
+     1800,
+     2700,
+     930
+    ],
+    [
+     4140,
+     5040,
+     930
+    ],
+    [
+     5940,
+     6840,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": [
+    [
+     "k",
+     990
+    ],
+    [
+     "W",
+     5670
+    ]
+   ]
   }
  ]
 }

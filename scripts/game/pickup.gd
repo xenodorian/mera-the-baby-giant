@@ -12,6 +12,7 @@ var spr := Sprite2D.new()
 const SCALE := 4.0
 var pop_from := Vector2.ZERO
 var pop_to := Vector2.ZERO
+var ally_id := ""              # Stage 3 phase 7: a card of this ally (empty: a random one)
 var pop_t := -1.0              # >= 0 while the item is arcing from pop_from to pop_to
 
 
@@ -21,6 +22,13 @@ func pop(from: Vector2, to: Vector2) -> void:
 	pop_to = to
 	pop_t = 0.0
 	position = from
+
+
+## a card for one ally: tinted in that ally's colour
+func set_ally(aid: String) -> void:
+	ally_id = aid
+	if kind == "card":
+		spr.modulate = Allies.COLORS.get(aid, Color(1.0, 0.45, 0.85))
 
 
 ## v: rage for spheres, stamina for blue potions (v0.8 breakables drop smaller ones); < 0 = the standard amount
@@ -103,6 +111,8 @@ func _physics_process(delta: float) -> void:
 	var r := Rect2(global_position + Vector2(-28, -80), Vector2(56, 80))
 	var touch := body.grow(28.0) if sliding else body
 	if (t > 0.4 or pull or sliding) and r.intersects(touch):
+		if kind == "card" and ally_id != "" and not Carry.room_for_card():
+			return                                  # hand full: the face card waits on the floor
 		game.collect(self)
 		queue_free()
 

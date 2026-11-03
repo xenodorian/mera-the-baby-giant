@@ -11627,6 +11627,2919 @@
    0.0
   ]
  },
+ "cl_grunt": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/grunt/idle/idle_1.png",
+     "res://assets/characters/changeling/grunt/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     36.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -48.0,
+      16.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/grunt/walk/walk_1.png",
+     "res://assets/characters/changeling/grunt/walk/walk_2.png",
+     "res://assets/characters/changeling/grunt/walk/walk_3.png",
+     "res://assets/characters/changeling/grunt/walk/walk_4.png",
+     "res://assets/characters/changeling/grunt/walk/walk_5.png",
+     "res://assets/characters/changeling/grunt/walk/walk_6.png",
+     "res://assets/characters/changeling/grunt/walk/walk_7.png",
+     "res://assets/characters/changeling/grunt/walk/walk_8.png",
+     "res://assets/characters/changeling/grunt/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     36.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -46.0,
+      9.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      8.0,
+      -1.0
+     ],
+     [
+      -17.0,
+      -47.0,
+      8.0,
+      -1.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      9.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      9.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      8.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -47.0,
+      8.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      8.0,
+      0.0
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/changeling/grunt/slash/slash_1.png",
+     "res://assets/characters/changeling/grunt/slash/slash_2.png",
+     "res://assets/characters/changeling/grunt/slash/slash_3.png",
+     "res://assets/characters/changeling/grunt/slash/slash_4.png",
+     "res://assets/characters/changeling/grunt/slash/slash_5.png",
+     "res://assets/characters/changeling/grunt/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     36.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -45.0,
+      17.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      8.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -47.0,
+      21.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      28.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      23.0,
+      0.0
+     ]
+    ]
+   },
+   "thrust": {
+    "frames": [
+     "res://assets/characters/changeling/grunt/thrust/thrust_1.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_2.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_3.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_4.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_5.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_6.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_7.png",
+     "res://assets/characters/changeling/grunt/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     36.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -47.0,
+      12.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      17.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      17.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -47.0,
+      12.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -47.0,
+      21.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -47.0,
+      24.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -47.0,
+      21.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -47.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/grunt/hurt/hurt_1.png",
+     "res://assets/characters/changeling/grunt/hurt/hurt_2.png",
+     "res://assets/characters/changeling/grunt/hurt/hurt_3.png",
+     "res://assets/characters/changeling/grunt/hurt/hurt_4.png",
+     "res://assets/characters/changeling/grunt/hurt/hurt_5.png",
+     "res://assets/characters/changeling/grunt/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     36.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -19.0,
+      -48.0,
+      11.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -40.0,
+      13.0,
+      2.0
+     ],
+     [
+      -17.0,
+      -36.0,
+      18.0,
+      2.0
+     ],
+     [
+      -17.0,
+      -30.0,
+      20.0,
+      2.0
+     ],
+     [
+      -18.0,
+      -34.0,
+      25.0,
+      2.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -16.0,
+   -47.0,
+   16.0,
+   0.0
+  ]
+ },
+ "cl_mud": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/mud_revenant/idle/idle_1.png",
+     "res://assets/characters/changeling/mud_revenant/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     31.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -47.0,
+      10.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -48.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/mud_revenant/walk/walk_1.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_2.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_3.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_4.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_5.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_6.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_7.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_8.png",
+     "res://assets/characters/changeling/mud_revenant/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     31.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -47.0,
+      10.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -46.0,
+      14.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -47.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -12.0,
+      -47.0,
+      10.0,
+      -1.0
+     ],
+     [
+      -13.0,
+      -47.0,
+      11.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -46.0,
+      13.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -47.0,
+      10.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -47.0,
+      10.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      10.0,
+      0.0
+     ]
+    ]
+   },
+   "spellcast": {
+    "frames": [
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_1.png",
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_2.png",
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_3.png",
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_4.png",
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_5.png",
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_6.png",
+     "res://assets/characters/changeling/mud_revenant/spellcast/spellcast_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     31.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -47.0,
+      10.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      12.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -47.0,
+      11.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      15.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      15.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -47.0,
+      13.0,
+      0.0
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/changeling/mud_revenant/slash/slash_1.png",
+     "res://assets/characters/changeling/mud_revenant/slash/slash_2.png",
+     "res://assets/characters/changeling/mud_revenant/slash/slash_3.png",
+     "res://assets/characters/changeling/mud_revenant/slash/slash_4.png",
+     "res://assets/characters/changeling/mud_revenant/slash/slash_5.png",
+     "res://assets/characters/changeling/mud_revenant/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     31.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -10.0,
+      -47.0,
+      10.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -45.0,
+      16.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      25.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -47.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/mud_revenant/hurt/hurt_1.png",
+     "res://assets/characters/changeling/mud_revenant/hurt/hurt_2.png",
+     "res://assets/characters/changeling/mud_revenant/hurt/hurt_3.png",
+     "res://assets/characters/changeling/mud_revenant/hurt/hurt_4.png",
+     "res://assets/characters/changeling/mud_revenant/hurt/hurt_5.png",
+     "res://assets/characters/changeling/mud_revenant/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     31.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -46.0,
+      18.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -39.0,
+      18.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -35.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -12.0,
+      -29.0,
+      19.0,
+      -1.0
+     ],
+     [
+      -13.0,
+      -34.0,
+      21.0,
+      1.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -10.0,
+   -47.0,
+   10.0,
+   0.0
+  ]
+ },
+ "cl_rat_king": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/rat_king/idle/idle_1.png",
+     "res://assets/characters/changeling/rat_king/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -62.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/rat_king/walk/walk_1.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_2.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_3.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_4.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_5.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_6.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_7.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_8.png",
+     "res://assets/characters/changeling/rat_king/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -61.0,
+      12.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -62.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -62.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -15.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -61.0,
+      12.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -62.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/changeling/rat_king/slash/slash_1.png",
+     "res://assets/characters/changeling/rat_king/slash/slash_2.png",
+     "res://assets/characters/changeling/rat_king/slash/slash_3.png",
+     "res://assets/characters/changeling/rat_king/slash/slash_4.png",
+     "res://assets/characters/changeling/rat_king/slash/slash_5.png",
+     "res://assets/characters/changeling/rat_king/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -60.0,
+      14.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -62.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -62.0,
+      20.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -62.0,
+      23.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -62.0,
+      20.0,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/rat_king/jump/jump_1.png",
+     "res://assets/characters/changeling/rat_king/jump/jump_2.png",
+     "res://assets/characters/changeling/rat_king/jump/jump_3.png",
+     "res://assets/characters/changeling/rat_king/jump/jump_4.png",
+     "res://assets/characters/changeling/rat_king/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -12.0,
+      -62.0,
+      12.0,
+      0.0
+     ],
+     [
+      -13.0,
+      -59.0,
+      15.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -62.0,
+      13.0,
+      -2.0
+     ],
+     [
+      -19.0,
+      -62.0,
+      12.0,
+      -3.0
+     ],
+     [
+      -24.0,
+      -60.0,
+      12.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/rat_king/hurt/hurt_1.png",
+     "res://assets/characters/changeling/rat_king/hurt/hurt_2.png",
+     "res://assets/characters/changeling/rat_king/hurt/hurt_3.png",
+     "res://assets/characters/changeling/rat_king/hurt/hurt_4.png",
+     "res://assets/characters/changeling/rat_king/hurt/hurt_5.png",
+     "res://assets/characters/changeling/rat_king/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     33.0,
+     62.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -62.0,
+      14.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -61.0,
+      16.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -54.0,
+      16.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -47.0,
+      16.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -38.0,
+      17.0,
+      -1.0
+     ],
+     [
+      -15.0,
+      -34.0,
+      19.0,
+      -2.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -12.0,
+   -62.0,
+   12.0,
+   0.0
+  ]
+ },
+ "cl_archer": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/archer/idle/idle_1.png",
+     "res://assets/characters/changeling/archer/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     38.0,
+     61.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -46.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/archer/shoot/shoot_1.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_2.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_3.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_4.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_5.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_6.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_7.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_8.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_9.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_10.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_11.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_12.png",
+     "res://assets/characters/changeling/archer/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     38.0,
+     61.0
+    ],
+    "boxes": [
+     [
+      -25.0,
+      -46.0,
+      19.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -46.0,
+      14.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      13.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -49.0,
+      13.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -52.0,
+      14.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -54.0,
+      14.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -52.0,
+      13.0,
+      1.0
+     ],
+     [
+      -25.0,
+      -48.0,
+      13.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      13.0,
+      1.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/archer/hurt/hurt_1.png",
+     "res://assets/characters/changeling/archer/hurt/hurt_2.png",
+     "res://assets/characters/changeling/archer/hurt/hurt_3.png",
+     "res://assets/characters/changeling/archer/hurt/hurt_4.png",
+     "res://assets/characters/changeling/archer/hurt/hurt_5.png",
+     "res://assets/characters/changeling/archer/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     38.0,
+     61.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -45.0,
+      23.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -38.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -34.0,
+      16.0,
+      3.0
+     ],
+     [
+      -19.0,
+      -28.0,
+      25.0,
+      2.0
+     ],
+     [
+      -20.0,
+      -33.0,
+      25.0,
+      2.0
+     ]
+    ]
+   },
+   "arrow": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow/arrow_.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     256,
+     128
+    ],
+    "pivot": [
+     128.0,
+     65.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -3.0,
+      16.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.0,
+   -46.0,
+   22.0,
+   0.0
+  ]
+ },
+ "cl_warlord": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/idle/idle_1.png",
+     "res://assets/characters/changeling/warlord/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/walk/walk_1.png",
+     "res://assets/characters/changeling/warlord/walk/walk_2.png",
+     "res://assets/characters/changeling/warlord/walk/walk_3.png",
+     "res://assets/characters/changeling/warlord/walk/walk_4.png",
+     "res://assets/characters/changeling/warlord/walk/walk_5.png",
+     "res://assets/characters/changeling/warlord/walk/walk_6.png",
+     "res://assets/characters/changeling/warlord/walk/walk_7.png",
+     "res://assets/characters/changeling/warlord/walk/walk_8.png",
+     "res://assets/characters/changeling/warlord/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -49.0,
+      25.0,
+      -1.0
+     ],
+     [
+      -18.0,
+      -50.0,
+      25.0,
+      -2.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      24.0,
+      -2.0
+     ],
+     [
+      -21.0,
+      -52.0,
+      19.0,
+      -1.0
+     ],
+     [
+      -23.0,
+      -52.0,
+      11.0,
+      -1.0
+     ],
+     [
+      -21.0,
+      -52.0,
+      17.0,
+      -1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      23.0,
+      -1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      25.0,
+      -1.0
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/slash/slash_1.png",
+     "res://assets/characters/changeling/warlord/slash/slash_2.png",
+     "res://assets/characters/changeling/warlord/slash/slash_3.png",
+     "res://assets/characters/changeling/warlord/slash/slash_4.png",
+     "res://assets/characters/changeling/warlord/slash/slash_5.png",
+     "res://assets/characters/changeling/warlord/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -50.0,
+      25.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -48.0,
+      14.0,
+      1.0
+     ],
+     [
+      -29.0,
+      -50.0,
+      7.0,
+      1.0
+     ],
+     [
+      -38.0,
+      -50.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      25.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      25.0,
+      1.0
+     ]
+    ]
+   },
+   "thrust": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/thrust/thrust_1.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_2.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_3.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_4.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_5.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_6.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_7.png",
+     "res://assets/characters/changeling/warlord/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -50.0,
+      25.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      25.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -50.0,
+      25.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      25.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      25.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      25.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      25.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      25.0,
+      1.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/shoot/shoot_1.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_2.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_3.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_4.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_5.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_6.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_7.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_8.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_9.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_10.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_11.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_12.png",
+     "res://assets/characters/changeling/warlord/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -19.0,
+      -50.0,
+      3.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      5.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      10.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -26.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      12.0,
+      1.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/jump/jump_1.png",
+     "res://assets/characters/changeling/warlord/jump/jump_2.png",
+     "res://assets/characters/changeling/warlord/jump/jump_3.png",
+     "res://assets/characters/changeling/warlord/jump/jump_4.png",
+     "res://assets/characters/changeling/warlord/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -53.0,
+      18.0,
+      -2.0
+     ],
+     [
+      -25.0,
+      -53.0,
+      18.0,
+      -2.0
+     ],
+     [
+      -30.0,
+      -53.0,
+      18.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/warlord/hurt/hurt_1.png",
+     "res://assets/characters/changeling/warlord/hurt/hurt_2.png",
+     "res://assets/characters/changeling/warlord/hurt/hurt_3.png",
+     "res://assets/characters/changeling/warlord/hurt/hurt_4.png",
+     "res://assets/characters/changeling/warlord/hurt/hurt_5.png",
+     "res://assets/characters/changeling/warlord/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     64,
+     64
+    ],
+    "pivot": [
+     39.0,
+     63.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -49.0,
+      8.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -48.0,
+      10.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -42.0,
+      10.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -40.0,
+      10.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -31.0,
+      13.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -35.0,
+      19.0,
+      1.0
+     ]
+    ]
+   },
+   "arrow": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow/arrow_.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     256,
+     128
+    ],
+    "pivot": [
+     128.0,
+     65.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -3.0,
+      16.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -18.0,
+   -53.0,
+   18.0,
+   0.0
+  ]
+ },
+ "cl_knight": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/knight/idle/idle_1.png",
+     "res://assets/characters/changeling/knight/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/knight/walk/walk_1.png",
+     "res://assets/characters/changeling/knight/walk/walk_2.png",
+     "res://assets/characters/changeling/knight/walk/walk_3.png",
+     "res://assets/characters/changeling/knight/walk/walk_4.png",
+     "res://assets/characters/changeling/knight/walk/walk_5.png",
+     "res://assets/characters/changeling/knight/walk/walk_6.png",
+     "res://assets/characters/changeling/knight/walk/walk_7.png",
+     "res://assets/characters/changeling/knight/walk/walk_8.png",
+     "res://assets/characters/changeling/knight/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -49.0,
+      25.0,
+      -1.0
+     ],
+     [
+      -18.0,
+      -50.0,
+      25.0,
+      -2.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      24.0,
+      -2.0
+     ],
+     [
+      -21.0,
+      -52.0,
+      19.0,
+      -1.0
+     ],
+     [
+      -23.0,
+      -52.0,
+      11.0,
+      -1.0
+     ],
+     [
+      -21.0,
+      -52.0,
+      17.0,
+      -1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      23.0,
+      -1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      25.0,
+      -1.0
+     ]
+    ]
+   },
+   "slash": {
+    "frames": [
+     "res://assets/characters/changeling/knight/slash/slash_1.png",
+     "res://assets/characters/changeling/knight/slash/slash_2.png",
+     "res://assets/characters/changeling/knight/slash/slash_3.png",
+     "res://assets/characters/changeling/knight/slash/slash_4.png",
+     "res://assets/characters/changeling/knight/slash/slash_5.png",
+     "res://assets/characters/changeling/knight/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -50.0,
+      37.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -48.0,
+      14.0,
+      1.0
+     ],
+     [
+      -29.0,
+      -50.0,
+      7.0,
+      1.0
+     ],
+     [
+      -38.0,
+      -50.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      74.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      72.0,
+      1.0
+     ]
+    ]
+   },
+   "thrust": {
+    "frames": [
+     "res://assets/characters/changeling/knight/thrust/thrust_1.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_2.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_3.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_4.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_5.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_6.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_7.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -50.0,
+      37.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      32.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      32.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      36.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      47.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      53.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      47.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      40.0,
+      1.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/knight/hurt/hurt_1.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_2.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_3.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_4.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_5.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -49.0,
+      10.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -48.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -42.0,
+      12.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -40.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -31.0,
+      13.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -35.0,
+      19.0,
+      1.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -18.0,
+   -53.0,
+   18.0,
+   0.0
+  ]
+ },
+ "cl_ranger": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/idle/idle_1.png",
+     "res://assets/characters/changeling/ranger/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -48.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/walk/walk_1.png",
+     "res://assets/characters/changeling/ranger/walk/walk_2.png",
+     "res://assets/characters/changeling/ranger/walk/walk_3.png",
+     "res://assets/characters/changeling/ranger/walk/walk_4.png",
+     "res://assets/characters/changeling/ranger/walk/walk_5.png",
+     "res://assets/characters/changeling/ranger/walk/walk_6.png",
+     "res://assets/characters/changeling/ranger/walk/walk_7.png",
+     "res://assets/characters/changeling/ranger/walk/walk_8.png",
+     "res://assets/characters/changeling/ranger/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -46.0,
+      19.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -47.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -31.0,
+      -47.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -27.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -46.0,
+      14.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -47.0,
+      15.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -47.0,
+      20.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -47.0,
+      19.0,
+      0.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/shoot/shoot_1.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_2.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_3.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_4.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_5.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_6.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_7.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_8.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_9.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_10.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_11.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_12.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -25.0,
+      -47.0,
+      19.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      14.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      13.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -53.0,
+      14.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -55.0,
+      14.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -53.0,
+      13.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -49.0,
+      13.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -51.0,
+      13.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -51.0,
+      13.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -51.0,
+      13.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -51.0,
+      13.0,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/jump/jump_1.png",
+     "res://assets/characters/changeling/ranger/jump/jump_2.png",
+     "res://assets/characters/changeling/ranger/jump/jump_3.png",
+     "res://assets/characters/changeling/ranger/jump/jump_4.png",
+     "res://assets/characters/changeling/ranger/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -44.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -49.0,
+      22.0,
+      -2.0
+     ],
+     [
+      -24.0,
+      -51.0,
+      22.0,
+      -3.0
+     ],
+     [
+      -29.0,
+      -46.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/hurt/hurt_1.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_2.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_3.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_4.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_5.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -48.0,
+      16.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      23.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -40.0,
+      19.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      16.0,
+      2.0
+     ],
+     [
+      -19.0,
+      -30.0,
+      25.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -34.0,
+      25.0,
+      1.0
+     ]
+    ]
+   },
+   "arrow": {
+    "frames": [
+     "res://assets/characters/chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow/arrow_.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     256,
+     128
+    ],
+    "pivot": [
+     128.0,
+     65.0
+    ],
+    "boxes": [
+     [
+      -16.0,
+      -3.0,
+      16.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.0,
+   -47.0,
+   22.0,
+   0.0
+  ]
+ },
+ "cl_weaver": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/idle/idle_1.png",
+     "res://assets/characters/changeling/weaver/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -46.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/walk/walk_1.png",
+     "res://assets/characters/changeling/weaver/walk/walk_2.png",
+     "res://assets/characters/changeling/weaver/walk/walk_3.png",
+     "res://assets/characters/changeling/weaver/walk/walk_4.png",
+     "res://assets/characters/changeling/weaver/walk/walk_5.png",
+     "res://assets/characters/changeling/weaver/walk/walk_6.png",
+     "res://assets/characters/changeling/weaver/walk/walk_7.png",
+     "res://assets/characters/changeling/weaver/walk/walk_8.png",
+     "res://assets/characters/changeling/weaver/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -46.0,
+      22.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -45.0,
+      19.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -46.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -31.0,
+      -46.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -27.0,
+      -46.0,
+      13.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -45.0,
+      14.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -46.0,
+      15.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -46.0,
+      20.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -46.0,
+      19.0,
+      0.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/shoot/shoot_1.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_2.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_3.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_4.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_5.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_6.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_7.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_8.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_9.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_10.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_11.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_12.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -25.0,
+      -46.0,
+      19.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -46.0,
+      14.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      13.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -49.0,
+      13.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -52.0,
+      14.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -54.0,
+      14.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -52.0,
+      13.0,
+      1.0
+     ],
+     [
+      -25.0,
+      -48.0,
+      13.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      13.0,
+      1.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/hurt/hurt_1.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_2.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_3.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_4.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_5.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -45.0,
+      23.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -38.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -34.0,
+      16.0,
+      3.0
+     ],
+     [
+      -19.0,
+      -28.0,
+      25.0,
+      2.0
+     ],
+     [
+      -20.0,
+      -33.0,
+      25.0,
+      2.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.0,
+   -46.0,
+   22.0,
+   0.0
+  ]
+ },
+ "cl_mage": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/mage/idle/idle_1.png",
+     "res://assets/characters/changeling/mage/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -57.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/mage/walk/walk_1.png",
+     "res://assets/characters/changeling/mage/walk/walk_2.png",
+     "res://assets/characters/changeling/mage/walk/walk_3.png",
+     "res://assets/characters/changeling/mage/walk/walk_4.png",
+     "res://assets/characters/changeling/mage/walk/walk_5.png",
+     "res://assets/characters/changeling/mage/walk/walk_6.png",
+     "res://assets/characters/changeling/mage/walk/walk_7.png",
+     "res://assets/characters/changeling/mage/walk/walk_8.png",
+     "res://assets/characters/changeling/mage/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -55.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -55.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "spellcast": {
+    "frames": [
+     "res://assets/characters/changeling/mage/spellcast/spellcast_1.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_2.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_3.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_4.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_5.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_6.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/mage/jump/jump_1.png",
+     "res://assets/characters/changeling/mage/jump/jump_2.png",
+     "res://assets/characters/changeling/mage/jump/jump_3.png",
+     "res://assets/characters/changeling/mage/jump/jump_4.png",
+     "res://assets/characters/changeling/mage/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -53.0,
+      17.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -57.0,
+      14.0,
+      -2.0
+     ],
+     [
+      -15.0,
+      -59.0,
+      14.0,
+      -3.0
+     ],
+     [
+      -20.0,
+      -55.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "hurt": {
+    "frames": [
+     "res://assets/characters/changeling/mage/hurt/hurt_1.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_2.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_3.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_4.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_5.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_6.png"
+    ],
+    "fps": 8,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -55.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -48.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -43.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -38.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -13.0,
+      -34.0,
+      21.0,
+      1.0
+     ]
+    ]
+   },
+   "bolt": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_1.png",
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_2.png",
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_3.png",
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_4.png"
+    ],
+    "fps": 14,
+    "loop": true,
+    "size": [
+     50,
+     50
+    ],
+    "pivot": [
+     25.5,
+     31.0
+    ],
+    "boxes": [
+     [
+      -11.5,
+      -11.0,
+      11.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -11.0,
+      11.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -11.0,
+      11.5,
+      0.0
+     ],
+     [
+      -18.5,
+      -11.0,
+      11.5,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -14.0,
+   -56.0,
+   14.0,
+   0.0
+  ]
+ },
  "priestess": {
   "facing": 1,
   "flyer": false,
@@ -15591,6 +18504,2958 @@
    -50.0,
    12.0,
    0.0
+  ]
+ },
+ "ally_cl_knight": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/knight/idle/idle_1.png",
+     "res://assets/characters/changeling/knight/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/knight/walk/walk_1.png",
+     "res://assets/characters/changeling/knight/walk/walk_2.png",
+     "res://assets/characters/changeling/knight/walk/walk_3.png",
+     "res://assets/characters/changeling/knight/walk/walk_4.png",
+     "res://assets/characters/changeling/knight/walk/walk_5.png",
+     "res://assets/characters/changeling/knight/walk/walk_6.png",
+     "res://assets/characters/changeling/knight/walk/walk_7.png",
+     "res://assets/characters/changeling/knight/walk/walk_8.png",
+     "res://assets/characters/changeling/knight/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -49.0,
+      25.0,
+      -1.0
+     ],
+     [
+      -18.0,
+      -50.0,
+      25.0,
+      -2.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      24.0,
+      -2.0
+     ],
+     [
+      -21.0,
+      -52.0,
+      19.0,
+      -1.0
+     ],
+     [
+      -23.0,
+      -52.0,
+      11.0,
+      -1.0
+     ],
+     [
+      -21.0,
+      -52.0,
+      17.0,
+      -1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      23.0,
+      -1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      25.0,
+      -1.0
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/changeling/knight/slash/slash_1.png",
+     "res://assets/characters/changeling/knight/slash/slash_2.png",
+     "res://assets/characters/changeling/knight/slash/slash_3.png",
+     "res://assets/characters/changeling/knight/slash/slash_4.png",
+     "res://assets/characters/changeling/knight/slash/slash_5.png",
+     "res://assets/characters/changeling/knight/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -50.0,
+      37.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -48.0,
+      14.0,
+      1.0
+     ],
+     [
+      -29.0,
+      -50.0,
+      7.0,
+      1.0
+     ],
+     [
+      -38.0,
+      -50.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      74.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -50.0,
+      72.0,
+      1.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/changeling/knight/thrust/thrust_1.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_2.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_3.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_4.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_5.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_6.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_7.png",
+     "res://assets/characters/changeling/knight/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -50.0,
+      37.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      32.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      32.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      36.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      47.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      53.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      47.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      40.0,
+      1.0
+     ]
+    ]
+   },
+   "cast": {
+    "frames": [
+     "res://assets/characters/changeling/knight/spellcast/spellcast_1.png",
+     "res://assets/characters/changeling/knight/spellcast/spellcast_2.png",
+     "res://assets/characters/changeling/knight/spellcast/spellcast_3.png",
+     "res://assets/characters/changeling/knight/spellcast/spellcast_4.png",
+     "res://assets/characters/changeling/knight/spellcast/spellcast_5.png",
+     "res://assets/characters/changeling/knight/spellcast/spellcast_6.png",
+     "res://assets/characters/changeling/knight/spellcast/spellcast_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -50.0,
+      4.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      4.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      4.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      5.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -50.0,
+      7.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -50.0,
+      7.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -50.0,
+      5.0,
+      0.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/knight/shoot/shoot_1.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_2.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_3.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_4.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_5.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_6.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_7.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_8.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_9.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_10.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_11.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_12.png",
+     "res://assets/characters/changeling/knight/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -24.0,
+      -50.0,
+      3.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      5.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      10.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -26.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -50.0,
+      12.0,
+      1.0
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/changeling/knight/hurt/hurt_1.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_2.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_3.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_4.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_5.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -49.0,
+      10.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -48.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -42.0,
+      12.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -40.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -31.0,
+      13.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -35.0,
+      19.0,
+      1.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/changeling/knight/hurt/hurt_1.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_2.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_3.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_4.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_5.png",
+     "res://assets/characters/changeling/knight/hurt/hurt_6.png"
+    ],
+    "fps": 6,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -49.0,
+      10.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -48.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -42.0,
+      12.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -40.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -31.0,
+      13.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -35.0,
+      19.0,
+      1.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/knight/jump/jump_1.png",
+     "res://assets/characters/changeling/knight/jump/jump_2.png",
+     "res://assets/characters/changeling/knight/jump/jump_3.png",
+     "res://assets/characters/changeling/knight/jump/jump_4.png",
+     "res://assets/characters/changeling/knight/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     103.0,
+     127.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -53.0,
+      18.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -53.0,
+      18.0,
+      -2.0
+     ],
+     [
+      -25.0,
+      -53.0,
+      18.0,
+      -2.0
+     ],
+     [
+      -30.0,
+      -53.0,
+      18.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -18.0,
+   -53.0,
+   18.0,
+   0.0
+  ]
+ },
+ "ally_cl_ranger": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/idle/idle_1.png",
+     "res://assets/characters/changeling/ranger/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -48.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/walk/walk_1.png",
+     "res://assets/characters/changeling/ranger/walk/walk_2.png",
+     "res://assets/characters/changeling/ranger/walk/walk_3.png",
+     "res://assets/characters/changeling/ranger/walk/walk_4.png",
+     "res://assets/characters/changeling/ranger/walk/walk_5.png",
+     "res://assets/characters/changeling/ranger/walk/walk_6.png",
+     "res://assets/characters/changeling/ranger/walk/walk_7.png",
+     "res://assets/characters/changeling/ranger/walk/walk_8.png",
+     "res://assets/characters/changeling/ranger/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -46.0,
+      19.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -47.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -31.0,
+      -47.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -27.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -46.0,
+      14.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -47.0,
+      15.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -47.0,
+      20.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -47.0,
+      19.0,
+      0.0
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/slash/slash_1.png",
+     "res://assets/characters/changeling/ranger/slash/slash_2.png",
+     "res://assets/characters/changeling/ranger/slash/slash_3.png",
+     "res://assets/characters/changeling/ranger/slash/slash_4.png",
+     "res://assets/characters/changeling/ranger/slash/slash_5.png",
+     "res://assets/characters/changeling/ranger/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -47.0,
+      5.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -45.0,
+      9.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      7.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -47.0,
+      15.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      18.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      15.0,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/thrust/thrust_1.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_2.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_3.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_4.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_5.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_6.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_7.png",
+     "res://assets/characters/changeling/ranger/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -47.0,
+      5.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      7.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -47.0,
+      7.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      5.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      11.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      14.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -47.0,
+      11.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      5.0,
+      0.0
+     ]
+    ]
+   },
+   "cast": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_1.png",
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_2.png",
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_3.png",
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_4.png",
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_5.png",
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_6.png",
+     "res://assets/characters/changeling/ranger/spellcast/spellcast_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -18.0,
+      -47.0,
+      5.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      5.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -47.0,
+      5.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -47.0,
+      6.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -47.0,
+      8.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -47.0,
+      8.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      6.0,
+      0.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/shoot/shoot_1.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_2.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_3.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_4.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_5.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_6.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_7.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_8.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_9.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_10.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_11.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_12.png",
+     "res://assets/characters/changeling/ranger/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -25.0,
+      -47.0,
+      19.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      14.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      16.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      13.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      13.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -53.0,
+      14.0,
+      0.0
+     ],
+     [
+      -20.0,
+      -55.0,
+      14.0,
+      0.0
+     ],
+     [
+      -23.0,
+      -53.0,
+      13.0,
+      0.0
+     ],
+     [
+      -25.0,
+      -49.0,
+      13.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -51.0,
+      13.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -51.0,
+      13.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -51.0,
+      13.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -51.0,
+      13.0,
+      0.0
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/hurt/hurt_1.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_2.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_3.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_4.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_5.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -48.0,
+      16.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      23.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -40.0,
+      19.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      16.0,
+      2.0
+     ],
+     [
+      -19.0,
+      -30.0,
+      25.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -34.0,
+      25.0,
+      1.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/hurt/hurt_1.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_2.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_3.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_4.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_5.png",
+     "res://assets/characters/changeling/ranger/hurt/hurt_6.png"
+    ],
+    "fps": 6,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -48.0,
+      16.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -47.0,
+      23.0,
+      0.0
+     ],
+     [
+      -21.0,
+      -40.0,
+      19.0,
+      0.0
+     ],
+     [
+      -19.0,
+      -36.0,
+      16.0,
+      2.0
+     ],
+     [
+      -19.0,
+      -30.0,
+      25.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -34.0,
+      25.0,
+      1.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/ranger/jump/jump_1.png",
+     "res://assets/characters/changeling/ranger/jump/jump_2.png",
+     "res://assets/characters/changeling/ranger/jump/jump_3.png",
+     "res://assets/characters/changeling/ranger/jump/jump_4.png",
+     "res://assets/characters/changeling/ranger/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -44.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -49.0,
+      22.0,
+      -2.0
+     ],
+     [
+      -24.0,
+      -51.0,
+      22.0,
+      -3.0
+     ],
+     [
+      -29.0,
+      -46.0,
+      22.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.0,
+   -47.0,
+   22.0,
+   0.0
+  ]
+ },
+ "ally_cl_weaver": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/idle/idle_1.png",
+     "res://assets/characters/changeling/weaver/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -46.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/walk/walk_1.png",
+     "res://assets/characters/changeling/weaver/walk/walk_2.png",
+     "res://assets/characters/changeling/weaver/walk/walk_3.png",
+     "res://assets/characters/changeling/weaver/walk/walk_4.png",
+     "res://assets/characters/changeling/weaver/walk/walk_5.png",
+     "res://assets/characters/changeling/weaver/walk/walk_6.png",
+     "res://assets/characters/changeling/weaver/walk/walk_7.png",
+     "res://assets/characters/changeling/weaver/walk/walk_8.png",
+     "res://assets/characters/changeling/weaver/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -46.0,
+      22.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -45.0,
+      19.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -46.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -31.0,
+      -46.0,
+      12.0,
+      -1.0
+     ],
+     [
+      -27.0,
+      -46.0,
+      13.0,
+      0.0
+     ],
+     [
+      -26.0,
+      -45.0,
+      14.0,
+      0.0
+     ],
+     [
+      -28.0,
+      -46.0,
+      15.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -46.0,
+      20.0,
+      0.0
+     ],
+     [
+      -24.0,
+      -46.0,
+      19.0,
+      0.0
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/slash/slash_1.png",
+     "res://assets/characters/changeling/weaver/slash/slash_2.png",
+     "res://assets/characters/changeling/weaver/slash/slash_3.png",
+     "res://assets/characters/changeling/weaver/slash/slash_4.png",
+     "res://assets/characters/changeling/weaver/slash/slash_5.png",
+     "res://assets/characters/changeling/weaver/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -17.0,
+      -46.0,
+      3.0,
+      1.0
+     ],
+     [
+      -16.0,
+      -44.0,
+      9.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -46.0,
+      6.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -46.0,
+      15.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -46.0,
+      18.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -46.0,
+      15.0,
+      1.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/thrust/thrust_1.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_2.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_3.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_4.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_5.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_6.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_7.png",
+     "res://assets/characters/changeling/weaver/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -17.0,
+      -46.0,
+      3.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -46.0,
+      7.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      7.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      4.0,
+      1.0
+     ],
+     [
+      -16.0,
+      -46.0,
+      11.0,
+      1.0
+     ],
+     [
+      -16.0,
+      -46.0,
+      14.0,
+      1.0
+     ],
+     [
+      -16.0,
+      -46.0,
+      11.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      4.0,
+      1.0
+     ]
+    ]
+   },
+   "cast": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_1.png",
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_2.png",
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_3.png",
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_4.png",
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_5.png",
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_6.png",
+     "res://assets/characters/changeling/weaver/spellcast/spellcast_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -17.0,
+      -46.0,
+      3.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -46.0,
+      5.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -46.0,
+      4.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      6.0,
+      1.0
+     ],
+     [
+      -25.0,
+      -46.0,
+      8.0,
+      1.0
+     ],
+     [
+      -25.0,
+      -46.0,
+      8.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -46.0,
+      6.0,
+      1.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/shoot/shoot_1.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_2.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_3.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_4.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_5.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_6.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_7.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_8.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_9.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_10.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_11.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_12.png",
+     "res://assets/characters/changeling/weaver/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -25.0,
+      -46.0,
+      19.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -46.0,
+      14.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -46.0,
+      13.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -49.0,
+      13.0,
+      1.0
+     ],
+     [
+      -18.0,
+      -52.0,
+      14.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -54.0,
+      14.0,
+      1.0
+     ],
+     [
+      -23.0,
+      -52.0,
+      13.0,
+      1.0
+     ],
+     [
+      -25.0,
+      -48.0,
+      13.0,
+      1.0
+     ],
+     [
+      -22.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -17.0,
+      -50.0,
+      13.0,
+      1.0
+     ],
+     [
+      -20.0,
+      -50.0,
+      13.0,
+      1.0
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/hurt/hurt_1.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_2.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_3.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_4.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_5.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -45.0,
+      23.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -38.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -34.0,
+      16.0,
+      3.0
+     ],
+     [
+      -19.0,
+      -28.0,
+      25.0,
+      2.0
+     ],
+     [
+      -20.0,
+      -33.0,
+      25.0,
+      2.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/hurt/hurt_1.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_2.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_3.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_4.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_5.png",
+     "res://assets/characters/changeling/weaver/hurt/hurt_6.png"
+    ],
+    "fps": 6,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -21.0,
+      -46.0,
+      16.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -45.0,
+      23.0,
+      1.0
+     ],
+     [
+      -21.0,
+      -38.0,
+      19.0,
+      1.0
+     ],
+     [
+      -19.0,
+      -34.0,
+      16.0,
+      3.0
+     ],
+     [
+      -19.0,
+      -28.0,
+      25.0,
+      2.0
+     ],
+     [
+      -20.0,
+      -33.0,
+      25.0,
+      2.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/weaver/jump/jump_1.png",
+     "res://assets/characters/changeling/weaver/jump/jump_2.png",
+     "res://assets/characters/changeling/weaver/jump/jump_3.png",
+     "res://assets/characters/changeling/weaver/jump/jump_4.png",
+     "res://assets/characters/changeling/weaver/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     102.0,
+     125.0
+    ],
+    "boxes": [
+     [
+      -22.0,
+      -46.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -43.0,
+      22.0,
+      0.0
+     ],
+     [
+      -22.0,
+      -47.0,
+      22.0,
+      -13.0
+     ],
+     [
+      -22.0,
+      -49.0,
+      22.0,
+      -13.0
+     ],
+     [
+      -22.0,
+      -45.0,
+      22.0,
+      -13.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -22.0,
+   -46.0,
+   22.0,
+   0.0
+  ]
+ },
+ "ally_cl_mage": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/changeling/mage/idle/idle_1.png",
+     "res://assets/characters/changeling/mage/idle/idle_2.png"
+    ],
+    "fps": 8,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -57.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/changeling/mage/walk/walk_1.png",
+     "res://assets/characters/changeling/mage/walk/walk_2.png",
+     "res://assets/characters/changeling/mage/walk/walk_3.png",
+     "res://assets/characters/changeling/mage/walk/walk_4.png",
+     "res://assets/characters/changeling/mage/walk/walk_5.png",
+     "res://assets/characters/changeling/mage/walk/walk_6.png",
+     "res://assets/characters/changeling/mage/walk/walk_7.png",
+     "res://assets/characters/changeling/mage/walk/walk_8.png",
+     "res://assets/characters/changeling/mage/walk/walk_9.png"
+    ],
+    "fps": 10,
+    "loop": true,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -55.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      -1.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -55.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/changeling/mage/slash/slash_1.png",
+     "res://assets/characters/changeling/mage/slash/slash_2.png",
+     "res://assets/characters/changeling/mage/slash/slash_3.png",
+     "res://assets/characters/changeling/mage/slash/slash_4.png",
+     "res://assets/characters/changeling/mage/slash/slash_5.png",
+     "res://assets/characters/changeling/mage/slash/slash_6.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      25.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -54.0,
+      16.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -56.0,
+      16.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -56.0,
+      21.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -56.0,
+      33.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -56.0,
+      33.0,
+      0.0
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/changeling/mage/thrust/thrust_1.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_2.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_3.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_4.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_5.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_6.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_7.png",
+     "res://assets/characters/changeling/mage/thrust/thrust_8.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -56.0,
+      17.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -12.0,
+      -56.0,
+      17.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "cast": {
+    "frames": [
+     "res://assets/characters/changeling/mage/spellcast/spellcast_1.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_2.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_3.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_4.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_5.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_6.png",
+     "res://assets/characters/changeling/mage/spellcast/spellcast_7.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -17.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ]
+    ]
+   },
+   "shoot": {
+    "frames": [
+     "res://assets/characters/changeling/mage/shoot/shoot_1.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_2.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_3.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_4.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_5.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_6.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_7.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_8.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_9.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_10.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_11.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_12.png",
+     "res://assets/characters/changeling/mage/shoot/shoot_13.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -15.0,
+      -56.0,
+      13.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      13.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      18.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      21.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      21.0,
+      0.0
+     ],
+     [
+      -16.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -18.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      20.0,
+      0.0
+     ],
+     [
+      -15.0,
+      -56.0,
+      20.0,
+      0.0
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/changeling/mage/hurt/hurt_1.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_2.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_3.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_4.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_5.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_6.png"
+    ],
+    "fps": 10,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -55.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -48.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -43.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -38.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -13.0,
+      -34.0,
+      21.0,
+      1.0
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/changeling/mage/hurt/hurt_1.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_2.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_3.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_4.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_5.png",
+     "res://assets/characters/changeling/mage/hurt/hurt_6.png"
+    ],
+    "fps": 6,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -13.0,
+      -56.0,
+      15.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -55.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -48.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -43.0,
+      17.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -38.0,
+      18.0,
+      -1.0
+     ],
+     [
+      -13.0,
+      -34.0,
+      21.0,
+      1.0
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/changeling/mage/jump/jump_1.png",
+     "res://assets/characters/changeling/mage/jump/jump_2.png",
+     "res://assets/characters/changeling/mage/jump/jump_3.png",
+     "res://assets/characters/changeling/mage/jump/jump_4.png",
+     "res://assets/characters/changeling/mage/jump/jump_5.png"
+    ],
+    "fps": 12,
+    "loop": false,
+    "size": [
+     192,
+     192
+    ],
+    "pivot": [
+     95.0,
+     126.0
+    ],
+    "boxes": [
+     [
+      -14.0,
+      -56.0,
+      14.0,
+      0.0
+     ],
+     [
+      -11.0,
+      -53.0,
+      17.0,
+      0.0
+     ],
+     [
+      -14.0,
+      -57.0,
+      14.0,
+      -2.0
+     ],
+     [
+      -15.0,
+      -59.0,
+      14.0,
+      -3.0
+     ],
+     [
+      -20.0,
+      -55.0,
+      14.0,
+      0.0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -14.0,
+   -56.0,
+   14.0,
+   0.0
+  ]
+ },
+ "ally_perry": {
+  "facing": 1,
+  "flyer": false,
+  "anims": {
+   "idle": {
+    "frames": [
+     "res://assets/characters/perry/player/idle/idle_1.png",
+     "res://assets/characters/perry/player/idle/idle_2.png",
+     "res://assets/characters/perry/player/idle/idle_3.png",
+     "res://assets/characters/perry/player/idle/idle_4.png"
+    ],
+    "fps": 3.5,
+    "loop": true,
+    "size": [
+     132,
+     93
+    ],
+    "pivot": [
+     66.0,
+     92
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -91,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -89,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "walk": {
+    "frames": [
+     "res://assets/characters/perry/player/walk_right/walk_right_1.png",
+     "res://assets/characters/perry/player/walk_right/walk_right_2.png",
+     "res://assets/characters/perry/player/walk_right/walk_right_3.png",
+     "res://assets/characters/perry/player/walk_right/walk_right_4.png",
+     "res://assets/characters/perry/player/walk_right/walk_right_5.png"
+    ],
+    "fps": 10.0,
+    "loop": true,
+    "size": [
+     131,
+     93
+    ],
+    "pivot": [
+     65.0,
+     92
+    ],
+    "boxes": [
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -65.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "atk1": {
+    "frames": [
+     "res://assets/characters/perry/player/slash/slash_1.png",
+     "res://assets/characters/perry/player/slash/slash_2.png",
+     "res://assets/characters/perry/player/slash/slash_3.png",
+     "res://assets/characters/perry/player/slash/slash_4.png",
+     "res://assets/characters/perry/player/slash/slash_5.png",
+     "res://assets/characters/perry/player/slash/slash_6.png"
+    ],
+    "fps": 11.3,
+    "loop": false,
+    "size": [
+     222,
+     93
+    ],
+    "pivot": [
+     137.0,
+     92
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -137.0,
+      -80,
+      13.0,
+      1
+     ],
+     [
+      -108.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      84.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      80.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "atk2": {
+    "frames": [
+     "res://assets/characters/perry/player/thrust/thrust_1.png",
+     "res://assets/characters/perry/player/thrust/thrust_2.png",
+     "res://assets/characters/perry/player/thrust/thrust_3.png",
+     "res://assets/characters/perry/player/thrust/thrust_4.png",
+     "res://assets/characters/perry/player/thrust/thrust_5.png",
+     "res://assets/characters/perry/player/thrust/thrust_6.png"
+    ],
+    "fps": 11.8,
+    "loop": false,
+    "size": [
+     160,
+     94
+    ],
+    "pivot": [
+     70.0,
+     92
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "atk3": {
+    "frames": [
+     "res://assets/characters/perry/player/spin_attack/spin_attack_1.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_2.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_3.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_4.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_5.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_6.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_7.png",
+     "res://assets/characters/perry/player/spin_attack/spin_attack_8.png"
+    ],
+    "fps": 12.9,
+    "loop": false,
+    "size": [
+     233,
+     93
+    ],
+    "pivot": [
+     148.0,
+     92
+    ],
+    "boxes": [
+     [
+      -137.0,
+      -80,
+      13.0,
+      1
+     ],
+     [
+      -148.0,
+      -80,
+      40.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      74.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      84.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      80.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "sp": {
+    "frames": [
+     "res://assets/characters/perry/player/energy_wave/energy_wave_1.png",
+     "res://assets/characters/perry/player/energy_wave/energy_wave_2.png",
+     "res://assets/characters/perry/player/energy_wave/energy_wave_3.png",
+     "res://assets/characters/perry/player/energy_wave/energy_wave_4.png",
+     "res://assets/characters/perry/player/energy_wave/energy_wave_5.png",
+     "res://assets/characters/perry/player/energy_wave/energy_wave_6.png",
+     "res://assets/characters/perry/player/energy_wave/energy_wave_7.png"
+    ],
+    "fps": 12.3,
+    "loop": false,
+    "size": [
+     419,
+     173
+    ],
+    "pivot": [
+     132.0,
+     172
+    ],
+    "boxes": [
+     [
+      -130.0,
+      -62,
+      13.0,
+      1
+     ],
+     [
+      -67.0,
+      -157,
+      13.0,
+      1
+     ],
+     [
+      -69.0,
+      -166,
+      12.0,
+      1
+     ],
+     [
+      -69.0,
+      -166,
+      12.0,
+      1
+     ],
+     [
+      -67.0,
+      -148,
+      21.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "hit": {
+    "frames": [
+     "res://assets/characters/perry/player/parry/parry_1.png",
+     "res://assets/characters/perry/player/parry/parry_2.png",
+     "res://assets/characters/perry/player/parry/parry_3.png",
+     "res://assets/characters/perry/player/parry/parry_4.png",
+     "res://assets/characters/perry/player/parry/parry_5.png"
+    ],
+    "fps": 25.0,
+    "loop": false,
+    "size": [
+     132,
+     140
+    ],
+    "pivot": [
+     66.0,
+     139
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -119,
+      51.0,
+      1
+     ],
+     [
+      -66.0,
+      -139,
+      29.0,
+      1
+     ],
+     [
+      -66.0,
+      -133,
+      40.0,
+      1
+     ],
+     [
+      -66.0,
+      -119,
+      51.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "death": {
+    "frames": [
+     "res://assets/characters/perry/player/parry/parry_1.png",
+     "res://assets/characters/perry/player/parry/parry_2.png",
+     "res://assets/characters/perry/player/parry/parry_3.png",
+     "res://assets/characters/perry/player/parry/parry_4.png",
+     "res://assets/characters/perry/player/parry/parry_5.png"
+    ],
+    "fps": 25.0,
+    "loop": false,
+    "size": [
+     132,
+     140
+    ],
+    "pivot": [
+     66.0,
+     139
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -119,
+      51.0,
+      1
+     ],
+     [
+      -66.0,
+      -139,
+      29.0,
+      1
+     ],
+     [
+      -66.0,
+      -133,
+      40.0,
+      1
+     ],
+     [
+      -66.0,
+      -119,
+      51.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "jump": {
+    "frames": [
+     "res://assets/characters/perry/player/jump/jump_1.png",
+     "res://assets/characters/perry/player/jump/jump_2.png",
+     "res://assets/characters/perry/player/jump/jump_3.png",
+     "res://assets/characters/perry/player/jump/jump_4.png",
+     "res://assets/characters/perry/player/jump/jump_5.png",
+     "res://assets/characters/perry/player/jump/jump_6.png",
+     "res://assets/characters/perry/player/jump/jump_7.png"
+    ],
+    "fps": 10.3,
+    "loop": false,
+    "size": [
+     156,
+     453
+    ],
+    "pivot": [
+     84.0,
+     427
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -81,
+      70.0,
+      1
+     ],
+     [
+      -73.0,
+      -107,
+      59.0,
+      26
+     ],
+     [
+      -84.0,
+      -427,
+      53.0,
+      -2
+     ],
+     [
+      -64.0,
+      -115,
+      53.0,
+      -7
+     ],
+     [
+      -64.0,
+      -115,
+      53.0,
+      -1
+     ],
+     [
+      -77.0,
+      -77,
+      72.0,
+      2
+     ],
+     [
+      -80.0,
+      -92,
+      66.0,
+      2
+     ]
+    ]
+   },
+   "wave": {
+    "frames": [
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_1.png",
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_2.png",
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_3.png",
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_4.png",
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_5.png",
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_6.png",
+     "res://assets/characters/perry/player/energy_wave_fx/energy_wave_fx_7.png"
+    ],
+    "fps": 14,
+    "loop": true,
+    "size": [
+     419,
+     173
+    ],
+    "pivot": [
+     132.0,
+     172
+    ],
+    "boxes": [
+     [
+      -132.0,
+      -64,
+      15.0,
+      1
+     ],
+     [
+      -37.0,
+      -162,
+      61.0,
+      1
+     ],
+     [
+      -53.0,
+      -172,
+      99.0,
+      -11
+     ],
+     [
+      75.0,
+      -91,
+      160.0,
+      -7
+     ],
+     [
+      137.0,
+      -91,
+      223.0,
+      -3
+     ],
+     [
+      201.0,
+      -89,
+      287.0,
+      -1
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ]
+   }
+  },
+  "body": [
+   -66.0,
+   -92,
+   66.0,
+   1
   ]
  },
  "_fx": {

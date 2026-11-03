@@ -20,7 +20,7 @@ func setup(g: Node, aid: String, p: Vector2) -> void:
 
 func _ready() -> void:
 	z_index = 5
-	face = ROSTER.face(ally_id)
+	face = ROSTER.face(AL.art_id(ally_id))
 
 
 func rect() -> Rect2:

@@ -47,6 +47,7 @@ var heal_farewell := false       # the priestess's second heal, played as she le
 var flash := 0.0
 var target_x := 0.0
 var played := {}
+var fx: Dictionary = {}          # Stage 3 face allies (ally_faces.gd): per-ally scratch state
 var history: Array = []
 var hits_landed := 0
 var sprite: AnimatedSprite2D
@@ -56,7 +57,7 @@ var tag: Node2D
 func setup(g: Node, ally_id: String) -> void:
 	game = g
 	id = ally_id
-	art = ROSTER.art(id)
+	art = ROSTER.art(AL.art_id(id))
 	k = float(AL.K[id])
 	k = fit_k()
 	hp_max = int(AL.HP[id])
@@ -105,7 +106,7 @@ static func _frames(aid: String) -> SpriteFrames:
 		return _cache[aid]
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
-	var anims: Dictionary = ROSTER.art(aid)["anims"]
+	var anims: Dictionary = ROSTER.art(AL.art_id(aid))["anims"]
 	for a in anims:
 		var e: Dictionary = anims[a]
 		sf.add_animation(a)
@@ -281,6 +282,9 @@ func leave() -> void:
 			_go("leave", "walk")
 		"dancer":
 			_go("leave", "skip")
+		_:
+			_go("leave", "walk")
+	fx["climbing"] = false
 	vx = 0.0
 	on_ground = true
 	position.y = gy
@@ -354,7 +358,10 @@ func _physics_process(delta: float) -> void:
 	if game == null:
 		return
 	_fit_size(delta)
-	_gravity(delta)
+	if id in AL.FACE_IDS:
+		AllyFaces.gravity(self, delta)
+	else:
+		_gravity(delta)
 	if state == "leave":
 		vx = 0.0
 	position.x += vx * delta
@@ -491,6 +498,9 @@ func _ai(_delta: float) -> void:
 		vx = 0.0
 		if state != "idle":
 			_idle()
+		return
+	if id in AL.FACE_IDS:                               # Stage 3 phase 7: knight, ranger, weaver, mage, Perry
+		AllyFaces.ai(self, _delta)
 		return
 	# a nearby wind-up: the priestess and ranger block or dodge. The brawler keeps chasing.
 	if id != "brawler":
@@ -680,6 +690,10 @@ func _attack(a: String, dmg: int, shot_at: int = -1) -> void:
 	shot_frame = shot_at
 	shot_done = false
 	windows = [] if shot_at >= 0 else _calc_windows(a)
+	if shot_at < 0 and id in AL.FACE_IDS:
+		var real: Array = AllyFaces.windows(self, a)       # Perry: her real hit frames
+		if not real.is_empty():
+			windows = real
 	_go("atk", a)
 	Sfx.play("swipe", 1.2, -6.0)
 
@@ -733,6 +747,9 @@ func _hit_tick() -> void:
 
 
 func _arrow() -> void:
+	if id in AL.FACE_IDS:
+		AllyFaces.fire(self)
+		return
 	var s: Node2D = load("res://scripts/game/ally_arrow.gd").new()
 	var hr := hurt_rect()
 	s.setup(game, self, Vector2(global_position.x + facing * hr.size.x * 0.6, hr.get_center().y - hr.size.y * 0.1), facing, mv_dmg, k)

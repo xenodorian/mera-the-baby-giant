@@ -272,6 +272,14 @@ const PERRY_BEAM_PUSH := {"cloud": 0.0, "fire": 5.0, "laser": 20.0, "plasma": 30
 const PERRY_KNOCK := {"heavy": 25.0, "slash": 25.0, "heavy_horizontal": 50.0, "push_kick": 100.0, "energy_kick": 200.0, "energy_burst": 100.0}   # native px
 const PERRY_REHIT_MS := {"earthquake": 250.0, "meteor_shower": 300.0}
 
+# ---- Stage 3 phase 4: ladders and run-time platforms
+# Highest jump of the weakest jumper: Mera at size 1 (v = 520, g = 1500 per size: apex = 520^2 / 3000 = 90 px; Perry's plain jump is 200 px).
+# A built platform may sit at most 80 % of that above the surface under it, so one jump always reaches it.
+const PLATFORM_STEP_H := 72.0
+const LADDER_SPEED := 240.0           # px/s up or down a ladder (the same for every body)
+const LADDER_GRAB_PX := 40.0          # a ladder is "here" when its column is within this many px of x
+const PLATFORM_FADE_S := 1.0          # a timed platform / ladder fades and shrinks for its last second
+
 
 ## Perry's damage for a move: the original number x PERRY_DMG_SCALE, at least 1 (the plasma beam is 0)
 static func perry_dmg(id: String) -> int:
@@ -282,3 +290,107 @@ static func perry_dmg(id: String) -> int:
 	if id in ["earthquake", "meteor_shower"]:
 		v *= PERRY_SUPER_SCALE
 	return maxi(1, roundi(v))
+
+
+# ---- Perry as the boss of Perry's Arena (scripts/game/perry_boss.gd, perry_boss_fx.gd). Size is her health, like the dragon.
+const PERRY_BOSS_SIZE := 25               # starts at 25x: hp_max = 25 x DRAGON_HP_PER_SIZE. Her drawn scale never changes.
+const PERRY_BOSS_K := 5.0                 # art scale
+const PERRY_BOSS_SPEED := 460.0           # px/s walking
+const PERRY_BOSS_HURT_HW := 25.0          # native px half width of her hurt box, and
+const PERRY_BOSS_HURT_H := 82.0           # its height (head)
+const PERRY_BOSS_HEAL_IDLE_S := 1.0       # undamaged this long (and not under attack) before she kneels to heal
+const PERRY_BOSS_HEAL_FULL_S := 6.0       # empty to full
+const PERRY_BOSS_HEAL_MIN_GAP := 450.0    # she only starts to heal when Mera is at least this far (edge to edge)
+const PERRY_BOSS_HEAL_BREAK_GAP := 260.0  # and stands up when Mera comes closer than this
+const PERRY_BOSS_WATCH_PX := 600.0        # a Mera projectile this close, or a Mera move this close, counts as "attacking her"
+const PERRY_BOSS_AGG_WINDOW_S := 2.5      # pressure: this many hits within this window ...
+const PERRY_BOSS_AGG_HITS := 3
+const PERRY_BOSS_AGG_NEAR := 260.0        # ... while Mera is this close (edge gap), or Mera stays this close
+const PERRY_BOSS_AGG_MELEE_S := 3.0       # for this long
+const PERRY_BOSS_BURST_CD_S := 5.0
+const PERRY_BOSS_BURST_R := 640.0         # energy burst: half width of the ring box (symmetrical)
+const PERRY_BOSS_BURST_H := 430.0         # and its height above the floor (a high jump clears it)
+const PERRY_BOSS_BURST_KNOCK := 600.0     # Mera is thrown back this far
+const PERRY_BOSS_KNOCK_S := 0.5           # over this long
+const PERRY_BOSS_PHASES := [0.66, 0.33]   # hp fractions: phase 2 at or below the first, phase 3 at or below the second
+const PERRY_BOSS_CD_MUL := [1.0, 0.75, 0.5]
+const PERRY_BOSS_CD := [0.25, 0.6]        # pause between moves (before the phase multiplier)
+const PERRY_BOSS_CHAIN_P := [0.55, 0.65, 0.75]   # chance per phase to follow a move with another one at once (up to CHAIN_MAX)
+const PERRY_BOSS_CHAIN_MAX := 3
+const PERRY_BOSS_FAR_GAP := 350.0         # farther than this she prefers a gap closer
+const PERRY_BOSS_REPEAT_MAX := 2          # never the same move more than twice in a row
+const PERRY_BOSS_GUARD_HP := 0.4          # rainbow guard below this hp fraction, once per ...
+const PERRY_BOSS_GUARD_CD_S := 20.0
+const PERRY_BOSS_GUARD_S := 2.5
+const PERRY_BOSS_GUARD_DMG := 0.25        # she takes this share of the damage while it glows
+const PERRY_BOSS_ULT_HP := 0.3            # ultimate chain below this hp fraction, once per ...
+const PERRY_BOSS_ULT_CD_S := 25.0
+const PERRY_BOSS_BLOCK_MUL := 0.3         # a blocked melee hit keeps this share of its damage (at least 1)
+const PERRY_BOSS_BLOCK_SLIDE := 40.0
+const PERRY_BOSS_PARRY_P := 0.9           # share of Mera's melee hits she parries when free
+const PERRY_BOSS_PARRY_CD_S := 0.35
+const PERRY_BOSS_PARRY_REARM_S := 0.15
+const PERRY_BOSS_PARRY_S := 0.26          # the parry pose
+const PERRY_BOSS_PARRY_SCAN_PX := 450.0   # projectiles this close and heading at her are reflected
+const PERRY_BOSS_REFLECT_SPEED := 1.2
+const PERRY_BOSS_STAGGER_S := 0.4         # Mera is staggered this long by a parry
+const PERRY_BOSS_STAGGER_PX := 260.0
+const PERRY_BOSS_RIPOSTE_TELL_S := 0.12   # the counter has no tell of its own: the parry was the warning
+const PERRY_BOSS_STUN_MIN_S := 3.0        # a stun lasts at least this long (the quake gives 5)
+const PERRY_BOSS_BEAM_LEN := 1900.0       # px
+const PERRY_BOSS_BEAM_H := 60.0           # px, hurt thickness
+const PERRY_BOSS_BEAM_SCALE := 2.5        # drawn scale of the beam tiles
+const PERRY_BOSS_BEAM_Y := {"cloud": 85.0, "fire": 85.0, "laser": 150.0, "plasma": 150.0}   # px above the floor (jump the low ones)
+const PERRY_BOSS_BEAM_DMG := {"cloud": 1, "fire": 2, "laser": 2, "plasma": 2}
+const PERRY_BOSS_WAVE_SPEED := 850.0
+const PERRY_BOSS_METEORS := 7
+const PERRY_BOSS_METEOR_GAP_S := 0.28
+const PERRY_BOSS_METEOR_WARN_S := 0.75
+const PERRY_BOSS_METEOR_R := 130.0
+const PERRY_BOSS_METEOR_DMG := 2
+const PERRY_BOSS_QUAKE_SPEED := 1100.0
+const PERRY_BOSS_QUAKE_H := 90.0          # the floor wave is this tall: jump it
+const PERRY_BOSS_QUAKE_DMG := 2
+const PERRY_BOSS_LEAP_LIFT := 0.6         # jump crash: native root height x k x this
+const PERRY_BOSS_SKY_LIFT := 430.0        # sky dash arc height (px)
+const PERRY_BOSS_SKY_OVER := 360.0        # it lands this far past Mera
+const PERRY_BOSS_DASH_IFRAME := 0.6       # share of a dash during which she cannot be hurt
+
+## The move table: one Dictionary per move. data = the Perry Riposte move whose frames, timing, root motion and hit boxes it plays
+## (default: the id), anim = the roster animation (default: the id), kind = telegraph colour, dmg = sizes Mera loses, tell = wind-up
+## seconds (0: a reposition, not an attack), band = [min, max] edge gap to Mera in px where it is picked, w = weight, ph = first
+## phase, mcd = seconds before the same move may be picked again, h = handler, np = she cannot parry during it, steps = a string of
+## moves, stell = tell before each later step, only = never picked at random.
+const PERRY_BOSS_MOVES := {
+	"slash": {"kind": "melee", "dmg": 1, "tell": 0.35, "band": [-999.0, 380.0], "w": 10.0, "ph": 1, "mcd": 0.0},
+	"thrust": {"kind": "melee", "dmg": 1, "tell": 0.35, "band": [80.0, 440.0], "w": 8.0, "ph": 1, "mcd": 0.0},
+	"upswing": {"kind": "melee", "dmg": 2, "tell": 0.35, "band": [-999.0, 170.0], "w": 3.0, "ph": 1, "mcd": 1.0, "air": 8.0},
+	"spin": {"data": "spin_attack", "anim": "spin", "kind": "heavy", "dmg": 2, "tell": 0.45, "band": [-999.0, 420.0], "w": 6.0, "ph": 1, "mcd": 1.0},
+	"heavy_horizontal": {"data": "heavy_horizontal", "anim": "slash", "kind": "heavy", "dmg": 2, "tell": 0.5, "band": [60.0, 520.0], "w": 6.0, "ph": 1, "mcd": 1.0},
+	"heavy": {"kind": "heavy", "dmg": 3, "tell": 0.6, "band": [-999.0, 330.0], "w": 5.0, "ph": 1, "mcd": 2.0, "open": true},
+	"heavy_kick": {"kind": "heavy", "dmg": 2, "tell": 0.45, "band": [-999.0, 140.0], "w": 4.0, "ph": 1, "mcd": 1.0, "shove": 300.0},
+	"push_kick": {"kind": "melee", "dmg": 1, "tell": 0.35, "band": [-999.0, 110.0], "w": 4.0, "ph": 1, "mcd": 0.5, "shove": 220.0, "close": 3.0},
+	"energy_kick": {"kind": "heavy", "dmg": 3, "tell": 0.65, "band": [-999.0, 160.0], "w": 3.0, "ph": 2, "mcd": 5.0, "shove": 450.0},
+	"dash_thrust": {"kind": "rush", "dmg": 2, "tell": 0.4, "band": [420.0, 1000.0], "w": 10.0, "ph": 1, "mcd": 0.5, "closer": 3.0},
+	"energy_dash_thrust": {"pass": false, "kind": "rush", "dmg": 3, "tell": 0.5, "band": [420.0, 1100.0], "w": 6.0, "ph": 2, "mcd": 3.0, "closer": 3.0},
+	"sky_dash": {"h": "sky", "tm": 2.6, "pass": true, "kind": "rush", "dmg": 2, "tell": 0.5, "band": [350.0, 1200.0], "w": 8.0, "ph": 1, "mcd": 1.5, "closer": 3.0},
+	"dash": {"h": "dash", "pass": true, "kind": "rush", "dmg": 0, "tell": 0.0, "band": [450.0, 1500.0], "w": 5.0, "ph": 1, "mcd": 0.6, "closer": 3.0},
+	"jump_crash": {"h": "leap", "tm": 1.4, "pass": true, "kind": "heavy", "dmg": 3, "tell": 0.55, "band": [300.0, 900.0], "w": 6.0, "ph": 1, "mcd": 3.0, "closer": 2.0},
+	"chain": {"steps": ["slash", "chain2", "chain3"], "kind": "melee", "dmg": 1, "tell": 0.4, "band": [-999.0, 300.0], "w": 8.0, "ph": 1, "mcd": 1.0},
+	"chain_long": {"steps": ["slash", "chain2", "chain3", "chain4"], "kind": "melee", "dmg": 1, "tell": 0.4, "band": [-999.0, 300.0], "w": 6.0, "ph": 2, "mcd": 2.0},
+	"burst_chain": {"steps": ["slash", "chain2", "chain3", "chain4", "energy_burst"], "kind": "melee", "dmg": 1, "tell": 0.4, "stell": 0.45, "band": [-999.0, 260.0], "w": 4.0, "ph": 3, "mcd": 8.0},
+	"chain2": {"kind": "melee", "dmg": 1, "tell": 0.35, "band": [-999.0, 0.0], "w": 0.0, "ph": 1, "only": true},
+	"chain3": {"kind": "melee", "dmg": 1, "tell": 0.35, "band": [-999.0, 0.0], "w": 0.0, "ph": 1, "only": true},
+	"chain4": {"kind": "melee", "dmg": 1, "tell": 0.35, "band": [-999.0, 0.0], "w": 0.0, "ph": 1, "only": true},
+	"energy_burst": {"h": "burst", "kind": "heavy", "dmg": 2, "tell": 0.5, "band": [-999.0, 700.0], "w": 0.0, "ph": 1, "mcd": 0.0, "np": true, "only": true},
+	"energy_wave": {"h": "wave", "kind": "ranged", "dmg": 2, "tell": 0.55, "band": [350.0, 1500.0], "w": 8.0, "ph": 1, "mcd": 2.5},
+	"meteor_shower": {"h": "meteor", "kind": "ranged", "dmg": 2, "tell": 0.6, "band": [250.0, 1800.0], "w": 5.0, "ph": 2, "mcd": 8.0},
+	"earthquake": {"h": "quake", "kind": "heavy", "dmg": 2, "tell": 0.6, "band": [-999.0, 900.0], "w": 4.0, "ph": 2, "mcd": 6.0},
+	"beam_cloud": {"h": "beam", "beam": "cloud", "kind": "ranged", "dmg": 1, "tell": 0.55, "band": [250.0, 1500.0], "w": 5.0, "ph": 2, "mcd": 4.0},
+	"beam_fire": {"h": "beam", "beam": "fire", "kind": "ranged", "dmg": 2, "tell": 0.6, "band": [250.0, 1500.0], "w": 5.0, "ph": 2, "mcd": 4.0},
+	"beam_laser": {"h": "beam", "beam": "laser", "kind": "ranged", "dmg": 2, "tell": 0.65, "band": [250.0, 1500.0], "w": 5.0, "ph": 2, "mcd": 4.0},
+	"beam_plasma": {"h": "beam", "beam": "plasma", "kind": "ranged", "dmg": 2, "tell": 0.7, "band": [250.0, 1500.0], "w": 5.0, "ph": 2, "mcd": 4.0},
+	"taunt": {"h": "taunt", "kind": "melee", "dmg": 0, "tell": 0.0, "band": [500.0, 2000.0], "w": 0.3, "ph": 1, "mcd": 12.0},
+	"rainbow_guard": {"h": "guard", "data": "block", "anim": "block", "kind": "heavy", "dmg": 0, "tell": 0.0, "band": [-999.0, 9999.0], "w": 0.0, "ph": 2, "np": true, "only": true},
+	"ultimate_chain": {"steps": ["taunt", "beam_plasma", "beam_cloud", "beam_fire", "beam_laser"], "kind": "ranged", "dmg": 2, "tell": 0.45, "stell": 0.4, "band": [-999.0, 9999.0], "w": 0.0, "ph": 3, "np": true, "only": true},
+}

@@ -141,9 +141,50 @@ const DEFS := {
 			{"anim": "spin", "kind": "heavy", "dmg": 2, "tell": 0.45, "near": -999.0, "far": 220.0, "cd": 1.2, "mode": "frames", "active": [1, 4]},
 			{"anim": "jump_crash", "kind": "heavy", "dmg": 3, "tell": 0.55, "near": -999.0, "far": 260.0, "cd": 1.6, "mode": "frames", "active": [5, 6]},
 			{"anim": "heavy", "kind": "heavy", "dmg": 3, "tell": 0.6, "near": -999.0, "far": 230.0, "cd": 1.6, "mode": "frames", "active": [4, 4]}]},
+	# Stage 3: the Changeling enemies (LPC art, tools/build_roster.py "cl_*"). Stage 3 levels do NOT get the Stage 2 doubling
+	# (game.gd spawn_enemy), so these numbers are final: about 2x the Stage 1 style hp / speed and 0.25x the cds, then a
+	# little tougher than the Stage 2 equivalents, because Mera arrives strong. "script" = the AI script (script_for).
+	# "style" (cl_enemy.gd): ranger = hops back, weaver = walks back, mage = blinks away; "lo"/"hi" = the gap band it keeps.
+	"cl_grunt": {"k": 8.0, "hp": 16, "speed": 280.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 4.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 1, "tell": 0.36, "near": -999.0, "far": 130.0, "cd": 0.45, "mode": "frames", "active": [3, 5]},
+			{"anim": "thrust", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 160.0, "far": 440.0, "cd": 0.6, "mode": "contact", "vx": 760.0, "dur": 0.3}]},
+	"cl_mud": {"k": 8.0, "hp": 26, "speed": 120.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 5.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 120.0, "cd": 0.6, "mode": "frames", "active": [3, 5]},
+			{"anim": "spellcast", "kind": "ranged", "dmg": 1, "tell": 0.5, "near": 260.0, "far": 1100.0, "cd": 1.5, "mode": "shot", "shot": "mud", "shot_frame": 4, "shot_speed": 0.0}]},
+	"cl_rat_king": {"k": 6.5, "hp": 15, "speed": 190.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 4.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "slash", "kind": "melee", "dmg": 1, "tell": 0.36, "near": -999.0, "far": 110.0, "cd": 0.45, "mode": "frames", "active": [3, 5]},
+			{"anim": "jump", "kind": "rush", "dmg": 1, "tell": 0.36, "near": 130.0, "far": 560.0, "cd": 0.55, "mode": "contact", "vx": 560.0, "jump": 1050.0}]},
+	"cl_archer": {"k": 8.0, "hp": 16, "speed": 0.0, "ai": "turret", "idle": "idle", "move": "idle", "rage": 4.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "shoot", "kind": "ranged", "dmg": 1, "tell": 0.45, "near": -999.0, "far": 1200.0, "cd": 0.8, "mode": "shot", "shot": "arrow", "shot_frame": 9, "shot_speed": 1100.0, "shot_k": 0.7, "shot_tight": true}]},
+	"cl_knight": {"k": 9.0, "hp": 44, "speed": 230.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 10.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "slash", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 160.0, "cd": 0.6, "mode": "frames", "active": [3, 5]},
+			{"anim": "thrust", "kind": "rush", "dmg": 2, "tell": 0.45, "near": 180.0, "far": 480.0, "cd": 0.8, "mode": "contact", "vx": 820.0, "dur": 0.3}]},
+	"cl_ranger": {"k": 8.0, "hp": 38, "speed": 260.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0, "style": "ranger", "lo": 460.0, "hi": 720.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "shoot", "kind": "ranged", "dmg": 1, "tell": 0.4, "near": -999.0, "far": 950.0, "cd": 0.5, "mode": "shot", "shot": "arrow", "shot_frame": 9, "shot_speed": 1200.0, "shot_k": 0.7, "shot_tight": true}]},
+	"cl_weaver": {"k": 8.0, "hp": 42, "speed": 200.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0, "style": "weaver", "lo": 520.0, "hi": 820.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "shoot", "kind": "ranged", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 1300.0, "cd": 1.0, "mode": "shot", "shot": "bone", "shot_frame": 9, "shot_speed": 1050.0}]},
+	"cl_mage": {"k": 7.5, "hp": 36, "speed": 170.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 8.0, "style": "mage", "lo": 380.0, "hi": 760.0,
+		"hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_enemy.gd",
+		"attacks": [{"anim": "spellcast", "kind": "ranged", "dmg": 2, "tell": 0.45, "near": -999.0, "far": 1100.0, "cd": 0.8, "mode": "shot", "shot": "bolt", "shot_frame": 4, "shot_speed": 950.0, "shot_k": 0.8, "shot_tight": true}]},
+	# the Warlord (boss of Warlord's Throne): scripts/game/cl_warlord.gd. "phase" = the first of his 3 phases (hp 2/3 and 1/3) that uses the attack
+	"cl_warlord": {"k": 12.0, "hp": 240, "speed": 190.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt", "death": "hurt", "script": "res://scripts/game/cl_warlord.gd",
+		"attacks": [{"anim": "slash", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 230.0, "cd": 0.7, "mode": "frames", "active": [3, 5], "phase": 1},
+			{"anim": "shoot", "kind": "ranged", "dmg": 1, "tell": 0.5, "near": 320.0, "far": 1300.0, "cd": 1.1, "mode": "shot", "shot": "arrow", "shot_frame": 9, "shot_speed": 1250.0, "shot_k": 0.8, "shot_tight": true, "phase": 1},
+			{"anim": "thrust", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 200.0, "far": 440.0, "cd": 1.0, "mode": "contact", "vx": 720.0, "dur": 0.3, "phase": 1},
+			{"anim": "jump", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 440.0, "far": 900.0, "cd": 1.2, "mode": "contact", "vx": 620.0, "jump": 1000.0, "phase": 1},
+			{"anim": "thrust", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "phase": 2},
+			{"anim": "jump", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 1.4, "mode": "contact", "vx": 360.0, "jump": 1500.0, "slam": true, "phase": 3}]},
 }
 
-## who appears where. 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns,
+## who appears where. 12 to 18 are Stage 3 (the Changeling levels, cl_* ids). 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns,
 ## 6 Mossy Falls, 7 Sunstone Canyon, 8 Sunset Shore, 9 Mire Wood, 10 Moonlit Sanctum (stage 2, the p_* ids).
 ## Index 3 is Moonlit Cemetery and is not listed: it keeps the Fire Knights.
 ## Index 5 is the Dragon's Lair: no trash waves, only the boss.
@@ -157,13 +198,20 @@ const LEVELS := {
 	8: ["p_goblin", "x_slime", "p_firemage", "x_bat", "x_mimic", "p_orc"],
 	9: ["p_orc", "x_dark_wizard", "x_fire_worm", "x_frost_guardian", "x_slime", "p_goblin"],
 	10: ["p_orc", "p_firemage", "x_dark_wizard", "x_frost_guardian", "x_mimic", "x_bat"],
+	12: ["cl_grunt", "cl_rat_king", "cl_grunt", "cl_rat_king"],
+	13: ["cl_grunt", "cl_rat_king", "cl_archer", "cl_grunt", "cl_archer"],
+	14: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_mud"],
+	15: ["cl_mud", "cl_rat_king", "cl_mud", "cl_grunt", "cl_archer", "cl_rat_king"],
+	16: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_knight", "cl_ranger"],
+	17: ["cl_knight", "cl_grunt", "cl_mud", "cl_ranger", "cl_archer", "cl_rat_king", "cl_knight"],
+	18: ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "cl_grunt"],
 }
 ## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
-const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 10: "perry"}
+const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 10: "perry", 19: "cl_warlord"}
 ## levels whose boss ends a stage with a victory card (level index -> what falls). Other bosses only open the exit.
-const FINALE := {5: "the Cavern Dragon", 10: "Perry"}
+const FINALE := {5: "the Cavern Dragon", 11: "Perry", 19: "the Warlord"}
 ## display names of the bosses (exit lock text)
-const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon"}
+const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon", "cl_warlord": "Warlord"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
 const RUN_POOL := [
 	"wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur",
@@ -173,6 +221,7 @@ const RUN_POOL := [
 	"sx_zombie", "sx_zombie", "sx_skeleton", "sx_skeleton", "sx_witch", "sx_witch",
 	"p_goblin", "p_goblin", "p_orc", "p_orc", "p_firemage", "p_firemage",
 	"x_fire_worm", "x_bat", "x_slime", "x_mimic", "x_rat", "x_dark_wizard", "x_frost_guardian",
+	"cl_grunt", "cl_grunt", "cl_rat_king", "cl_rat_king", "cl_archer", "cl_archer", "cl_mud", "cl_mud",
 ]
 const RUN_START := 3           # enemies on the first map
 const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then the exit opens. No more after that.
@@ -180,7 +229,8 @@ const WAVE_FIRST := 2200.0     # first wave trigger x
 const WAVE_EVERY := 1500.0     # then one wave every this many px
 const WAVE_SIZES := [1, 2, 2, 3]
 ## on every wave level, two monsters per level come from BEHIND Mera. Cemetery (index 3) is the knight fight.
-const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3], 6: [1, 3], 7: [1, 3], 8: [1, 3], 9: [1, 3], 10: [1, 3]}
+const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3], 6: [1, 3], 7: [1, 3], 8: [1, 3], 9: [1, 3], 10: [1, 3],
+	12: [1, 3], 13: [1, 3], 14: [1, 3], 15: [1, 3], 16: [1, 3], 17: [1, 3], 18: [1, 3]}
 const MAX_ALIVE := 5
 const BOSS_AT := 3400.0        # the boss appears when Mera gets this close to the map end ...
 const BOSS_X := 1300.0         # ... standing this far from the end, in front of the exit (locked until he falls)
@@ -199,6 +249,12 @@ static func ids() -> Array:
 
 static func def(id: String) -> Dictionary:
 	return DEFS[id]
+
+
+## the AI script that runs this enemy: DEFS "script" (Stage 3 cl_* enemies), else the one shared monster.gd
+static func script_for(id: String) -> GDScript:
+	var sp := String(DEFS[id].get("script", "res://scripts/game/monster.gd"))
+	return load(sp)
 
 
 static func art(id: String) -> Dictionary:

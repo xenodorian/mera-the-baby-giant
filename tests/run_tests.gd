@@ -1242,7 +1242,7 @@ func _run() -> void:
 	await process_frame
 	# ================================================================ v0.5 levels, map bounds, earthquake
 	var LV = load("res://scripts/game/levels.gd")
-	_check("11 levels in the level list (stage 1: 0..5, stage 2: 6..10)", LV.list().size() == 11 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(10) == 1 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
+	_check("20 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..19)", LV.list().size() == 20 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(19) == 2 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
 	for li in [0, 1, 2, 3, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game()
@@ -1489,12 +1489,12 @@ func _run() -> void:
 		for pr in AL.CARDS[li]:
 			ids.append(pr[1])
 		ids.sort()
-		var want_c: Array = AL.IDS.duplicate()
+		var want_c: Array = AL.CORE_IDS.duplicate()
 		want_c.sort()
 		if ids != want_c:
 			cards_ok = false
 	var cols := {}
-	for aid in AL.IDS:
+	for aid in AL.CORE_IDS:
 		cols[str(AL.COLORS[aid])] = true
 	_check("country, woods, town and caverns each hold one card per ally; the cemetery has none", cards_ok and cols.size() == 4 and not AL.CARDS.has(3), "")
 	LV.current = 3
@@ -1548,7 +1548,7 @@ func _run() -> void:
 	g.queue_free()
 	await process_frame
 	# every ally uses all her animations and the fighters hurt enemies
-	for aid in AL.IDS:
+	for aid in AL.CORE_IDS:
 		LV.current = 1
 		g = await _new_game()
 		m = g.mera
@@ -1715,16 +1715,16 @@ func _run() -> void:
 	root.add_child(pm)
 	await process_frame
 	_check("menu: after the dragon (unlocked >= 6, level 6 played) it opens on level 7, the stage 2 page", pm.sel == 6 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
-	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..10", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10], "%s %s" % [pm.page_levels(0), pm.page_levels(1)])
+	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..19", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18, 19], "%s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2)])
 	pm.sel = 5
 	pm._move(1)
 	var page_follow: bool = pm.sel == 6 and pm.page_of(pm.sel) == 1
 	pm._move(-1)
 	_check("menu: Right from level 6 goes to level 7 (page 2) and Left comes back", page_follow and pm.sel == 5 and pm.page_of(pm.sel) == 0, "sel=%d" % pm.sel)
 	var c6: Rect2 = pm._card(6)
-	var c10: Rect2 = pm._card(10)
+	var c10: Rect2 = pm._card(11)
 	var cs1: Rect2 = pm._card(0)
-	_check("menu: cards are laid out per page (5 wider cards on stage 2, same margin, inside the screen)", absf(c6.position.x - cs1.position.x) < 0.1 and c6.size.x > cs1.size.x and c10.end.x <= 1920.0 and absf(pm._card(7).position.x - (c6.end.x + 18.0)) < 0.1, "%s %s" % [c6, c10])
+	_check("menu: stage 2 now has six cards laid out like stage 1 (same margin, inside the screen)", absf(c6.position.x - cs1.position.x) < 0.1 and absf(c6.size.x - cs1.size.x) < 0.1 and c10.end.x <= 1920.0 and absf(pm._card(7).position.x - (c6.end.x + 18.0)) < 0.1, "%s %s" % [c6, c10])
 	pm.queue_free()
 	await process_frame
 	LV.current = 0
@@ -1733,8 +1733,14 @@ func _run() -> void:
 	await _chest_tests()
 	await _unlock_tests()
 	await _task_tests()
+	await _touch_tests()
 	await _mark_tests()
 	await _perry_tests()
+	await _cl_tests()
+	await _ladder_tests()
+	await _face_summon_tests()
+	await _session_tests()
+	await _stage3_map_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -2516,7 +2522,8 @@ func _updater_tests() -> void:
 		var down := InputEventAction.new()
 		down.action = "down"
 		down.pressed = true
-		menu._unhandled_input(down)
+		menu._unhandled_input(down)                          # cards -> character toggle
+		menu._unhandled_input(down)                          # character toggle -> bottom buttons
 		var right := InputEventAction.new()
 		right.action = "right"
 		right.pressed = true
@@ -2531,7 +2538,7 @@ func _updater_tests() -> void:
 		back.action = "btn_b"
 		back.pressed = true
 		menu._unhandled_input(back)
-		_check("menu: Down -> bottom row, Right x3 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1, "mode=%s row=%d" % [menu.mode, menu.row])
+		_check("menu: Down x2 -> bottom row (past the character toggle), Right x3 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1, "mode=%s row=%d" % [menu.mode, menu.row])
 		var C = load("res://scripts/app/credits.gd")
 		var whos: Array = []
 		for c in C.ENTRIES:
@@ -3405,6 +3412,21 @@ func _puzzle_unit_tests() -> void:
 	pg.free()
 
 
+## solid props (cracked walls, closed doors) stop a teleport across the map: remove them first, as the other map tests do
+func _clear_blockers(g: Node) -> void:
+	for p in g.props.duplicate():
+		if is_instance_valid(p) and p.has_method("blocks_path") and p.blocks_path():
+			g.props.erase(p)
+
+
+## an A press for a frame or two (a shut chest opens on a press of A while Mera stands on it)
+func _tap_a(g: Node) -> void:
+	Input.action_press("btn_a")
+	await _s4_frames(g, 2)
+	Input.action_release("btn_a")
+	await _s4_frames(g, 2)
+
+
 func _chest_tests() -> void:
 	var T = load("res://scripts/game/tuning.gd")
 	var consts: Dictionary = T.get_script_constant_map()
@@ -3415,6 +3437,7 @@ func _chest_tests() -> void:
 	var g: Node = await _s4_new(1)
 	_check("keys are gone: the game has no key state or drop function", g.get("key_held") == null and g.get("key_out") == null and g.get("key_rng") == null and not g.has_method("_maybe_drop_key") and not g.has_method("use_key"), "")
 	var ch: Node2D = _s4_prop(g, "chest")
+	_clear_blockers(g)
 	_check("chest: Misty Woods places a chest", ch != null, "")
 	if ch == null:
 		g.queue_free()
@@ -3439,13 +3462,13 @@ func _chest_tests() -> void:
 		if c is Node2D and c.has_method("pop"):
 			c.queue_free()
 
-	# touching the chest starts a puzzle and pauses the tree
+	# standing on the chest shows the prompt but does not open it; an A press does
 	g.mera.global_position.x = ch.global_position.x
 	await _s4_frames(g, 3)
+	_check("chest: touching it alone does not open it, and the prompt shows", ch.state == "locked" and g.puzzle == null and ch.prompt != null and ch.prompt.visible and ch.prompt.text.ends_with("OPEN"), "state=%s prompt=%s" % [ch.state, ch.prompt.visible if ch.prompt != null else "none"])
+	await _tap_a(g)
 	var host: Node = g.puzzle
-	_check("chest: touching it opens a puzzle and pauses the game", host != null and is_instance_valid(host) and paused and ch.state == "puzzling" and ch.puzzle_tries == 1, "state=%s" % ch.state)
-	var tp := root.get_node_or_null("TouchPad")
-	_check("puzzle: the on-screen pad is hidden while it is open", tp != null and tp.get("suppressed") == true, "")
+	_check("chest: an A press opens a puzzle and pauses the game", host != null and is_instance_valid(host) and paused and ch.state == "puzzling" and ch.puzzle_tries == 1, "state=%s" % ch.state)
 	g.toggle_pause()
 	_check("puzzle: the pause menu cannot open on top of it", not g.paused_play and paused and g.puzzle == host, "")
 	var x_before: float = g.mera.global_position.x
@@ -3456,14 +3479,16 @@ func _chest_tests() -> void:
 	_check("puzzle: B gives up (lost)", host.result == "lost", host.result)
 	host.finish_now()
 	await _s4_frames(g, 2)
-	_check("lost puzzle: the chest stays shut, the game runs again, the pad is back", ch.state == "locked" and g.puzzle == null and not paused and tp.get("suppressed") == false, "state=%s" % ch.state)
+	_check("lost puzzle: the chest stays shut and the game runs again", ch.state == "locked" and g.puzzle == null and not paused, "state=%s" % ch.state)
 	await _s4_frames(g, 90)
 	_check("lost puzzle: standing on the chest does not reopen it at once", g.puzzle == null and ch.state == "locked", "")
 	g.mera.global_position.x = ch.global_position.x + 1500.0
 	await _s4_frames(g, 3)
+	_check("chest: the prompt is hidden when Mera is away", not ch.prompt.visible, "")
 	g.mera.global_position.x = ch.global_position.x
 	await _s4_frames(g, 3)
-	_check("lost puzzle: after stepping off and back, the chest opens a puzzle again", g.puzzle != null and ch.state == "puzzling" and ch.puzzle_tries == 2, "tries=%d" % ch.puzzle_tries)
+	await _tap_a(g)
+	_check("lost puzzle: after stepping off and back, an A press opens a puzzle again", g.puzzle != null and ch.state == "puzzling" and ch.puzzle_tries == 2, "tries=%d" % ch.puzzle_tries)
 	g.puzzle.finish_now()
 	await _s4_frames(g, 2)
 	g.mera.global_position.x = ch.global_position.x + 1500.0
@@ -3546,6 +3571,7 @@ func _chest_tests() -> void:
 	# the old contents block, and a solved chest in the level
 	g = await _s4_new(1)
 	ch = _s4_prop(g, "chest")
+	_clear_blockers(g)
 	g.drop_rng.seed = 3
 	# contents: 3-5 coins and 1-3 other items, each arcing out of the chest
 	var ranges_ok := true
@@ -3575,13 +3601,14 @@ func _chest_tests() -> void:
 	# solving the level's own chest with the needle opens it
 	g.mera.global_position.x = ch.global_position.x
 	await _s4_frames(g, 3)
+	await _tap_a(g)
 	var hx: Node = g.puzzle
-	_check("chest: touching it again (fresh level) starts a puzzle", hx != null, "")
+	_check("chest: an A press on it (fresh level) starts a puzzle", hx != null, "")
 	if hx != null:
 		hx.solve()
 		hx.finish_now()
 	await _s4_frames(g, 3)
-	_check("chest: solved, it is open", ch.state == "open", ch.state)
+	_check("chest: solved, it is open and the prompt is gone", ch.state == "open" and not ch.prompt.visible, ch.state)
 	PR.touch_opens = false
 	var coins2 := 0
 	var items2 := 0
@@ -3729,13 +3756,17 @@ func _task_tests() -> void:
 	var menu: Node = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(menu)
 	await process_frame
-	menu.shop_page = 1
-	menu.shop_i = 2
-	var stat1: String = menu._shop_stat(2)
+	var per_pg: int = load("res://scripts/menu.gd").SHOP_PER_PAGE
+	var sq_at: int = menu._all_rows().find("move:super_quake")
+	menu.shop_page = sq_at / per_pg
+	menu.shop_i = sq_at % per_pg
+	var stat1: String = menu._shop_stat(menu.shop_i)
 	menu._shop_buy()
 	_check("shop: super earthquake row says 'needs earthquake', and the note says to buy it first", stat1 == "needs earthquake" and menu.note == "Buy the earthquake first.", "%s / %s" % [stat1, menu.note])
 	_check("shop: buying the earthquake works, then the super earthquake", C.buy("move:earthquake") == "" and C.buy("move:super_quake") == "" and C.owns("super_quake"), "")
-	menu.shop_i = 6
+	var sm_at: int = menu._all_rows().find("summon:2")
+	menu.shop_page = sm_at / per_pg
+	menu.shop_i = sm_at % per_pg
 	menu._shop_buy()
 	_check("shop: the summon-time note is unchanged for summon rows", menu.note != "Buy the earthquake first.", menu.note)
 	menu.queue_free()
@@ -3792,7 +3823,7 @@ func _task_tests() -> void:
 	g.queue_free()
 	await process_frame
 	C.reset()
-	# 5b. stage 2: a boss that is not a finale only opens the exit; Perry (level 11) ends the game
+	# 5b. stage 2: a boss that is not a finale only opens the exit; Perry (level 12) ends stage 2
 	LVS.current = 6
 	g = await _s4_new(6)
 	g.wave_i = 100
@@ -3813,13 +3844,13 @@ func _task_tests() -> void:
 	g.queue_free()
 	await process_frame
 	C.reset()
-	g = await _s4_new(10)
+	g = await _s4_new(11)
 	g.wave_i = 100
 	var pe: Node2D = g.spawn_enemy("perry", g.mera.global_position.x + 600.0)
 	await process_frame
-	_check("level 11: the exit stays locked until Perry is dead ('DEFEAT PERRY')", g.exit_locked() and g.exit_lock_text() == "DEFEAT PERRY" and not g.boss_dead, g.exit_lock_text())
+	_check("level 12 (Perry's Arena): the exit stays locked until Perry is dead ('DEFEAT PERRY')", g.exit_locked() and g.exit_lock_text() == "DEFEAT PERRY" and not g.boss_dead, g.exit_lock_text())
 	g.on_enemy_defeated(pe)
-	_check("level 11: Perry's death opens the exit, pays the 100 gold bonus and shows the island card", g.victory and g.boss_dead and not g.exit_locked() and C.gold >= 100 and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!", "gold %d %s" % [C.gold, g.victory_text])
+	_check("level 12 (Perry's Arena): Perry's death opens the exit, pays the 100 gold bonus and shows the Stage 3 card", g.victory and g.boss_dead and not g.exit_locked() and C.gold >= 100 and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1].find("Stage 3") >= 0 and C.unlocked >= 12, "gold %d %s" % [C.gold, g.victory_text])
 	t0 = Time.get_ticks_msec()
 	while not g.victory_card and Time.get_ticks_msec() - t0 < 8000:
 		await create_timer_always(0.1)
@@ -3847,6 +3878,159 @@ func _give_cards(g: Node, d: Dictionary) -> void:
 	g.cards = d.duplicate(true)
 
 
+# ================================================================ Android touch pad: L3 in the middle of the d-pad
+func _touch_tests() -> void:
+	var TP = load("res://scripts/game/touch_pad.gd")
+	var rects := {}
+	var mana_n := 0
+	for item in TP.LAYOUT:
+		rects[String(item[0])] = Rect2(float(item[1]), float(item[2]), float(item[3]), float(item[4]))
+		if String(item[0]) == "mana":
+			mana_n += 1
+	var mana: Rect2 = rects.get("mana", Rect2())
+	var cross_ok: bool = mana_n == 1 and mana.size.x > 0.0
+	if cross_ok:
+		cross_ok = mana.position.x >= rects["left"].end.x - 0.5 and mana.end.x <= rects["right"].position.x + 0.5 and mana.position.y >= rects["up"].end.y - 0.5 and mana.end.y <= rects["down"].position.y + 0.5
+	var overlaps := 0
+	for k in rects:
+		if k != "mana" and mana.intersects(rects[k]):
+			overlaps += 1
+	_check("touch pad: one L3 button sits in the empty middle of the d-pad and overlaps nothing", cross_ok and overlaps == 0, "n=%d rect=%s overlaps=%d" % [mana_n, mana, overlaps])
+	var tpn = TP.new()
+	var l3_label: String = tpn._label("mana")
+	tpn.free()
+	_check("touch pad: the L3 button sends the mana action (E / left-stick click)", InputMap.has_action("mana") and l3_label == "L3", "label=%s" % l3_label)
+
+
+# ================================================================ shop pages, controls pages, size cap, Stage 2 speed, Sfx
+func _session_tests() -> void:
+	var C = load("res://scripts/game/carry.gd")
+	var PU = load("res://scripts/game/perry_unlocks.gd")
+	C.test_all = false
+	# ---- Sfx keeps playing while the game is paused
+	var sfx = root.get_node("Sfx")
+	_check("sfx: Sfx runs in PROCESS_MODE_ALWAYS, so effects keep playing while paused", sfx.process_mode == Node.PROCESS_MODE_ALWAYS, "%d" % sfx.process_mode)
+	# ---- size cap: 6x is the most the shop sells, and a save above it loads at 6
+	C.reset()
+	C.gold = 100000
+	var buys: Array = []
+	for i in 3:
+		buys.append(C.buy("scale"))
+	_check("size cap: the shop sells +1 three times, 3x -> 6x", buys == ["", "", ""] and C.scale_cap == 6, "%s cap %d" % [buys, C.scale_cap])
+	_check("size cap: the shop item 'scale' returns 'max' once scale_cap == 6", C.buy("scale") == "max" and C.scale_cap == 6, "cap %d" % C.scale_cap)
+	var f := FileAccess.open(C.PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"gold": 77, "scale_cap": 9, "size": 3}))
+	f.close()
+	C.ready = false
+	C.ensure()
+	_check("size cap: a save with scale_cap 9 loads at 6", C.scale_cap == 6, "%d" % C.scale_cap)
+	C.reset()
+	# ---- Stage 2 enemies: 2x size, HP and speed, a quarter of the wait between attacks; stage 1 unchanged
+	var base: Dictionary = Roster.def("wolf")
+	var gs1: Node = await _s4_new(1)
+	var e1: Node2D = gs1.spawn_enemy("wolf", gs1.mera.global_position.x + 500.0)
+	await physics_frame
+	var ok1: bool = absf(float(e1.k) - float(base["k"])) < 0.0001 and int(e1.hp_max) == int(base["hp"]) and absf(float(e1.speed) - float(base["speed"])) < 0.0001 and float(e1.speed_mul) == 1.0
+	for i in e1.attacks.size():
+		ok1 = ok1 and absf(float(e1.attacks[i].get("cd", 1.0)) - float(base["attacks"][i].get("cd", 1.0))) < 0.0001
+	_check("stage 1 wolf is unchanged: size, HP, speed and attack waits as in the roster", ok1, "k %f hp %d speed %f" % [e1.k, e1.hp_max, e1.speed])
+	gs1.queue_free()
+	await process_frame
+	var g2: Node = await _s4_new(6)
+	var e2: Node2D = g2.spawn_enemy("wolf", g2.mera.global_position.x + 500.0)
+	await physics_frame
+	var ok2: bool = absf(float(e2.k) - 2.0 * float(base["k"])) < 0.0001 and int(e2.hp_max) == int(round(2.0 * float(base["hp"]))) and absf(float(e2.speed) - 2.0 * float(base["speed"])) < 0.0001 and float(e2.speed_mul) == 2.0
+	_check("stage 2 wolf (level 7): 2x size, 2x HP, 2x walking speed", ok2, "k %f hp %d speed %f mul %f" % [e2.k, e2.hp_max, e2.speed, e2.speed_mul])
+	var cd_ok: bool = e2.attacks.size() == base["attacks"].size() and e2.attacks.size() > 0
+	for i in e2.attacks.size():
+		cd_ok = cd_ok and absf(float(e2.attacks[i].get("cd", 1.0)) - 0.25 * float(base["attacks"][i].get("cd", 1.0))) < 0.0001
+	_check("stage 2 wolf: every attack's wait is a quarter of its stage 1 wait", cd_ok, "%s" % [e2.attacks])
+	g2.queue_free()
+	await process_frame
+	# ---- shop pages: 5 rows a page; Mera 17 rows (4 pages), Perry 27 rows (6 pages)
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	C.gold = 500
+	var menu: Node = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	_check("shop pages: Mera's shop has 17 rows on 4 pages", menu._all_rows().size() == 17 and menu._page_count() == 4, "rows %d pages %d" % [menu._all_rows().size(), menu._page_count()])
+	menu.shop_page = 2
+	menu.shop_i = 3
+	menu.btn = 0
+	menu._press_button()
+	_check("shop: opening it starts on page 1, row 1", menu.mode == "shop" and menu.shop_page == 0 and menu.shop_i == 0, "mode %s page %d row %d" % [menu.mode, menu.shop_page, menu.shop_i])
+	var ev := InputEventAction.new()
+	ev.pressed = true
+	ev.action = "left"
+	menu._shop_input(ev)
+	_check("shop: Left from page 1 wraps to page 4", menu.shop_page == 3, "page %d" % menu.shop_page)
+	ev.action = "right"
+	menu._shop_input(ev)
+	_check("shop: Right from page 4 wraps back to page 1", menu.shop_page == 0, "page %d" % menu.shop_page)
+	_check("shop: row rects are 116 px tall on a 124 px step from y 250", menu._shop_row_rect(0) == Rect2(160, 250, 1600, 116) and menu._shop_row_rect(4) == Rect2(160, 250 + 4 * 124, 1600, 116), "%s" % [menu._shop_row_rect(4)])
+	_perry_clear_stage2(C)
+	menu.shop_page = 3
+	menu.shop_i = 2
+	menu._toggle_character()
+	_check("shop pages: Perry's shop has 27 rows on 6 pages, and the toggle resets to page 1 row 1", C.perry_selected() and menu._all_rows().size() == 27 and menu._page_count() == 6 and menu.shop_page == 0 and menu.shop_i == 0, "rows %d pages %d" % [menu._all_rows().size(), menu._page_count()])
+	ev.action = "left"
+	menu._shop_input(ev)
+	_check("shop pages: Left from Perry's page 1 wraps to page 6", menu.shop_page == 5, "page %d" % menu.shop_page)
+	ev.action = "right"
+	menu._shop_input(ev)
+	_check("shop pages: Right from Perry's page 6 wraps to page 1", menu.shop_page == 0, "page %d" % menu.shop_page)
+	menu.queue_free()
+	await process_frame
+	# ---- controls pages in the pause menu: Left / Right turn pages, A moves on (and closes on the last page), B closes
+	C.character = "mera"
+	var gc: Node = await _s4_new(1)
+	var hc = gc.hud
+	gc.toggle_pause()
+	hc.controls_page = 2
+	hc.pause_sel = 3
+	hc._pause_confirm()
+	_check("controls: CONTROLS from the pause menu opens on page 1 whatever the last page was", hc.pause_controls and hc.overlay and hc.controls_page == 0, "page %d" % hc.controls_page)
+	var np: int = hc._controls_pages()
+	var want_np: int = ceili(float(load("res://scripts/game/hud.gd").CONTROLS.size()) / 4.0)
+	_check("controls: Mera's list is %d pages of 4 entries" % want_np, np == want_np and np >= 2, "%d pages" % np)
+	_ctrl_key(hc, "right")
+	_check("controls: Right turns to page 2", hc.controls_page == 1, "page %d" % hc.controls_page)
+	_ctrl_key(hc, "left")
+	_ctrl_key(hc, "left")
+	_check("controls: Left turns back and stops at page 1", hc.controls_page == 0 and hc.pause_controls, "page %d" % hc.controls_page)
+	_ctrl_key(hc, "btn_a")
+	_check("controls: A moves to the next page", hc.controls_page == 1 and hc.pause_controls, "page %d" % hc.controls_page)
+	for i in np - 2:
+		_ctrl_key(hc, "right")
+	_check("controls: the last page is reached", hc.controls_page == np - 1 and hc.pause_controls, "page %d of %d" % [hc.controls_page + 1, np])
+	_ctrl_key(hc, "btn_a")
+	_check("controls: A on the last page closes CONTROLS", not hc.pause_controls and not hc.overlay, "")
+	hc._pause_confirm()
+	hc.controls_page = 1
+	_ctrl_key(hc, "btn_b")
+	_check("controls: B closes CONTROLS from any page", not hc.pause_controls and not hc.overlay, "")
+	# Perry's list has its own page count
+	gc.toggle_pause()
+	gc.queue_free()
+	await process_frame
+	var gp: Node = await _perry_new()
+	var want_p: int = ceili(float(load("res://scripts/game/perry_hud.gd").CONTROLS.size()) / 4.0)
+	_check("controls: Perry's list is %d pages of 4 entries" % want_p, gp.hud._controls_pages() == want_p and want_p >= 2, "%d" % gp.hud._controls_pages())
+	gp.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+
+
+## an action key for the pause menu's controls page (the HUD reads it through its unhandled input)
+func _ctrl_key(hud: Node, action: String) -> void:
+	var ev := InputEventAction.new()
+	ev.action = action
+	ev.pressed = true
+	hud._unhandled_input(ev)
+
+
 # ================================================================ Stage 3 phase 3: playable Perry (scripts/game/perry_player.gd, perry_unlocks.gd)
 func _perry_new(level: int = 0) -> Node:
 	var C = load("res://scripts/game/carry.gd")
@@ -3861,13 +4045,22 @@ func _perry_clear_stage2(C) -> void:
 		C.record_clear(i)
 
 
+## the right-stick items and the device scheme are shared state: every Perry block that sets them clears them after
+func _perry_gesture_reset() -> void:
+	var CT = root.get_node("Controls")
+	CT.flick_n = 0
+	CT.r3_pending = false
+	CT.scheme = "key"
+	CT.clear_gestures()
+
+
 func _perry_tests() -> void:
 	var C = load("res://scripts/game/carry.gd")
 	var PU = load("res://scripts/game/perry_unlocks.gd")
 	var T = load("res://scripts/game/tuning.gd")
 	C.test_all = false
 	root.get_node("HitStop").enabled = false
-	# ---- locked until Moonlit Sanctum (level index 10) is cleared
+	# ---- locked until Perry's Arena (level index 11) is cleared
 	C.reset()
 	var set0: bool = C.set_character("perry")
 	_check("perry: locked at the start, the choice stays Mera", not C.perry_unlocked() and not set0 and C.character == "mera", "")
@@ -3879,8 +4072,8 @@ func _perry_tests() -> void:
 	gl.queue_free()
 	await process_frame
 	C.reset()
-	C.record_clear(10)
-	_check("perry: unlocked by a clear of level index 10, and the title menu choice sticks", C.perry_unlocked() and C.set_character("perry") and C.perry_selected(), "")
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	_check("perry: unlocked by a clear of level index 11 (Perry's Arena), and the title menu choice sticks", C.perry_unlocked() and C.set_character("perry") and C.perry_selected(), "")
 	# ---- the game spawns her
 	var g: Node = await _perry_new()
 	var m: Node2D = g.mera
@@ -3954,14 +4147,14 @@ func _perry_tests() -> void:
 		ids["thrust"] == 25 and ids["taunt"] == 35 and ids["fly"] == 55 and ids["energy_wave"] == 55 and ids["ultimate"] == 85 and ids["earthquake"] == 100 and ids["meter_charge"] == 100 and ids["push_kick"] == 25, str(ids))
 	# ---- locked by stage progress: names the level to clear
 	C.reset()
-	C.record_clear(10)
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
 	C.gold = 500
 	var rl: String = C.buy("perry:crash")
 	_check("perry shop: a row whose Stage 2 level is not cleared says 'Clear Stage 2 level 3 first' and takes no gold", rl == "locked" and C.gold == 500 and PU.locked_reason("crash") == "Clear Stage 2 level 3 first" and reason_before == "" , "%s / %s / before '%s'" % [rl, PU.locked_reason("crash"), reason_before])
 	_check("perry shop: level 5 and above cap at Stage 2 level 5 (earthquake)", PU.locked_reason("earthquake") == "" and PU.req_index("earthquake") == 10 and PU.req_index("thrust") == 6, "")
 	# ---- parry, block, HP, death
 	C.reset()
-	C.record_clear(10)
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
 	g = await _perry_new()
 	m = g.mera
 	m.invuln = 0.0
@@ -3993,7 +4186,7 @@ func _perry_tests() -> void:
 	await process_frame
 	# ---- potions heal HP, never change the size Carry holds for Mera
 	C.reset()
-	C.record_clear(10)
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
 	g = await _perry_new()
 	m = g.mera
 	m.hp = 20
@@ -4007,7 +4200,7 @@ func _perry_tests() -> void:
 	await process_frame
 	# ---- an energy move: charge R2, release fires the wave and spends energy; locked until bought
 	C.reset()
-	C.record_clear(10)
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
 	_perry_clear_stage2(C)
 	C.gold = 500
 	g = await _perry_new()
@@ -4028,7 +4221,7 @@ func _perry_tests() -> void:
 	await process_frame
 	# ---- Bone Powder
 	C.reset()
-	C.record_clear(10)
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
 	C.gold = 500
 	var rp: String = C.buy("perry:bone_powder")
 	_check("perry shop: Bone Powder costs 90 gold and adds 25 max HP", rp == "" and C.perry_hp_max == 75 and C.gold == 410, "%s hp_max %d gold %d" % [rp, C.perry_hp_max, C.gold])
@@ -4068,12 +4261,13 @@ func _perry_tests() -> void:
 	root.add_child(menu)
 	await process_frame
 	menu._toggle_character()
-	_check("menu: the character choice says why Perry is locked and stays Mera", menu.note.find("locked") >= 0 and C.character == "mera" and menu._page_count() == 2, menu.note)
+	_check("menu: the character choice says why Perry is locked and stays Mera", menu.note.find("locked") >= 0 and C.character == "mera" and menu._page_count() == 4, menu.note)
 	_perry_clear_stage2(C)
 	C.gold = 100
+	menu.shop_page = 3
+	menu.shop_i = 2
 	menu._toggle_character()
-	_check("menu: with Perry unlocked X switches to her, and the shop gets two Perry pages", C.perry_selected() and menu._page_count() == 4, "%s %d" % [C.character, menu._page_count()])
-	menu.shop_page = 2
+	_check("menu: with Perry unlocked the toggle switches to her, resets the shop to its first page, and her shop has six pages", C.perry_selected() and menu.shop_page == 0 and menu.shop_i == 0 and menu._page_count() == 6, "%s %d page %d" % [C.character, menu._page_count(), menu.shop_page])
 	menu.shop_i = 1
 	var row_what: String = menu._shop_what(1)
 	var price_txt: int = menu._shop_price(1)
@@ -4082,6 +4276,769 @@ func _perry_tests() -> void:
 	_check("menu: a Perry row shows its price in gold, buying it makes the row 'owned'", row_what == "perry:thrust" and price_txt == 25 and C.gold == 75 and menu._shop_stat(1) == "owned" and stat_locked.begins_with("Clear Stage 2 level") == false, "%s %d %s gold %d" % [row_what, price_txt, stat_locked, C.gold])
 	menu.queue_free()
 	await process_frame
+	# ---- the controls: Y is the spin, L1 is only the Push Kick, R1 never summons, the right stick drinks and summons
+	var CT = root.get_node("Controls")
+	_perry_gesture_reset()
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	g = await _perry_new()
+	m = g.mera
+	_check("perry: no unlocks are bought in the spin test", C.perry_owned.is_empty(), "%s" % [C.perry_owned])
+	e = g.spawn_enemy("p_goblin", m.global_position.x + 100.0)
+	await physics_frame
+	var hp_y: int = e.hp
+	m.move_log.clear()
+	s = []
+	_tap(s, 3, "btn_y")
+	await _drive(g, s, 60)
+	_check("perry: Y starts the free spin attack with no unlocks bought, and it hits the goblin beside her", "spin_attack" in m.move_log and e.hp < hp_y, "log %s hp %d -> %d" % [m.move_log, hp_y, e.hp])
+	g.queue_free()
+	await process_frame
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	g = await _perry_new()
+	m = g.mera
+	m.potions = 1
+	m.hp = 20
+	s = []
+	_tap(s, 5, "l1", 4)
+	await _drive(g, s, 30)
+	_check("perry: L1 without Push Kick does nothing (potion kept, HP unchanged)", m.potions == 1 and m.hp == 20, "potions %d hp %d" % [m.potions, m.hp])
+	s = [[2, "down", true], [5, "l1", true], [9, "l1", false], [20, "down", false]]
+	await _drive(g, s, 30)
+	_check("perry: Down + L1 without Push Kick does nothing either", m.potions == 1 and m.hp == 20, "potions %d hp %d" % [m.potions, m.hp])
+	g.queue_free()
+	await process_frame
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	g = await _perry_new()
+	m = g.mera
+	_give_cards(g, {"ranger": 1})
+	var n_r1: int = g.allies().size()
+	s = []
+	_tap(s, 3, "r1", 3)
+	await _drive(g, s, 20)
+	_check("perry: an R1 tap summons nothing and keeps the card", g.allies().size() == n_r1 and int(g.cards.get("ranger", 0)) == 1, "allies %d cards %s" % [g.allies().size(), g.cards])
+	g.queue_free()
+	await process_frame
+	# ---- right-stick items: flick 8 health, 2 mana, 6 summon, pending R3 by scheme
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	g = await _perry_new()
+	m = g.mera
+	m.hp = 20
+	m.potions = 1
+	CT.flick_n = 8
+	await _drive(g, [], 3)
+	_check("perry: flick 8 (stick up) drinks a health potion when hp is below max", m.potions == 0 and m.hp == 20 + T.PERRY_POTION_HP and CT.flick_n == 0, "potions %d hp %d" % [m.potions, m.hp])
+	m.stamina = 5.0
+	m.mana_pots = 1
+	CT.flick_n = 2
+	await _drive(g, [], 3)
+	_check("perry: flick 2 (stick down) drinks a mana potion when the mana meter is low", m.mana_pots == 0 and m.stamina > 5.0, "mana pots %d stamina %.1f" % [m.mana_pots, m.stamina])
+	_give_cards(g, {"ranger": 1})
+	var n_f: int = g.allies().size()
+	CT.flick_n = 6
+	await _drive(g, [], 10)
+	_check("perry: flick 6 (stick right) summons an ally and uses the card", g.allies().size() == n_f + 1 and int(g.cards.get("ranger", 0)) == 0, "allies %d cards %s" % [g.allies().size(), g.cards])
+	g.queue_free()
+	await process_frame
+	# a fresh level: no ally is out yet (one of each type at a time, so the R3 test must not reuse the flick 6 ally)
+	g = await _perry_new()
+	m = g.mera
+	_give_cards(g, {"ranger": 1})
+	CT.scheme = "touch"
+	CT.r3_pending = true
+	await _drive(g, [], 10)
+	_check("perry: a pending R3 on touch does not summon", g.allies().size() == 0 and not CT.r3_pending and int(g.cards.get("ranger", 0)) == 1, "allies %d" % g.allies().size())
+	CT.scheme = "pad"
+	CT.r3_pending = true
+	await _drive(g, [], 10)
+	_check("perry: a pending R3 on a pad summons an ally", g.allies().size() == 1 and int(g.cards.get("ranger", 0)) == 0, "allies %d cards %s" % [g.allies().size(), g.cards])
+	_perry_gesture_reset()
+	g.queue_free()
+	await process_frame
+	# ---- X + Y still gives the taunt once Taunt is bought
+	C.reset()
+	_perry_clear_stage2(C)
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	C.gold = 300
+	var r_taunt: String = C.buy("perry:taunt")
+	g = await _perry_new()
+	m = g.mera
+	m.move_log.clear()
+	s = []
+	_tap(s, 5, "btn_x")
+	_tap(s, 5, "btn_y")
+	await _drive(g, s, 40)
+	_check("perry: X + Y still gives the taunt once Taunt is bought", r_taunt == "" and "taunt" in m.move_log, "buy '%s' log %s" % [r_taunt, m.move_log])
+	g.queue_free()
+	await process_frame
+	_perry_gesture_reset()
 	C.reset()
 	C.test_all = true
 
+
+# ===== stage 3 phase 4: ladders and platforms
+func _ladder_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var C = load("res://scripts/game/carry.gd")
+	C.test_all = true
+	root.get_node("HitStop").enabled = false
+	var G := 1060.0
+	var g: Node = await _s4_new(0)
+	var m: Node2D = g.mera
+	var x: float = m.position.x
+	# ---- platforms: surface_under, standing on top after a jump at exactly PLATFORM_STEP_H, expiry
+	m.set_size(1, true)
+	var pl: Node2D = g.build_platform(x, G - T.PLATFORM_STEP_H, 260.0, 25.0)
+	_check("platform: surface_under sees the built plank", absf(g.surface_under(Vector2(x, G - 100.0), 0.0) - (G - T.PLATFORM_STEP_H)) < 0.01 and g.surface_under(Vector2(x + 400.0, G), 0.0) == G, "%f" % g.surface_under(Vector2(x, G - 100.0), 0.0))
+	var s: Array = []
+	_tap(s, 2, "up")
+	await _drive(g, s, 70)
+	_check("platform: size 1 Mera (jump apex ~90 px) lands on a plank PLATFORM_STEP_H (%d px) above the floor" % int(T.PLATFORM_STEP_H), m.on_ground and absf(m.position.y - (G - T.PLATFORM_STEP_H)) < 0.5, "y %.1f state %s" % [m.position.y, m.state])
+	pl.queue_free()
+	await _drive(g, [], 3)
+	_check("platform: a freed plank gives its surface back (she is dropped to the floor)", g.built_surfaces.is_empty() and g.surface_under(Vector2(x, G - 100.0), 0.0) == G, "%d" % g.built_surfaces.size())
+	await _drive(g, [], 60)
+	var hi: Node2D = g.build_platform(x, G - 3.0 * T.PLATFORM_STEP_H, 260.0, 25.0)
+	m.position = Vector2(x, G)
+	m.on_ground = true
+	s = []
+	_tap(s, 2, "up")
+	await _drive(g, s, 70)
+	_check("platform: a plank 3 steps up is not reachable with one jump (control for the test above)", m.position.y >= G - 1.0, "y %.1f" % m.position.y)
+	hi.queue_free()
+	var tp: Node2D = g.build_platform(x + 600.0, G - 60.0, 200.0, 0.5)
+	_check("platform: ttl 0.5 s, then the surface is gone and the node is freed", g.surface_under(Vector2(x + 600.0, G - 100.0), 0.0) == G - 60.0, "")
+	await _drive(g, [], 45)
+	_check("platform: ttl removes the surface and frees the node", not is_instance_valid(tp) and g.surface_under(Vector2(x + 600.0, G - 100.0), 0.0) == G and g.built_surfaces.is_empty(), "")
+	var perm: Node2D = g.build_platform(x + 600.0, G - 60.0, 200.0, 0.0)
+	await _drive(g, [], 120)
+	_check("platform: ttl 0 is permanent", is_instance_valid(perm) and g.surface_under(Vector2(x + 600.0, G - 100.0), 0.0) == G - 60.0, "")
+	perm.queue_free()
+	await _drive(g, [], 3)
+	# ---- Up with no ladder still jumps
+	m.set_size(2, true)
+	m.position = Vector2(x, G)
+	m.on_ground = true
+	await _drive(g, [], 30)
+	s = []
+	_tap(s, 2, "up")
+	await _drive(g, s, 8)
+	_check("ladder: Up with no ladder near still jumps", m.state == "air" and m.position.y < G - 5.0, "%s y %.1f" % [m.state, m.position.y])
+	await _drive(g, [], 80)
+	# ---- Mera climbs: grab, up, step onto the plank at the top, Down returns
+	g.build_platform(x, G - 300.0, 300.0, 0.0)
+	var lad: Node2D = g.build_ladder(x, G, G - 300.0, 0.0)
+	_check("ladder: ladders_at / Ladder.nearest find it by column and span, and not elsewhere", g.ladders_at(x + 30.0, G - 100.0).size() == 1 and g.ladders_at(x + 60.0, G - 100.0).is_empty() and g.ladders_at(x, G - 400.0).is_empty() and Ladder.nearest(g, x - 20.0, G) == lad and Ladder.nearest(g, x + 200.0, G) == null, "")
+	m.position = Vector2(x, G)
+	m.on_ground = true
+	await _drive(g, [], 3)
+	s = []
+	_tap(s, 2, "up")
+	await _drive(g, s, 6)
+	_check("ladder: Up at the foot grabs it (no jump)", m.state == "climb" and m.position.y > G - 20.0, "%s y %.1f" % [m.state, m.position.y])
+	s = [[1, "up", true]]
+	await _drive(g, s, 30)
+	var y30: float = m.position.y
+	_check("ladder: holding Up climbs at LADDER_SPEED with no gravity", m.state == "climb" and y30 < G - 100.0 and absf((G - y30) - T.LADDER_SPEED * 0.5) < 80.0, "state %s y %.1f" % [m.state, y30])
+	m.forced["up"] = false
+	await _drive(g, [], 20)
+	_check("ladder: releasing everything stays on the ladder", m.state == "climb" and absf(m.position.y - y30) < 1.0, "y %.1f vs %.1f" % [m.position.y, y30])
+	m.forced["up"] = true
+	await _drive(g, [], 90)
+	_check("ladder: reaching the top steps onto the surface above", m.state == "ground" and m.on_ground and absf(m.position.y - (G - 300.0)) < 0.5, "%s y %.1f" % [m.state, m.position.y])
+	m.forced["up"] = false
+	await _drive(g, [], 10)
+	_check("ladder: she keeps standing on the plank", m.state == "ground" and absf(m.position.y - (G - 300.0)) < 0.5, "%s y %.1f" % [m.state, m.position.y])
+	s = [[2, "down", true]]
+	await _drive(g, s, 20)
+	_check("ladder: Down at the top grabs it and climbs down", m.state == "climb" and m.position.y > G - 300.0 + 20.0, "%s y %.1f" % [m.state, m.position.y])
+	await _drive(g, [], 120)
+	m.forced["down"] = false
+	_check("ladder: Down returns her to the floor", m.state == "ground" and m.on_ground and absf(m.position.y - G) < 0.5, "%s y %.1f" % [m.state, m.position.y])
+	# ---- sideways lets go; a hit drops her
+	m.position = Vector2(x, G - 150.0)
+	m.state = "climb"
+	m.set_meta("climb_ladder", lad)
+	m.on_ground = false
+	await _drive(g, [[2, "right", true]], 6)
+	_check("ladder: Right lets go (she falls)", m.state == "air" or m.state == "ground", m.state)
+	m.forced["right"] = false
+	await _drive(g, [], 80)
+	m.position = Vector2(x, G - 150.0)
+	m.vel = Vector2.ZERO
+	m.state = "climb"
+	m.set_meta("climb_ladder", lad)
+	await _drive(g, [], 3)
+	m.invuln = 0.0
+	m.take_hit(1, x + 50.0)
+	_check("ladder: a hit while climbing puts her in the normal hurt state", m.state == "hurt", m.state)
+	await _drive(g, [], 120)
+	_check("ladder: after the hit she fell to the floor and is no longer climbing", m.state != "climb" and m.on_ground and absf(m.position.y - G) < 0.5, "%s y %.1f" % [m.state, m.position.y])
+	# ---- climb_step for allies / enemies
+	var dummy := Node2D.new()
+	g.add_child(dummy)
+	dummy.global_position = Vector2(x + 10.0, G)
+	var r := 0
+	for i in 200:
+		r = Ladder.climb_step(dummy, lad, -1, 1.0 / 60.0, 240.0)
+	_check("ladder: climb_step moves any Node2D to the top, onto the column, and reports the end", r == -1 and absf(dummy.global_position.y - (G - 300.0)) < 0.5 and absf(dummy.global_position.x - x) < 0.5, "%d %s" % [r, dummy.global_position])
+	r = Ladder.climb_step(dummy, lad, 1, 1.0 / 60.0, 240.0)
+	_check("ladder: climb_step down moves the other way", r == 0 and dummy.global_position.y > G - 300.0, "")
+	dummy.queue_free()
+	# ---- expiry
+	var tl: Node2D = g.build_ladder(x + 700.0, G, G - 200.0, 0.4)
+	await _drive(g, [], 40)
+	_check("ladder: ttl frees it and unregisters it", not is_instance_valid(tl) and g.ladders_at(x + 700.0, G - 50.0).is_empty(), "")
+	# ---- level loader (permanent)
+	var n0: int = g.ladders.size()
+	g._build_climbables({"ladders": [[x + 900.0, G, G - 250.0]], "platforms": [[x + 800.0, x + 1000.0, G - 250.0]]})
+	await _drive(g, [], 5)
+	_check("ladder: a level's ladders / platforms arrays build permanent objects", g.ladders.size() == n0 + 1 and absf(g.surface_under(Vector2(x + 900.0, G - 300.0), 0.0) - (G - 250.0)) < 0.01, "")
+	g.queue_free()
+	await process_frame
+	# ---- Perry climbs too
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	var gp: Node = await _perry_new()
+	var pp: Node2D = gp.mera
+	var px: float = pp.position.x
+	gp.build_platform(px, G - 300.0, 300.0, 0.0)
+	gp.build_ladder(px, G, G - 300.0, 0.0)
+	pp.position = Vector2(px, G)
+	await _drive(gp, [], 5)
+	s = [[2, "up", true]]
+	await _drive(gp, s, 20)
+	_check("ladder: Perry grabs it with Up and climbs", pp.state == "climb" and pp.position.y < G - 40.0, "%s y %.1f" % [pp.state, pp.position.y])
+	await _drive(gp, [], 90)
+	pp.forced["up"] = false
+	_check("ladder: Perry reaches the top and stands on the plank", pp.state == "ground" and pp.on_ground and absf(pp.position.y - (G - 300.0)) < 0.5, "%s y %.1f" % [pp.state, pp.position.y])
+	await _drive(gp, [[1, "down", true]], 130)
+	pp.forced["down"] = false
+	_check("ladder: Perry climbs back down to the floor", pp.state == "ground" and absf(pp.position.y - G) < 0.5, "%s y %.1f" % [pp.state, pp.position.y])
+	pp.position = Vector2(px + 800.0, G)
+	await _drive(gp, [], 5)
+	await _drive(gp, [[1, "up", true], [4, "up", false]], 10)
+	_check("ladder: Perry's Up with no ladder still jumps", pp.state == "air" and pp.position.y < G - 5.0, "%s y %.1f" % [pp.state, pp.position.y])
+	gp.queue_free()
+	await process_frame
+	_perry_gesture_reset()
+	C.reset()
+	C.test_all = true
+
+
+# ===== stage 3 phase 6: Changeling enemies
+func _cl_tests() -> void:
+	var C = load("res://scripts/game/carry.gd")
+	var RO = load("res://scripts/game/roster.gd")
+	var LV = load("res://scripts/game/levels.gd")
+	var ids := ["cl_grunt", "cl_mud", "cl_rat_king", "cl_archer", "cl_warlord", "cl_knight", "cl_ranger", "cl_weaver", "cl_mage"]
+	var data_ok := true
+	var info := ""
+	for id in ids:
+		if not RO.DEFS.has(id) or not RO.data().has(id) or not RO.def(id).has("script"):
+			data_ok = false
+			info += id + " "
+	_check("changeling: all nine enemies are in Roster.DEFS and roster.json with an AI script", data_ok, info)
+	var faces_ok := true
+	for id in ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage"]:
+		if bool(RO.def(id).get("boss", false)) or int(RO.def(id)["hp"]) < 2 * int(RO.def("cl_grunt")["hp"]):
+			faces_ok = false
+	_check("changeling: the four faces are tough non-boss enemies; the Warlord is the boss", faces_ok and bool(RO.def("cl_warlord")["boss"]) and RO.BOSSES.get(19, "") == "cl_warlord" and not RO.LEVELS.has(19), "")
+	var waves_ok := true
+	var seen := {}
+	for li in range(12, 19):
+		if not RO.LEVELS.has(li) or not RO.BEHIND_WAVES.has(li):
+			waves_ok = false
+			continue
+		for id in RO.LEVELS[li]:
+			seen[id] = true
+	for id in ids:
+		if id != "cl_warlord" and not seen.has(id):
+			waves_ok = false
+	_check("changeling: levels 12 to 18 have waves that use every Changeling enemy", waves_ok, str(seen.keys()))
+	# Stage 3 gets plain DEFS values (no Stage 2 doubling), Stage 2 still doubles
+	LV.current = 1
+	var g: Node = await _new_game()
+	var m: Node = g.mera
+	m.position.x = 6000.0
+	LV.current = 14
+	var e3: Node2D = g.spawn_enemy("cl_grunt", 7200.0)
+	LV.current = 7
+	var e2: Node2D = g.spawn_enemy("cl_grunt", 7400.0)
+	LV.current = 1
+	_check("changeling: stage 3 spawns use the plain DEFS numbers (k %.1f hp %d), stage 2 would double them" % [e3.k, e3.hp], e3.k == 8.0 and e3.hp == 16 and e3.speed == 280.0 and e2.k == 16.0, "%s %s" % [e3.k, e2.k])
+	g.queue_free()
+	await process_frame
+	# behaviours, one fresh game each
+	var beh := {}
+	for id in ["cl_grunt", "cl_rat_king", "cl_archer", "cl_mud", "cl_ranger", "cl_weaver", "cl_mage"]:
+		LV.current = 1
+		g = await _new_game()
+		m = g.mera
+		m.position.x = 6000.0
+		m.set_size(6, true)
+		g.snap_camera()
+		var gap := 150.0 if id in ["cl_ranger", "cl_weaver", "cl_mage"] else 700.0
+		var e: Node2D = g.spawn_enemy(id, 6000.0 + gap + e_half(RO, id), {"seed": 3})
+		var x0: float = e.global_position.x
+		var top := 0.0
+		var shots := 0
+		var mud_seen := false
+		for f in 420:
+			await physics_frame
+			if f % 20 == 0:
+				m.set_size(6, true)
+			if is_instance_valid(e):
+				top = maxf(top, e.rest_y - e.global_position.y)
+			for c in g.world.get_children():
+				if c.get_script() != null and String(c.get_script().resource_path).ends_with("enemy_shot.gd"):
+					shots += 1
+				if c.get_script() != null and String(c.get_script().resource_path).ends_with("cl_shot.gd"):
+					shots += 1
+					if c.get("kind") == "mud":
+						mud_seen = true
+		beh[id] = {"moved": absf(e.global_position.x - x0), "top": top, "shots": shots, "mud": mud_seen, "hits": e.hits_landed,
+			"hops": int(e.get("hops_back") if e.get("hops_back") != null else 0), "blinks": int(e.get("blinks") if e.get("blinks") != null else 0), "hist": e.history.size()}
+		g.queue_free()
+		await process_frame
+	_check("changeling: the grunt lunges and the rat king hops (it leaves the ground)", beh["cl_grunt"]["hits"] > 0 and beh["cl_rat_king"]["top"] > 40.0, str(beh["cl_grunt"]) + str(beh["cl_rat_king"]))
+	_check("changeling: the archer stands still and fires arrows", beh["cl_archer"]["moved"] < 1.0 and beh["cl_archer"]["shots"] > 0, str(beh["cl_archer"]))
+	_check("changeling: the mud revenant lobs mud", beh["cl_mud"]["mud"], str(beh["cl_mud"]))
+	_check("changeling: the ranger hops back, the weaver backs off, the mage blinks", beh["cl_ranger"]["hops"] > 0 and beh["cl_weaver"]["moved"] > 100.0 and beh["cl_mage"]["blinks"] > 0, "%s %s %s" % [beh["cl_ranger"], beh["cl_weaver"], beh["cl_mage"]])
+	# the Warlord: phases, charge stun, slam waves
+	LV.current = 1
+	g = await _new_game()
+	m = g.mera
+	m.position.x = 6000.0
+	m.set_size(6, true)
+	g.snap_camera()
+	var w: Node2D = g.spawn_enemy("cl_warlord", 7500.0)
+	await physics_frame
+	var p1 := int(w.phase)
+	var n1: int = w.attacks.size()
+	w.take_damage(int(w.hp_max * 0.4), 6000.0)
+	var p2 := int(w.phase)
+	var has_charge := false
+	for a in w.attacks:
+		if bool(a.get("charge", false)):
+			has_charge = true
+	var has_slam_early := false
+	for a in w.attacks:
+		if bool(a.get("slam", false)):
+			has_slam_early = true
+	w.take_damage(int(w.hp_max * 0.3), 6000.0)
+	var p3 := int(w.phase)
+	var has_slam := false
+	var tell_fast := false
+	for a in w.attacks:
+		if bool(a.get("slam", false)):
+			has_slam = true
+		if a["anim"] == "slash" and float(a["tell"]) < 0.5:
+			tell_fast = true
+	_check("changeling: the Warlord moves through 3 phases by hp (attacks %d -> %d), the charge from phase 2, the slam and faster tells from phase 3" % [n1, w.attacks.size()],
+		p1 == 1 and p2 == 2 and p3 == 3 and has_charge and not has_slam_early and has_slam and tell_fast and w.phase_log == [1, 2, 3], "%s %s %s %s" % [p1, p2, p3, w.phase_log])
+	# charge into the arena wall stuns him
+	w.queue_free()
+	g.mobs.erase(w)
+	await physics_frame
+	var w2: Node2D = g.spawn_enemy("cl_warlord", 1500.0)
+	w2.hp = int(w2.hp_max * 0.5)
+	w2.take_damage(1, 6000.0)
+	m.position.x = 300.0
+	m.invuln = 99.0
+	await physics_frame
+	var charge: Dictionary = {}
+	for a in w2.attacks:
+		if bool(a.get("charge", false)):
+			charge = a
+	w2.cooldown = 99.0
+	w2._start_tell(charge, -1)
+	for f in 240:
+		await physics_frame
+		m.invuln = 99.0
+	_check("changeling: a Warlord charge that reaches the arena edge stuns him", w2.charge_stuns >= 1 and w2.charges >= 1, "stuns %d charges %d x %.0f" % [w2.charge_stuns, w2.charges, w2.global_position.x])
+	w2.hp = int(w2.hp_max * 0.2)
+	w2.take_damage(1, 6000.0)
+	await physics_frame
+	var slam: Dictionary = {}
+	for a in w2.attacks:
+		if bool(a.get("slam", false)):
+			slam = a
+	w2.cooldown = 99.0
+	w2.stun_t = 0.0
+	w2._to_idle(99.0)
+	m.position.x = w2.global_position.x - 300.0
+	await physics_frame
+	w2._start_tell(slam, -1)
+	var waves := 0
+	for f in 150:
+		await physics_frame
+		m.invuln = 99.0
+		for c in g.world.get_children():
+			if c.get_script() != null and String(c.get_script().resource_path).ends_with("cl_wave.gd"):
+				waves = maxi(waves, 1)
+	_check("changeling: the phase 3 jump slam sends floor shockwaves", w2.slams >= 1 and waves == 1, "slams %d waves %d" % [w2.slams, waves])
+	g.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+
+
+# ===== stage 3 phase 5: maps and flow
+func _stage3_map_tests() -> void:
+	var LVm = load("res://scripts/game/levels.gd")
+	var CA = load("res://scripts/game/carry.gd")
+	var ids := ["p_arena", "ch_greenwood", "ch_bramble", "ch_watchtower", "ch_marsh", "ch_gate", "ch_undercroft", "ch_faces", "ch_throne"]
+	var ls: Array = LVm.list()
+	var order_ok: bool = ls.size() == 20 and LVm.STAGE3_FROM == 12
+	for k in ids.size():
+		order_ok = order_ok and String(ls[11 + k]["id"]) == ids[k]
+	_check("stage 3: 20 levels, p_arena at 11 and the eight Changeling maps at 12..19 in order", order_ok, str(ls.size()))
+	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(19) == 2, "")
+	var files_ok := true
+	var wide_ok := true
+	var arrays_ok := true
+	var steps_ok := true
+	var bad := ""
+	for i in range(11, 20):
+		var lv: Dictionary = ls[i]
+		var id := String(lv["id"])
+		for f in ["sky", "ground", "thumb"]:
+			if not FileAccess.file_exists("res://assets/levels/%s/%s.png" % [id, f]):
+				files_ok = false
+				bad = "%s %s" % [id, f]
+		for L in lv["layers"]:
+			if not ResourceLoader.exists(String(L["file"])):
+				files_ok = false
+				bad = String(L["file"])
+		if not ResourceLoader.exists(String(lv["music"])):
+			files_ok = false
+			bad = String(lv["music"])
+		if id == "p_arena" or id == "ch_throne":
+			wide_ok = wide_ok and float(lv.get("map_w", 0)) == 7200.0
+		else:
+			var ground_w := float(lv["layers"][1]["w"])
+			wide_ok = wide_ok and ground_w >= 9600.0 + 1024.0
+		if id == "p_arena":
+			continue
+		var surfs: Array = lv["surfaces"]
+		var ladders: Array = lv["ladders"]
+		arrays_ok = arrays_ok and lv.has("platforms") and (lv["platforms"] is Array) and not surfs.is_empty()
+		for sf in surfs:
+			arrays_ok = arrays_ok and sf.size() == 3 and float(sf[1]) > float(sf[0]) and float(sf[2]) < 1060.0 and float(sf[2]) >= 1060.0 - 130.0 * 6.0 - 1.0
+			arrays_ok = arrays_ok and float(sf[0]) >= 1800.0 and float(sf[1]) <= float(lv["layers"][1]["w"])
+		for ld in ladders:
+			arrays_ok = arrays_ok and ld.size() == 3 and float(ld[1]) > float(ld[2]) and float(ld[1]) <= 1060.0
+		# every ledge is a step of at most 140 px: the floor or a lower surface within reach, or a ladder up to it
+		for sf in surfs:
+			var y := float(sf[2])
+			var ok := y >= 1060.0 - 140.0
+			for o in surfs:
+				if not ok and float(o[2]) > y and float(o[2]) - y <= 140.0 and float(o[0]) - 350.0 <= float(sf[1]) and float(o[1]) + 350.0 >= float(sf[0]):
+					ok = true
+			for ld in ladders:
+				if not ok and float(ld[2]) == y and float(ld[0]) >= float(sf[0]) and float(ld[0]) <= float(sf[1]):
+					ok = true
+			if not ok:
+				steps_ok = false
+				bad = "%s ledge %s" % [id, str(sf)]
+	_check("stage 3: every new level has sky, ground, thumb, layer files and music", files_ok, bad)
+	_check("stage 3: Changeling maps are at least 9600 px of art (Perry's Arena and the Throne are 7200 px arenas)", wide_ok, "")
+	_check("stage 3: surfaces, ladders and platforms arrays are well formed", arrays_ok, "")
+	_check("stage 3: every ledge is one jump (<= 140 px) above the floor or a lower step, or has a ladder", steps_ok, bad)
+	# the level select's third page: eight cards, Left / Right reach them
+	CA.reset()
+	CA.ensure()
+	CA.unlocked = 19
+	LVm.current = 12
+	var pm: Control = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(pm)
+	await process_frame
+	_check("stage 3 menu: the page shows 8 cards, all inside the screen and not overlapping", pm.page_levels(2).size() == 8 and pm.page_of(12) == 2, str(pm.page_levels(2)))
+	var inside := true
+	for a in pm.page_levels(2):
+		var ra: Rect2 = pm._card(a)
+		inside = inside and ra.position.x >= 0.0 and ra.end.x <= 1920.0 and ra.end.y <= 800.0
+		for b in pm.page_levels(2):
+			if a != b and ra.intersects(pm._card(b)):
+				inside = false
+	_check("stage 3 menu: eight cards are in two rows of four", inside and absf(pm._card(12).position.y - pm._card(15).position.y) < 0.1 and pm._card(16).position.y > pm._card(12).end.y, "")
+	pm.sel = 12
+	var reached := [pm.sel]
+	for k in 7:
+		pm._move(1)
+		reached.append(pm.sel)
+	_check("stage 3 menu: Right walks 12 to 19 and Left walks back", reached == [12, 13, 14, 15, 16, 17, 18, 19], str(reached))
+	pm._move(1)
+	_check("stage 3 menu: Right from the last card wraps to level 1 (page 1)", pm.sel == 0 and pm.page_of(0) == 0, "sel %d" % pm.sel)
+	pm.sel = 11
+	pm._move(1)
+	_check("stage 3 menu: Right from Perry's Arena goes to Greenwood Road on the third page", pm.sel == 12 and pm.page_of(pm.sel) == 2, "sel %d" % pm.sel)
+	pm.queue_free()
+	await process_frame
+	# unlocks: clearing level index 10 opens 11; Perry's Arena opens Stage 3
+	CA.reset()
+	CA.ensure()
+	_check("stage 3 flow: nothing past the first stage is open on a new save", not CA.stage_open(11) and not CA.stage_open(12), "")
+	CA.unlock_through(11)
+	_check("stage 3 flow: clearing level 10 (unlock_through 11) opens Perry's Arena but not Stage 3", CA.stage_open(11) and not CA.stage_open(12), "")
+	CA.unlock_through(12)
+	_check("stage 3 flow: Perry's card unlocks index 12", CA.stage_open(12) and not CA.stage_open(13), "")
+	CA.reset()
+	# Perry's finale card: Stage 3 text, unlocks index 12, and the title screen follows
+	LVm.current = 11
+	var g: Node = await _s4_new(11)
+	g.wave_i = 100
+	var pe: Node2D = g.spawn_enemy("perry", g.mera.global_position.x + 600.0)
+	await process_frame
+	g.on_enemy_defeated(pe)
+	_check("stage 3 flow: Perry's card says Stage 3: Changeling is open and unlocks level index 12", g.victory and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1] == "Stage 3: Changeling is open" and CA.unlocked >= 12 and CA.stage_open(12), str(g.victory_text))
+	g.queue_free()
+	await process_frame
+	CA.reset()
+	# the Warlord: finale on level index 19
+	LVm.current = 19
+	g = await _s4_new(19)
+	var warlord_lock: String = g.exit_lock_text()
+	var last: bool = g.is_last_level()
+	g._start_finale_victory()
+	_check("stage 3 flow: the Warlord's level is the last one, locks the exit with DEFEAT THE WARLORD and its card says the Changeling is free", last and warlord_lock == "DEFEAT THE WARLORD" and g.victory and g.victory_text[0] == "You Defeated the Warlord!" and g.victory_text[1] == "The Changeling is free" and load("res://scripts/game/roster.gd").FINALE.has(19), "%s %s" % [warlord_lock, str(g.victory_text)])
+	g.queue_free()
+	await process_frame
+	CA.reset()
+	_check("stage 3 flow: the stage key shop item counts 20 levels", CA.stage_count() == 20, str(CA.stage_count()))
+	# props and cards: four secrets per Changeling map inside the map, none in the arenas
+	var props_ok := true
+	for i in range(12, 19):
+		var cards: Array = load("res://scripts/game/allies.gd").CARDS.get(i, [])
+		var mw: float = float(ls[i]["layers"][1]["w"]) - 1100.0 - 1024.0
+		props_ok = props_ok and cards.size() == 4 and load("res://scripts/game/props.gd").SECRETS.get(i, []).size() == 4
+		for c in cards:
+			props_ok = props_ok and float(c[0]) > 1720.0 and float(c[0]) < mw and String(c[1]).begins_with("cl_")
+	props_ok = props_ok and not load("res://scripts/game/allies.gd").CARDS.has(11) and not load("res://scripts/game/allies.gd").CARDS.has(19)
+	props_ok = props_ok and load("res://scripts/game/props.gd").layout(11, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(19, 7200.0).is_empty()
+	_check("stage 3 props: 4 cards (Changeling faces) and 4 secrets on each map, nothing in the two arenas", props_ok, "")
+	LVm.current = 0
+
+
+# ===== stage 3 phase 7: face summons
+func _fs_game(level: int = 1) -> Node:
+	load("res://scripts/game/levels.gd").current = level
+	var g: Node = await _new_game()
+	g.mera.position.x = 6000.0
+	g.mera.set_size(2, true)
+	g.snap_camera()
+	return g
+
+
+func _fs_is_pickup(n: Node) -> bool:
+	return n.get_script() != null and String(n.get_script().resource_path).ends_with("pickup.gd")
+
+
+func _fs_run(g: Node, frames: int) -> void:
+	for f in frames:
+		await physics_frame
+		if is_instance_valid(g.mera):
+			g.mera.invuln = 5.0
+
+
+func _face_summon_tests() -> void:
+	var C = load("res://scripts/game/carry.gd")
+	var AL = load("res://scripts/game/allies.gd")
+	var RO = load("res://scripts/game/roster.gd")
+	var LV = load("res://scripts/game/levels.gd")
+	var AF = load("res://scripts/game/ally_faces.gd")
+	var faces := ["cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "perry"]
+	C.reset()
+	C.test_all = true
+	# ---- data
+	var data_ok := true
+	var info := ""
+	for id in faces:
+		var ok: bool = AL.IDS.has(id) and AL.NAMES.has(id) and AL.COLORS.has(id) and AL.BLURB.has(id) and AL.K.has(id) and AL.HP.has(id) and AL.SPEED.has(id) and AL.STAY_S.has(id)
+		ok = ok and C.ALLIES.has(id) and RO.data().has(AL.art_id(id)) and RO.face(AL.art_id(id)) != null and AF.OPTS.has(id)
+		if not ok:
+			data_ok = false
+			info += id + " "
+	_check("face summons: all five are registered (names, colours, numbers, art, card face, options)", data_ok, info)
+	_check("face summons: the enemy and boss roster entries keep their own art (ally art is ally_<id>)", AL.art_id("perry") == "ally_perry" and AL.art_id("ranger") == "ranger" and RO.art("perry")["anims"].has("walk") != RO.art("ally_perry")["anims"].is_empty(), "")
+	_check("face summons: Allies.DROPS maps the five enemies to their own card", AL.DROPS == {"cl_knight": "cl_knight", "cl_ranger": "cl_ranger", "cl_weaver": "cl_weaver", "cl_mage": "cl_mage", "perry": "perry"}, "%s" % [AL.DROPS])
+	# ---- the stair planner (pure)
+	var step := 72.0
+	var cases := [[0.0, 1060.0, 600.0, 900.0], [0.0, 1060.0, 700.0, 700.0], [500.0, 1060.0, 300.0, 520.0], [0.0, 1060.0, 100.0, 300.0], [0.0, 1060.0, 2000.0, -900.0], [0.0, 1060.0, 400.0, 1000.0]]
+	var plan_ok := true
+	var pinfo := ""
+	for cs in cases:
+		var pl: Dictionary = RangerPlanner.plan(cs[0], cs[1], cs[2], cs[3], step, 25.0)
+		var prev: float = cs[1]
+		var rises_ok := true
+		for st in pl["steps"]:
+			if st["kind"] == "platform":
+				if float(st["rise"]) > step + 0.01 and not (pl["steps"].has(st) and RangerPlanner.count(pl, "ladder") > 0):
+					rises_ok = false
+				if float(st["top_y"]) >= prev:
+					rises_ok = false
+				prev = float(st["top_y"])
+		if not (RangerPlanner.valid(pl, step) and rises_ok and RangerPlanner.count(pl, "platform") <= 3 and RangerPlanner.count(pl, "ladder") <= 2):
+			plan_ok = false
+			pinfo += "%s " % [cs]
+		if pl["needed"] > 0.0 and pl["complete"] and absf(float(pl["climb"]) - float(pl["needed"])) > 0.5:
+			plan_ok = false
+			pinfo += "climb%s " % [cs]
+	_check("ranger planner: every platform rise <= max rise unless a ladder serves it, <= 3 planks and 2 ladders, the climb adds up", plan_ok, pinfo)
+	var low: Dictionary = RangerPlanner.plan(0.0, 1060.0, 600.0, 900.0, step)
+	var mid: Dictionary = RangerPlanner.plan(0.0, 1060.0, 600.0, 700.0, step)
+	var tall: Dictionary = RangerPlanner.plan(0.0, 1060.0, 600.0, 100.0, step)
+	_check("ranger planner: a flyer within shot reach needs nothing; 120 px to climb needs 2 planks; 720 px needs 1 ladder + 3 planks", low["steps"].is_empty() and RangerPlanner.count(mid, "platform") == 2 and RangerPlanner.count(tall, "ladder") == 1 and RangerPlanner.count(tall, "platform") == 3, "low=%s mid=%s" % [low["steps"].size(), mid["steps"].size()])
+	var med: Dictionary = RangerPlanner.plan(0.0, 1060.0, 600.0, 760.0, step)       # 300 up, 240 reach: 60 to climb
+	var med2: Dictionary = RangerPlanner.plan(0.0, 1060.0, 600.0, 640.0, step)      # 420 up: 180 to climb = 3 planks of 60
+	_check("ranger planner: small climbs are one jump / equal planks", RangerPlanner.count(med, "platform") == 1 and absf(float(med["steps"][0]["rise"]) - 60.0) < 0.5 and RangerPlanner.count(med2, "platform") == 3 and RangerPlanner.count(med2, "ladder") == 0, "")
+	var dirl: Dictionary = RangerPlanner.plan(1000.0, 1060.0, 200.0, 300.0, step)
+	_check("ranger planner: planks lie toward the flyer (left here), the first within one jump's reach of her", float(dirl["steps"][0 if dirl["steps"][0]["kind"] == "platform" else 1]["x"]) < 1000.0, "")
+	# ---- summon, fight, limits, tiers
+	for id in faces:
+		var g: Node = await _fs_game(1)
+		_give_cards(g, {id: 2})
+		var al: Node2D = g.summon_type(id)
+		al.stay = 1e9
+		al.hp = 60
+		_check("%s: summoned with a card (one card used, art + tag drawn)" % id, al != null and int(g.cards.get(id, 0)) == 1 and al.id == id and g.allies().size() == 1, "")
+		await _fs_run(g, 60)
+		var e: Node2D = g.spawn_enemy("mutant_toad", al.global_position.x + 650.0)
+		var hp0: int = e.hp
+		var best := hp0
+		for f in 420:
+			await _fs_run(g, 1)
+			if is_instance_valid(e):
+				best = mini(best, e.hp)
+			if not is_instance_valid(e) or not e.alive():
+				best = 0
+				break
+		_check("%s: fights a toad and damages it (hits %d, toad hp %d -> %d)" % [id, al.hits_landed, hp0, best], al.hits_landed > 0 and best < hp0, "")
+		if is_instance_valid(e):
+			g.mobs.erase(e)
+			e.queue_free()
+		g.queue_free()
+		await process_frame
+	var gl: Node = await _fs_game(1)
+	_give_cards(gl, {})
+	_check("an ally with no card cannot be summoned", gl.summon_type("cl_mage") == null and not gl.summon_ally() and gl.allies().is_empty(), "")
+	_give_cards(gl, {"cl_mage": 1, "cl_knight": 1, "perry": 1})
+	gl.summon_type("cl_mage")
+	gl.summon_type("cl_knight")
+	_check("two allies at once is the limit: R1 with a third card does nothing", gl.allies().size() == 2 and not gl.summon_ally() and gl.summonable().has("perry"), "")
+	_check("the same face cannot be called twice at once", not gl.summonable().has("cl_mage"), "")
+	gl.queue_free()
+	await process_frame
+	for tier in [0, 1, 2, 3]:
+		C.summon_tier = tier
+		var gt: Node = await _fs_game(1)
+		_give_cards(gt, {"cl_weaver": 1})
+		var aw: Node2D = gt.summon_type("cl_weaver")
+		_check("summon tier %d: a face ally stays %d s" % [tier, 30 * (tier + 1)], absf(aw.stay - 30.0 * float(tier + 1)) < 0.01, "stay=%s" % aw.stay)
+		gt.queue_free()
+		await process_frame
+	C.summon_tier = 0
+	# ---- the knight draws attention
+	var gk: Node = await _fs_game(1)
+	_give_cards(gk, {"cl_knight": 1})
+	var kn: Node2D = gk.summon_type("cl_knight")
+	kn.stay = 1e9
+	await _fs_run(gk, 80)
+	var wolf: Node2D = gk.spawn_enemy("wolf", kn.global_position.x + 500.0)
+	var other: Node2D = gk.spawn_enemy("minotaur", kn.global_position.x + 600.0)
+	await _fs_run(gk, 3)
+	_check("knight: non-boss enemies near him pick him as prey; with him gone they pick Mera", wolf._prey() == kn and other._prey() == kn, "")
+	kn.leave()
+	await _fs_run(gk, 5)
+	_check("knight: gone, the prey is Mera again", wolf._prey() == gk.mera, "")
+	gk.queue_free()
+	await process_frame
+	# ---- the ranger targets a flyer before a ground enemy
+	var gr: Node = await _fs_game(1)
+	_give_cards(gr, {"cl_ranger": 1})
+	var rg: Node2D = gr.summon_type("cl_ranger")
+	rg.stay = 1e9
+	await _fs_run(gr, 80)
+	var ground_e: Node2D = gr.spawn_enemy("mutant_toad", rg.global_position.x + 300.0)
+	_check("ranger: with only a ground enemy she targets it", AF.target_for(rg) == ground_e, "")
+	var fly_e: Node2D = gr.spawn_enemy("flying_eye", rg.global_position.x + 1100.0)
+	fly_e.set_physics_process(false)
+	fly_e.position.y = float(gr.GROUND_Y) - 700.0
+	_check("ranger: a flyer within 1500 px is targeted before the nearer ground enemy", AF.target_for(rg) == fly_e, "")
+	var far_fly: Vector2 = fly_e.position
+	fly_e.position.x = rg.global_position.x + 2500.0
+	_check("ranger: a flyer beyond 1500 px is ignored", AF.target_for(rg) == ground_e, "")
+	fly_e.position = far_fly
+	ground_e.set_physics_process(false)
+	gr.mobs.erase(ground_e)
+	ground_e.queue_free()
+	# she builds a stair and climbs it
+	var min_y: float = rg.position.y
+	var max_plank := 0
+	var max_lad := 0
+	var fhp: int = fly_e.hp
+	var shots := 0
+	for f in 900:
+		await _fs_run(gr, 1)
+		min_y = minf(min_y, rg.position.y)
+		max_plank = maxi(max_plank, gr.built_surfaces.size())
+		max_lad = maxi(max_lad, gr.ladders.size())
+		if not is_instance_valid(fly_e) or fly_e.hp < fhp:
+			break
+	var gy: float = float(gr.GROUND_Y)
+	_check("ranger: with a flyer 700 px up she builds planks (<= 3) and ladders (<= 2) and climbs them (rose %d px)" % int(gy - min_y), rg.played.has("build") and max_plank >= 1 and max_plank <= 3 and max_lad <= 2 and gy - min_y > 200.0, "planks=%d ladders=%d" % [max_plank, max_lad])
+	_check("ranger: from the top she hits the flyer", not is_instance_valid(fly_e) or fly_e.hp < fhp, "hp %s" % (fly_e.hp if is_instance_valid(fly_e) else -1))
+	if is_instance_valid(fly_e):
+		gr.mobs.erase(fly_e)
+		fly_e.queue_free()
+	gr.queue_free()
+	await process_frame
+	# ---- cards from the playable enemies
+	C.reset()
+	C.test_all = true
+	var gd: Node = await _fs_game(1)
+	for id in faces:
+		_give_cards(gd, {})
+		var foe: Node2D = gd.spawn_enemy(id, gd.mera.global_position.x + 900.0)
+		foe.set_physics_process(false)
+		foe.take_damage(99999, foe.global_position.x - 50.0, "melee")
+		await _fs_run(gd, 4)
+		var found := 0
+		for n in gd.world.get_children():
+			if _fs_is_pickup(n) and n.kind == "card" and n.ally_id == id:
+				found += 1
+		_check("%s: the defeated enemy drops a card of its own face" % id, found == 1, "found %d" % found)
+		for n in gd.world.get_children():
+			if _fs_is_pickup(n):
+				n.queue_free()
+		await _fs_run(gd, 2)
+	# a card walked over goes into the hand; a full hand leaves it on the floor
+	_give_cards(gd, {})
+	var pk: Node2D = gd.drop_ally_card("cl_mage", Vector2(gd.mera.global_position.x, float(gd.GROUND_Y)))
+	await _fs_run(gd, 60)
+	_check("a face card is collected by touch: the hand holds the mage", int(gd.cards.get("cl_mage", 0)) == 1 and not is_instance_valid(pk), "cards %s" % [gd.cards])
+	C.card_cap = 2
+	_give_cards(gd, {"priestess": 1, "dancer": 1})
+	var pk2: Node2D = gd.drop_ally_card("perry", Vector2(gd.mera.global_position.x, float(gd.GROUND_Y)))
+	await _fs_run(gd, 60)
+	_check("hand full: the Perry card stays on the floor (not lost, no gold)", is_instance_valid(pk2) and int(gd.cards.get("perry", 0)) == 0, "")
+	C.take_card("dancer")
+	gd.cards = C.cards.duplicate(true)
+	await _fs_run(gd, 60)
+	_check("room made: the waiting Perry card is picked up", not is_instance_valid(pk2) and int(gd.cards.get("perry", 0)) == 1, "cards %s" % [gd.cards])
+	# Allies.CARDS accepts the face ids on map cards
+	var cd: Node2D = load("res://scripts/game/ally_card.gd").new()
+	cd.setup(gd, "cl_ranger", Vector2(gd.mera.global_position.x, float(gd.GROUND_Y)))
+	gd.world.add_child(cd)
+	await _fs_run(gd, 5)
+	_check("a map card of a face ally can be placed and drawn (Allies.CARDS accepts the ids)", cd.face != null and AL.COLORS.has(cd.ally_id), "")
+	cd.queue_free()
+	gd.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+	LV.current = 0

@@ -60,6 +60,8 @@ var last_strike: Node2D = null
 var knight_calm_until := 0   # demo: frame before which the knight does not swing
 var layers: Array = []             # [Sprite2D, scroll, period] parallax layers of the level map
 var tile_surfaces: Array = []      # one-way tops: [x0, x1, y]
+var built_surfaces: Array = []     # phase 4: run-time platform tops [x0, x1, y] (Platform.make); surface_under scans them too
+var ladders: Array = []            # phase 4: live Ladder nodes
 var map_w := 19200.0
 var run_mode := false
 var stage_n := 1
@@ -218,6 +220,7 @@ func _build_background() -> void:
 	exit_gate.z_index = -5
 	add_child(exit_gate)
 	tile_surfaces = lv.get("surfaces", [])
+	_build_climbables(lv)
 	_start_music(lv)
 
 
@@ -517,7 +520,38 @@ func surface_under(p: Vector2, cur: float) -> float:
 		var y := float(s[2])
 		if p.x >= x0 and p.x <= x1 and p.y <= y + 8.0 and y < best:
 			best = y
+	for s in built_surfaces:
+		if p.x >= float(s[0]) and p.x <= float(s[1]) and p.y <= float(s[2]) + 8.0 and float(s[2]) < best:
+			best = float(s[2])
 	return best
+
+
+## phase 4: a one-way plank whose top is at world y `top_y` (callers pick the height; Tuning.PLATFORM_STEP_H is the max rise
+## one jump clears). ttl <= 0 is permanent.
+func build_platform(center_x: float, top_y: float, width: float = 260.0, ttl: float = 25.0) -> Node2D:
+	return load("res://scripts/game/platform.gd").make(self, center_x, top_y, width, ttl)
+
+
+## phase 4: a ladder at x from bottom_y (larger y) up to top_y
+func build_ladder(x: float, bottom_y: float, top_y: float, ttl: float = 25.0) -> Node2D:
+	return load("res://scripts/game/ladder.gd").make(self, x, bottom_y, top_y, ttl)
+
+
+## phase 4: the ladders whose column holds x and whose span holds y
+func ladders_at(x: float, y: float) -> Array:
+	var out: Array = []
+	for l in ladders:
+		if is_instance_valid(l) and absf(l.global_position.x - x) <= Tuning.LADDER_GRAB_PX and y >= l.top_y - 6.0 and y <= l.bottom_y + 6.0:
+			out.append(l)
+	return out
+
+
+## phase 4: a level's permanent "platforms" [[x0, x1, y]] and "ladders" [[x, bottom_y, top_y]]
+func _build_climbables(lv: Dictionary) -> void:
+	for p in lv.get("platforms", []):
+		build_platform((float(p[0]) + float(p[1])) * 0.5, float(p[2]), float(p[1]) - float(p[0]), 0.0)
+	for l in lv.get("ladders", []):
+		build_ladder(float(l[0]), float(l[1]), float(l[2]), 0.0)
 
 
 ## v0.8 drop table that favours what Mera is low on (size -> green potion, stamina -> blue potion, rage -> sphere)
@@ -623,9 +657,10 @@ func end_mark() -> void:
 # ---------------------------------------------------------------- v0.6 roster
 ## one roster enemy at x (opts: variant, seed)
 func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
-	var e: Node2D = (DRAGON if eid == "dragon" else MONSTER).new()     # v0.8: the dragon has its own boss script
+	var e: Node2D = (DRAGON if eid == "dragon" else Roster.script_for(eid)).new()     # v0.8: the dragon has its own boss script
 	opts = opts.duplicate()
-	opts["stage2"] = not run_mode and Levels.current >= Levels.STAGE2_FROM
+	# Stage 2 doubling covers levels 6 to 10 only: Stage 3 enemies (cl_*) carry their final numbers in Roster.DEFS
+	opts["stage2"] = not run_mode and Levels.current >= Levels.STAGE2_FROM and Levels.current <= 10
 	e.setup(self, eid, clampf(x, Levels.EDGE, map_w - Levels.EDGE), opts)
 	e.facing = -1 if x > mera.global_position.x else 1
 	world.add_child(e)
@@ -739,6 +774,8 @@ func on_enemy_defeated(e: Node2D) -> void:
 	mobs.erase(e)
 	var p: Vector2 = Vector2(e.global_position.x, GROUND_Y)
 	_spawn_loot(enemy_loot_kind(drop_rng.randf()), p + Vector2(0, -10), float(Roster.def(e.id)["rage"]))
+	if Allies.DROPS.has(String(e.id)):
+		drop_ally_card(String(Allies.DROPS[String(e.id)]), p)
 	if e == boss:
 		boss_dead = true
 		shake(24.0, 0.8)
@@ -769,10 +806,12 @@ func _start_finale_victory() -> void:
 		return
 	victory = true
 	var who: String = String(Roster.FINALE.get(Levels.current, "the Cavern Dragon"))
-	if Levels.current != 5:
-		victory_text = PackedStringArray(["You Defeated Perry!", "The island is free"])
-	else:
+	if Levels.current == 5:
 		victory_text = PackedStringArray(["You Defeated the Cavern Dragon!", "Stage 2: The Island is open"])
+	elif Levels.current == Levels.STAGE3_FROM - 1:
+		victory_text = PackedStringArray(["You Defeated Perry!", "Stage 3: Changeling is open"])
+	else:
+		victory_text = PackedStringArray(["You Defeated the Warlord!", "The Changeling is free"])
 	if not run_mode:
 		cleared = true                          # the stage counts as cleared (also stops a second payment at the exit)
 		over_t = 0.0
@@ -861,6 +900,25 @@ func dancer() -> Node2D:
 func brawler() -> Node2D:
 	for a in allies():
 		if a.id == "brawler" and a.alive() and a.state != "leave" and a.state != "dead":
+			return a
+	return null
+
+
+## Stage 3 phase 7: a defeated playable-character enemy leaves a card of its own face (always). A full hand does not
+## destroy it: the pickup stays on the floor until there is room (pickup.gd)
+func drop_ally_card(aid: String, p: Vector2) -> Pickup:
+	var pk: Pickup = Pickup.new()
+	pk.setup(self, "card", p + Vector2(0, -10))
+	pk.set_ally(aid)
+	pk.pop(p + Vector2(0, -60), Vector2(p.x, GROUND_Y - 10.0))
+	world.add_child.call_deferred(pk)
+	return pk
+
+
+## the ally that draws enemy attention while it is out (the Changeling Knight); monster.gd _prey()
+func taunter() -> Node2D:
+	for a in allies():
+		if a.id == "cl_knight" and a.state != "leave" and a.state != "dead":
 			return a
 	return null
 
@@ -978,8 +1036,10 @@ func finish_endpoint() -> void:
 func exit_lock_text() -> String:
 	if Levels.current == 5:
 		return "SLAY THE DRAGON"
-	if Levels.current == 10:
+	if Levels.current == Levels.STAGE3_FROM - 1:
 		return "DEFEAT PERRY"
+	if Levels.current == Levels.list().size() - 1:
+		return "DEFEAT THE WARLORD"
 	if Roster.BOSSES.has(Levels.current) and Roster.LEVELS.has(Levels.current):
 		if _waves_done() and not _roster_threat():
 			return "SLAY THE " + String(Roster.NAMES.get(Roster.BOSSES[Levels.current], "BOSS")).to_upper()
@@ -1380,7 +1440,7 @@ func collect(p: Pickup) -> void:
 		Sfx.play("potion", 1.2)
 		hud.flash("pickup:gold +%d  (%d)" % [worth, Carry.gold])
 	elif p.kind == "card":
-		var id := String(Carry.ALLIES[drop_rng.randi() % Carry.ALLIES.size()])
+		var id: String = p.ally_id if p.ally_id != "" else String(Carry.ALLIES[drop_rng.randi() % Carry.ALLIES.size()])
 		if Carry.give_card(id):
 			cards = Carry.cards.duplicate(true)
 			Sfx.play("sphere", 0.8)

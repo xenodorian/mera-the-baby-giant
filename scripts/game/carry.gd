@@ -30,7 +30,7 @@ const PRICE_MANA_BAR := 50
 const PRICE_SCALE := 90
 const PRICE_KEY := 200
 
-const ALLIES := ["priestess", "ranger", "brawler", "dancer"]
+const ALLIES := ["priestess", "ranger", "brawler", "dancer", "cl_knight", "cl_ranger", "cl_weaver", "cl_mage", "perry"]
 
 ## v0.12.2 unlocks (shop page 2). Moves start locked; buy them in the shop.
 const MOVE_IDS := ["beam", "earthquake", "super_quake", "rear", "fury_mode", "homing"]
@@ -62,8 +62,8 @@ static var clears: Dictionary = {}   # level index (as a string key) -> times cl
 const CLEAR_GOLD_FIRST := 15         # first clear of a level
 const CLEAR_GOLD_REPEAT := 5         # each clear after that
 
-## Stage 3 phase 3 (docs/STAGE3_PLAN.md): Perry becomes playable once Stage 2 is cleared (level index 10, Moonlit Sanctum)
-const PERRY_CLEAR_LEVEL := 10
+## Stage 3 phase 3 (docs/STAGE3_PLAN.md): Perry becomes playable once Perry's Arena is cleared (level index 11)
+const PERRY_CLEAR_LEVEL := 11
 static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
 static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
 static var perry_hp_max := Tuning.PERRY_HP_START

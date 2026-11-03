@@ -79,17 +79,18 @@ func _draw_ui() -> void:
 	ui.draw_set_transform(o, 0.0, Vector2.ONE)
 	ui.draw_string(f, Vector2(0, 250), "SUMMON AN ALLY", HORIZONTAL_ALIGNMENT_CENTER, 1920, 64, Color(1, 0.9, 0.6))
 	var n := choices.size()
-	var w := 300.0
-	var x0 := 960.0 - (n * w + (n - 1) * 40.0) / 2.0
+	var gap := 40.0 if n <= 5 else 16.0
+	var w := clampf((1800.0 - (n - 1) * gap) / float(maxi(n, 1)), 180.0, 300.0)      # 9 card types still fit on screen
+	var x0 := 960.0 - (n * w + (n - 1) * gap) / 2.0
 	for i in n:
 		var aid: String = choices[i]
 		var c: Color = AL.COLORS[aid]
-		var r := Rect2(x0 + i * (w + 40.0), 330, w, 420)
+		var r := Rect2(x0 + i * (w + gap), 330, w, 420)
 		if i == sel:
 			ui.draw_rect(r.grow(14), Color(c.r, c.g, c.b, 0.5))
 		ui.draw_rect(r, Color(0.07, 0.05, 0.1))
 		_border(r, c, 8.0)
-		var tx: Texture2D = ROSTER.face(aid)
+		var tx: Texture2D = ROSTER.face(AL.art_id(aid))
 		if tx != null:
 			var inner := Rect2(r.position.x + 24.0, r.position.y + 16.0, w - 48.0, 250.0)
 			var ts := tx.get_size()
@@ -97,8 +98,8 @@ func _draw_ui() -> void:
 			var ds := ts * fit
 			var dp := Vector2(inner.position.x + (inner.size.x - ds.x) * 0.5, inner.end.y - ds.y)
 			ui.draw_texture_rect(tx, Rect2(dp, ds), false)
-		ui.draw_string(f, Vector2(r.position.x, r.position.y + 320), AL.NAMES[aid], HORIZONTAL_ALIGNMENT_CENTER, w, 28, c)
-		ui.draw_multiline_string(f, Vector2(r.position.x + 14, r.position.y + 352), AL.BLURB[aid], HORIZONTAL_ALIGNMENT_CENTER, w - 28, 18, 3, Color(0.9, 0.9, 0.95))
+		ui.draw_string(f, Vector2(r.position.x, r.position.y + 320), AL.NAMES[aid], HORIZONTAL_ALIGNMENT_CENTER, w, 28 if w > 250.0 else 17, c)
+		ui.draw_multiline_string(f, Vector2(r.position.x + 14, r.position.y + 352), AL.BLURB[aid], HORIZONTAL_ALIGNMENT_CENTER, w - 28, 18 if w > 250.0 else 14, 4, Color(0.9, 0.9, 0.95))
 		ui.draw_string(f, Vector2(r.position.x, r.position.y + 405), "x%d" % int(game.cards.get(aid, 0)), HORIZONTAL_ALIGNMENT_CENTER, w, 30, Color(1, 1, 1))
 	ui.draw_string(f, Vector2(0, 830), "Left / Right: choose     R1 / A: summon     B: cancel", HORIZONTAL_ALIGNMENT_CENTER, 1920, 30, Color(0.9, 0.85, 0.8))
 	ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

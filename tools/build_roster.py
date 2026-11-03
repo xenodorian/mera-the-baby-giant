@@ -155,6 +155,30 @@ E.update({
                                   "attack": (CH2 + "demon_slime/attack", 14, False), "hurt": (CH2 + "demon_slime/hurt", 12, False),
                                   "death": (CH2 + "demon_slime/death", 12, False)}),
 })
+# Stage 3 (2026-11-02): the Changeling enemies. Frames: assets/characters/changeling/<id>/<anim>/ (tools/build_changeling.py).
+# Only the animations the AI plays are listed. All face right; the pivot is the feet centre of the idle frame.
+CL_LOOP = {"idle": 8, "walk": 10, "slash": 12, "thrust": 12, "spellcast": 12, "shoot": 12, "hurt": 8, "jump": 12}
+CL_ARROW = "chierit/leaf-ranger/animations/PNG/projectiles_and_effects/arrow"
+CL_BOLT = "itch/luizmelo/evil_wizard_3/bolt"
+
+
+def _cl(src, names, extra=None):
+    d = {n: ("changeling/%s/%s" % (src, n), CL_LOOP[n], n in ("idle", "walk")) for n in names}
+    d.update(extra or {})
+    return (1, False, d)
+
+
+E.update({
+    "cl_grunt": _cl("grunt", ["idle", "walk", "slash", "thrust", "hurt"]),
+    "cl_mud": _cl("mud_revenant", ["idle", "walk", "spellcast", "slash", "hurt"]),
+    "cl_rat_king": _cl("rat_king", ["idle", "walk", "slash", "jump", "hurt"]),
+    "cl_archer": _cl("archer", ["idle", "shoot", "hurt"], {"arrow": (CL_ARROW, 1, True)}),
+    "cl_warlord": _cl("warlord", ["idle", "walk", "slash", "thrust", "shoot", "jump", "hurt"], {"arrow": (CL_ARROW, 1, True)}),
+    "cl_knight": _cl("knight", ["idle", "walk", "slash", "thrust", "hurt"]),
+    "cl_ranger": _cl("ranger", ["idle", "walk", "shoot", "jump", "hurt"], {"arrow": (CL_ARROW, 1, True)}),
+    "cl_weaver": _cl("weaver", ["idle", "walk", "shoot", "hurt"]),
+    "cl_mage": _cl("mage", ["idle", "walk", "spellcast", "jump", "hurt"], {"bolt": (CL_BOLT, 14, True)}),
+})
 WP = "chierit/water-priestess/png/"
 LR = "chierit/leaf-ranger/animations/PNG/"
 BG = "ansimuz/brawler-girl/skin-recolor/sprites/"
@@ -179,6 +203,35 @@ ALLIES = {
     "dancer": (1, False, {"skip": (DG + "Skip", 10, True), "hips": (DG + "hips", 8, True), "snap": (DG + "snap", 8, True),
                           "balancing": (DG + "Balancing", 8, True), "slide": (DG + "slide", 8, True)}),
 }
+# Stage 3 phase 7: the playable faces as allies. Art keys are "ally_<id>" (the enemy cl_* / boss perry keep their own
+# roster entries); scripts/game/allies.gd ART maps the ally id to the key. Merge only these with tools/build_ally_faces.py.
+def _face_ally(src):
+    d = "changeling/%s/" % src
+    return (1, False, {"idle": (d + "idle", 8, True), "walk": (d + "walk", 10, True), "atk1": (d + "slash", 12, False),
+                       "atk2": (d + "thrust", 12, False), "cast": (d + "spellcast", 12, False), "shoot": (d + "shoot", 12, False),
+                       "hit": (d + "hurt", 10, False), "death": (d + "hurt", 6, False), "jump": (d + "jump", 12, False)})
+
+
+def _perry_ally():
+    path = os.path.join(ROOT, "assets/perry/perry_player.json")
+    if not os.path.exists(path):
+        return (1, False, {})
+    with open(path) as fh:
+        pj = json.load(fh)
+    mv = pj["moves"]
+
+    def a(move, loop=False):
+        m = mv[move]
+        ms = sum(f["ms"] for f in m["frames"]) / float(len(m["frames"]))
+        return ("perry/player/%s" % move, round(1000.0 / ms, 1), loop, m["pivot"])
+    fx = pj["fx"]["energy_wave_fx"]
+    return (1, False, {"idle": a("idle", True), "walk": a("walk_right", True), "atk1": a("slash"), "atk2": a("thrust"),
+                       "atk3": a("spin_attack"), "sp": a("energy_wave"), "hit": a("parry"), "death": a("parry"),
+                       "jump": a("jump"), "wave": ("perry/player/energy_wave_fx", 14, True, fx["pivot"])})
+
+
+ALLIES.update({"ally_cl_knight": _face_ally("knight"), "ally_cl_ranger": _face_ally("ranger"),
+               "ally_cl_weaver": _face_ally("weaver"), "ally_cl_mage": _face_ally("mage"), "ally_perry": _perry_ally()})
 BODY = {"death": "walk", "skeleton": "walk"}     # the hurt box / pivot comes from this animation's first frame
 FX = {"enemy_death": ("ansimuz/cemetery-enemydeath/Sprites", 12, False)}
 

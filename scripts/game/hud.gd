@@ -348,7 +348,7 @@ func _center(y: float, t: String, sz: int, c: Color) -> void:
 
 
 func _card_portrait(aid: String, box: Rect2) -> void:
-	var tex: Texture2D = ROSTER.face(aid)
+	var tex: Texture2D = ROSTER.face(AL.art_id(aid))
 	if tex == null:
 		return
 	var inner := Rect2(box.position.x + 3.0, box.position.y + 3.0, box.size.x - 6.0, box.size.y - 6.0)
