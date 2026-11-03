@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.19.1-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.19.1_Windows.exe
+- Android: Mera_Playable_v0.19.1_Android.apk
+- **King Nerochilde's long attacks.** His second form (the reaper) now has the **energy beam** and his third form (the giant) the **zigzag bolt**. Both are the owner's tiling assets built out at run time: while he winds up (the "!"), a faint line follows you and shows the path; it then locks and the beam is built out head first to where you stand and a little past, from any direction or distance. It hurts once what it touches, so block it, dodge it or parry it.
+- Tests: 942 pass, 0 fail.
+
 ## v0.19.0-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.19.0_Windows.exe

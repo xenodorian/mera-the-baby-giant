@@ -10,10 +10,13 @@ extends "res://scripts/game/cl_warlord.gd"
 ## (loot, names, the finale); `form_id` says which body he wears. Beating him ends the game: Roster.FINALE[20] plays the ending pages.
 
 const FORMS := {1: "nero", 2: "nero_reaper", 3: "nero_giant"}
+const BEAM := preload("res://scripts/game/king_beam.gd")
 
 var form_id := "nero"
 var forms_log: Array = ["nero"]           # forms worn, in order (tests)
 var slashes := 0                          # slash arcs thrown (tests)
+var beam: Node2D = null                   # the long attack being wound up or fired (king_beam.gd)
+var beams_fired := 0                      # (tests)
 
 
 ## the form change: his art, size, speed and attack list are the new form's; he takes a breath while it settles
@@ -54,8 +57,21 @@ func _set_form(fid: String) -> void:
 	_spawn_slash("slash_pale" if fid == "nero_reaper" else "slash_green", 1.6)
 
 
+## a long attack (atk "beam": "energy" or "zigzag"): the aiming line appears with the "!" and follows the player until the tell ends
+func _start_tell(a: Dictionary, face: int) -> void:
+	super(a, face)
+	if a.has("beam") and get_parent() != null:
+		beam = BEAM.new()
+		var b: Array = art["body"]
+		beam.setup(game, self, String(a["beam"]), int(a["dmg"]), Vector2(body_w() * 0.3, float(b[1]) * k * 0.55))
+		get_parent().add_child(beam)
+
+
 func _start_active(m: Node2D) -> void:
 	super(m)
+	if atk.has("beam") and is_instance_valid(beam):
+		beam.fire()
+		beams_fired += 1
 	if atk.has("fx") and String(atk["fx"]) != "":
 		_spawn_slash(String(atk["fx"]), 1.0)
 
@@ -90,6 +106,8 @@ func _spawn_slash(fx_name: String, size_mul: float) -> void:
 
 ## the slash arcs of the reaper and the giant hit a box out in front of him (the art itself barely moves)
 func attack_rect() -> Rect2:
+	if state == "atk" and atk.has("beam"):
+		return Rect2()                                  # the beam is its own hit test (king_beam.gd)
 	if state == "atk" and not atk.is_empty() and atk.has("reach") and _window_of(sprite.frame) >= 0:
 		var b: Array = art["body"]
 		var reach := float(atk["reach"]) * k

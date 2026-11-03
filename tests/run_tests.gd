@@ -5739,6 +5739,13 @@ func _king_court_tests() -> void:
 	nb.take_damage(int(nb.hp_max * 0.4), nb.global_position.x - 500.0)
 	take_ok = take_ok and nb.phase == 2
 	nb.take_damage(int(nb.hp_max * 0.3), nb.global_position.x - 500.0)
+	var rp_beam := false
+	var gi_zig := false
+	for a in R.def("nero_reaper")["attacks"]:
+		rp_beam = rp_beam or String(a.get("beam", "")) == "energy"
+	for a in R.def("nero_giant")["attacks"]:
+		gi_zig = gi_zig or String(a.get("beam", "")) == "zigzag"
+	_check("king: the reaper has the energy beam and the giant the zigzag bolt (king_beam.gd art exists)", rp_beam and gi_zig and ResourceLoader.exists("res://assets/characters/king/fx/beam/beam_atlas.png") and ResourceLoader.exists("res://assets/characters/king/fx/zigzag/zigzag_segments_atlas.png"), "")
 	_check("king: Nerochilde moves through phases 1, 2, 3 by hp, wearing the King, the reaper, then the giant", take_ok and nb.phase == 3 and nb.phase_log == [1, 2, 3] and nb.forms_log == ["nero", "nero_reaper", "nero_giant"] and nb.form_id == "nero_giant" and nb.sprite.sprite_frames.has_animation("slash") and nb.id == "nero" and nb.slashes >= 2, "%s %s" % [nb.phase_log, nb.forms_log])
 	g.on_enemy_defeated(nb)
 	_check("king: his death opens the exit, pays the finale gold once, clears the level and the card text names King Nerochilde (the ending pages follow)",
