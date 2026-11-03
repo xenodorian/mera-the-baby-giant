@@ -91,7 +91,7 @@ const DEFS := {
 		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 150.0, "cd": 1.5, "mode": "frames", "active": [2, 3]}]},
 	"p_firemage": {"k": 3.0, "hp": 7, "speed": 0.0, "ai": "turret", "idle": "idle", "move": "idle", "rage": 4.0,
 		"hurt": "hurt", "death": "death",
-		"attacks": [{"anim": "fireball", "kind": "ranged", "dmg": 1, "tell": 0.5, "near": -999.0, "far": 1100.0, "cd": 2.6, "mode": "shot", "shot": "blast", "shot_frame": 11, "shot_speed": 620.0, "shot_tight": true}]},
+		"attacks": [{"anim": "fireball", "kind": "ranged", "dmg": 1, "tell": 0.5, "near": -999.0, "far": 1100.0, "cd": 2.6, "mode": "shot", "shot": "bolt", "impact": "blast", "shot_frame": 11, "shot_speed": 620.0, "shot_k": 0.9, "shot_tight": true}]},
 	"p_clubogre": {"k": 3.0, "hp": 48, "speed": 90.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 20.0, "boss": true,
 		"pick": "cycle", "hurt": "hurt", "death": "death",
 		"attacks": [{"anim": "smash", "kind": "heavy", "dmg": 3, "tell": 0.6, "near": -999.0, "far": 230.0, "cd": 1.6, "mode": "frames", "active": [4, 5]},

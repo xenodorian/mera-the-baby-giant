@@ -39,6 +39,8 @@ var _cur_slide := "<none>"
 var _music: AudioStreamPlayer = null
 var _level_db := 0.0
 var _muted_level := false
+var _portrait: Texture2D = null        # the current page's speaker (a roster id in the page's "speaker"), shown in a frame beside the text
+var _speaker_name := ""
 
 
 ## Builds the cutscene under `game`, pauses the tree, and returns it. Null when nothing is shown (see the file header).
@@ -113,7 +115,8 @@ static func _extras(pages_in: Array) -> Array:
 			continue
 		var e := {}
 		if p is Dictionary:
-			e = {"slide": String(p.get("slide", "")), "music": String(p.get("music", ""))}
+			e = {"slide": String(p.get("slide", "")), "music": String(p.get("music", "")),
+				"speaker": String(p.get("speaker", "")), "name": String(p.get("name", ""))}
 		out.append(e)
 	return out
 
@@ -260,6 +263,7 @@ func _layout_page() -> void:
 	_fit = []
 	if page_i >= pages.size() or font == null:
 		return
+	_apply_speaker()
 	var lines: Array = pages[page_i]
 	var candidates := [[64, 44], [44, 44], [44, 36], [36, 36]]
 	var chosen: Array = candidates[candidates.size() - 1]
@@ -267,15 +271,57 @@ func _layout_page() -> void:
 		var total := 0.0
 		for li in lines.size():
 			var sz: int = cand[li] if li < 2 else cand[1]
-			total += font.get_multiline_string_size(String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, TEXT_W, sz).y
+			total += font.get_multiline_string_size(String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, _text_w(), sz).y
 		if total <= (BLOCK_H_SLIDE if has_slides else BLOCK_H):
 			chosen = cand
 			break
 	for li in lines.size():
 		var sz: int = chosen[li] if li < 2 else chosen[1]
-		var h := font.get_multiline_string_size(String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, TEXT_W, sz).y
+		var h := font.get_multiline_string_size(String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, _text_w(), sz).y
 		_fit.append([sz, h])
 	_apply_slide()
+
+
+## the speaker of this page: a roster id ("cl_ranger", "perry", "nero"...) drawn as a portrait with a name under it
+func _apply_speaker() -> void:
+	_portrait = null
+	_speaker_name = ""
+	if page_i >= extras.size():
+		return
+	var ex: Dictionary = extras[page_i]
+	var sid := String(ex.get("speaker", ""))
+	if sid != "" and Roster.data().has(sid):
+		_portrait = Roster.face(sid)
+		_speaker_name = String(ex.get("name", ""))
+
+
+## text width: narrower when a portrait takes the left side
+func _text_w() -> float:
+	if _portrait == null:
+		return TEXT_W
+	return 1380.0 if has_slides else 1200.0
+
+
+func _text_left() -> float:
+	if _portrait == null:
+		return 210.0
+	return 340.0 if has_slides else 500.0
+
+
+## the framed portrait and the speaker's name
+func _draw_portrait() -> void:
+	var box := Rect2(Vector2(170.0, 872.0), Vector2(150.0, 150.0)) if has_slides else Rect2(Vector2(250.0, 400.0), Vector2(220.0, 220.0))
+	ui.draw_rect(box.grow(8.0), Color(0.04, 0.02, 0.07, 1.0))
+	ui.draw_rect(box.grow(8.0), GOLD, false, 4.0)
+	var ts := _portrait.get_size()
+	var fit := minf(box.size.x / maxf(ts.x, 1.0), box.size.y / maxf(ts.y, 1.0))
+	if fit >= 1.0:
+		fit = floorf(fit)                                    # whole pixel scale when it fits
+	var ds := ts * fit
+	ui.draw_texture_rect(_portrait, Rect2(box.get_center() - ds * 0.5, ds), false)
+	if _speaker_name != "":
+		ui.draw_string(font, Vector2(box.position.x - 40.0 + 2.0, box.end.y + 40.0 + 2.0), _speaker_name, HORIZONTAL_ALIGNMENT_CENTER, box.size.x + 80.0, 28, Color(0, 0, 0, 0.7))
+		ui.draw_string(font, Vector2(box.position.x - 40.0, box.end.y + 40.0), _speaker_name, HORIZONTAL_ALIGNMENT_CENTER, box.size.x + 80.0, 28, GOLD)
 
 
 ## the picture and music of the current page
@@ -341,10 +387,12 @@ func _paint() -> void:
 		var fsz: int = int(_fit[li][0])
 		var lh: float = float(_fit[li][1])
 		var col := GOLD if li == 0 else PALE
-		var base := Vector2(210.0, y + font.get_ascent(fsz))
-		ui.draw_multiline_string(font, base + Vector2(4, 4), String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, TEXT_W, fsz, -1, Color(0, 0, 0, 0.55))
-		ui.draw_multiline_string(font, base, String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, TEXT_W, fsz, -1, col)
+		var base := Vector2(_text_left(), y + font.get_ascent(fsz))
+		ui.draw_multiline_string(font, base + Vector2(4, 4), String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, _text_w(), fsz, -1, Color(0, 0, 0, 0.55))
+		ui.draw_multiline_string(font, base, String(lines[li]), HORIZONTAL_ALIGNMENT_CENTER, _text_w(), fsz, -1, col)
 		y += lh + 24.0
+	if _portrait != null:
+		_draw_portrait()
 	var next_key := "Z" if Controls.scheme == "key" else "A"
 	var skip_key := "X" if Controls.scheme == "key" else "B"
 	var hint := "%s: next    %s: skip" % [next_key, skip_key]

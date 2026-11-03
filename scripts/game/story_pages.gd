@@ -16,7 +16,7 @@ const INTRO := [
 ## Perry's Arena: she falls
 const PERRY_FALLS := [
 	"Perry drops her sword. The red glow leaves her eyes.",
-	"\"Father. The spell. I could not stop my hands.\"",
+	{"text": "\"Father. The spell. I could not stop my hands.\"", "speaker": "perry", "name": "Perry"},
 	"Breaking his mind control broke the magic that made her strong.",
 	"She starts again from nothing. Her shop is empty. She will walk with you.",
 	"Stage 3 is open. The mad king is still ahead.",

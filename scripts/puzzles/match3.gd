@@ -295,10 +295,13 @@ func _reshuffle() -> void:
 
 ## test hook: run every animation phase to its end
 func settle() -> void:
+	var keep := time_left                                    # big steps must not run the real-time clock out
+	time_left = 1.0e9
 	var guard := 0
 	while busy and guard < 400:
 		_tick(5.0)
 		guard += 1
+	time_left = keep
 
 
 func _on_action(a: String) -> void:

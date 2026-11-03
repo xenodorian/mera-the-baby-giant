@@ -9,6 +9,9 @@ Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. 
 - **The opening is a slideshow.** The six story cards now play over pictures made from game art: Perry Riposte's story paintings (village meadow, sunset island, moonlit courtyard, snow temple, burning house, cave shrine) panning slowly, with Mera, the king, Perry (her parry animation) and the giants' and monsters' silhouettes animated on top, fire, torch flicker, shake and flashes. Perry Riposte's prologue music plays over it, and the level music returns afterwards. A advances, B skips. The slideshow engine (`slide_view.gd`, data in `story_slides.gd`) is ready for the other story cards.
 - **Match the foes fills the window.** The board is bigger (128 px tiles), with large score and time text, so it reads on a phone. The move limit is gone: a **real-time 20 second clock** runs instead, and time up loses (the score target is still 300).
 - **A failed puzzle chest explodes.** Lose, time up or give up on any of the three puzzles and the chest blows up: it is gone with no loot, and Mera loses 1 (a size, or 1 HP for Perry) if she is close.
+- **Freed prisoners tell the lore.** Each prisoner now has a name and a portrait, and says two things: why King Nerochilde is what he is (the burned village, the mind spell on his own daughter, Perry taken at seven, the fear that made him mad), then one piece of real advice for the road ahead. The speaker's face is shown beside the text, and Perry's line after her fall shows her portrait too.
+- **Retry keeps your size.** Retrying a level only resets Mera to size 2 if she died.
+- **The fire mage throws a bolt.** The fire mage's shot is a fire bolt in flight and only becomes the explosion animation when it hits.
 - **No debug text in play.** The "move: ... anim: ..." and "defeated: ..." lines in the top right only show in debug mode (F2).
 
 ## v0.16.0-playable (2026-11-03)

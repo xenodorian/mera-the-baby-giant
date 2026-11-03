@@ -17,16 +17,32 @@ const IRON_HI := Color(0.36, 0.36, 0.42)
 
 ## level index (Levels) -> the prisoner there. Copy of the king arc table; the lines are shown by the orchestrator.
 const TABLE := {
-	1: {"x": 4200.0, "line": "The king emptied the jails into these woods. Take this, and keep growing.", "gold": 20},
-	4: {"x": 6100.0, "line": "His soldiers wear his spell like a collar. Break the caster, not only the blade.", "gold": 25},
-	8: {"x": 3100.0, "line": "Perry is his blood and his weapon. She does not fight like the others.", "gold": 25},
-	11: {"x": 480.0, "line": "Parry Perry is nearly unbeatable unless you stun her first. Earthquake. Down and Y.", "gold": 20, "give_move": "earthquake"},
-	15: {"x": 7800.0, "line": "Past the changeling is his own court. He will not come out until the warlord falls.", "gold": 30},
-	18: {"x": 2400.0, "line": "Free us and we will tell the others. The king waits alone.", "gold": 30},
+	1: {"x": 4200.0, "gold": 20, "who": "cl_ranger", "name": "Woodsman",
+		"lore": "The king burned my village for hiding a giant's child. He calls it keeping the peace.",
+		"tip": "Green potions make you grow, and your size is your health. Break crates and urns on the road for more."},
+	4: {"x": 6100.0, "gold": 25, "who": "cl_mage", "name": "Court Mage",
+		"lore": "I wove his mind spell myself. It takes a caster to hold it, and he holds it on his own daughter.",
+		"tip": "Time a parry just before a hit lands. It cancels the hit and sends shots back at whoever fired them."},
+	8: {"x": 3100.0, "gold": 25, "who": "cl_weaver", "name": "Old Guard",
+		"lore": "Perry was gentle once. The king took her at seven and taught her one lesson: never be touched.",
+		"tip": "Summon cards call an ally to fight for you. Spend gold in the shop to make summons last longer."},
+	11: {"x": 480.0, "gold": 20, "who": "cl_knight", "name": "Captain", "give_move": "earthquake",
+		"lore": "That is not Perry in there. His spell holds her mind and drives her arm. She cannot stop it.",
+		"tip": "Parry Perry is nearly unbeatable unless you stun her first. Earthquake: Down and Y. Beams and summons slip past her parry."},
+	15: {"x": 7800.0, "gold": 30, "who": "cl_ranger", "name": "Scout",
+		"lore": "He feeds the Changeling court our faces and sends us out as his monsters. Nothing here is what it was.",
+		"tip": "A Warlord's captain waits halfway along every road. Beat him for gold and a drop."},
+	18: {"x": 2400.0, "gold": 30, "who": "cl_weaver", "name": "Bone Scribe",
+		"lore": "Lucius was never afraid of giants. He feared anyone who could grow stronger than a king. That fear made him mad.",
+		"tip": "The king charges across his court and slams the floor. Jump the shockwaves and strike him while he is stunned against the wall."},
 }
 
 var level_index := -1
-var line := ""
+var line := ""                       # lore and tip as one string (kept for tests and logs)
+var lore := ""                       # why the king is what he is
+var tip := ""                        # advice for the road ahead
+var who := ""                        # the speaker's roster id: drawn as the figure in the cage and as the portrait on the card
+var speaker_name := ""
 var gold := 0
 var give_move := ""                  # a move id to grant on free ("" = none)
 var freed := false
@@ -54,7 +70,11 @@ static func spawn_for_level(game: Node, index: int) -> Node:
 	var ground := float(gy) if gy != null else GROUND_FALLBACK
 	var p := Prisoner.new()
 	p.level_index = index
-	p.line = String(data.get("line", ""))
+	p.lore = String(data.get("lore", ""))
+	p.tip = String(data.get("tip", ""))
+	p.line = (p.lore + " " + p.tip).strip_edges()
+	p.who = String(data.get("who", "cl_knight"))
+	p.speaker_name = String(data.get("name", "Prisoner"))
 	p.gold = int(data.get("gold", 0))
 	p.give_move = String(data.get("give_move", ""))
 	p._game = game
@@ -65,7 +85,15 @@ static func spawn_for_level(game: Node, index: int) -> Node:
 
 func _ready() -> void:
 	z_index = 2
-	if ResourceLoader.exists(FIGURE_PATH):
+	var data: Dictionary = Roster.data()
+	if who != "" and data.has(who):                           # the speaker's own art, cropped to the body
+		var fa: Dictionary = Roster.frame_art(who)
+		if fa["tex"] != null:
+			var at := AtlasTexture.new()
+			at.atlas = fa["tex"]
+			at.region = fa["src"]
+			_tex = at
+	if _tex == null and ResourceLoader.exists(FIGURE_PATH):
 		_tex = load(FIGURE_PATH) as Texture2D
 	if _tex != null and _tex.get_height() > 0:
 		var w := float(_tex.get_width()) * FIGURE_H / float(_tex.get_height())

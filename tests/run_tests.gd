@@ -1749,6 +1749,7 @@ func _run() -> void:
 	await _session_tests()
 	await _stage3_map_tests()
 	await _king_arc_tests()
+	await _slideshow_timer_blast_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -3367,12 +3368,12 @@ func _puzzle_unit_tests() -> void:
 		dm.board[i] = (i % dm.cols + 2 * (i / dm.cols)) % dm.kinds.size()
 	var dead: bool = dm.find_move().is_empty() and dm._find_matches().is_empty()
 	dm.busy = true
-	dm.moves_left = 5
+	dm.time_left = 10.0
 	dm.score = 0
 	dm._end_turn()
 	_check("match-3: a board with no move is reshuffled into one with a move and no match", dead and dm.reshuffles == 1 and not dm.find_move().is_empty() and dm._find_matches().is_empty(), "dead=%s resh=%d" % [dead, dm.reshuffles])
 	dm.free()
-	# a bad swap costs nothing and is undone; a good one costs a move and scores
+	# a bad swap costs nothing and is undone; a good one scores
 	var sm = M3.new()
 	sm.rng.seed = 9
 	sm._setup()
@@ -3384,11 +3385,11 @@ func _puzzle_unit_tests() -> void:
 			var b := Vector2i(x + 1, y)
 			if bad.x < 0 and not sm.try_swap(a, b):
 				bad = a
-	_check("match-3: a swap that matches nothing is undone and costs no move", bad.x >= 0 and sm.board == before and sm.moves_left == T.MATCH_MOVES, "")
+	_check("match-3: a swap that matches nothing is undone, starts no animation and the clock is untouched", bad.x >= 0 and sm.board == before and not sm.busy and is_equal_approx(sm.time_left, T.MATCH_TIME_S), "")
 	var mv2: Array = sm.find_move()
 	var okm: bool = sm.try_swap(mv2[0], mv2[1])
 	sm.settle()
-	_check("match-3: a real swap clears, scores and costs one move", okm and sm.score >= 3 * T.MATCH_TILE_POINTS and sm.moves_left == T.MATCH_MOVES - 1, "score=%d left=%d" % [sm.score, sm.moves_left])
+	_check("match-3: a real swap clears and scores", okm and sm.score >= 3 * T.MATCH_TILE_POINTS, "score=%d" % sm.score)
 	sm.free()
 	# pipes: every generated board is solvable, starts unsolved, and the move limit covers the solution
 	var pipes_ok := true
@@ -3482,27 +3483,23 @@ func _chest_tests() -> void:
 	var x_before: float = g.mera.global_position.x
 	await _s4_frames(g, 5)
 	_check("puzzle: Mera and the world are frozen behind it", absf(g.mera.global_position.x - x_before) < 0.01, "")
-	# lose: the chest stays shut and can be tried again
+	# lose: the chest explodes (no retry), and Mera loses 1 size because she stands on it
+	var ch_x: float = ch.global_position.x
+	g.mera.set_size(4)
+	g.mera.invuln = 0.0
 	host.press_action("btn_b")
 	_check("puzzle: B gives up (lost)", host.result == "lost", host.result)
 	host.finish_now()
 	await _s4_frames(g, 2)
-	_check("lost puzzle: the chest stays shut and the game runs again", ch.state == "locked" and g.puzzle == null and not paused, "state=%s" % ch.state)
-	await _s4_frames(g, 90)
-	_check("lost puzzle: standing on the chest does not reopen it at once", g.puzzle == null and ch.state == "locked", "")
-	g.mera.global_position.x = ch.global_position.x + 1500.0
-	await _s4_frames(g, 3)
-	_check("chest: the prompt is hidden when Mera is away", not ch.prompt.visible, "")
-	g.mera.global_position.x = ch.global_position.x
-	await _s4_frames(g, 3)
-	await _tap_a(g)
-	_check("lost puzzle: after stepping off and back, an A press opens a puzzle again", g.puzzle != null and ch.state == "puzzling" and ch.puzzle_tries == 2, "tries=%d" % ch.puzzle_tries)
-	g.puzzle.finish_now()
-	await _s4_frames(g, 2)
-	g.mera.global_position.x = ch.global_position.x + 1500.0
+	_check("lost puzzle: the chest explodes (the node frees itself) and the game runs again", not is_instance_valid(ch) and g.puzzle == null and not paused, "")
+	_check("lost puzzle: Mera standing on the chest loses 1 size", g.mera.size == 3, "size=%d" % g.mera.size)
+	await _s4_frames(g, 30)
+	_check("lost puzzle: an exploded chest drops no loot", _coins_near(g, ch_x) == 0 and g.puzzle == null, "")
+	g.mera.global_position.x = ch_x + 4000.0
 	await _s4_frames(g, 3)
 
 	# touch and mouse: taps reach the puzzle, the give-up button works
+	ch = _new_chest(g, ch_x + 2200.0)
 	_check("chest: try_open starts the pipes puzzle on demand", ch.try_open("pipes") and g.puzzle != null and g.puzzle.title() == "CONNECT THE PIPES", "")
 	var pz: Node = g.puzzle
 	await _s4_frames(g, 20)
@@ -3514,7 +3511,8 @@ func _chest_tests() -> void:
 	_check("puzzle: the Give up button (tap) loses", pz.result == "lost", pz.result)
 	pz.finish_now()
 	await _s4_frames(g, 2)
-	_check("pipes: a given-up chest is shut again", ch.state == "locked" and g.puzzle == null, ch.state)
+	_check("pipes: a given-up chest explodes (far from Mera: no damage)", not is_instance_valid(ch) and g.puzzle == null and g.mera.size == 3, "size=%d" % g.mera.size)
+	ch = _new_chest(g, ch_x + 2600.0)
 	_check("chest: try_open starts the needle puzzle on demand", ch.try_open("needle"), "")
 	pz = g.puzzle
 	await _s4_frames(g, 20)
@@ -3525,6 +3523,7 @@ func _chest_tests() -> void:
 	pz.press_action("btn_b")
 	pz.finish_now()
 	await _s4_frames(g, 2)
+	_check("needle: a given-up chest explodes", not is_instance_valid(ch) and g.puzzle == null, "")
 
 	# seeded: the same drop RNG picks the same puzzle
 	g.drop_rng.seed = 77
@@ -6059,7 +6058,8 @@ func _king_story_tests() -> void:
 	var noem := true
 	for arr in [SPG.INTRO, SPG.PERRY_FALLS, SPG.STAGE3_STEP, SPG.KING_INTRO, SPG.KING_END]:
 		for pg in arr:
-			var lines: Array = pg if pg is Array else [pg]
+			var src: Variant = pg.get("text", "") if pg is Dictionary else pg
+			var lines: Array = src if src is Array else [src]
 			for ln in lines:
 				if String(ln).find(char(0x2014)) >= 0 or String(ln).find(char(0x2013)) >= 0:
 					noem = false
@@ -6067,3 +6067,404 @@ func _king_story_tests() -> void:
 	C.reset()
 	C.test_all = true
 	LV.current = 0
+
+
+# ===== slideshow, timer, chest blast
+## the opening slideshow (StorySlides, SlideView, Cutscene with Dictionary pages), the match-3 real-time clock and board geometry,
+## and the failed-chest explosion
+func _slideshow_timer_blast_tests() -> void:
+	var CUT = load("res://scripts/game/cutscene.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var T = load("res://scripts/game/tuning.gd")
+	var M3 = load("res://scripts/puzzles/match3.gd")
+	var PIPES = load("res://scripts/puzzles/pipes.gd")
+	var HOST = load("res://scripts/puzzles/puzzle_host.gd")
+	CUT.suppressed = true
+	C.reset()
+	C.test_all = true
+	LVS.current = 0
+
+	# ---------------- slide data
+	var intro_ids: Array = []
+	var ids_ok := StoryPages.INTRO.size() == 6
+	for pg in StoryPages.INTRO:
+		var sid := String(pg.get("slide", ""))
+		intro_ids.append(sid)
+		if sid == "" or not StorySlides.has_slide(sid):
+			ids_ok = false
+	_check("slides: every slide id the INTRO pages name exists in StorySlides (6 pages)", ids_ok, str(intro_ids))
+	var all_six := true
+	for i in range(1, 7):
+		all_six = all_six and StorySlides.has_slide("intro_%d" % i) and intro_ids.has("intro_%d" % i)
+	_check("slides: StorySlides holds intro_1 .. intro_6 and the INTRO uses each once", all_six and StorySlides.SLIDES.size() == 6 and not StorySlides.has_slide("nope") and StorySlides.get_slide("nope").is_empty(), "")
+	var gs: Dictionary = StorySlides.get_slide("intro_1")
+	gs["bg"] = "changed"
+	_check("slides: get_slide returns a copy (editing it leaves the data alone)", String(StorySlides.SLIDES["intro_1"]["bg"]) != "changed", "")
+	var bg_ok := true
+	var who_ok := true
+	var dur_ok := true
+	var info := ""
+	var roster_data: Dictionary = Roster.data()
+	var anim_lib: Node = root.get_node("AnimLib")
+	for sid in StorySlides.SLIDES:
+		var sl: Dictionary = StorySlides.SLIDES[sid]
+		if not (load(String(sl.get("bg", ""))) is Texture2D):
+			bg_ok = false
+			info += " bg:" + String(sid)
+		if float(sl.get("dur", 12.0)) <= 0.0:
+			dur_ok = false
+		for sp in sl.get("sprites", []):
+			var who := String(sp.get("who", ""))
+			var anim := String(sp.get("anim", "idle"))
+			if who == "mera":
+				if not anim_lib.anims.has(anim) and not anim_lib.anims.has("idle"):
+					who_ok = false
+					info += " mera:" + anim
+			elif not roster_data.has(who) or not (roster_data[who]["anims"] as Dictionary).has(anim):
+				who_ok = false
+				info += " %s/%s/%s" % [sid, who, anim]
+			if float(sp.get("scale", 4.0)) <= 0.0 or float(sp.get("at", 0.0)) < 0.0 or (sp.has("until") and float(sp["until"]) <= float(sp.get("at", 0.0))):
+				dur_ok = false
+			for mv in sp.get("move", []):
+				if float(mv.get("dur", 1.0)) <= 0.0 or float(mv.get("t", 0.0)) < 0.0:
+					dur_ok = false
+	_check("slides: every slide's painting loads as a texture", bg_ok, info)
+	_check("slides: every sprite is 'mera' or a Roster id and its animation exists there", who_ok, info)
+	_check("slides: durations, scales, start times and tween lengths are positive", dur_ok, "")
+	var music_path := String(StoryPages.INTRO[0].get("music", ""))
+	_check("slides: the first INTRO page starts the prologue music and it loads", music_path == "res://assets/perry/music/prologue.ogg" and load(music_path) is AudioStream, music_path)
+	var text_ok := true
+	for pg in StoryPages.INTRO:
+		var tx: Variant = pg.get("text", "")
+		var lines: Array = tx if tx is Array else [tx]
+		for ln in lines:
+			if String(ln).strip_edges() == "" or String(ln).find(char(0x2014)) >= 0 or String(ln).find(char(0x2013)) >= 0:
+				text_ok = false
+	_check("slides: every INTRO page has text and no em or en dash", text_ok, "")
+
+	# ---------------- export presets: every res:// path the story data names is in all three presets
+	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var rx := RegEx.create_from_string("res://[A-Za-z0-9_/.\\-]+")
+	var exp_missing: Array = []
+	var seen_paths := {}
+	for f in ["res://scripts/game/story_slides.gd", "res://scripts/game/story_pages.gd"]:
+		for m in rx.search_all(FileAccess.get_file_as_string(f)):
+			var rp: String = m.get_string()
+			if rp.ends_with("."):
+				rp = rp.substr(0, rp.length() - 1)
+			seen_paths[rp] = true
+	for rp in seen_paths:
+		if not FileAccess.file_exists(rp) or ep.count("\"" + String(rp) + "\"") != 3:
+			exp_missing.append(rp)
+	for f in ["res://scripts/game/slide_view.gd", "res://scripts/game/story_slides.gd", "res://scripts/game/story_pages.gd"]:
+		if ep.count("\"" + f + "\"") != 3:
+			exp_missing.append(f)
+	_check("export: the slide scripts and every png / ogg the story data uses exist and are in all 3 presets (%d paths)" % seen_paths.size(), exp_missing.is_empty() and seen_paths.size() >= 7, "%s" % [exp_missing])
+
+	# ---------------- SlideView
+	var sv := SlideView.new()
+	root.add_child(sv)
+	_check("slideview: an unknown id shows nothing and returns false", not sv.show_slide("no_such_slide") and not sv.shown and sv.slide.is_empty(), "")
+	_check("slideview: an empty id clears the picture and returns false", not sv.show_slide("") and not sv.shown, "")
+	var spr_ok := true
+	var dur_ends := true
+	for i in range(1, 7):
+		var sid := "intro_%d" % i
+		var shown: bool = sv.show_slide(sid, false)
+		var want: int = (StorySlides.SLIDES[sid]["sprites"] as Array).size()
+		if not (shown and sv.shown and sv._sprites.size() == want and sv._bg != null):
+			spr_ok = false
+		var dur := float(StorySlides.SLIDES[sid].get("dur", 12.0))
+		sv.set_time(0.0)
+		await process_frame
+		var ok0: bool = sv.t == 0.0 and not sv.running and is_equal_approx(sv.modulate.a, 1.0)
+		sv.set_time(dur)
+		await process_frame
+		if not (ok0 and sv.t == dur):
+			dur_ends = false
+	_check("slideview: all six slides load their painting and every sprite (frames found)", spr_ok, "")
+	_check("slideview: set_time works at t = 0 and t = dur for every slide (holds still, fully visible)", dur_ends, "")
+	_check("slideview: the pan / zoom transform stays a function of time (scale 3x at the start, painting wider than the band)", sv.show_slide("intro_1", false) and is_equal_approx(float(sv._bg_xf(0.0)["s"]), SlideView.SCALE) and sv._bg.get_width() * SlideView.SCALE > SlideView.BAND.x, "")
+	sv.show_slide("intro_1", true)
+	_check("slideview: a fade-in starts transparent", sv.modulate.a == 0.0 and sv.running and sv.t == 0.0, "")
+	# move tweens: alpha starts at the colour's alpha, scale and position end on their target
+	_check("slideview: the ease is 0 at the start and 1 at the end", SlideView._ease(0.0) == 0.0 and SlideView._ease(1.0) == 1.0 and SlideView._ease(2.0) == 1.0 and SlideView._ease(-1.0) == 0.0, "")
+	var fade_ok := true
+	var n_fade := 0
+	var n_move := 0
+	for sid in StorySlides.SLIDES:
+		for sp in StorySlides.SLIDES[sid].get("sprites", []):
+			var c0: Array = sp.get("color", [1, 1, 1, 1])
+			var a0 := float(c0[3]) if c0.size() > 3 else 1.0
+			for mv in sp.get("move", []):
+				n_move += 1
+				if mv.has("alpha"):
+					n_fade += 1
+					var a1 := float(mv["alpha"])
+					if a1 < 0.0 or a1 > 1.0 or is_equal_approx(a0, a1):
+						fade_ok = false
+					var k_end: float = SlideView._ease((float(mv["t"]) + float(mv["dur"]) - float(mv["t"])) / float(mv["dur"]))
+					if not is_equal_approx(lerpf(a0, a1, k_end), a1):
+						fade_ok = false
+	_check("slideview: alpha tweens start from the colour alpha and end on their target (%d tweens of %d)" % [n_fade, n_move], fade_ok and n_fade >= 6 and n_move >= 8, "")
+	var ogre6: Dictionary = {}
+	for sp in StorySlides.SLIDES["intro_6"]["sprites"]:
+		if sp["who"] == "ogre":
+			ogre6 = sp
+	_check("slideview: in intro_6 the ogre starts invisible (colour alpha 0) and fades to 1 over 0.6 s from 0.5 s", float(ogre6["color"][3]) == 0.0 and float(ogre6["move"][0]["alpha"]) == 1.0 and float(ogre6["move"][0]["t"]) == 0.5 and float(ogre6["move"][0]["dur"]) == 0.6, "")
+	var perry4: Array = StorySlides.SLIDES["intro_4"]["sprites"]
+	_check("slideview: in intro_4 Perry walks from x -100 to 700, then the idle copy stands at 700 from 6 s", perry4.size() == 2 and float(perry4[0]["pos"][0]) == -100.0 and float(perry4[0]["move"][0]["to"][0]) == 700.0 and float(perry4[1]["pos"][0]) == 700.0 and float(perry4[1]["at"]) == float(perry4[0]["until"]), "")
+	sv.show_slide({"bg": "res://assets/perry/maps/story/4_village_meadow.png", "dur": 4.0, "sprites": [{"who": "nobody", "anim": "idle", "pos": [0, 0]}]})
+	_check("slideview: a slide dictionary works, and a sprite of an unknown creature is skipped without a crash", sv.shown and sv._sprites.is_empty(), "")
+	sv.set_time(2.0)
+	await process_frame
+	sv.queue_free()
+	await process_frame
+
+	# ---------------- Cutscene with the INTRO pages
+	var g: Node = await _s4_new(0)
+	var fake := AudioStreamPlayer.new()
+	fake.volume_db = -3.0
+	g.add_child(fake)
+	g.music_player = fake
+	var done_n := [0]
+	var cb := func(): done_n[0] += 1
+	CUT.suppressed = false
+	var cs = CUT.play(g, StoryPages.INTRO, cb)
+	var made: bool = cs != null
+	if cs == null:
+		_check("slideshow cutscene: INTRO plays", false, "play returned null")
+		CUT.suppressed = true
+		g.queue_free()
+		await process_frame
+		return
+	_check("slideshow cutscene: INTRO builds a cutscene with 6 pages, slides, a view, and pauses the tree", cs.pages.size() == 6 and cs.extras.size() == 6 and cs.has_slides and cs.view != null and root.get_tree().paused and g.cutscene == cs, "")
+	_check("slideshow cutscene: page 1 shows intro_1 and the story music replaces the level music", cs.view.shown and String(cs.view.slide.get("bg", "")) == String(StorySlides.SLIDES["intro_1"]["bg"]) and cs._music != null and cs._music.playing and fake.volume_db <= -79.0, "db=%f" % fake.volume_db)
+	var bgs := {}
+	var bar_ok := true
+	var shown_ok := true
+	for i in 6:
+		var tot := 0.0
+		for f in cs._fit:
+			tot += float(f[1])
+		if tot > CUT.BLOCK_H_SLIDE + 0.5:
+			bar_ok = false
+		shown_ok = shown_ok and cs.view.shown and cs.page_i == i
+		bgs[String(cs.view.slide.get("bg", ""))] = true
+		if i < 5:
+			cs.advance()
+	_check("slideshow cutscene: advancing walks the six pages and the picture changes each time (6 distinct paintings)", shown_ok and bgs.size() == 6 and cs.page_i == 5 and not cs.done, "%d %s" % [bgs.size(), shown_ok])
+	_check("slideshow cutscene: every page's text fits the bar under the picture", bar_ok, "")
+	_check("slideshow cutscene: the music keeps playing between pages and the level music stays muted", cs._music != null and cs._music.playing and fake.volume_db <= -79.0, "")
+	cs.skip()
+	_check("slideshow cutscene: skip ends it: callback once, tree unpaused, game cleared, level music volume restored", cs.done and done_n[0] == 1 and not root.get_tree().paused and g.cutscene == null and is_equal_approx(fake.volume_db, -3.0) and cs._music == null, "db=%f" % fake.volume_db)
+	await process_frame
+	_check("slideshow cutscene: it frees itself", not is_instance_valid(cs), "")
+	# finishing by the last page restores the music too
+	var cs2 = CUT.play(g, StoryPages.INTRO, cb)
+	for i in 6:
+		cs2.advance()
+	_check("slideshow cutscene: advancing past the last page ends it and restores the level music", cs2.done and done_n[0] == 2 and is_equal_approx(fake.volume_db, -3.0) and not root.get_tree().paused, "")
+	await process_frame
+	# a missing slide id falls back to text only
+	var cs3 = CUT.play(g, [{"text": "Hello there.", "slide": "no_such_slide"}, {"text": ["Gold line", "Pale line"]}], cb)
+	_check("slideshow cutscene: a missing slide id does not crash; the page is text only", cs3 != null and cs3.has_slides and cs3.view != null and not cs3.view.shown and cs3.pages.size() == 2 and cs3.pages[1].size() == 2, "")
+	if cs3 != null:
+		cs3.advance()
+		cs3.advance()
+	await process_frame
+	# plain pages and slide-less dictionaries keep the old look
+	var cs4 = CUT.play(g, ["plain one", ["gold", "pale"]], cb)
+	_check("slideshow cutscene: plain String pages have no slides, no view and no music", cs4 != null and not cs4.has_slides and cs4.view == null and cs4._music == null and cs4.extras.size() == 2 and cs4.extras[0].is_empty() and fake.volume_db == -3.0, "")
+	cs4.skip()
+	await process_frame
+	var cs5 = CUT.play(g, [{"text": "dictionary, no slide"}], cb)
+	_check("slideshow cutscene: a Dictionary page without a slide is text only", cs5 != null and not cs5.has_slides and cs5.view == null and cs5.pages[0][0] == "dictionary, no slide", "")
+	cs5.skip()
+	await process_frame
+	_check("slideshow cutscene: _lines_of takes a String, an Array (two lines at most) or a Dictionary text; empty gives none", CUT._lines_of("a") == ["a"] and CUT._lines_of(["a", "b", "c"]) == ["a", "b"] and CUT._lines_of({"text": "x"}) == ["x"] and CUT._lines_of({"text": ""}).is_empty() and CUT._lines_of({"slide": "intro_1"}).is_empty(), "")
+	CUT.suppressed = true
+	g.queue_free()
+	await process_frame
+	await process_frame
+	_check("slideshow cutscene: the tree is not left paused", not root.get_tree().paused, "")
+
+	# ---------------- match-3: the clock
+	var m = M3.new()
+	m.rng.seed = 21
+	m._setup()
+	_check("match-3 clock: starts at Tuning.MATCH_TIME_S (20 s); the move limit is gone", is_equal_approx(m.time_left, T.MATCH_TIME_S) and T.MATCH_TIME_S == 20.0 and m.get("moves_left") == null and not T.get_script_constant_map().has("MATCH_MOVES"), "")
+	m._tick(1.5)
+	_check("match-3 clock: _tick runs it down", is_equal_approx(m.time_left, T.MATCH_TIME_S - 1.5) and m.result == "", "left=%f" % m.time_left)
+	var mv: Array = m.find_move()
+	var started: bool = m.try_swap(mv[0], mv[1])
+	var tl0: float = m.time_left
+	m._tick(0.01)
+	m._tick(0.01)
+	_check("match-3 clock: it keeps running during a swap and the cascade (busy)", started and m.busy and m.time_left < tl0 - 0.019, "busy=%s %f -> %f" % [m.busy, tl0, m.time_left])
+	m.settle()
+	m.time_left = 0.5
+	m.score = 0
+	m._tick(0.3)
+	_check("match-3 clock: before it runs out nothing is decided", m.result == "" and is_equal_approx(m.time_left, 0.2), "left=%f" % m.time_left)
+	m._tick(1.0)
+	_check("match-3 clock: a tick past 0 with the score under the target loses with TIME UP", m.result == "lost" and m._banner == "TIME UP" and m.time_left == 0.0, "%s %s" % [m.result, m._banner])
+	m._tick(1.0)
+	_check("match-3 clock: after the result the clock stays at 0 and the result stands", m.result == "lost" and m.time_left == 0.0, "")
+	m.free()
+	m = M3.new()
+	m.rng.seed = 22
+	m._setup()
+	m.score = T.MATCH_TARGET
+	m.time_left = 0.4
+	m._tick(1.0)
+	_check("match-3 clock: a tick past 0 with the score at the target wins", m.result == "won", m.result)
+	m.free()
+	m = M3.new()
+	m.rng.seed = 23
+	m._setup()
+	m.time_left = 0.4
+	m.score = T.MATCH_TARGET - 5
+	m._tick(0.1)
+	_check("match-3 clock: one point under the target with time left is still playing", m.result == "" and m.score == T.MATCH_TARGET - 5, "")
+	m.free()
+	m = M3.new()
+	m.rng.seed = 24
+	m._setup()
+	m.solve()
+	_check("match-3 clock: solve() still wins, and the clock was not spent on the way", m.result == "won" and is_equal_approx(m.time_left, T.MATCH_TIME_S), "%s left=%f" % [m.result, m.time_left])
+	m.free()
+	# ---------------- match-3: board geometry and hints
+	m = M3.new()
+	m._setup()
+	var board_r := Rect2(m.origin_px, Vector2(M3.TILE * m.cols, M3.TILE * m.rows))
+	_check("match-3 board: 6 x 6 tiles of 128 px, target 300", M3.TILE == 128.0 and m.cols == 6 and m.rows == 6 and m.target == 300 and T.MATCH_TARGET == 300, "")
+	_check("match-3 board: the whole board rectangle lies inside the puzzle panel", HOST.PANEL.encloses(board_r) and is_equal_approx(m.origin_px.x, HOST.PANEL.position.x + 50.0) and m.origin_px.y == 190.0, "%s in %s" % [board_r, HOST.PANEL])
+	var pipes_h = PIPES.new()
+	_check("puzzle host: match-3 uses a 34 px hint at y 998, the other puzzles keep 26 px at 985", m.hint_size() == 34 and m.hint_y() == 998.0 and pipes_h.hint_size() == 26 and pipes_h.hint_y() == 985.0, "")
+	pipes_h.free()
+	# touch: a tap on a tile selects it, a drag onto a neighbour swaps (converted with origin_px and TILE)
+	var c_mid := Vector2i(2, 3)
+	var p_mid: Vector2 = m.origin_px + (Vector2(c_mid) + Vector2(0.5, 0.5)) * M3.TILE
+	m._on_press(p_mid)
+	_check("match-3 touch: a press at a tile's centre selects that cell", m.cursor == c_mid and m.sel == c_mid, "cursor=%s sel=%s" % [m.cursor, m.sel])
+	var mvs: Array = m.find_move()
+	var a: Vector2i = mvs[0]
+	var b: Vector2i = mvs[1]
+	m.sel = Vector2i(-1, -1)
+	var pa: Vector2 = m.origin_px + (Vector2(a) + Vector2(0.5, 0.5)) * M3.TILE
+	var pb: Vector2 = m.origin_px + (Vector2(b) + Vector2(0.5, 0.5)) * M3.TILE
+	m._on_press(pa)
+	m._on_drag(pa + (pb - pa) * 0.6)
+	_check("match-3 touch: a drag from a tile toward its neighbour makes the swap", m.busy, "a=%s b=%s" % [a, b])
+	m.settle()
+	m.sel = Vector2i(-1, -1)
+	var mv2: Array = m.find_move()
+	if not mv2.is_empty():
+		var qa: Vector2 = m.origin_px + (Vector2(mv2[0]) + Vector2(0.5, 0.5)) * M3.TILE
+		var qb: Vector2 = m.origin_px + (Vector2(mv2[1]) + Vector2(0.5, 0.5)) * M3.TILE
+		m._on_press(qa)
+		m._on_release(qa)
+		m._on_press(qb)
+		_check("match-3 touch: tapping two neighbouring tiles swaps them", m.busy, "")
+	m.free()
+
+	# ---------------- failed chests explode
+	var g2: Node = await _s4_new(1)
+	_clear_blockers(g2)
+	g2.mera.set_size(5)
+	var cx := 12000.0
+	var kinds_list := ["pipes", "match3", "needle"]
+	for kind in kinds_list:
+		# lose (the puzzle's own rules), Mera on the chest: she loses 1 size, the chest is gone, no loot
+		cx += 800.0
+		var chx: Node2D = _new_chest(g2, cx)
+		g2.mera.global_position.x = cx
+		g2.mera.invuln = 0.0
+		var size0: int = g2.mera.size
+		var opened: bool = chx.try_open(kind)
+		var h: Node = g2.puzzle
+		h.lose()
+		h.finish_now()
+		var size1: int = g2.mera.size
+		await _s4_frames(g2, 3)
+		_check("chest blast: a lost %s puzzle explodes the chest (frees itself, no loot) and costs Mera 1 size when she is on it" % kind, opened and not is_instance_valid(chx) and g2.puzzle == null and not paused and size1 == size0 - 1 and _coins_near(g2, cx) == 0, "size %d -> %d" % [size0, size1])
+		g2.mera.set_size(5)
+		# give up (B), Mera far: the chest explodes and nobody is hurt
+		cx += 800.0
+		var chf: Node2D = _new_chest(g2, cx)
+		g2.mera.global_position.x = cx + T.CHEST_BLAST_R + 150.0
+		g2.mera.invuln = 0.0
+		chf.try_open(kind)
+		var h2: Node = g2.puzzle
+		h2.press_action("btn_b")
+		var res2: String = h2.result
+		h2.finish_now()
+		var size2: int = g2.mera.size
+		await _s4_frames(g2, 3)
+		_check("chest blast: giving up the %s puzzle blows the chest up but spares Mera outside the radius" % kind, res2 == "lost" and not is_instance_valid(chf) and size2 == 5 and g2.puzzle == null, "res=%s size=%d" % [res2, size2])
+	# time up on the match-3 puzzle, close and then far
+	for near in [true, false]:
+		cx += 800.0
+		var chm: Node2D = _new_chest(g2, cx)
+		g2.mera.global_position.x = cx + (T.CHEST_BLAST_R - 200.0 if near else T.CHEST_BLAST_R + 150.0)
+		g2.mera.invuln = 0.0
+		g2.mera.set_size(5)
+		chm.try_open("match3")
+		var hm: Node = g2.puzzle
+		hm.time_left = 0.05
+		hm._tick(1.0)
+		var banner: String = hm._banner
+		var rm: String = hm.result
+		hm.finish_now()
+		var size3: int = g2.mera.size
+		await _s4_frames(g2, 3)
+		_check("chest blast: match-3 TIME UP blows the chest up; Mera %s the radius %s" % ["inside" if near else "outside", "loses 1 size" if near else "is not hurt"], rm == "lost" and banner == "TIME UP" and not is_instance_valid(chm) and size3 == (4 if near else 5), "%s %s size=%d" % [rm, banner, size3])
+	# the radius is Tuning.CHEST_BLAST_R
+	_check("chest blast: the radius is Tuning.CHEST_BLAST_R (360)", T.CHEST_BLAST_R == 360.0, "")
+	# quitting the scene with a puzzle open does not crash and gives the tree back
+	cx += 800.0
+	var chq: Node2D = _new_chest(g2, cx)
+	chq.try_open("match3")
+	var hq: Node = g2.puzzle
+	var opened_q: bool = hq != null and paused
+	g2.queue_free()
+	await process_frame
+	await process_frame
+	_check("chest blast: leaving the level with a chest puzzle open frees the layer and unpauses the tree", opened_q and not paused and not is_instance_valid(hq), "")
+	# a won puzzle still opens the chest and pays out
+	var g3: Node = await _s4_new(1)
+	_clear_blockers(g3)
+	var chw: Node2D = _new_chest(g3, 14000.0)
+	g3.mera.global_position.x = 14000.0 + 2000.0
+	chw.try_open("match3")
+	var hw: Node = g3.puzzle
+	hw.solve()
+	hw.finish_now()
+	await _s4_frames(g3, 6)
+	_check("chest blast: a won puzzle still opens the chest and pays 3-5 coins", is_instance_valid(chw) and chw.state == "open" and _coins_near(g3, 14000.0) >= 3 and _coins_near(g3, 14000.0) <= 5, "")
+	g3.queue_free()
+	await process_frame
+	# Perry loses 1 hit (10 HP) when the chest next to her blows up
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	C.test_all = true
+	var gp: Node = await _perry_new(1)
+	_clear_blockers(gp)
+	var chp: Node2D = _new_chest(gp, 9000.0)
+	gp.mera.global_position.x = 9000.0
+	gp.mera.invuln = 0.0
+	var hp0: int = gp.mera.hp
+	chp.try_open("needle")
+	var hpz: Node = gp.puzzle
+	hpz.lose()
+	hpz.finish_now()
+	var hp1: int = gp.mera.hp
+	await process_frame
+	_check("chest blast: Perry on the chest loses 1 point of damage (%d HP) and the chest is gone" % T.PERRY_HP_PER_DMG, gp.mera.get("is_perry") == true and hp1 == hp0 - T.PERRY_HP_PER_DMG and not is_instance_valid(chp), "hp %d -> %d" % [hp0, hp1])
+	gp.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+	C.character = "mera"
+	LVS.current = 0

@@ -217,7 +217,7 @@ func prisoner_freed(pr: Node) -> void:
 	if String(pr.give_move) != "" and Carry.give_move(String(pr.give_move)):
 		extra = "  +%s" % String(pr.give_move)
 	hud.flash("pickup:prisoner freed  +%d gold%s" % [gold, extra])
-	Cutscene.play(self, [String(pr.line)], Callable(), "")
+	Cutscene.play(self, [{"text": [String(pr.lore), String(pr.tip)], "speaker": String(pr.who), "name": String(pr.speaker_name)}], Callable(), "")
 
 
 func _build_background() -> void:
@@ -1942,7 +1942,7 @@ func restart() -> void:
 		to_menu()
 		return
 	if not run_mode:
-		_bank(true)
+		_bank(over)                             # only a death sends her back to size 2; a restart from the pause menu keeps her size
 	restart_requests += 1
 	HitStop.clear()
 	AnimLib.set_fury(false)

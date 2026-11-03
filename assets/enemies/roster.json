@@ -9308,6 +9308,64 @@
       -19.0
      ]
     ]
+   },
+   "bolt": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_1.png",
+     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_2.png",
+     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_3.png",
+     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_4.png",
+     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_5.png",
+     "res://assets/characters/itch/luizmelo/fire_worm/fireball/fireball_6.png"
+    ],
+    "fps": 12,
+    "loop": true,
+    "size": [
+     46,
+     46
+    ],
+    "pivot": [
+     22.0,
+     29.0
+    ],
+    "boxes": [
+     [
+      -9.0,
+      -12.0,
+      9.0,
+      0.0
+     ],
+     [
+      -6.0,
+      -12.0,
+      9.0,
+      1.0
+     ],
+     [
+      -6.0,
+      -13.0,
+      9.0,
+      1.0
+     ],
+     [
+      -8.0,
+      -13.0,
+      9.0,
+      0.0
+     ],
+     [
+      -9.0,
+      -11.0,
+      9.0,
+      0.0
+     ],
+     [
+      -10.0,
+      -11.0,
+      9.0,
+      0.0
+     ]
+    ]
    }
   },
   "body": [

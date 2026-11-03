@@ -952,7 +952,11 @@ func _fire(_m: Node2D) -> void:
 		dir = Vector2(facing, signf(dir.y) * 0.6).normalized()
 	s.setup(game, id, String(atk["shot"]), p, dir * float(atk.get("shot_speed", 700.0)), int(atk["dmg"]), k * float(atk.get("shot_k", 1.0)), bool(atk.get("shot_tight", false)))
 	s.shooter = self
+	s.impact_id = id
+	s.impact_anim = String(atk.get("impact", ""))
 	played[String(atk["shot"])] = true
+	if s.impact_anim != "":
+		played[s.impact_anim] = true
 	get_parent().add_child(s)
 	Sfx.play("cast", 0.7, -4.0)
 

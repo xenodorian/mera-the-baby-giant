@@ -12,6 +12,8 @@ var k := 4.0
 var size_px := Vector2(16, 12)
 var deflected := false
 var shooter: Node = null
+var impact_id := ""                   # a shot that explodes where it lands: the shooter's roster id ...
+var impact_anim := ""                 # ... and the animation (of that id) played once at the hit; flies as a plain bolt until then
 
 
 func setup(g: Node, enemy_id: String, anim: String, p: Vector2, v: Vector2, damage: int, scale_k: float, tight := false) -> void:
@@ -73,7 +75,7 @@ func _physics_process(delta: float) -> void:
 		m.take_hit(dmg, global_position.x, shooter if is_instance_valid(shooter) else null)
 		if is_instance_valid(shooter):
 			shooter.hits_landed += 1
-		queue_free()
+		_impact()
 		return
 	if game.has_method("allies"):
 		for a in game.allies():
@@ -81,13 +83,38 @@ func _physics_process(delta: float) -> void:
 				a.take_hit(dmg, global_position.x)
 				if is_instance_valid(shooter):
 					shooter.hits_landed += 1
-				queue_free()
+				_impact()
 				return
 	var pr: Node2D = game.prop_at(rect())
 	if pr != null:
 		pr.take_damage(dmg, global_position.x, "bolt")
 		game.hit_spark(pr.hurt_rect().get_center(), 2.0)
-		queue_free()
+		_impact()
+
+
+## the shot is spent: if it has an impact animation (a firemage's bolt) the explosion plays once where it hit
+func _impact() -> void:
+	if impact_anim != "" and game != null and game.world != null and not is_queued_for_deletion():
+		var art: Dictionary = load("res://scripts/game/roster.gd").art(impact_id)
+		if art["anims"].has(impact_anim):
+			var e: Dictionary = art["anims"][impact_anim]
+			var sf := SpriteFrames.new()
+			sf.set_animation_loop("default", false)
+			sf.set_animation_speed("default", float(e["fps"]))
+			for f in e["frames"]:
+				sf.add_frame("default", load(f))
+			var fx := AnimatedSprite2D.new()
+			fx.sprite_frames = sf
+			fx.centered = false
+			fx.offset = -Vector2(float(e["pivot"][0]), float(e["pivot"][1]))
+			fx.scale = Vector2(k, k)
+			fx.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			fx.global_position = global_position
+			fx.z_index = 9
+			fx.animation_finished.connect(fx.queue_free)
+			game.world.add_child(fx)
+			fx.play("default")
+	queue_free()
 
 
 ## v0.8: sent back toward whoever shot it (or the nearest enemy), faster, and with a fresh lifetime
