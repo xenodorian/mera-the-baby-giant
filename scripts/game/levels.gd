@@ -11,19 +11,25 @@ const EXIT_PAD := 360.0      # the exit gate stands this far from the right end
 
 const STAGE2_FROM := 6       # the first level index of stage 2
 const STAGE3_FROM := 12      # the first level index of stage 3 (the Changeling maps; 11 is Perry's Arena, the last of stage 2)
-const STAGE4_FROM := 20      # stage 4: the king's court (Nerochilde's Court, a solo boss arena)
+const STAGE4_FROM := 19      # stage 4: the nine new maps (s4_drowned .. s4_gate; the Black Knight ends it at STAGE5_FROM - 1)
+const STAGE5_FROM := 28      # the last stage: the Warlord's Throne (finale, opens the court), then Nerochilde's Court (the final boss)
+## the Warlord's Throne and the king's court follow from STAGE5_FROM (inserting a level before them is a one-number edit above)
+const STAGE_FROM := [0, STAGE2_FROM, STAGE3_FROM, STAGE4_FROM, STAGE5_FROM]   # first level index of each stage (stage_of is the position)
+const THRONE := STAGE5_FROM
+const COURT := STAGE5_FROM + 1
+const BLACK_KNIGHT := STAGE5_FROM - 1   # the end-of-stage mini-boss level of the second to last stage
 
 static var current := 0      # index into list()
 static var _data: Dictionary = {}
 
 
-## 0 for the levels of stage 1, 1 for stage 2, 2 for stage 3 (Changeling), 3 for the king's court
+## 0 for the levels of stage 1, 1 stage 2, 2 the Changeling stage, 3 the new stage, 4 the last stage (Throne and Court)
 static func stage_of(i: int) -> int:
-	if i >= STAGE4_FROM:
-		return 3
-	if i >= STAGE3_FROM:
-		return 2
-	return 1 if i >= STAGE2_FROM else 0
+	var s := 0
+	for k in STAGE_FROM.size():
+		if i >= int(STAGE_FROM[k]):
+			s = k
+	return s
 
 
 static func data() -> Dictionary:

@@ -142,12 +142,12 @@ Perry's buttons are Mera's buttons of the same name (Xbox names; the keyboard ke
 | Down, then Up | sky dash | Sky Dash |
 | **A** (Z) | slash | |
 | A + the way she faces | lunging thrust | Lunging Thrust |
-| A + the other way | spin attack (hits both sides) | |
+| A + the other way | turns and lunges (the thrust; the plain slash without it). The spin is Y only | Lunging Thrust |
 | Down + A | ducking upswing | Ducking Upswing |
 | A, A, A, A, A | attack chain: slash, three chain strikes, then the chop (20 energy) | Attack Chain |
 | A, A, A, A, then B | energy burst (Burst Chain) | Attack Chain, Burst Chain |
 | Hold A after a slash, release | charge, release: heavy overhead chop | Heavy Overhead Chop |
-| A in the air, 180+ px up | jumping crash (30 energy) | Jumping Crash |
+| A in the air, 180+ px up | jumping crash (30 energy): black and white impact frame, rumble, and a ground shock that hurts every enemy within 496 px of where she lands | Jumping Crash |
 | **Y** (S) | spin attack (hits both sides) | |
 | **X** (A key) | dash (free, invulnerable for most of it) | |
 | X + A (A key + Z) | dash thrust. Double tap forward, then hold X + A and let go: energy dash thrust | Dash Thrust, Energy Dash Thrust |

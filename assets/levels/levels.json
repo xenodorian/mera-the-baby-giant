@@ -2705,6 +2705,669 @@
    ]
   },
   {
+   "id": "s4_drowned",
+   "name": "Drowned Ruins",
+   "sub": "Pillars stand in the flood",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_drowned/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_drowned/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 14125,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    31,
+    91,
+    139
+   ],
+   "music": "res://assets/perry/music/level6.ogg",
+   "surfaces": [
+    [
+     2600,
+     3522,
+     930
+    ],
+    [
+     3600,
+     4522,
+     800
+    ],
+    [
+     4600,
+     5522,
+     670
+    ],
+    [
+     5600,
+     6522,
+     800
+    ],
+    [
+     6600,
+     7522,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_skyline",
+   "name": "Bluelit Skyline",
+   "sub": "A dead city under a pale sky",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_skyline/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_skyline/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 14925,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    94,
+    135,
+    153
+   ],
+   "music": "res://assets/perry/music/level5.ogg",
+   "surfaces": [
+    [
+     2600,
+     3448,
+     930
+    ],
+    [
+     3600,
+     4448,
+     800
+    ],
+    [
+     4600,
+     5448,
+     670
+    ],
+    [
+     5600,
+     6448,
+     800
+    ],
+    [
+     6600,
+     7448,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_clock",
+   "name": "Clocktower Quarter",
+   "sub": "The clock still counts",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_clock/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_clock/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 15725,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    14,
+    31,
+    45
+   ],
+   "music": "res://assets/perry/music/level4.ogg",
+   "surfaces": [
+    [
+     2600,
+     3399,
+     930
+    ],
+    [
+     3600,
+     4399,
+     800
+    ],
+    [
+     4600,
+     5399,
+     670
+    ],
+    [
+     5600,
+     6399,
+     800
+    ],
+    [
+     6600,
+     7399,
+     930
+    ],
+    [
+     9117,
+     10054,
+     930
+    ],
+    [
+     10217,
+     11154,
+     800
+    ],
+    [
+     11317,
+     12254,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_chapel",
+   "name": "Overgrown Chapel",
+   "sub": "Roots hold the walls up",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_chapel/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_chapel/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 16525,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    9,
+    8,
+    4
+   ],
+   "music": "res://assets/perry/music/level3.ogg",
+   "surfaces": [
+    [
+     2600,
+     3515,
+     930
+    ],
+    [
+     3700,
+     4615,
+     800
+    ],
+    [
+     4800,
+     5715,
+     930
+    ],
+    [
+     7928,
+     8849,
+     930
+    ],
+    [
+     8928,
+     9849,
+     800
+    ],
+    [
+     9928,
+     10849,
+     670
+    ],
+    [
+     10928,
+     11849,
+     800
+    ],
+    [
+     11928,
+     12849,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_courtyard",
+   "name": "Sunken Courtyard",
+   "sub": "Doors that lead nowhere",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_courtyard/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_courtyard/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 17325,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    84,
+    59,
+    38
+   ],
+   "music": "res://assets/perry/music/level2.ogg",
+   "surfaces": [
+    [
+     2600,
+     3389,
+     930
+    ],
+    [
+     3600,
+     4389,
+     800
+    ],
+    [
+     4600,
+     5389,
+     670
+    ],
+    [
+     5600,
+     6389,
+     800
+    ],
+    [
+     6600,
+     7389,
+     930
+    ],
+    [
+     9206,
+     10108,
+     930
+    ],
+    [
+     10306,
+     11208,
+     800
+    ],
+    [
+     11406,
+     12308,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_terrace",
+   "name": "Golden Terrace",
+   "sub": "White stone and gold leaves",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_terrace/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_terrace/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 15125,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    161,
+    136,
+    135
+   ],
+   "music": "res://assets/perry/music/level1.ogg",
+   "surfaces": [
+    [
+     2600,
+     3453,
+     930
+    ],
+    [
+     3700,
+     4553,
+     800
+    ],
+    [
+     4800,
+     5653,
+     930
+    ],
+    [
+     7499,
+     8371,
+     930
+    ],
+    [
+     8499,
+     9371,
+     800
+    ],
+    [
+     9499,
+     10371,
+     670
+    ],
+    [
+     10499,
+     11371,
+     800
+    ],
+    [
+     11499,
+     12371,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_vault",
+   "name": "Hoard Vault",
+   "sub": "Candles over the king's gold",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_vault/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_vault/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 16125,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    87,
+    66,
+    77
+   ],
+   "music": "res://assets/music/caverns.ogg",
+   "surfaces": [
+    [
+     2600,
+     3469,
+     930
+    ],
+    [
+     3600,
+     4469,
+     800
+    ],
+    [
+     4600,
+     5469,
+     670
+    ],
+    [
+     5600,
+     6469,
+     800
+    ],
+    [
+     6600,
+     7469,
+     930
+    ],
+    [
+     9481,
+     10289,
+     930
+    ],
+    [
+     10581,
+     11389,
+     800
+    ],
+    [
+     11681,
+     12489,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_mushroom",
+   "name": "Mushroom Hollow",
+   "sub": "A forest that glows",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_mushroom/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_mushroom/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 16925,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    6,
+    12,
+    24
+   ],
+   "music": "res://assets/music/mist.ogg",
+   "surfaces": [
+    [
+     2600,
+     3531,
+     930
+    ],
+    [
+     3700,
+     4631,
+     800
+    ],
+    [
+     4800,
+     5731,
+     930
+    ],
+    [
+     7983,
+     8876,
+     930
+    ],
+    [
+     9083,
+     9976,
+     800
+    ],
+    [
+     10183,
+     11076,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
+   "id": "s4_gate",
+   "name": "Gilded Gate",
+   "sub": "The Black Knight keeps the way",
+   "layers": [
+    {
+     "file": "res://assets/levels/s4_gate/sky.png",
+     "scroll": 0.1,
+     "y": -40,
+     "z": -40,
+     "period": 1920,
+     "w": 1920,
+     "modulate": null
+    },
+    {
+     "file": "res://assets/levels/s4_gate/ground.png",
+     "scroll": 1.0,
+     "y": 0,
+     "z": -10,
+     "period": 0,
+     "w": 18125,
+     "modulate": null
+    }
+   ],
+   "bg": [
+    78,
+    77,
+    77
+   ],
+   "music": "res://assets/perry/music/boss4.ogg",
+   "surfaces": [
+    [
+     2600,
+     3504,
+     930
+    ],
+    [
+     3600,
+     4504,
+     800
+    ],
+    [
+     4600,
+     5504,
+     670
+    ],
+    [
+     5600,
+     6504,
+     800
+    ],
+    [
+     6600,
+     7504,
+     930
+    ],
+    [
+     9917,
+     10795,
+     930
+    ],
+    [
+     10917,
+     11795,
+     800
+    ],
+    [
+     11917,
+     12795,
+     670
+    ],
+    [
+     12917,
+     13795,
+     800
+    ],
+    [
+     13917,
+     14795,
+     930
+    ]
+   ],
+   "ladders": [],
+   "platforms": [],
+   "hazards": [],
+   "marks": []
+  },
+  {
    "id": "ch_throne",
    "name": "Warlord's Throne",
    "sub": "The Warlord of the Changeling",

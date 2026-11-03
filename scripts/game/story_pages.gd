@@ -28,7 +28,7 @@ const STAGE3_STEP := [
 	"Switch on the title screen. Her strength must be bought again, in her own shop.",
 ]
 
-## the king's court (level 20)
+## the king's court (Levels.COURT, index 29)
 const KING_INTRO := [
 	["King Lucius Nerochilde. He ordered your parents' death.", "No army. No daughter. Only the dark lord he became."],
 ]

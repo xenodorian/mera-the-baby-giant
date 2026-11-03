@@ -253,9 +253,9 @@ const LEVELS := {
 	18: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "cl_grunt"],
 }
 ## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
-const BOSSES := {18: "black_knight", 5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", 19: "cl_warlord", 20: "nero"}
+const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", Levels.BLACK_KNIGHT: "black_knight", Levels.THRONE: "cl_warlord", Levels.COURT: "nero"}
 ## levels whose boss ends a stage with a victory card (level index -> what falls). Other bosses only open the exit.
-const FINALE := {5: "the Cavern Dragon", 11: "Perry", 19: "the Warlord", 20: "King Nerochilde"}
+const FINALE := {5: "the Cavern Dragon", 11: "Perry", Levels.THRONE: "the Warlord", Levels.COURT: "King Nerochilde"}
 ## display names of the bosses (exit lock text)
 const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon", "cl_warlord": "Warlord", "nero": "Nerochilde", "black_knight": "Black Knight"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
@@ -276,7 +276,8 @@ const WAVE_EVERY := 1500.0     # then one wave every this many px
 const WAVE_SIZES := [1, 2, 2, 3]
 ## on every wave level, two monsters per level come from BEHIND Mera. Cemetery (index 3) is the knight fight.
 const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3], 6: [1, 3], 7: [1, 3], 8: [1, 3], 9: [1, 3], 10: [1, 3],
-	12: [1, 3], 13: [1, 3], 14: [1, 3], 15: [1, 3], 16: [1, 3], 17: [1, 3], 18: [1, 3]}
+	12: [1, 3], 13: [1, 3], 14: [1, 3], 15: [1, 3], 16: [1, 3], 17: [1, 3], 18: [1, 3],
+	19: [1, 3], 20: [1, 3], 21: [1, 3], 22: [1, 3], 23: [1, 3], 24: [1, 3], 25: [1, 3], 26: [1, 3], 27: [1, 3]}   # stage 4 (19..27; 27 ends with the Black Knight)
 const MAX_ALIVE := 5
 const BOSS_AT := 3400.0        # the boss appears when Mera gets this close to the map end ...
 const BOSS_X := 1300.0         # ... standing this far from the end, in front of the exit (locked until he falls)

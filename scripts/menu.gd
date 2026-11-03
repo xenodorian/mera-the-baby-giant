@@ -26,12 +26,10 @@ func _ready() -> void:
 	font = ThemeDB.fallback_font
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sel = Levels.current
-	if Carry.unlocked >= Levels.STAGE2_FROM and Levels.current == Levels.STAGE2_FROM - 1:
-		sel = Levels.STAGE2_FROM                      # just beat the dragon: open on stage 2
-	if Carry.unlocked >= Levels.STAGE3_FROM and Levels.current == Levels.STAGE3_FROM - 1:
-		sel = Levels.STAGE3_FROM                      # just beat Perry: open on stage 3
-	if Carry.unlocked >= Levels.STAGE4_FROM and Levels.current == Levels.STAGE4_FROM - 1:
-		sel = Levels.STAGE4_FROM                      # just beat the Warlord: open on the king's court
+	for k in range(1, Levels.STAGE_FROM.size()):
+		var from: int = Levels.STAGE_FROM[k]
+		if Carry.unlocked >= from and Levels.current == from - 1:
+			sel = from                                # just beat the last level of a stage (the dragon, Perry, the Black Knight): open on the next
 	for lv in Levels.list():
 		thumbs.append(load("res://assets/levels/%s/thumb.png" % String(lv["id"])))
 	RenderingServer.set_default_clear_color(Color(0.02, 0.01, 0.04))
@@ -80,7 +78,7 @@ func _to_design(p: Vector2) -> Vector2:
 	return p - _origin()
 
 
-## the level indices on the page that shows level i (stage 1: 0..5, stage 2: 6..11, stage 3: 12..19)
+## the level indices on the page that shows level i (stage 1: 0..5, stage 2: 6..11, stage 3: 12..18, stage 4: 19..27, last stage: 28 and 29)
 func page_levels(page: int) -> Array:
 	var out: Array = []
 	for i in thumbs.size():
@@ -93,7 +91,8 @@ func page_of(i: int) -> int:
 	return Levels.stage_of(i)
 
 
-const WIDE_PAGE := 6          # a page with more cards than this lays them out in two rows (stage 3: 8 cards)
+const PAGE_HEADS := ["STAGE 1  SELECT A LEVEL", "STAGE 2: THE ISLAND  SELECT A LEVEL", "STAGE 3: CHANGELING  SELECT A LEVEL", "STAGE 4: THE FALLEN CITY  SELECT A LEVEL", "THE KING'S COURT  SELECT A LEVEL"]   # one per Levels.stage_of
+const WIDE_PAGE := 6          # a page with more cards than this lays them out in two rows (stages 3 and 4: 7 and 9 cards)
 
 
 func _card(i: int) -> Rect2:
@@ -567,7 +566,7 @@ func _draw() -> void:
 	draw_set_transform(_origin(), 0.0, Vector2.ONE)
 	draw_string(font, Vector2(0, 200), "MERA", HORIZONTAL_ALIGNMENT_CENTER, 1920, 140, Color(1.0, 0.8, 0.45))
 	draw_string(font, Vector2(0, 280), "THE BABY GIANT", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(0.95, 0.9, 1.0))
-	var head: String = ["STAGE 1  SELECT A LEVEL", "STAGE 2: THE ISLAND  SELECT A LEVEL", "STAGE 3: CHANGELING  SELECT A LEVEL", "THE KING'S COURT  SELECT A LEVEL"][page_of(sel)]
+	var head: String = PAGE_HEADS[page_of(sel)]
 	draw_string(font, Vector2(0, 370), head, HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.8, 0.8, 0.9))
 	var ls := Levels.list()
 	for i: int in page_levels(page_of(sel)):
@@ -587,7 +586,7 @@ func _draw() -> void:
 		var fs := 28 if lw > 300.0 else 24
 		draw_string(font, Vector2(lx, r.end.y + (40 if lw > r.size.x else 52)), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, lw, fs,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
-		if (i == Levels.STAGE2_FROM - 1 and ls.size() > Levels.STAGE2_FROM) or (i == Levels.STAGE3_FROM - 1 and ls.size() > Levels.STAGE3_FROM) or (i == Levels.STAGE4_FROM - 1 and ls.size() > Levels.STAGE4_FROM):       # the last level of a stage: the game goes on
+		if (i + 1) in Levels.STAGE_FROM and i != 0 and ls.size() > i + 1:       # the last level of a stage: the game goes on
 			var yel := Color(1.0, 0.92, 0.2)
 			var mid := r.position.y + r.size.y / 2.0 - 20.0
 			var tri := PackedVector2Array([Vector2(r.end.x - 8.0, mid), Vector2(r.end.x - 44.0, mid - 22.0), Vector2(r.end.x - 44.0, mid + 22.0)])

@@ -1744,6 +1744,7 @@ func _run() -> void:
 	await _touch_tests()
 	await _mark_tests()
 	await _perry_tests()
+	await _perry_audit_tests()
 	await _pb_tests()
 	await _cl_tests()
 	await _ladder_tests()
@@ -6897,3 +6898,132 @@ func _ally_hurt_tests() -> void:
 	_check("perry boss: a beam / meteor / quake box over the dancer kills her", any and not dn2.alive(), "hp %d" % dn2.hp)
 	g.queue_free()
 	await process_frame
+
+
+# ================================================================ Perry audit (the moves against the Biboo source): the others besides the chop
+func _perry_audit_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var PP = load("res://scripts/game/perry_player.gd")
+	C.reset()
+	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	# ---- the damage table is the source DAMAGE x 0.12 (at least 1; the supers x 0.3 again)
+	var want := {"slash": 3, "heavy_horizontal": 6, "thrust": 2, "upswing": 2, "push_kick": 1, "energy_kick": 4, "energy_burst": 6, "dash_thrust": 3,
+		"energy_dash_thrust": 6, "spin_attack": 2, "wave_blast": 6, "chain2": 2, "chain3": 2, "chain4": 3, "heavy": 24, "jump_crash": 36,
+		"cloud": 1, "fire": 2, "laser": 2, "plasma": 0, "earthquake": 9, "meteor_shower": 7}
+	var bad := ""
+	for id in want:
+		if T.perry_dmg(id) != int(want[id]):
+			bad += "%s %d/%d " % [id, T.perry_dmg(id), int(want[id])]
+	_check("perry audit: every move's damage is the source number x 0.12 (cloud 1, plasma 0, chop 24, crash 36)", bad == "", bad)
+	_check("perry audit: the sequence window is the source's 700 ms and the crash shock radius is 0.8 x the chop's blast", T.PERRY_SEQ_MS == 700.0 and absf(T.PERRY_CRASH_SHOCK_R - T.PERRY_HEAVY_AOE_R * 0.8) < 0.01, "")
+	# ---- the kicks' hit box is the source's box (38 to 95 / 102.9 px, 1 px below the floor to 34.8 px up), not the small foot capsule
+	var pk: Array = PP.mdef("push_kick")["frames"][1]["hits"]
+	var ek: Array = PP.mdef("energy_kick")["frames"][1]["hits"]
+	var pr: Rect2 = pk[0]
+	var er: Rect2 = ek[0]
+	_check("perry audit: the push kick hits a 57 x 35.8 box and the energy kick a 64.9 x 35.8 box on both active frames", pk.size() == 1 and ek.size() == 1 and absf(pr.size.x - 57.0) < 0.01 and absf(pr.size.y - 35.8) < 0.01 and absf(er.size.x - 64.9) < 0.01
+		and (PP.mdef("push_kick")["frames"][2]["hits"] as Array).size() == 1 and (PP.mdef("energy_kick")["frames"][2]["hits"] as Array).size() == 1, "%s %s" % [pr, er])
+	# ---- the dash thrust covers the same ground as the dash (all three cover 120 px in the source)
+	C.perry_owned = {"dash_thrust": true, "thrust": true, "taunt": true, "crash": true, "earthquake": true}
+	var g: Node = await _perry_new()
+	var m: Node2D = g.mera
+	var s: Array = []
+	var x0: float = m.position.x
+	s = []
+	_tap(s, 3, "btn_x")
+	await _drive(g, s, 80)
+	var dash_end: float = m.position.x - x0
+	g.queue_free()
+	await process_frame
+	g = await _perry_new()
+	m = g.mera
+	x0 = m.position.x
+	s = []
+	_tap(s, 3, "btn_x")
+	_tap(s, 3, "btn_a")
+	await _drive(g, s, 80)
+	var thrust_end: float = m.position.x - x0
+	_check("perry audit: the dash thrust travels as far as the dash (about %.0f px)" % dash_end, "dash_thrust" in m.move_log and dash_end > 400.0 and absf(thrust_end - dash_end) < 40.0, "dash %.0f thrust %.0f log %s" % [dash_end, thrust_end, m.move_log])
+	g.queue_free()
+	await process_frame
+	# ---- A with the other direction is the thrust (she turns and lunges); the spin is only on Y
+	g = await _perry_new()
+	m = g.mera
+	s = [[1, "left", true], [20, "left", false]]
+	_tap(s, 1, "btn_a")
+	await _drive(g, s, 50)
+	_check("perry audit: Left + A while facing right turns and lunges (thrust, not the spin)", "thrust" in m.move_log and "spin_attack" not in m.move_log and m.facing == -1, "log %s facing %d" % [m.move_log, m.facing])
+	g.queue_free()
+	await process_frame
+	C.perry_owned = {}
+	g = await _perry_new()
+	m = g.mera
+	s = [[1, "left", true], [20, "left", false]]
+	_tap(s, 1, "btn_a")
+	await _drive(g, s, 50)
+	_check("perry audit: without the thrust, Left + A is the plain slash, not the spin", "slash" in m.move_log and "spin_attack" not in m.move_log, "log %s" % [m.move_log])
+	g.queue_free()
+	await process_frame
+	# ---- the jump crash: the black and white impact frame, a rumble and a ground shock that hurts enemies near where she lands
+	C.perry_owned = {"crash": true}
+	g = await _perry_new()
+	m = g.mera
+	var near: Node2D = g.spawn_enemy("p_goblin", m.global_position.x + 330.0)
+	var far: Node2D = g.spawn_enemy("p_goblin", m.global_position.x + 900.0)
+	await physics_frame
+	near.hp = 200
+	far.hp = 200
+	var slams0: int = g.slam_count
+	m.position.y = g.GROUND_Y - 420.0
+	m.on_ground = false
+	m.state = "air"
+	m.vel = Vector2.ZERO
+	m.stamina = 100.0
+	var st0: float = m.stamina
+	await physics_frame
+	s = []
+	_tap(s, 1, "btn_a")
+	await _drive(g, s, 120)
+	_check("perry audit: A high in the air starts the jump crash for 30 energy", "jump_crash" in m.move_log and m.stamina <= st0 - 29.0, "log %s energy %.1f -> %.1f" % [m.move_log, st0, m.stamina])
+	_check("perry audit: the crash always plays the impact frame and rumble (like the chop), even from a modest height", g.slam_count == slams0 + 1, "slams %d -> %d" % [slams0, g.slam_count])
+	_check("perry audit: the crash's ground shock hurts the enemy near where she lands for the crash damage (%d)" % T.perry_dmg("jump_crash"), near.hp <= 200 - T.perry_dmg("jump_crash"), "near hp %d" % near.hp)
+	_check("perry audit: ... and leaves one beyond the radius alone (%.0f px)" % T.PERRY_CRASH_SHOCK_R, far.hp == 200, "far hp %d" % far.hp)
+	g.queue_free()
+	await process_frame
+	# ---- the earthquake: an impact frame and a 1.5 s aftershake; the sequence window is 700 ms, so Down x4 half a second apart still works
+	C.perry_owned = {"earthquake": true}
+	g = await _perry_new()
+	m = g.mera
+	m.rage = 100.0
+	var slams1: int = g.slam_count
+	s = []
+	for i in 4:
+		_tap(s, 2 + 30 * i, "down")
+	_tap(s, 122, "btn_a")
+	await _drive(g, s, 200)
+	_check("perry audit: Down x4 (0.5 s apart) then A fires the earthquake, spends the super meter and plays the impact frame", "earthquake" in m.move_log and m.rage < 1.0 and g.slam_count == slams1 + 1, "log %s rage %.1f slams %d -> %d" % [m.move_log, m.rage, slams1, g.slam_count])
+	_check("perry audit: the earthquake's aftershake runs 1.5 s", absf(g.impact_rumble_s - T.PERRY_QUAKE_RUMBLE_S) < 0.01 and T.PERRY_QUAKE_RUMBLE_S == 1.5, "%.2f" % g.impact_rumble_s)
+	g.queue_free()
+	await process_frame
+	# ---- taunt: the enemy rushes her (speed x2) and hits twice as hard
+	C.perry_owned = {"taunt": true}
+	g = await _perry_new()
+	m = g.mera
+	var tg: Node2D = g.spawn_enemy("p_goblin", m.global_position.x + 500.0)
+	await physics_frame
+	var sp0: float = tg.speed
+	s = []
+	_tap(s, 2, "btn_x")
+	_tap(s, 2, "btn_y")
+	await _drive(g, s, 30)
+	_check("perry audit: the taunt doubles the enemy's speed (once)", "taunt" in m.move_log and absf(tg.speed - sp0 * 2.0) < 0.01, "speed %.0f -> %.0f log %s" % [sp0, tg.speed, m.move_log])
+	m.invuln = 0.0
+	m.hp = 50
+	m.state = "ground"
+	m.take_hit(1, tg.global_position.x, tg)
+	_check("perry audit: a taunted enemy's hit does double damage (2 points = 20 HP)", m.hp == 50 - 2 * T.PERRY_HP_PER_DMG, "hp %d" % m.hp)
+	g.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true

@@ -7,7 +7,7 @@ extends "res://scripts/game/cl_warlord.gd"
 ##   form 3  the giant: wide green slash arcs, the charge, and a jump slam: two floor shockwaves roll out from where he lands (jump them);
 ##           faster tells and steps
 ## He does not parry and has no shield: every attack is telegraphed. His damage never scales with anything. The node's `id` stays "nero"
-## (loot, names, the finale); `form_id` says which body he wears. Beating him ends the game: Roster.FINALE[20] plays the ending pages.
+## (loot, names, the finale); `form_id` says which body he wears. Beating him ends the game: Roster.FINALE[Levels.COURT] plays the ending pages.
 
 const FORMS := {1: "nero", 2: "nero_reaper", 3: "nero_giant"}
 const BEAM := preload("res://scripts/game/king_beam.gd")

@@ -71,6 +71,15 @@ static var story_seen: Dictionary = {}          # cutscene key -> true once show
 static var prisoners: Dictionary = {}           # level index (as a string key) -> true once freed (scripts/game/prisoner.gd)
 static var perry_freed := false                 # Perry was freed from the king's spell (free_perry, once)
 
+## Level-list layout of the save. A save stores per-level data keyed by level index ("clears", "prisoners") and "unlocked";
+## when levels are inserted into assets/levels/levels.json the old indices move. Each row is [version, from_index, shift]:
+## a save older than `version` has every index >= from_index shifted by `shift` (and "unlocked" when it is > from_index: an
+## unlocked value equal to from_index only said "the level after the last old one is open", and that is still true).
+## Version 1: the nine Stage 4 maps went in at 19, so the old Throne and Court (19, 20) became 28 and 29.
+## To insert the tunnel map at 28 later: append [2, 28, 1] and bump LAYOUT_VERSION to 2.
+const LAYOUT_VERSION := 1
+const LAYOUT_MIGRATIONS := [[1, 19, 9]]
+
 
 static func ensure() -> void:
 	if ready:
@@ -98,7 +107,31 @@ static func summon_s() -> float:
 	return SUMMON_S[clampi(summon_tier, 0, SUMMON_S.size() - 1)]
 
 
+## the raw save dictionary with every LAYOUT_MIGRATIONS row newer than its "layout" applied (returns a new dictionary)
+static func migrate(d: Dictionary) -> Dictionary:
+	var out := d.duplicate(true)
+	var v := int(out.get("layout", 0))
+	for row: Array in LAYOUT_MIGRATIONS:
+		if int(row[0]) <= v:
+			continue
+		var from_i := int(row[1])
+		var shift := int(row[2])
+		for key: String in ["clears", "prisoners"]:
+			var src = out.get(key, {})
+			if src is Dictionary:
+				var moved := {}
+				for k in src:
+					var idx := int(String(k)) if String(k).is_valid_int() else -1
+					moved[str(idx + shift) if idx >= from_i else String(k)] = src[k]
+				out[key] = moved
+		if out.has("unlocked") and int(out["unlocked"]) > from_i:
+			out["unlocked"] = int(out["unlocked"]) + shift
+	out["layout"] = LAYOUT_VERSION
+	return out
+
+
 static func _read(d: Dictionary) -> void:
+	d = migrate(d)
 	gold = maxi(int(d.get("gold", 0)), 0)
 	moves = {}
 	var rm = d.get("moves", {})
@@ -182,6 +215,7 @@ static func pack() -> Dictionary:
 		"story_seen": story_seen.duplicate(),
 		"prisoners": prisoners.duplicate(),
 		"perry_freed": perry_freed,
+		"layout": LAYOUT_VERSION,
 	}
 
 

@@ -207,7 +207,7 @@ func _story_start() -> void:
 		Cutscene.play(self, StoryPages.INTRO, Callable(), "intro")
 	elif Levels.current == Levels.STAGE3_FROM:
 		Cutscene.play(self, StoryPages.STAGE3_STEP, Callable(), "stage3_step")
-	elif Levels.current == Levels.STAGE4_FROM:
+	elif Levels.current == Levels.COURT:
 		Cutscene.play(self, StoryPages.KING_INTRO, Callable(), "king_intro")
 
 
@@ -907,7 +907,7 @@ func _start_finale_victory() -> void:
 		victory_text = PackedStringArray(["You Defeated the Cavern Dragon!", "Stage 2: The Island is open"])
 	elif Levels.current == Levels.STAGE3_FROM - 1:
 		victory_text = PackedStringArray(["You Defeated Perry!", "Stage 3: Changeling is open"])
-	elif Levels.current == Levels.STAGE4_FROM - 1:
+	elif Levels.current == Levels.THRONE:
 		victory_text = PackedStringArray(["You Defeated the Warlord!", "The king's court is open"])
 	else:
 		victory_text = PackedStringArray(["You Defeated King Nerochilde!", "The mad king is gone"])
@@ -931,7 +931,7 @@ func _start_finale_victory() -> void:
 func _story_for_finale() -> Array:
 	if Levels.current == Levels.STAGE3_FROM - 1:
 		return StoryPages.PERRY_FALLS
-	if Levels.current == Levels.STAGE4_FROM:
+	if Levels.current == Levels.COURT:
 		return StoryPages.KING_END
 	return []
 
@@ -1155,9 +1155,9 @@ func exit_lock_text() -> String:
 		return "SLAY THE DRAGON"
 	if Levels.current == Levels.STAGE3_FROM - 1:
 		return "DEFEAT PERRY"
-	if Levels.current == Levels.STAGE4_FROM - 1:
+	if Levels.current == Levels.THRONE:
 		return "DEFEAT THE WARLORD"
-	if Levels.current == Levels.list().size() - 1:
+	if Levels.current == Levels.COURT:
 		return "DEFEAT THE KING"
 	if Roster.BOSSES.has(Levels.current) and Roster.LEVELS.has(Levels.current):
 		if _waves_done() and not _roster_threat():
@@ -1794,13 +1794,19 @@ func super_earthquake() -> void:
 	Sfx.play("boom_big", 0.4, 6.0)
 
 
+var impact_rumble_amp := Tuning.PERRY_HEAVY_QUAKE_SHAKE   # set by heavy_slam: the rumble that follows Perry's impact frame
+var impact_rumble_s := Tuning.PERRY_HEAVY_QUAKE_S
+var slam_count := 0                                          # Perry impact frames played (chop, jump crash, earthquake), for the tests
 var impact_quake_only := false  # the running impact frame is Perry's overhead chop: a camera rumble follows it, not the super quake
 
 
 ## Perry's heavy overhead chop lands: the black and white impact frame (110 ms, as the original), then a 1 s rumble
-func heavy_slam() -> void:
+func heavy_slam(rumble_amp: float = Tuning.PERRY_HEAVY_QUAKE_SHAKE, rumble_s: float = Tuning.PERRY_HEAVY_QUAKE_S) -> void:
 	impact_t = Tuning.PERRY_HEAVY_BW_MS / 1000.0
 	impact_quake_only = true
+	impact_rumble_amp = rumble_amp
+	impact_rumble_s = rumble_s
+	slam_count += 1
 	HitStop.impact(Tuning.PERRY_HEAVY_BW_MS)
 	_impact_show(true, 1.0)
 	Sfx.play("boom_big", 0.6, 6.0)
@@ -1833,7 +1839,7 @@ func _impact_tick() -> void:
 		_impact_show(false, 0.0)
 		if impact_quake_only:
 			impact_quake_only = false
-			shake(Tuning.PERRY_HEAVY_QUAKE_SHAKE, Tuning.PERRY_HEAVY_QUAKE_S)      # the 1 s rumble ...
+			shake(impact_rumble_amp, impact_rumble_s)      # the rumble (1 s for the chop, 1.5 s for the earthquake: its aftershake) ...
 			earthquake()                                                             # ... and a real earthquake: grounded enemies on screen are stunned
 		else:
 			_super_quake_go()

@@ -18,6 +18,12 @@ const ULT_STEPS := ["taunt", "beam_plasma", "beam_cloud", "beam_fire", "beam_las
 const BOTH_SIDES := ["spin_attack", "energy_wave"]
 const HILT := Vector2(58.0, 48.0)             # native px from the anchor: where a beam leaves her (08_beams.js)
 const BEAM_CORE := 0.7
+## 00_core.js replaces the push kick's and the energy kick's small foot capsule with a box from 38 px to this x (native px from the
+## move's anchor), from 1 px below the floor up to 34.8 px, on both active frames
+const KICK_BOX_X1 := {"push_kick": 95.0, "energy_kick": 102.9}
+const KICK_BOX_X0 := 38.0
+const KICK_BOX_TOP := 34.8
+const ANCHOR_TO_JSON_X := 64.0      # the move data's x is the source's anchor-relative x minus the body centre (64)
 
 static var _data: Dictionary = {}
 static var _tex: Dictionary = {}
@@ -93,6 +99,10 @@ static func _prepare(raw: Dictionary) -> Dictionary:
 			frames.append({"name": String(f["name"]), "ms": float(f["ms"]), "rx": float(f["root"][0]), "ry": float(f["root"][1]),
 				"top": float(f["top"]), "hits": boxes, "beam": f.get("beam", {})})
 			i += 1
+		if KICK_BOX_X1.has(id):
+			for fr in frames:
+				if not (fr["hits"] as Array).is_empty():
+					fr["hits"] = [Rect2(KICK_BOX_X0 - ANCHOR_TO_JSON_X - hc, -KICK_BOX_TOP, float(KICK_BOX_X1[id]) - KICK_BOX_X0, KICK_BOX_TOP + 1.0)]
 		var pv: Array = m["pivot"]
 		var an: Array = m["anchor"]
 		out["moves"][id] = {"anim": String(m["anim"]), "frames": frames, "loop": bool(m["loop"]), "loop_from": int(m["loopFrom"]),
@@ -469,9 +479,10 @@ func _last_beam_frame() -> bool:
 	return pk + 1 >= fr.size() or (fr[pk + 1]["beam"] as Dictionary).is_empty()
 
 
-## a frame's length. The heavy chop's black and white impact frame always lasts 110 ms (the original skipped it on an uncharged chop; the owner wants it every time)
+## a frame's length. The black and white impact frame of the chop, the jump crash and the earthquake always lasts 110 ms (the original skipped it on an uncharged chop and a low crash; the owner wants it every time)
 func _frame_ms(fr: Array, i: int) -> float:
-	if String(mv.get("key", "")) == "heavy" and String(fr[i]["name"]) == "impactbw":
+	var bw_frame := {"heavy": "impactbw", "jump_crash": "flash", "earthquake": "flash"}     # the black and white frame of each (moves_extra.js bw)
+	if bw_frame.get(String(mv.get("key", "")), "") == String(fr[i]["name"]):
 		return Tuning.PERRY_HEAVY_BW_MS
 	return float(fr[i]["ms"])
 
@@ -501,7 +512,7 @@ func _enter_frame() -> void:
 		return
 	var f := _frame()
 	var rx := float(f["rx"])
-	var reach_k := Tuning.PERRY_DASH_REACH if String(mv.get("key", "")) == "dash" else 1.0
+	var reach_k := Tuning.PERRY_DASH_REACH if String(mv.get("key", "")) in ["dash", "dash_thrust", "energy_dash_thrust"] else 1.0
 	position.x += facing * (rx - root_x) * S * reach_k
 	root_x = rx
 	lift = float(f["ry"]) * S * lift_k
@@ -509,6 +520,8 @@ func _enter_frame() -> void:
 	if key == "earthquake" and String(f["name"]) == "slam" or key == "jump_crash" and String(f["name"]) == "crash":
 		if game:
 			game.shake(10.0, 0.45)
+			if key == "earthquake":
+				game.heavy_slam(Tuning.PERRY_HEAVY_QUAKE_SHAKE, Tuning.PERRY_QUAKE_RUMBLE_S)    # the impact frame, then the 1.5 s aftershake and a real quake
 		Sfx.play("boom", 0.8)
 	if key == "energy_wave" and String(f["name"]) == "plow":
 		for side in 2:
@@ -572,7 +585,7 @@ func _log_presses() -> void:
 	for dk in ["left", "right"]:                         # a double tap of the same direction arms the energy dash thrust
 		var on := pressed(dk)
 		if on and not bool(_dir_prev.get(dk, false)):
-			if dk == _tap_dir and now - _tap_t <= 300.0:
+			if dk == _tap_dir and now - _tap_t <= Tuning.PERRY_SEQ_MS:
 				ed_armed_t = now
 			_tap_dir = dk
 			_tap_t = now
@@ -941,11 +954,12 @@ func _a_action() -> bool:
 	_face(d)
 	if pressed("down") and _has("upswing"):
 		return _start("upswing", {"chord_ok": true, "src": "btn_a"})
-	# hold the way she is already facing (walking): the lunge; press the other way together with A: the spin (base move)
+	# hold the way she is already facing (walking): the lunge
 	if d != 0 and d == was and _has("thrust"):
 		return _start("thrust", {"chord_ok": true, "src": "btn_a"})
-	if d != 0 and d != was:
-		return _start("spin_attack", {"chord_ok": true, "src": "btn_a"})
+	# 00_core.js: Left+A and Right+A are both the thrust (she turns and lunges the way pressed); without it, A is the plain slash. The spin is Y only.
+	if d != 0 and d != was and _has("thrust"):
+		return _start("thrust", {"chord_ok": true, "src": "btn_a"})
 	if _own("chain"):
 		var n := 1
 		if now - float(chain["t"]) <= Tuning.PERRY_CHAIN_MS and _last_t("btn_b") <= float(chain["t"]):
@@ -1161,8 +1175,13 @@ func _taunt() -> void:
 	for e in game.enemies():
 		if e.get("boss") == true:
 			continue
+		if e.has_meta("taunted"):
+			continue
 		e.set_meta("taunted", true)
 		e.modulate = Color(1.3, 0.7, 0.7)
+		if e.get("speed_mul") != null:                       # 03_state.js: a taunted enemy rushes her (speedMul 2) and hits twice as hard (dmgMul 2, see take_hit)
+			e.speed_mul *= Tuning.PERRY_TAUNT_MUL
+			e.speed *= Tuning.PERRY_TAUNT_MUL
 
 
 # ---------------------------------------------------------------- air
@@ -1319,9 +1338,6 @@ func _perry_hits(delta: float) -> void:
 			if now - last >= float(Tuning.PERRY_REHIT_MS[key]):
 				(mv["hit_t"] as Dictionary)[e.get_instance_id()] = now
 				_strike(e, Tuning.perry_dmg(key), position.x, "quake" if key == "earthquake" else "lightning")
-		if key == "earthquake" and fname == "slam" and not mv.has("quake"):
-			mv["quake"] = true
-			game.shake(14.0, 1.0)
 	var rects := hit_rects()
 	if rects.is_empty():
 		mv["hitwin"] = false
@@ -1360,6 +1376,17 @@ func _perry_hits(delta: float) -> void:
 			if e.hurt_rect().get_center().distance_to(blade) <= Tuning.PERRY_HEAVY_AOE_R:
 				done[e.get_instance_id()] = true
 				_strike(e, dmg_aoe, position.x, "melee")
+	if key == "jump_crash" and fname == "crash" and not mv.has("aoe"):
+		mv["aoe"] = true
+		game.heavy_slam()                                      # the same always-on impact as the chop: black and white frame, rumble, quake
+		var land: Vector2 = (rects[0] as Rect2).get_center()
+		var dmg_shock := Tuning.perry_dmg("jump_crash")
+		for e in game.enemies():                               # the ground shock: the crash damage to every enemy near where she lands
+			if not e.alive() or done.has(e.get_instance_id()):
+				continue
+			if e.hurt_rect().get_center().distance_to(land) <= Tuning.PERRY_CRASH_SHOCK_R:
+				done[e.get_instance_id()] = true
+				_strike(e, dmg_shock, position.x, "melee")
 
 
 func _hit_target(e: Node, key: String, dmg: int) -> void:
@@ -1380,7 +1407,7 @@ func _hit_target(e: Node, key: String, dmg: int) -> void:
 		var away := 1.0 if e.global_position.x >= position.x else -1.0
 		e.shove((away if key == "energy_burst" else float(facing)) * kn * S)
 		if e.has_method("stun") and key != "slash":
-			e.stun(0.35)
+			e.stun(float(Tuning.PERRY_STUN_S.get(key, Tuning.PERRY_STUN_DEFAULT_S)))
 
 
 ## damage one target with the same enemy interface Mera uses: take_damage(amount, from_x, kind)
@@ -1497,6 +1524,8 @@ func take_hit(dmg: int, from_x: float, src: Node = null) -> void:
 			game.shake(3.0, 0.08)
 			game.hit_spark(Vector2(global_position.x + facing * 30.0 * S, global_position.y - 40.0 * S), S * 0.6)
 		return
+	if src != null and is_instance_valid(src) and src.has_meta("taunted"):
+		dmg = roundi(float(dmg) * Tuning.PERRY_TAUNT_MUL)
 	hp -= dmg * Tuning.PERRY_HP_PER_DMG
 	if hp <= 0:
 		hp = 0
