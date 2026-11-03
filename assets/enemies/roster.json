@@ -23092,6 +23092,50 @@
       2.0
      ]
     ]
+   },
+   "bolt": {
+    "frames": [
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_1.png",
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_2.png",
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_3.png",
+     "res://assets/characters/itch/luizmelo/evil_wizard_3/bolt/bolt_4.png"
+    ],
+    "fps": 14,
+    "loop": true,
+    "size": [
+     50,
+     50
+    ],
+    "pivot": [
+     25.5,
+     31.0
+    ],
+    "boxes": [
+     [
+      -11.5,
+      -11.0,
+      11.5,
+      0.0
+     ],
+     [
+      -14.5,
+      -11.0,
+      11.5,
+      0.0
+     ],
+     [
+      -16.5,
+      -11.0,
+      11.5,
+      0.0
+     ],
+     [
+      -18.5,
+      -11.0,
+      11.5,
+      0.0
+     ]
+    ]
    }
   },
   "body": [

@@ -71,7 +71,7 @@ static func layout(level: int, map_w: float) -> Array:
 		id = String(Levels.list()[level].get("id", ""))
 	if id == "p_arena":
 		return _arena_breakables(level, map_w)
-	if id == "cemetery" or id == "dragon_lair" or id == "ch_throne":
+	if id == "cemetery" or id == "dragon_lair" or id == "ch_throne" or id == "king_court":
 		return out
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7700 + level * 131

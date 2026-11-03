@@ -91,6 +91,7 @@ var boss_spawned := false
 var boss_dead := false
 var mid_boss: Node2D = null       # the Warlord mid-boss of a Stage 3 level (levels 12 to 18); never game.boss, never locks the exit
 var mid_spawned := false          # one mid-boss per visit
+var cutscene: Node = null         # the story card that is open (scripts/game/cutscene.gd sets and clears it)
 var wave_i := 0
 var wave_type_i := 0
 var trickle_t := 8.0
@@ -189,6 +190,33 @@ func _ready() -> void:
 	mera.set_size(mera.size, true)
 	explored_max = mera.position.x
 	explored_min = mera.position.x
+	_story_start.call_deferred()
+
+
+# ---------------------------------------------------------------- the king arc (docs/KING_ARC.md, story_pages.gd)
+## cards that play once at the start of a level, and the level's caged prisoner
+func _story_start() -> void:
+	if test_mode or run_mode or over or not is_inside_tree():
+		return
+	Prisoner.spawn_for_level(self, Levels.current)
+	if Levels.current == 0:
+		Cutscene.play(self, StoryPages.INTRO, Callable(), "intro")
+	elif Levels.current == Levels.STAGE3_FROM:
+		Cutscene.play(self, StoryPages.STAGE3_STEP, Callable(), "stage3_step")
+	elif Levels.current == Levels.STAGE4_FROM:
+		Cutscene.play(self, StoryPages.KING_INTRO, Callable(), "king_intro")
+
+
+## a prisoner was freed (prisoner.gd calls this): gold, one broken-object drop, maybe a move, and their advice on a card
+func prisoner_freed(pr: Node) -> void:
+	var gold: int = int(pr.gold)
+	Carry.add_gold(gold)
+	break_drop(Vector2(pr.global_position.x, GROUND_Y - 10.0))
+	var extra := ""
+	if String(pr.give_move) != "" and Carry.give_move(String(pr.give_move)):
+		extra = "  +%s" % String(pr.give_move)
+	hud.flash("pickup:prisoner freed  +%d gold%s" % [gold, extra])
+	Cutscene.play(self, [String(pr.line)], Callable(), "")
 
 
 func _build_background() -> void:
@@ -829,8 +857,10 @@ func _start_finale_victory() -> void:
 		victory_text = PackedStringArray(["You Defeated the Cavern Dragon!", "Stage 2: The Island is open"])
 	elif Levels.current == Levels.STAGE3_FROM - 1:
 		victory_text = PackedStringArray(["You Defeated Perry!", "Stage 3: Changeling is open"])
+	elif Levels.current == Levels.STAGE4_FROM - 1:
+		victory_text = PackedStringArray(["You Defeated the Warlord!", "The king's court is open"])
 	else:
-		victory_text = PackedStringArray(["You Defeated the Warlord!", "The Changeling is free"])
+		victory_text = PackedStringArray(["You Defeated King Nerochilde!", "The mad king is gone"])
 	if not run_mode:
 		cleared = true                          # the stage counts as cleared (also stops a second payment at the exit)
 		over_t = 0.0
@@ -841,9 +871,27 @@ func _start_finale_victory() -> void:
 	var tm := Timer.new()
 	tm.one_shot = true
 	tm.wait_time = VICTORY_DELAY_S
-	tm.timeout.connect(_show_victory_card)
+	var story := _story_for_finale()
+	tm.timeout.connect(_show_story_finale.bind(story) if not story.is_empty() else _show_victory_card)
 	add_child(tm)
 	tm.start()
+
+
+## Perry's fall and the king's death play as story pages instead of the two-line card
+func _story_for_finale() -> Array:
+	if Levels.current == Levels.STAGE3_FROM - 1:
+		return StoryPages.PERRY_FALLS
+	if Levels.current == Levels.STAGE4_FROM:
+		return StoryPages.KING_END
+	return []
+
+
+func _show_story_finale(pages: Array) -> void:
+	if Levels.current == Levels.STAGE3_FROM - 1:
+		Carry.free_perry()                      # his spell breaks: she is free, and starts again from nothing (once)
+	var cs: Node = Cutscene.play(self, pages, _to_title, "")
+	if cs == null:                              # a menu or another card was open: straight to the title
+		_to_title()
 
 
 func _show_victory_card() -> void:

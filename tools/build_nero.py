@@ -117,6 +117,9 @@ def main(sheet_path):
     # Merge only the "nero" key; the rest of the file must stay byte-identical.
     before = ROSTER.read_bytes()
     data = json.loads(before.decode("utf-8"))
+    wiz = data.get("x_dark_wizard", {}).get("anims", {}).get("bolt")
+    if wiz:                                              # no projectile strip in the pack: the dark lord's bolt is the dark wizard's (Luiz Melo, CC0)
+        roster_entry["anims"]["bolt"] = json.loads(json.dumps(wiz))
     data["nero"] = roster_entry
     ROSTER.write_bytes(json.dumps(data, indent=1, ensure_ascii=False).encode("utf-8"))
 

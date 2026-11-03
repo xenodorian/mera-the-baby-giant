@@ -175,6 +175,16 @@ const DEFS := {
 			{"anim": "jump", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 440.0, "far": 900.0, "cd": 1.2, "mode": "contact", "vx": 620.0, "jump": 1000.0, "phase": 1},
 			{"anim": "thrust", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "phase": 2},
 			{"anim": "jump", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 1.4, "mode": "contact", "vx": 360.0, "jump": 1500.0, "slam": true, "phase": 3}]},
+	# Stage 4, the final boss: King Lucius Nerochilde (Foozle's Lucifer Necromancer, CC0). Shaped like the Warlord (scripts/game/nero.gd extends
+	# cl_warlord.gd): phase 1 sword-staff swing, a volley of three dark bolts and a lunge; phase 2 adds a charge that stuns him on the wall;
+	# phase 3 adds a jump slam with floor shockwaves. He does not parry. His damage does not scale.
+	"nero": {"k": 11.0, "hp": 300, "speed": 170.0, "ai": "walker", "idle": "idle", "move": "walk", "rage": 40.0, "boss": true,
+		"pick": "cycle", "hurt": "hurt", "death": "death", "script": "res://scripts/game/nero.gd",
+		"attacks": [{"anim": "attack", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 300.0, "cd": 0.7, "mode": "frames", "active": [4, 6], "phase": 1},
+			{"anim": "cast", "kind": "ranged", "dmg": 1, "tell": 0.55, "near": 380.0, "far": 1500.0, "cd": 1.3, "mode": "shot", "shot": "bolt", "shot_frame": 4, "shot_speed": 1000.0, "shot_k": 0.35, "shot_tight": true, "chain": 3, "phase": 1},
+			{"anim": "attack2", "kind": "rush", "dmg": 1, "tell": 0.4, "near": 200.0, "far": 520.0, "cd": 1.0, "mode": "contact", "vx": 700.0, "dur": 0.35, "phase": 1},
+			{"anim": "walk", "kind": "rush", "dmg": 2, "tell": 0.5, "near": 350.0, "far": 1300.0, "cd": 1.4, "mode": "contact", "vx": 1050.0, "dur": 1.7, "charge": true, "phase": 2},
+			{"anim": "attack2", "kind": "heavy", "dmg": 2, "tell": 0.5, "near": -999.0, "far": 460.0, "cd": 1.4, "mode": "contact", "vx": 360.0, "jump": 1500.0, "slam": true, "phase": 3}]},
 }
 
 ## who appears where. 12 to 18 are Stage 3 (the Changeling levels, cl_* ids). 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns,

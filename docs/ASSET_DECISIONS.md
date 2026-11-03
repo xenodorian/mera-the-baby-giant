@@ -142,3 +142,7 @@ The user asked to replace the rear beam with a projectile that explodes, colour-
 - **Moonlit Town:** ansimuz Night Town Background (sky, clouds, mountains, far buildings, forest), plus houses placed along a procedural cobbled street (pixel-drawn, nearest-neighbour).
 - **Infernal Caverns:** ansimuz Lava Background (cavern, pillars, lava floor).
 - **Skipped for now:** Gothicvania Castle and the other tilesets. Their tile sheets need hand-made maps; they can come back in S4 with breakable walls.
+
+## King arc (2026-11-03): King Nerochilde
+- **Foozle, Lucifer Necromancer (CC0 1.0), https://foozlecc.itch.io/lucifer-necromancer.** A free, animated, side-view dark lord (pale robed necromancer with a staff): idle, walk, two attacks, a cast, hurt and death at 48 px cells. Chosen over Luiz Melo's Medieval King because it is darker and reads as a dark lord. The original zip is kept in `assets/_source/king/` with its licence text; frames are cut by `tools/build_nero.py` into `assets/characters/itch/foozle/lucifer_necromancer/`. It has no projectile strip, so Nero's bolt reuses the dark wizard's purple bolt frames (Luiz Melo, CC0).
+- **Stage 4 level art:** reuses Perry's Arena layers by path (no new map art); only the thumbnail is a darkened, reddened copy.

@@ -116,11 +116,11 @@ Work in parallel. Each agent clones the repo itself, touches only its files, and
 |---|---|---|
 | 0. This plan | done | `docs/KING_ARC.md` |
 | 1. Size 1.5x, attack wait 0.5, drop table 40/30/20/10, 20 arena props | done (untested) | `tuning.gd`, `game.gd` `break_drop`, `props.gd`, `monster.gd` comment |
-| 2. Prisoners, intro, Perry mind-control pages, Stage 3 pages, `Carry.free_perry` | in progress: `cutscene.gd`, `prisoner.gd` and the Carry flags are written; the hooks in `game.gd` (intro, prisoner rewards, Perry and Stage 3 pages) are next | `cutscene.gd`, `prisoner.gd`, `carry.gd`, `game.gd` |
+| 2. Prisoners, intro, Perry mind-control pages, Stage 3 pages, `Carry.free_perry` | done (untested) | `cutscene.gd`, `prisoner.gd`, `story_pages.gd`, `carry.gd`, `game.gd` (`_story_start`, `prisoner_freed`, `_show_story_finale`) |
 | 3. Mid-boss on 12..18 and enemies on `surface_under` | done (untested) | `monster.gd` `_floor`, `game.gd` `mid_boss`, `cl_warlord.gd` `mid`, `tuning.gd` `MID_BOSS_*` |
-| 4. Nero art, roster, court level, boss, ending pages, menu stage 4 | in progress: level 20 `king_court`, `STAGE4_FROM`, menu page 4 and the boss tables are in; the art, `nero.gd` and the ending pages are next | `tools/build_nero.py`, `assets/`, `roster.gd`, `levels.json`, `levels.gd`, `menu.gd`, `nero.gd`, `CREDITS.md`, export list |
+| 4. Nero art, roster, court level, boss, ending pages, menu stage 4 | done (untested) | `tools/build_nero.py`, `assets/`, `roster.gd`, `levels.json`, `levels.gd`, `menu.gd`, `nero.gd`, `CREDITS.md`, export list |
 
-Work log: 2026-11-03. Tests are held back until all four steps are on `main`.
+Work log: 2026-11-03. All four steps are written. The test pass (update stale tests, add tests for the new features, run the suite) comes last.
 
 ## Rules already in this repo
 
