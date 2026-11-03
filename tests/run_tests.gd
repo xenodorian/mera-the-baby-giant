@@ -1750,6 +1750,7 @@ func _run() -> void:
 	await _stage3_map_tests()
 	await _king_arc_tests()
 	await _slideshow_timer_blast_tests()
+	await _speaker_impact_restart_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -6468,4 +6469,100 @@ func _slideshow_timer_blast_tests() -> void:
 	C.reset()
 	C.test_all = true
 	C.character = "mera"
+	LVS.current = 0
+
+
+## speaker portraits, prisoner table fields, the firemage's impact animation, restart keeping size
+func _speaker_impact_restart_tests() -> void:
+	var CUT = load("res://scripts/game/cutscene.gd")
+	var PRI = load("res://scripts/game/prisoner.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var T = load("res://scripts/game/tuning.gd")
+	CUT.suppressed = true
+	C.reset()
+	C.test_all = true
+	LVS.current = 0
+	# prisoner table: speaker, name, lore, tip
+	var tab_ok := true
+	var info := ""
+	var data: Dictionary = Roster.data()
+	for lv in PRI.TABLE:
+		var d: Dictionary = PRI.TABLE[lv]
+		var txt := String(d.get("lore", "")) + String(d.get("tip", ""))
+		if not data.has(String(d.get("who", ""))) or String(d.get("name", "")) == "" or String(d.get("lore", "")) == "" or String(d.get("tip", "")) == "" or txt.find(char(0x2014)) >= 0 or txt.find(char(0x2013)) >= 0:
+			tab_ok = false
+			info += " %d" % int(lv)
+	_check("prisoners: every table entry has a roster speaker, a name, lore and a tip (no dashes)", tab_ok and PRI.TABLE.size() == 6, info)
+	# a pure-text speaker page and the Perry page of PERRY_FALLS
+	var g: Node = await _s4_new(0)
+	CUT.suppressed = false
+	var pages: Array = StoryPages.PERRY_FALLS
+	var cs = CUT.play(g, pages, Callable(), "")
+	var page2_ok: bool = pages[1] is Dictionary and String(pages[1].get("speaker", "")) == "perry"
+	var p0: bool = cs != null and cs._portrait == null and cs._text_w() == cs.TEXT_W
+	cs.advance()
+	var p1: bool = cs._portrait != null and cs._speaker_name == "Perry" and cs._text_w() < cs.TEXT_W and cs._text_left() > 210.0
+	cs.advance()
+	var p2: bool = cs._portrait == null
+	await process_frame
+	_check("speaker portrait: PERRY_FALLS page 2 shows Perry's portrait and name with narrower text; the other pages show none", page2_ok and p0 and p1 and p2, "%s %s %s %s" % [page2_ok, p0, p1, p2])
+	cs.skip()
+	await process_frame
+	var cs2 = CUT.play(g, [{"text": ["x", "y"], "speaker": "no_such_creature", "name": "Nobody"}], Callable(), "")
+	_check("speaker portrait: an unknown speaker id shows no portrait and does not crash", cs2 != null and cs2._portrait == null and cs2.pages[0].size() == 2, "")
+	cs2.skip()
+	await process_frame
+	# a freed prisoner plays a speaker page
+	var pr: Node = PRI.spawn_for_level(g, 4)
+	pr._free()
+	var csp: Node = g.cutscene
+	_check("prisoners: freeing one plays [lore, tip] with the prisoner as the speaker", csp != null and csp.pages[0] == [pr.lore, pr.tip] and csp.extras[0]["speaker"] == "cl_mage" and csp.extras[0]["name"] == "Court Mage" and csp._portrait != null and pr.line == pr.lore + " " + pr.tip, "")
+	if csp != null:
+		csp.skip()
+	await process_frame
+	CUT.suppressed = true
+	# firemage: bolt flies, blast plays at the hit
+	var fm: Dictionary = Roster.def("p_firemage")["attacks"][0]
+	var art: Dictionary = Roster.art("p_firemage")
+	_check("firemage: the fireball attack is a shot 'bolt' with 'blast' as its impact, both animations exist", String(fm["shot"]) == "bolt" and String(fm.get("impact", "")) == "blast" and art["anims"].has("bolt") and art["anims"].has("blast"), "")
+	var shot: Node2D = load("res://scripts/game/enemy_shot.gd").new()
+	shot.setup(g, "p_firemage", "bolt", Vector2(5000.0, 600.0), Vector2.ZERO, 1, 3.0, true)
+	shot.impact_id = "p_firemage"
+	shot.impact_anim = "blast"
+	g.world.add_child(shot)
+	var n0 := 0
+	for c in g.world.get_children():
+		if c is AnimatedSprite2D:
+			n0 += 1
+	shot._impact()
+	var n1 := 0
+	for c in g.world.get_children():
+		if c is AnimatedSprite2D:
+			n1 += 1
+	_check("firemage: a spent shot with an impact animation spawns the blast once and frees itself", n1 == n0 + 1 and shot.is_queued_for_deletion(), "%d -> %d" % [n0, n1])
+	var plain: Node2D = load("res://scripts/game/enemy_shot.gd").new()
+	plain.setup(g, "p_firemage", "bolt", Vector2(5000.0, 600.0), Vector2.ZERO, 1, 3.0, true)
+	g.world.add_child(plain)
+	plain._impact()
+	var n2 := 0
+	for c in g.world.get_children():
+		if c is AnimatedSprite2D:
+			n2 += 1
+	_check("firemage: a shot with no impact animation spawns no blast", n2 == n1 and plain.is_queued_for_deletion(), "")
+	# restart keeps Mera's size unless she died
+	g.test_mode = false
+	g.mera.size = 6
+	g.over = false
+	g.restart()
+	var kept: int = g.mera.size
+	g.mera.size = 6
+	g.over = true
+	g.restart()
+	var reset_sz: int = g.mera.size
+	_check("restart: from the pause menu Mera keeps her size; after a death it resets to 2", kept == 6 and reset_sz == 2, "kept=%d reset=%d" % [kept, reset_sz])
+	g.test_mode = true
+	g.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
 	LVS.current = 0

@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.17.2-playable (2026-11-03)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.17.2_Windows.exe
+- Android: Mera_Playable_v0.17.2_Android.apk
+- **Melee summons and enemies close in far enough to land their hit.** Before, each had a hand-set reach, and a swing that stopped short could miss (the brawler girl and the knight against Percy). Now the reach is read from each attack's real hit box: summons attack only inside the tip of their swing, and enemies cap their attack range by the reach of the frames that hurt.
+- **Brawler girl no longer flickers** at the edge of her hold band: once she leaves the band she runs back to its middle before she stops.
+- **Summons run.** The knight, Perry, the priestess, the ranger and the other walkers now run to the enemy ahead of Mera, and run to catch up behind her, faster the further away they are.
+
 ## v0.17.1-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.17.1_Windows.exe

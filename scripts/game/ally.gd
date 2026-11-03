@@ -231,6 +231,32 @@ func _attack_rect() -> Rect2:
 	return _box(b)
 
 
+## How far in front of her own hurt box (px, on screen) the best hit of these melee anims reaches: the tip of the active frames'
+## boxes (as _attack_rect reads them), less the front edge of her hurt box. She must close to under this before attacking, or the
+## swing falls short of a body that is further away (the Percy bug). Cached per anim in art units; the smallest of the list wins
+## so every move of the combo can land. `cap` is the old hand-set reach.
+func melee_reach(anims: Array, cap: float) -> float:
+	var best := INF
+	var body: Array = art["body"]
+	var bw := float(body[2]) - float(body[0])
+	var hfront := float(body[2]) - bw * 0.15
+	for a in anims:
+		var key := "reach_" + String(a)
+		if not fx.has(key):
+			var tip := hfront
+			if art["anims"].has(a):
+				var boxes: Array = art["anims"][a]["boxes"]
+				for w in _calc_windows(String(a)):
+					for f in w:
+						var b: Array = boxes[mini(int(f), boxes.size() - 1)]
+						tip = maxf(tip, maxf(float(b[2]), float(body[2]) + 6.0))
+			fx[key] = tip - hfront
+		best = minf(best, float(fx[key]))
+	if best == INF:
+		return cap
+	return minf(cap, maxf(best * k * 0.8, 24.0))
+
+
 func _enemies() -> Array:
 	return game.enemies() if game else []
 
@@ -544,7 +570,7 @@ func _ai(_delta: float) -> void:
 			_dodge(-face)
 			return
 	# 5) melee in reach (every 4th attack the special, if she has one)
-	if gap <= MELEE_REACH[id]:
+	if gap <= melee_reach(_melee_names(), float(MELEE_REACH[id])):
 		if SPECIAL.has(id) and attacks_done % 4 == 3:
 			_attack(SPECIAL[id][0], int(SPECIAL[id][1]))
 		else:
@@ -563,6 +589,13 @@ func _ai(_delta: float) -> void:
 	_travel(face, gap)
 
 
+func _melee_names() -> Array:
+	var out: Array = []
+	for m in MELEE[id]:
+		out.append(m[0])
+	return out
+
+
 func _travel(face: int, gap: float) -> void:
 	if id == "brawler":
 		var spd := float(AL.SPEED["brawler"]) * 2.4
@@ -578,12 +611,17 @@ func _travel(face: int, gap: float) -> void:
 	elif id == "ranger" and gap > 700.0:
 		a = "slide_loop" if sprite.animation in ["slide", "slide_loop"] else "slide"
 		spd *= 2.2
+	var run := 1.0
+	if a in ["walk", "run"] and gap > 200.0:                # catching up: run, faster the further behind
+		spd = clampf(gap * 1.8, spd * 1.9, 1500.0)
+		run = 1.9
 	vx = face * spd
 	if state != "move" or sprite.animation != a:
 		if a == "slide_loop" and sprite.animation == "slide" and sprite.is_playing():
 			pass
 		else:
 			_go("move", a)
+	sprite.speed_scale = run
 
 
 ## She has no run sheet. The walk cycle at 2.2x, moving well above walk speed, is the run.
@@ -595,22 +633,26 @@ func _brawler_run(face: int, spd: float) -> void:
 	sprite.speed_scale = 2.2
 
 
-## No enemies: stay on screen, on the right, between 200 and 400 px from the edge.
+## No enemies: stay on screen, on the right, between 200 and 400 px from the edge. Hysteresis: once she has left that band she runs
+## all the way back to its middle before she stops, so she does not flip between running and standing at the band's edge.
 func _brawler_hold() -> void:
 	var right := float(game.cam_x) + 960.0
 	var lo := right - 400.0
 	var hi := right - 200.0
+	var mid := right - 300.0
 	var x := global_position.x
-	if x < lo:
-		var gap := lo - x
-		var spd := float(AL.SPEED["brawler"]) * 2.4
-		if gap > 120.0:
-			spd = clampf(gap * 2.5, spd, 1600.0)
-		_brawler_run(1, spd)
-		return
-	if x > hi:
-		_brawler_run(-1, clampf((x - hi) * 4.0, 420.0, 1400.0))
-		return
+	if not bool(fx.get("hold_run", false)) and (x < lo or x > hi):
+		fx["hold_run"] = true
+	if bool(fx.get("hold_run", false)):
+		var d := mid - x
+		if absf(d) < 30.0:
+			fx["hold_run"] = false
+		else:
+			var spd := float(AL.SPEED["brawler"]) * 2.4
+			if absf(d) > 120.0:
+				spd = clampf(absf(d) * 2.5, spd, 1600.0)
+			_brawler_run(1 if d > 0.0 else -1, spd)
+			return
 	vx = 0.0
 	if state != "idle":
 		_idle()

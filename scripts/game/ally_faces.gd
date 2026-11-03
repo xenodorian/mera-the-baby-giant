@@ -78,14 +78,22 @@ static func ai(a, delta: float) -> void:
 		_ranged_ai(a, o, gap, face, delta)
 
 
+static func _reach(a, o: Dictionary) -> float:
+	var names: Array = []
+	for m in o["melee"]:
+		names.append(m[0])
+	return a.melee_reach(names, float(o["reach"]))
+
+
 static func _melee_ai(a, o: Dictionary, e: Node2D, gap: float, face: int) -> void:
+	var reach := _reach(a, o)
 	var dy: float = absf(e.hurt_rect().get_center().y - a.hurt_rect().get_center().y)
-	if gap <= float(o["reach"]) and dy >= 320.0:           # a flyer far overhead: hold
+	if gap <= reach and dy >= 320.0:           # a flyer far overhead: hold
 		a.vx = 0.0
 		if a.state != "idle":
 			a._idle()
 		return
-	if gap <= float(o["reach"]):
+	if gap <= reach:
 		var sp = o.get("special", null)
 		if sp != null and a.attacks_done % int(sp["every"]) == int(sp["every"]) - 1:
 			a._attack(String(sp["anim"]), int(sp["dmg"]), int(sp["frame"]))
@@ -99,11 +107,14 @@ static func _melee_ai(a, o: Dictionary, e: Node2D, gap: float, face: int) -> voi
 		var sp2: Dictionary = o["special"]
 		a._attack(String(sp2["anim"]), int(sp2["dmg"]), int(sp2["frame"]))      # Perry throws the wave at range
 		return
-	var far: bool = gap > 350.0
-	a.vx = face * float(_speed(a)) * (float(o.get("run", 1.0)) if far else 1.0)
+	var far: bool = gap > 200.0                           # run to the enemy ahead of Mera, faster the further it is
+	var spd := float(_speed(a))
+	if far:
+		spd = clampf(gap * 1.8, spd * 2.2, 1500.0)
+	a.vx = face * spd
 	if a.state != "move" or a.sprite.animation != "walk":
 		a._go("move", "walk")
-	a.sprite.speed_scale = 1.7 if far else 1.0
+	a.sprite.speed_scale = 2.0 if far else 1.0
 
 
 static func sp_range(o: Dictionary, gap: float, a) -> bool:

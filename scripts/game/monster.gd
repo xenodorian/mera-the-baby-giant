@@ -305,6 +305,28 @@ func _calc_windows(a: Dictionary) -> Array:
 	return out
 
 
+## The distance (gap_to) an attack can really hit from. A "frames" attack lands only if the tip of its active boxes reaches the target,
+## so the hand-set "far" is capped at 90 % of that reach (a giant's far 200 on a short swing used to stop it out of range of a small
+## target). Other modes use "far" as written.
+var _far_cache := {}
+
+
+func far_of(a: Dictionary) -> float:
+	var far := float(a["far"])
+	if String(a["mode"]) != "frames" or not art["anims"].has(a["anim"]):
+		return far
+	var key := String(a["anim"])
+	if not _far_cache.has(key):
+		var boxes: Array = art["anims"][key]["boxes"]
+		var tip := 0.0
+		for w in _calc_windows(a):
+			for f in w:
+				var b: Array = boxes[mini(int(f), boxes.size() - 1)]
+				tip = maxf(tip, float(b[2]) if native > 0 else -float(b[0]))
+		_far_cache[key] = tip
+	return minf(far, maxf(float(_far_cache[key]) * k - body_w() * 0.5, 30.0) * 0.9)
+
+
 func gap_to(m: Node2D) -> float:
 	var mr: Rect2 = m.hurt_rect()
 	return absf(mr.get_center().x - global_position.x) - mr.size.x / 2.0 - body_w() / 2.0
@@ -761,7 +783,7 @@ func _ai(m: Node2D, delta: float) -> void:
 	if cooldown <= 0.0 and doused_t <= 0.0 and _may_attack():
 		if String(d.get("pick", "")) == "order":             # Perry: every attack in turn, backing off for the ranged ones
 			var a: Dictionary = attacks[atk_i % attacks.size()]
-			if gap >= float(a["near"]) and gap <= float(a["far"]):
+			if gap >= float(a["near"]) and gap <= far_of(a):
 				atk_i = (atk_i + 1) % attacks.size()
 				backoff_t = 0.0
 				_start_tell(a, face)
@@ -782,7 +804,7 @@ func _ai(m: Node2D, delta: float) -> void:
 		for j in attacks.size():
 			var ai_j := (atk_i + j) % attacks.size() if cyc else j
 			var a: Dictionary = attacks[ai_j]
-			if gap >= float(a["near"]) and gap <= float(a["far"]) and (flyer or absf(m.global_position.y - global_position.y) < 400.0 or a["mode"] == "shot"):
+			if gap >= float(a["near"]) and gap <= far_of(a) and (flyer or absf(m.global_position.y - global_position.y) < 400.0 or a["mode"] == "shot"):
 				if cyc:
 					atk_i = (ai_j + 1) % attacks.size()
 				_start_tell(a, face)
@@ -790,7 +812,7 @@ func _ai(m: Node2D, delta: float) -> void:
 	# 2) move
 	var reach := 9999.0
 	for a in attacks:
-		reach = minf(reach, float(a["far"]))
+		reach = minf(reach, far_of(a))
 	var want := gap > reach * 0.7
 	var ai := String(d["ai"])
 	var spd := speed
