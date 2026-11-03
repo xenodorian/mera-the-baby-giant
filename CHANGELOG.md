@@ -2,6 +2,20 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.15.0-playable (2026-11-03)
+Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.15.0_Windows.exe
+- Android: Mera_Playable_v0.15.0_Android.apk
+- **Perry's Arena (level 12).** After Moonlit Sanctum, Perry has a boss stage of her own with nothing else on screen. Her pool is 25 sizes (shown as "PERRY 25x", 200 HP). She is fast (cooldowns 0.25 to 0.6 s, chained moves, dashes) and uses her whole move set: slash, thrust, upswing, spin, heavy horizontal, kicks, chop, chains, dash thrust, sky dash, jump crash, energy kick, wave and burst, earthquake, meteor shower, four beams, rainbow guard and an ultimate chain. She **parries** about 9 hits in 10 and reflects every projectile back at you. Beams, summons and stuns (earthquake) get through. She **heals** to full in about 6 s if you leave her alone, and bursts you away when you are too aggressive in melee. Defeating her unlocks Stage 3 and makes Perry playable. Moonlit Sanctum is now a normal wave level.
+- **Stage 3: Changeling (levels 13 to 20).** The 8 maps of the Changeling game as Mera levels, with ladders and a third page on the level select. All Changeling enemies are in: grunt, mud revenant, rat king, archer, and the Warlord (3 phases, the final boss), plus the knight, ranger, weaver and mage as enemies.
+- **Face summons.** Knight, ranger, weaver, mage and Perry are summonable allies. Their enemy versions drop a card of themselves. The **ranger ally builds platforms and ladders** to reach flying enemies first, at heights Mera can jump to.
+- **Ladders and platforms.** Up grabs a ladder, Up / Down climb, sideways lets go. Built platforms are one-way and timed.
+- **Chests.** Stand on a shut chest and press A (Z on the keyboard); an "A: OPEN" prompt shows. Pipes, enemy-portrait match-3 (6x6, 300 points, faster, more chains) or stop the needle.
+- **Perry's controls.** Y is her spin attack. L1 is only the push kick and R1 only recover, so she keeps every attack button. Items are on the right stick: flick up for a health potion, down for a mana potion, left or right (or click) to summon. L3 drinks mana. Her pause-menu controls list is her own.
+- **Menus.** A large MERA | PERRY toggle on the title screen. The controls list and the shop use large text with a few entries per page and follow the selected character. A yellow arrow and CONTINUE mark the end of level 6.
+- **Stage 2 is harder.** Its creatures have twice the size, HP and walking speed and four times the attack rate of stage 1. Mera's size cap is 6x.
+- **Pause.** The phone's volume buttons no longer pause. The Android pad has a PAUSE button (and the L3 button); Start pauses on a gamepad. Music and sound effects keep playing while a puzzle or the pause menu is open.
+
 ## v0.14.0-playable (2026-11-02)
 Windows and Android. Linux is not attached. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.14.0_Windows.exe
