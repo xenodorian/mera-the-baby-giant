@@ -6502,6 +6502,46 @@ func _slideshow_timer_blast_tests() -> void:
 	LVS.current = 0
 
 
+## the Black Knight: every armed-set animation has a use (an attack, a state or a reaction), the buff sequence runs, a guard turns a blow aside
+func _bk_checks() -> void:
+	var d: Dictionary = Roster.def("black_knight")
+	var art: Dictionary = Roster.art("black_knight")
+	var used := {"idle": true, "walk": true, "hurt": true, "hurt2": true, "death": true, "draw": true, "sheathe": true, "buff": true, "midair": true, "land": true, "parry_start": true, "parry": true, "parry_miss": true}
+	for a in d["attacks"]:
+		used[String(a["anim"])] = true
+		if a.has("fall"):
+			used[String(a["fall"])] = true
+	var unused: Array = []
+	for an in art["anims"]:
+		if not used.has(an):
+			unused.append(an)
+	_check("black knight: a boss at level 18 (not a finale), every animation has a use", Roster.BOSSES.get(18, "") == "black_knight" and not Roster.FINALE.has(18) and unused.is_empty() and String(d["spawn"]) == "draw", "unused=%s" % [unused])
+	var g: Node = await _new_game()
+	var bk: Node2D = g.spawn_enemy("black_knight", g.mera.global_position.x + 900.0)
+	await physics_frame
+	bk.take_damage(bk.hp_max / 2 + 1, bk.global_position.x - 300.0)
+	var hp_in: int = bk.hp
+	for i in 200:
+		await physics_frame
+	bk.take_damage(5, bk.global_position.x - 300.0)
+	_check("black knight: at half health he sheathes, draws and powers up (sheathe, draw, buff), untouchable meanwhile, then he is faster", bk.buffed and bk.buff_log == ["sheathe", "draw", "buff"] and bk.hp == hp_in, "%s hp %d/%d" % [bk.buff_log, bk.hp, hp_in])
+	g.queue_free()
+	await physics_frame
+	g = await _new_game()
+	bk = g.spawn_enemy("black_knight", g.mera.global_position.x + 600.0)
+	await physics_frame
+	for i in 120:
+		await physics_frame
+	bk._set_state("parry")
+	bk._play("parry")
+	bk.t_state = 0.0
+	var hp0: int = bk.hp
+	var took: bool = bk.take_damage(3, bk.global_position.x - 300.0)
+	_check("black knight: a blow into his raised guard does nothing and he counters (parry_log)", not took and bk.hp == hp0 and bk.parries == 1 and bk.state == "atk", "parries %d state %s" % [bk.parries, bk.state])
+	g.queue_free()
+	await physics_frame
+
+
 func _wiz_ok() -> bool:
 	for id in ["p_firemage", "x_lightning_mage", "x_wanderer_mage"]:
 		var d: Dictionary = Roster.def(id)
@@ -6575,6 +6615,7 @@ func _speaker_impact_restart_tests() -> void:
 	# firemage: bolt flies, blast plays at the hit
 	var fm: Dictionary = Roster.def("p_firemage")["attacks"][2]            # the fireball (0 and 1 are the swings, 3 the flame jet)
 	var art: Dictionary = Roster.art("p_firemage")
+	await _bk_checks()
 	_check("wizards: the three Craftpix wizards (fire, lightning, wanderer) each have a swing, a shot with bolt and blast, and a long attack; they are in waves", _wiz_ok(), "")
 	_check("firemage: the fireball attack is a shot 'bolt' with 'blast' as its impact, both animations exist", String(fm["shot"]) == "bolt" and String(fm.get("impact", "")) == "blast" and art["anims"].has("bolt") and art["anims"].has("blast"), "")
 	var shot: Node2D = load("res://scripts/game/enemy_shot.gd").new()

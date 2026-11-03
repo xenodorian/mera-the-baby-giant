@@ -55,7 +55,10 @@ func _physics_process(delta: float) -> void:
 			spr.rotation = vel.angle() if spr.scale.x > 0.0 else vel.angle() + PI
 	position += vel * delta
 	if t > LIFE:
-		queue_free()
+		if not deflected and impact_anim != "":
+			_impact()                       # a bolt that flew its whole life still bursts (plays its blast) where it ends
+		else:
+			queue_free()
 		return
 	if game == null:
 		return

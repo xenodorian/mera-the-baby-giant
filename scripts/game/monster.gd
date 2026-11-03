@@ -532,6 +532,10 @@ func _die() -> void:
 	spin = away * randf_range(5.0, 9.0) / mass
 	if d.has("death"):
 		spin *= 0.25
+	if bool(d.get("death_hold", false)) and d.has("death"):
+		vx = 0.0                            # the death animation plays out where it fell (frost guardian, fire demon)
+		vy = 0.0
+		spin = 0.0
 	corpse_t = 0.0
 	if game and game.has_method("on_enemy_defeated"):
 		game.on_enemy_defeated(self)
@@ -541,6 +545,16 @@ func _die() -> void:
 ## the corpse flies, spins, bounces off walls, and bursts on landing (or after CORPSE_MAX_S)
 func _corpse_tick(delta: float) -> void:
 	corpse_t += delta
+	if bool(d.get("death_hold", false)) and d.has("death"):
+		vy += GRAVITY * delta
+		var fy := _floor(position.y)
+		position.y = minf(position.y + vy * delta, fy)
+		if position.y >= fy:
+			vy = 0.0
+		var de: Dictionary = art["anims"][String(d["death"])]
+		if corpse_t >= float(de["frames"].size()) / float(de["fps"]) + 0.4:
+			_burst()
+		return
 	vy += GRAVITY * delta
 	position += Vector2(vx, vy) * delta
 	sprite.rotation += spin * delta
@@ -895,7 +909,7 @@ func _start_active(m: Node2D) -> void:
 			windows = []
 		"contact":
 			windows = []
-			sprite.speed_scale = 1.6
+			sprite.speed_scale = float(atk.get("anim_speed", 1.6))     # a long leap spreads its jump anim over the airtime (cl_rat_king)
 			var v := float(atk.get("vx", 600.0))
 			if flyer:
 				var mc: Vector2 = m.hurt_rect().get_center()
