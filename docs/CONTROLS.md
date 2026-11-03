@@ -126,6 +126,9 @@ Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, 
 - From v0.8: L2/R2 = trigger axes 4/5 **or** buttons 15/16, and nothing else may use those (a test checks that no two actions share a joypad button or axis direction). Joypad **Start/Select** are acted on ~100 ms (6 physics frames) later and **dropped if a trigger moved at the same moment** (`Controls.trigger_near`, `game.gd _menu_guard_tick`). Keyboard Enter/Tab are unaffected; Start on the Game Over screen restarts at once.
 
 
+## Ladders (Stage 3)
+Both characters climb. **Up** next to a ladder (within 40 px of its column, anywhere along it) grabs it; with no ladder near, Up still jumps. **Up / Down** climb at 240 px/s, with no gravity and no attacks; letting go of everything stays on the ladder. **Left / Right** lets go and you fall (at the top you step off onto the platform). Reaching the top steps onto the surface there; **Down** while standing at a ladder top climbs down, and reaching the floor stands you up. A hit while climbing drops you through the normal hurt flow.
+
 ## Perry (Stage 3, playable once Stage 2 is cleared)
 On the title screen, the large **MERA | PERRY** toggle sits under the level cards. Down from the cards reaches it, then A, Start or a click switches the character. There is no X shortcut. The shop shows the selected character's pages (Left / Right in the shop). Perry is locked until Moonlit Sanctum (level 11, index 10) is cleared; the line under the cards says why. The choice is saved. She plays every level like Mera: same pickups, chests, allies and exit.
 

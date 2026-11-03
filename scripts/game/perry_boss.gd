@@ -442,8 +442,8 @@ func _physics_process(delta: float) -> void:
 	match state:
 		"tell":
 			tell_t += delta
-			if state == "tell" and not (cur_id == "" or steps.is_empty()):
-				_face(1 if m.global_position.x > global_position.x else -1) if tell_t < tell_len * 0.5 and not st_retreat else null
+			if not st_retreat and tell_t < tell_len * 0.5:
+				_face(1 if m.global_position.x > global_position.x else -1)
 			if tell_t >= tell_len:
 				_start_step()
 		"atk":
@@ -454,8 +454,6 @@ func _physics_process(delta: float) -> void:
 			_heal_tick(delta, m)
 		_:
 			_brain(delta, m)
-	if state != "atk" or String(st.get("h", "")) not in ["sky", "leap"]:
-		pass
 	position.x += vx * delta
 	position.x = clampf(position.x, Levels.EDGE, float(game.map_w) - Levels.EDGE)
 	position.y = rest_y - lift
@@ -506,9 +504,9 @@ func _abort_move() -> void:
 # ---------------------------------------------------------------- what is happening around her
 func _player_attacking(m: Node2D) -> bool:
 	var dx := absf(m.global_position.x - global_position.x)
-	if m.state == "move" and dx < Tuning.PERRY_BOSS_WATCH_PX + 300.0:
+	if m.state == "move" and dx < Tuning.PERRY_BOSS_WATCH_PX + 400.0:
 		var mvd = m.get("mv")
-		if mvd == null or int(mvd.get("dmg", 1)) > 0 or String(mvd.get("key", "")) != "":
+		if mvd != null and int(mvd.get("dmg", 0)) > 0:
 			return true
 	if m.has_method("beam_world_rect"):
 		var br: Rect2 = m.beam_world_rect()
@@ -814,20 +812,21 @@ func _step_tick(delta: float, m: Node2D) -> void:
 		return
 	st_t += delta * 1000.0 / tm
 	var n := st_frames.size()
-	var advanced := false
 	while st_i < n and st_t >= float(st_frames[st_i]["ms"]):
 		st_t -= float(st_frames[st_i]["ms"])
 		if st_i == n - 1 and h == "meteor" and meteor_left > 0:
 			st_t = float(st_frames[st_i]["ms"]) - 0.001         # hold the last frame until the meteors are down
 			break
 		st_i += 1
-		advanced = true
 		if st_i < n:
 			_enter_frame(h, m)
 	if h == "meteor":
 		_meteor_tick(delta, m)
-	if st_i >= n:
+	if st_i >= n or (h == "sky" and st_i >= 4):
 		inv_now = false
+		if h == "sky":
+			position.x = st_xe
+			lift = 0.0
 		_step_end()
 		return
 	var anim := String(st.get("anim", st_id))
@@ -836,8 +835,6 @@ func _step_tick(delta: float, m: Node2D) -> void:
 		fx_node.frame = clampi(st_i, 0, fx_node.sprite_frames.get_frame_count(fx_node.animation) - 1)
 	_root(h, m)
 	_hits(h, m)
-	if advanced and h == "melee" and st_i == 1 and String(st.get("anim", "")) == "":
-		pass
 
 
 func _enter_frame(h: String, m: Node2D) -> void:
@@ -902,7 +899,6 @@ func _quake() -> void:
 		var q: Node2D = FX.Quake.new()
 		q.setup(game, self, global_position.x + float(d) * 200.0, d)
 		game.world.add_child(q)
-		fx_live.append(q)
 
 
 func _meteor_tick(delta: float, m: Node2D) -> void:
@@ -918,7 +914,6 @@ func _meteor_tick(delta: float, m: Node2D) -> void:
 	var mt: Node2D = FX.Meteor.new()
 	mt.setup(game, self, x, Tuning.PERRY_BOSS_METEOR_WARN_S)
 	game.world.add_child(mt)
-	fx_live.append(mt)
 	meteor_i += 1
 	meteor_left -= 1
 	Sfx.play("charge", 1.3, -8.0)
@@ -1012,8 +1007,6 @@ func _hits(h: String, m: Node2D) -> void:
 	if rs.is_empty():
 		st_win = -1
 		return
-	if st_win < 0 or not st_flags.has("w%d" % st_i):
-		pass
 	if st_win < 0:
 		st_win = st_i
 	if st_hits.has(st_win):

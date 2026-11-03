@@ -374,7 +374,7 @@ const PERRY_BOSS_MOVES := {
 	"dash_thrust": {"kind": "rush", "dmg": 2, "tell": 0.4, "band": [420.0, 1000.0], "w": 10.0, "ph": 1, "mcd": 0.5, "closer": 3.0},
 	"energy_dash_thrust": {"pass": false, "kind": "rush", "dmg": 3, "tell": 0.5, "band": [420.0, 1100.0], "w": 6.0, "ph": 2, "mcd": 3.0, "closer": 3.0},
 	"sky_dash": {"h": "sky", "tm": 2.6, "pass": true, "kind": "rush", "dmg": 2, "tell": 0.5, "band": [350.0, 1200.0], "w": 8.0, "ph": 1, "mcd": 1.5, "closer": 3.0},
-	"dash": {"h": "dash", "pass": true, "kind": "rush", "dmg": 0, "tell": 0.0, "band": [450.0, 1500.0], "w": 5.0, "ph": 1, "mcd": 0.6, "closer": 3.0},
+	"dash": {"h": "dash", "kind": "rush", "dmg": 0, "tell": 0.0, "band": [450.0, 1500.0], "w": 5.0, "ph": 1, "mcd": 0.6, "closer": 3.0},
 	"jump_crash": {"h": "leap", "tm": 1.4, "pass": true, "kind": "heavy", "dmg": 3, "tell": 0.55, "band": [300.0, 900.0], "w": 6.0, "ph": 1, "mcd": 3.0, "closer": 2.0},
 	"chain": {"steps": ["slash", "chain2", "chain3"], "kind": "melee", "dmg": 1, "tell": 0.4, "band": [-999.0, 300.0], "w": 8.0, "ph": 1, "mcd": 1.0},
 	"chain_long": {"steps": ["slash", "chain2", "chain3", "chain4"], "kind": "melee", "dmg": 1, "tell": 0.4, "band": [-999.0, 300.0], "w": 6.0, "ph": 2, "mcd": 2.0},

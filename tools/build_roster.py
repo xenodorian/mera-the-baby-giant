@@ -121,12 +121,38 @@ E = {
 # assets/characters/perry/<id>/<anim>/. Every anim carries an explicit pivot (the 4th tuple element).
 PERRY_META = os.path.join(ROOT, "assets/perry/perry_meta.json")
 # Perry Riposte anims the Mera AI never plays (Roster.DEFS): left out of the roster and the export
-PERRY_DROP = {"perry": {"parry", "block", "charge"}, "p_percy": {"block", "upHold"}, "p_firemage": {"walk"}}
+PERRY_DROP = {"perry": {"charge"}, "p_percy": {"block", "upHold"}, "p_firemage": {"walk"}}
 if os.path.exists(PERRY_META):
     with open(PERRY_META) as fh:
         for _pid, _m in json.load(fh).items():
             E[_pid] = (_m["facing"], False, {_n: ("perry/%s/%s" % (_pid, _n), _a["fps"], _a["loop"], _a["pivot"])
                                              for _n, _a in _m["anims"].items() if _n not in PERRY_DROP.get(_pid, ())})
+# Perry as the boss of her arena (scripts/game/perry_boss.gd) plays the rest of her player moves too: frames under perry/player/<move>/,
+# timing and hit boxes come from assets/perry/perry_player.json. Merge only this key into roster.json with tools/build_perry_boss.py.
+PERRY_BOSS_EXTRA = ["dash_thrust", "energy_dash_thrust", "chain2", "chain3", "chain4", "energy_kick", "energy_burst", "earthquake",
+                    "beam_cloud", "beam_fire", "beam_laser", "beam_plasma"]
+
+
+def _perry_boss_extra():
+    path = os.path.join(ROOT, "assets/perry/perry_player.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path) as fh:
+        pj = json.load(fh)
+    out = {}
+    for mv in PERRY_BOSS_EXTRA:
+        m = pj["moves"][mv]
+        ms = sum(f["ms"] for f in m["frames"]) / float(len(m["frames"]))
+        out[mv] = ("perry/player/%s" % mv, round(1000.0 / ms, 1), False, m["pivot"])
+    fx = pj["fx"]["energy_burst_fx"]
+    out["energy_burst_fx"] = ("perry/player/energy_burst_fx", 14, False, fx["pivot"])
+    for kind in ("cloud", "fire", "laser", "plasma"):
+        out["beamtile_" + kind] = ("perry/player/beamtile_" + kind, 1, True)
+    return out
+
+
+if "perry" in E:
+    E["perry"][2].update(_perry_boss_extra())
 # Stage 2 (2026-11-02): free frame-animated creatures. Luiz Melo CC0, chierit CC-BY 4.0 (docs/CREDITS.md).
 LM = "itch/luizmelo/"
 CH2 = "itch/chierit/"

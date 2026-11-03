@@ -5499,6 +5499,94 @@
      ]
     ]
    },
+   "parry": {
+    "frames": [
+     "res://assets/characters/perry/perry/parry/parry_1.png",
+     "res://assets/characters/perry/perry/parry/parry_2.png",
+     "res://assets/characters/perry/perry/parry/parry_3.png",
+     "res://assets/characters/perry/perry/parry/parry_4.png",
+     "res://assets/characters/perry/perry/parry/parry_5.png"
+    ],
+    "fps": 25,
+    "loop": false,
+    "size": [
+     132,
+     140
+    ],
+    "pivot": [
+     66.0,
+     139
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -119,
+      51.0,
+      1
+     ],
+     [
+      -66.0,
+      -139,
+      29.0,
+      1
+     ],
+     [
+      -66.0,
+      -133,
+      40.0,
+      1
+     ],
+     [
+      -66.0,
+      -119,
+      51.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "block": {
+    "frames": [
+     "res://assets/characters/perry/perry/block/block_1.png",
+     "res://assets/characters/perry/perry/block/block_2.png",
+     "res://assets/characters/perry/perry/block/block_3.png"
+    ],
+    "fps": 9,
+    "loop": true,
+    "size": [
+     109,
+     145
+    ],
+    "pivot": [
+     66.0,
+     144
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -125,
+      43.0,
+      1
+     ],
+     [
+      -66.0,
+      -144,
+      13.0,
+      1
+     ],
+     [
+      -66.0,
+      -144,
+      13.0,
+      1
+     ]
+    ]
+   },
    "taunt": {
     "frames": [
      "res://assets/characters/perry/perry/taunt/taunt_1.png",
@@ -6023,6 +6111,1013 @@
       -171.5,
       117.0,
       97.5
+     ]
+    ]
+   },
+   "dash_thrust": {
+    "frames": [
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_1.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_2.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_3.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_4.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_5.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_6.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_7.png",
+     "res://assets/characters/perry/player/dash_thrust/dash_thrust_8.png"
+    ],
+    "fps": 13.8,
+    "loop": false,
+    "size": [
+     636,
+     377
+    ],
+    "pivot": [
+     224.0,
+     375
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -78,
+      72.0,
+      1
+     ],
+     [
+      -224.0,
+      -375,
+      393.0,
+      0
+     ],
+     [
+      -224.0,
+      -372,
+      412.0,
+      0
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "energy_dash_thrust": {
+    "frames": [
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_1.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_2.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_3.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_4.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_5.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_6.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_7.png",
+     "res://assets/characters/perry/player/energy_dash_thrust/energy_dash_thrust_8.png"
+    ],
+    "fps": 13.8,
+    "loop": false,
+    "size": [
+     636,
+     377
+    ],
+    "pivot": [
+     224.0,
+     375
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -80,
+      81.0,
+      1
+     ],
+     [
+      -224.0,
+      -375,
+      393.0,
+      0
+     ],
+     [
+      -224.0,
+      -372,
+      412.0,
+      0
+     ],
+     [
+      -70.0,
+      -78,
+      95.0,
+      1
+     ],
+     [
+      -71.0,
+      -80,
+      95.0,
+      2
+     ],
+     [
+      -71.0,
+      -80,
+      95.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "chain2": {
+    "frames": [
+     "res://assets/characters/perry/player/chain2/chain2_1.png",
+     "res://assets/characters/perry/player/chain2/chain2_2.png",
+     "res://assets/characters/perry/player/chain2/chain2_3.png",
+     "res://assets/characters/perry/player/chain2/chain2_4.png",
+     "res://assets/characters/perry/player/chain2/chain2_5.png"
+    ],
+    "fps": 16.7,
+    "loop": false,
+    "size": [
+     300,
+     200
+    ],
+    "pivot": [
+     174.0,
+     196
+    ],
+    "boxes": [
+     [
+      -147.0,
+      -81,
+      5.0,
+      1
+     ],
+     [
+      -61.0,
+      -157,
+      67.0,
+      1
+     ],
+     [
+      -59.0,
+      -167,
+      55.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      84.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      80.0,
+      1
+     ]
+    ]
+   },
+   "chain3": {
+    "frames": [
+     "res://assets/characters/perry/player/chain3/chain3_1.png",
+     "res://assets/characters/perry/player/chain3/chain3_2.png",
+     "res://assets/characters/perry/player/chain3/chain3_3.png",
+     "res://assets/characters/perry/player/chain3/chain3_4.png",
+     "res://assets/characters/perry/player/chain3/chain3_5.png",
+     "res://assets/characters/perry/player/chain3/chain3_6.png"
+    ],
+    "fps": 18.8,
+    "loop": false,
+    "size": [
+     300,
+     200
+    ],
+    "pivot": [
+     174.0,
+     196
+    ],
+    "boxes": [
+     [
+      -137.0,
+      -80,
+      13.0,
+      1
+     ],
+     [
+      -148.0,
+      -80,
+      40.0,
+      1
+     ],
+     [
+      -100.0,
+      -80,
+      85.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ]
+    ]
+   },
+   "chain4": {
+    "frames": [
+     "res://assets/characters/perry/player/chain4/chain4_1.png",
+     "res://assets/characters/perry/player/chain4/chain4_2.png",
+     "res://assets/characters/perry/player/chain4/chain4_3.png",
+     "res://assets/characters/perry/player/chain4/chain4_4.png",
+     "res://assets/characters/perry/player/chain4/chain4_5.png",
+     "res://assets/characters/perry/player/chain4/chain4_6.png"
+    ],
+    "fps": 17.4,
+    "loop": false,
+    "size": [
+     300,
+     200
+    ],
+    "pivot": [
+     174.0,
+     196
+    ],
+    "boxes": [
+     [
+      -70.0,
+      -80,
+      87.0,
+      1
+     ],
+     [
+      -101.0,
+      -78,
+      92.0,
+      4
+     ],
+     [
+      -61.0,
+      -157,
+      67.0,
+      1
+     ],
+     [
+      -96.0,
+      -80,
+      89.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      84.0,
+      1
+     ],
+     [
+      -66.0,
+      -80,
+      80.0,
+      1
+     ]
+    ]
+   },
+   "energy_kick": {
+    "frames": [
+     "res://assets/characters/perry/player/energy_kick/energy_kick_1.png",
+     "res://assets/characters/perry/player/energy_kick/energy_kick_2.png",
+     "res://assets/characters/perry/player/energy_kick/energy_kick_3.png",
+     "res://assets/characters/perry/player/energy_kick/energy_kick_4.png",
+     "res://assets/characters/perry/player/energy_kick/energy_kick_5.png",
+     "res://assets/characters/perry/player/energy_kick/energy_kick_6.png"
+    ],
+    "fps": 12.8,
+    "loop": false,
+    "size": [
+     176,
+     161
+    ],
+    "pivot": [
+     110.0,
+     159
+    ],
+    "boxes": [
+     [
+      -105.0,
+      -149,
+      -5.0,
+      1
+     ],
+     [
+      -108.0,
+      -149,
+      37.0,
+      2
+     ],
+     [
+      -110.0,
+      -154,
+      37.0,
+      2
+     ],
+     [
+      -75.0,
+      -159,
+      9.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      2
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "energy_burst": {
+    "frames": [
+     "res://assets/characters/perry/player/energy_burst/energy_burst_1.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_2.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_3.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_4.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_5.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_6.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_7.png",
+     "res://assets/characters/perry/player/energy_burst/energy_burst_8.png"
+    ],
+    "fps": 12.5,
+    "loop": false,
+    "size": [
+     250,
+     178
+    ],
+    "pivot": [
+     156.0,
+     176
+    ],
+    "boxes": [
+     [
+      -66.0,
+      -125,
+      46.0,
+      1
+     ],
+     [
+      -66.0,
+      -145,
+      16.0,
+      1
+     ],
+     [
+      -66.0,
+      -145,
+      16.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -68.0,
+      -171,
+      12.0,
+      1
+     ],
+     [
+      -67.0,
+      -145,
+      28.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "earthquake": {
+    "frames": [
+     "res://assets/characters/perry/player/earthquake/earthquake_1.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_2.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_3.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_4.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_5.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_6.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_7.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_8.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_9.png",
+     "res://assets/characters/perry/player/earthquake/earthquake_10.png"
+    ],
+    "fps": 10.3,
+    "loop": false,
+    "size": [
+     312,
+     183
+    ],
+    "pivot": [
+     110.0,
+     165
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -156,
+      13.0,
+      1
+     ],
+     [
+      -69.0,
+      -165,
+      12.0,
+      1
+     ],
+     [
+      -105.0,
+      -149,
+      13.0,
+      1
+     ],
+     [
+      -66.0,
+      -96,
+      105.0,
+      17
+     ],
+     [
+      -66.0,
+      -78,
+      55.0,
+      1
+     ],
+     [
+      -79.0,
+      -78,
+      170.0,
+      18
+     ],
+     [
+      -110.0,
+      -78,
+      202.0,
+      18
+     ],
+     [
+      -110.0,
+      -78,
+      202.0,
+      18
+     ],
+     [
+      -66.0,
+      -80,
+      82.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "beam_cloud": {
+    "frames": [
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_1.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_2.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_3.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_4.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_5.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_6.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_7.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_8.png",
+     "res://assets/characters/perry/player/beam_cloud/beam_cloud_9.png"
+    ],
+    "fps": 9.9,
+    "loop": false,
+    "size": [
+     160,
+     94
+    ],
+    "pivot": [
+     70.0,
+     92
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "beam_fire": {
+    "frames": [
+     "res://assets/characters/perry/player/beam_fire/beam_fire_1.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_2.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_3.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_4.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_5.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_6.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_7.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_8.png",
+     "res://assets/characters/perry/player/beam_fire/beam_fire_9.png"
+    ],
+    "fps": 9.9,
+    "loop": false,
+    "size": [
+     160,
+     94
+    ],
+    "pivot": [
+     70.0,
+     92
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "beam_laser": {
+    "frames": [
+     "res://assets/characters/perry/player/beam_laser/beam_laser_1.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_2.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_3.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_4.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_5.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_6.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_7.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_8.png",
+     "res://assets/characters/perry/player/beam_laser/beam_laser_9.png"
+    ],
+    "fps": 9.9,
+    "loop": false,
+    "size": [
+     160,
+     94
+    ],
+    "pivot": [
+     70.0,
+     92
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "beam_plasma": {
+    "frames": [
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_1.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_2.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_3.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_4.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_5.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_6.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_7.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_8.png",
+     "res://assets/characters/perry/player/beam_plasma/beam_plasma_9.png"
+    ],
+    "fps": 9.9,
+    "loop": false,
+    "size": [
+     160,
+     94
+    ],
+    "pivot": [
+     70.0,
+     92
+    ],
+    "boxes": [
+     [
+      -68.0,
+      -80,
+      66.0,
+      1
+     ],
+     [
+      -70.0,
+      -78,
+      90.0,
+      1
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -69.0,
+      -78,
+      90.0,
+      2
+     ],
+     [
+      -70.0,
+      -80,
+      79.0,
+      1
+     ],
+     [
+      -66.0,
+      -92,
+      66.0,
+      1
+     ]
+    ]
+   },
+   "energy_burst_fx": {
+    "frames": [
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_1.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_2.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_3.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_4.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_5.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_6.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_7.png",
+     "res://assets/characters/perry/player/energy_burst_fx/energy_burst_fx_8.png"
+    ],
+    "fps": 14,
+    "loop": false,
+    "size": [
+     250,
+     178
+    ],
+    "pivot": [
+     156.0,
+     176
+    ],
+    "boxes": [
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      -68.0,
+      -148,
+      36.0,
+      1
+     ],
+     [
+      -69.0,
+      -150,
+      55.0,
+      1
+     ],
+     [
+      -71.0,
+      -176,
+      15.0,
+      1
+     ],
+     [
+      -107.0,
+      -176,
+      45.0,
+      2
+     ],
+     [
+      -156.0,
+      -146,
+      94.0,
+      2
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ],
+     [
+      0,
+      0,
+      0,
+      0
+     ]
+    ]
+   },
+   "beamtile_cloud": {
+    "frames": [
+     "res://assets/characters/perry/player/beamtile_cloud/beamtile_cloud_1.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     98,
+     44
+    ],
+    "pivot": [
+     49.0,
+     43.0
+    ],
+    "boxes": [
+     [
+      -49.0,
+      -43.0,
+      49.0,
+      0.0
+     ]
+    ]
+   },
+   "beamtile_fire": {
+    "frames": [
+     "res://assets/characters/perry/player/beamtile_fire/beamtile_fire_1.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     98,
+     39
+    ],
+    "pivot": [
+     49.0,
+     39.0
+    ],
+    "boxes": [
+     [
+      -49.0,
+      -39.0,
+      49.0,
+      0.0
+     ]
+    ]
+   },
+   "beamtile_laser": {
+    "frames": [
+     "res://assets/characters/perry/player/beamtile_laser/beamtile_laser_1.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     160,
+     59
+    ],
+    "pivot": [
+     80.0,
+     59.0
+    ],
+    "boxes": [
+     [
+      -80.0,
+      -59.0,
+      80.0,
+      0.0
+     ]
+    ]
+   },
+   "beamtile_plasma": {
+    "frames": [
+     "res://assets/characters/perry/player/beamtile_plasma/beamtile_plasma_1.png"
+    ],
+    "fps": 1,
+    "loop": true,
+    "size": [
+     160,
+     54
+    ],
+    "pivot": [
+     80.0,
+     54.0
+    ],
+    "boxes": [
+     [
+      -80.0,
+      -54.0,
+      80.0,
+      0.0
      ]
     ]
    }

@@ -4041,7 +4041,7 @@ func _perry_new(level: int = 0) -> Node:
 
 
 func _perry_clear_stage2(C) -> void:
-	for i in range(6, 11):
+	for i in range(6, 12):
 		C.record_clear(i)
 
 
@@ -4148,6 +4148,7 @@ func _perry_tests() -> void:
 	# ---- locked by stage progress: names the level to clear
 	C.reset()
 	C.record_clear(C.PERRY_CLEAR_LEVEL)
+	C.record_clear(10)                      # the shop gate for the top unlocks is level index 10 (Moonlit Sanctum)
 	C.gold = 500
 	var rl: String = C.buy("perry:crash")
 	_check("perry shop: a row whose Stage 2 level is not cleared says 'Clear Stage 2 level 3 first' and takes no gold", rl == "locked" and C.gold == 500 and PU.locked_reason("crash") == "Clear Stage 2 level 3 first" and reason_before == "" , "%s / %s / before '%s'" % [rl, PU.locked_reason("crash"), reason_before])

@@ -84,6 +84,7 @@ var test_mode_no_exit := false
 # v0.6 roster (levels 2-4; scripts/game/roster.gd, monster.gd)
 const MONSTER := preload("res://scripts/game/monster.gd")
 const DRAGON := preload("res://scripts/game/dragon.gd")
+const PERRY_BOSS := preload("res://scripts/game/perry_boss.gd")   # Perry, the boss of Perry's Arena (size is her health)
 var mobs: Array = []
 var boss: Node2D = null
 var boss_spawned := false
@@ -657,7 +658,7 @@ func end_mark() -> void:
 # ---------------------------------------------------------------- v0.6 roster
 ## one roster enemy at x (opts: variant, seed)
 func spawn_enemy(eid: String, x: float, opts: Dictionary = {}) -> Node2D:
-	var e: Node2D = (DRAGON if eid == "dragon" else Roster.script_for(eid)).new()     # v0.8: the dragon has its own boss script
+	var e: Node2D = (DRAGON if eid == "dragon" else (PERRY_BOSS if eid == "perry" else Roster.script_for(eid))).new()     # v0.8: the dragon has its own boss script
 	opts = opts.duplicate()
 	# Stage 2 doubling covers levels 6 to 10 only: Stage 3 enemies (cl_*) carry their final numbers in Roster.DEFS
 	opts["stage2"] = not run_mode and Levels.current >= Levels.STAGE2_FROM and Levels.current <= 10
