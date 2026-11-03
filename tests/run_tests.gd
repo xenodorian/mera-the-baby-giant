@@ -347,6 +347,7 @@ func _keyboard_tests() -> void:
 
 
 func _run() -> void:
+	load("res://scripts/game/cutscene.gd").suppressed = true     # (loaded, not named: naming the class would compile it before the autoloads exist) king arc: story cards would pause games that are not under test (the king arc section turns it off for its own cases)
 	load("res://scripts/game/carry.gd").test_all = true   # v0.12.2: the existing cases run with every unlock owned
 	load("res://scripts/game/carry.gd").ensure()
 	load("res://scripts/game/carry.gd").character = "mera"   # a saved Perry choice must not turn the Mera cases into Perry runs (memory only, not saved)
@@ -1242,7 +1243,7 @@ func _run() -> void:
 	await process_frame
 	# ================================================================ v0.5 levels, map bounds, earthquake
 	var LV = load("res://scripts/game/levels.gd")
-	_check("20 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..19)", LV.list().size() == 20 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(19) == 2 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
+	_check("21 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..19, stage 4: 20)", LV.list().size() == 21 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(19) == 2 and LV.stage_of(20) == 3 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
 	for li in [0, 1, 2, 3, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game()
@@ -1509,6 +1510,7 @@ func _run() -> void:
 	LV.current = 1
 	g = await _new_game()
 	m = g.mera
+	_give_cards(g, {})                    # a card picked up by an earlier case (random drops) must not leave a stray type in the hand
 	var c0: Node2D = load("res://scripts/game/ally_card.gd").new()     # no card lies on a map any more: place one
 	c0.setup(g, "priestess", Vector2(m.global_position.x + 600.0, g.GROUND_Y))
 	g.world.add_child(c0)
@@ -1719,7 +1721,7 @@ func _run() -> void:
 	root.add_child(pm)
 	await process_frame
 	_check("menu: after the dragon (unlocked >= 6, level 6 played) it opens on level 7, the stage 2 page", pm.sel == 6 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
-	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..19", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18, 19], "%s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2)])
+	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..19, stage 4 shows 20", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18, 19] and pm.page_levels(3) == [20], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
 	pm.sel = 5
 	pm._move(1)
 	var page_follow: bool = pm.sel == 6 and pm.page_of(pm.sel) == 1
@@ -1746,6 +1748,7 @@ func _run() -> void:
 	await _face_summon_tests()
 	await _session_tests()
 	await _stage3_map_tests()
+	await _king_arc_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -3856,10 +3859,7 @@ func _task_tests() -> void:
 	_check("level 12 (Perry's Arena): the exit stays locked until Perry is dead ('DEFEAT PERRY')", g.exit_locked() and g.exit_lock_text() == "DEFEAT PERRY" and not g.boss_dead, g.exit_lock_text())
 	g.on_enemy_defeated(pe)
 	_check("level 12 (Perry's Arena): Perry's death opens the exit, pays the 100 gold bonus and shows the Stage 3 card", g.victory and g.boss_dead and not g.exit_locked() and C.gold >= 100 and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1].find("Stage 3") >= 0 and C.unlocked >= 12, "gold %d %s" % [C.gold, g.victory_text])
-	t0 = Time.get_ticks_msec()
-	while not g.victory_card and Time.get_ticks_msec() - t0 < 8000:
-		await create_timer_always(0.1)
-	root.get_tree().paused = false
+	_check("level 12 (Perry's Arena): no two-line victory card (the story pages replace it)", not g.victory_card, "")
 	g.queue_free()
 	await process_frame
 	C.reset()
@@ -3930,7 +3930,7 @@ func _session_tests() -> void:
 	C.ensure()
 	_check("size cap: a save with scale_cap 9 loads at 6", C.scale_cap == 6, "%d" % C.scale_cap)
 	C.reset()
-	# ---- Stage 2 enemies: 2x size, HP and speed, a quarter of the wait between attacks; stage 1 unchanged
+	# ---- Stage 2 enemies: 1.5x size, 2x HP and speed, half the wait between attacks; stage 1 unchanged
 	var base: Dictionary = Roster.def("wolf")
 	var gs1: Node = await _s4_new(1)
 	var e1: Node2D = gs1.spawn_enemy("wolf", gs1.mera.global_position.x + 500.0)
@@ -3944,12 +3944,12 @@ func _session_tests() -> void:
 	var g2: Node = await _s4_new(6)
 	var e2: Node2D = g2.spawn_enemy("wolf", g2.mera.global_position.x + 500.0)
 	await physics_frame
-	var ok2: bool = absf(float(e2.k) - 2.0 * float(base["k"])) < 0.0001 and int(e2.hp_max) == int(round(2.0 * float(base["hp"]))) and absf(float(e2.speed) - 2.0 * float(base["speed"])) < 0.0001 and float(e2.speed_mul) == 2.0
-	_check("stage 2 wolf (level 7): 2x size, 2x HP, 2x walking speed", ok2, "k %f hp %d speed %f mul %f" % [e2.k, e2.hp_max, e2.speed, e2.speed_mul])
+	var ok2: bool = absf(float(e2.k) - 1.5 * float(base["k"])) < 0.0001 and int(e2.hp_max) == int(round(2.0 * float(base["hp"]))) and absf(float(e2.speed) - 2.0 * float(base["speed"])) < 0.0001 and float(e2.speed_mul) == 2.0
+	_check("stage 2 wolf (level 7): 1.5x size, 2x HP, 2x walking speed", ok2, "k %f hp %d speed %f mul %f" % [e2.k, e2.hp_max, e2.speed, e2.speed_mul])
 	var cd_ok: bool = e2.attacks.size() == base["attacks"].size() and e2.attacks.size() > 0
 	for i in e2.attacks.size():
-		cd_ok = cd_ok and absf(float(e2.attacks[i].get("cd", 1.0)) - 0.25 * float(base["attacks"][i].get("cd", 1.0))) < 0.0001
-	_check("stage 2 wolf: every attack's wait is a quarter of its stage 1 wait", cd_ok, "%s" % [e2.attacks])
+		cd_ok = cd_ok and absf(float(e2.attacks[i].get("cd", 1.0)) - 0.5 * float(base["attacks"][i].get("cd", 1.0))) < 0.0001
+	_check("stage 2 wolf: every attack's wait is half of its stage 1 wait", cd_ok, "%s" % [e2.attacks])
 	g2.queue_free()
 	await process_frame
 	# ---- shop pages: 5 rows a page; Mera 17 rows (4 pages), Perry 27 rows (6 pages)
@@ -4575,7 +4575,7 @@ func _cl_tests() -> void:
 	LV.current = 7
 	var e2: Node2D = g.spawn_enemy("cl_grunt", 7400.0)
 	LV.current = 1
-	_check("changeling: stage 3 spawns use the plain DEFS numbers (k %.1f hp %d), stage 2 would double them" % [e3.k, e3.hp], e3.k == 8.0 and e3.hp == 16 and e3.speed == 280.0 and e2.k == 16.0, "%s %s" % [e3.k, e2.k])
+	_check("changeling: stage 3 spawns use the plain DEFS numbers (k %.1f hp %d), stage 2 would scale them 1.5x" % [e3.k, e3.hp], e3.k == 8.0 and e3.hp == 16 and e3.speed == 280.0 and e2.k == 12.0, "%s %s" % [e3.k, e2.k])
 	g.queue_free()
 	await process_frame
 	# behaviours, one fresh game each
@@ -4699,10 +4699,10 @@ func _stage3_map_tests() -> void:
 	var CA = load("res://scripts/game/carry.gd")
 	var ids := ["p_arena", "ch_greenwood", "ch_bramble", "ch_watchtower", "ch_marsh", "ch_gate", "ch_undercroft", "ch_faces", "ch_throne"]
 	var ls: Array = LVm.list()
-	var order_ok: bool = ls.size() == 20 and LVm.STAGE3_FROM == 12
+	var order_ok: bool = ls.size() == 21 and LVm.STAGE3_FROM == 12 and LVm.STAGE4_FROM == 20
 	for k in ids.size():
 		order_ok = order_ok and String(ls[11 + k]["id"]) == ids[k]
-	_check("stage 3: 20 levels, p_arena at 11 and the eight Changeling maps at 12..19 in order", order_ok, str(ls.size()))
+	_check("stage 3: 21 levels, p_arena at 11 and the eight Changeling maps at 12..19 in order", order_ok, str(ls.size()))
 	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(19) == 2, "")
 	var files_ok := true
 	var wide_ok := true
@@ -4779,6 +4779,8 @@ func _stage3_map_tests() -> void:
 		reached.append(pm.sel)
 	_check("stage 3 menu: Right walks 12 to 19 and Left walks back", reached == [12, 13, 14, 15, 16, 17, 18, 19], str(reached))
 	pm._move(1)
+	_check("stage 3 menu: Right from the Warlord's card goes to the king's court (page 4), and Right from there wraps to level 1", pm.sel == 20 and pm.page_of(20) == 3, "sel %d" % pm.sel)
+	pm._move(1)
 	_check("stage 3 menu: Right from the last card wraps to level 1 (page 1)", pm.sel == 0 and pm.page_of(0) == 0, "sel %d" % pm.sel)
 	pm.sel = 11
 	pm._move(1)
@@ -4811,11 +4813,11 @@ func _stage3_map_tests() -> void:
 	var warlord_lock: String = g.exit_lock_text()
 	var last: bool = g.is_last_level()
 	g._start_finale_victory()
-	_check("stage 3 flow: the Warlord's level is the last one, locks the exit with DEFEAT THE WARLORD and its card says the Changeling is free", last and warlord_lock == "DEFEAT THE WARLORD" and g.victory and g.victory_text[0] == "You Defeated the Warlord!" and g.victory_text[1] == "The Changeling is free" and load("res://scripts/game/roster.gd").FINALE.has(19), "%s %s" % [warlord_lock, str(g.victory_text)])
+	_check("stage 3 flow: the Warlord's level locks the exit with DEFEAT THE WARLORD, its card says the king's court is open (no longer the last level)", not last and warlord_lock == "DEFEAT THE WARLORD" and g.victory and g.victory_text[0] == "You Defeated the Warlord!" and g.victory_text[1] == "The king's court is open" and load("res://scripts/game/roster.gd").FINALE.has(19) and CA.unlocked >= 20, "%s %s" % [warlord_lock, str(g.victory_text)])
 	g.queue_free()
 	await process_frame
 	CA.reset()
-	_check("stage 3 flow: the stage key shop item counts 20 levels", CA.stage_count() == 20, str(CA.stage_count()))
+	_check("stage 3 flow: the stage key shop item counts 21 levels", CA.stage_count() == 21, str(CA.stage_count()))
 	# props and cards: four secrets per Changeling map inside the map, none in the arenas
 	var props_ok := true
 	for i in range(12, 19):
@@ -4825,7 +4827,7 @@ func _stage3_map_tests() -> void:
 		for c in cards:
 			props_ok = props_ok and float(c[0]) > 1720.0 and float(c[0]) < mw and String(c[1]).begins_with("cl_")
 	props_ok = props_ok and not load("res://scripts/game/allies.gd").CARDS.has(11) and not load("res://scripts/game/allies.gd").CARDS.has(19)
-	props_ok = props_ok and load("res://scripts/game/props.gd").layout(11, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(19, 7200.0).is_empty()
+	props_ok = props_ok and load("res://scripts/game/props.gd").layout(11, 7200.0).size() == 20 and load("res://scripts/game/props.gd").layout(19, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(20, 7200.0).is_empty()
 	_check("stage 3 props: 4 cards (Changeling faces) and 4 secrets on each map, nothing in the two arenas", props_ok, "")
 	LVm.current = 0
 
@@ -5477,3 +5479,591 @@ func _pb_tests() -> void:
 		await process_frame
 		LV.current = 0
 		C.reset()
+
+
+# ===== king arc (docs/KING_ARC.md): drops, arena props, ground enemies on surfaces, the mid-boss, the court level, the story
+func _king_arc_tests() -> void:
+	var CUT = load("res://scripts/game/cutscene.gd")
+	CUT.suppressed = true
+	await _king_drop_and_arena_tests()
+	await _king_surface_tests()
+	await _king_mid_boss_tests()
+	await _king_court_tests()
+	await _king_cutscene_tests()
+	await _king_story_tests()
+	CUT.suppressed = true
+	load("res://scripts/game/carry.gd").reset()
+	load("res://scripts/game/carry.gd").test_all = true
+	LVS.current = 0
+
+
+func _king_pickups(g: Node) -> Array:
+	var out: Array = []
+	for c in g.world.get_children():
+		if is_instance_valid(c) and c.get_script() != null and String(c.get_script().resource_path).ends_with("pickup.gd"):
+			out.append(c)
+	return out
+
+
+## 40 / 30 / 20 / 10 broken-object drops, and Perry's Arena with exactly 20 breakables
+func _king_drop_and_arena_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var P = load("res://scripts/game/props.gd")
+	C.reset()
+	C.test_all = true
+	_check("king: Tuning break-drop weights are 40 / 30 / 20 / 10 and stage 2 is 1.5x size, 2x HP, half the wait, 2x speed",
+		T.BREAK_DROP_COIN == 40.0 and T.BREAK_DROP_POTION == 30.0 and T.BREAK_DROP_MANA == 20.0 and T.BREAK_DROP_CARD == 10.0 and T.STAGE2_SIZE_MUL == 1.5 and T.STAGE2_HP_MUL == 2.0 and T.STAGE2_CD_MUL == 0.5 and T.STAGE2_SPEED_MUL == 2.0, "")
+	var g: Node = await _s4_new(0)
+	# seeded rolls: the kind a seed gives matches the thresholds on the first random number
+	var want_of := func(r: float) -> String:
+		var v: float = r * 100.0
+		return "coin" if v < 40.0 else ("potion" if v < 70.0 else ("mana" if v < 90.0 else "card"))
+	var counts := {"coin": 0, "potion": 0, "mana": 0, "card": 0}
+	var mismatch := 0
+	var n := 400
+	for i in n:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 9000 + i
+		var expect: String = want_of.call(rng.randf())
+		g.drop_rng.seed = 9000 + i
+		g.break_drop(Vector2(3000.0 + i, 1000.0))
+		await physics_frame
+		var ps := _king_pickups(g)
+		if ps.size() != 1 or String(ps[0].kind) != expect:
+			mismatch += 1
+		if ps.size() > 0:
+			counts[String(ps[0].kind)] = int(counts[String(ps[0].kind)]) + 1
+		for pk in ps:
+			pk.queue_free()
+		await physics_frame
+	_check("king: break_drop gives coin below 40, potion below 70, mana below 90, else a card (seeded, %d breaks, none mismatched)" % n, mismatch == 0, "mismatch %d" % mismatch)
+	var fr := func(k: String) -> float: return float(counts[k]) / float(n)
+	_check("king: over %d seeded breaks the shares are about 40 / 30 / 20 / 10 percent" % n, absf(fr.call("coin") - 0.4) < 0.07 and absf(fr.call("potion") - 0.3) < 0.07 and absf(fr.call("mana") - 0.2) < 0.06 and absf(fr.call("card") - 0.1) < 0.05, str(counts))
+	g.queue_free()
+	await process_frame
+	# Perry's Arena: exactly 20 breakables
+	var lay: Array = P.layout(11, 7200.0)
+	var kinds_ok := true
+	var xs: Array = []
+	for pr in lay:
+		kinds_ok = kinds_ok and String(pr[0]) in ["crate", "urn", "candle", "candle_b"]
+		xs.append(float(pr[1]))
+	xs.sort()
+	var range_ok: bool = not xs.is_empty() and xs[0] >= 700.0 and xs[xs.size() - 1] <= 7200.0 - 1500.0
+	var gap_ok := true
+	for i in range(1, xs.size()):
+		gap_ok = gap_ok and xs[i] - xs[i - 1] >= 150.0
+	_check("king: Perry's Arena layout has exactly 20 props, all crate / urn / candle / candle_b, no barrel or chest", lay.size() == 20 and P.ARENA_BREAKABLES == 20 and kinds_ok, "n %d" % lay.size())
+	_check("king: Perry's Arena props stand between x 700 and map_w - 1500, at least 150 px apart", range_ok and gap_ok, "%s" % [xs.slice(0, 3)])
+	var lay2: Array = P.layout(11, 7200.0)
+	_check("king: the arena layout is deterministic", lay2.size() == lay.size() and str(lay2) == str(lay), "")
+	for li in [3, 5, 19, 20]:
+		_check("king: level index %d (boss-only / cemetery) still has no breakables" % li, P.layout(li, 7200.0).is_empty(), "")
+	g = await _s4_new(11)
+	var live := 0
+	var bad_kind := 0
+	for pr in g.props:
+		if is_instance_valid(pr):
+			live += 1
+			if String(pr.kind) not in ["crate", "urn", "candle", "candle_b"]:
+				bad_kind += 1
+	_check("king: the Perry's Arena game holds 20 live breakables and nothing else", live == 20 and bad_kind == 0, "live %d bad %d" % [live, bad_kind])
+	g.queue_free()
+	await process_frame
+	LVS.current = 0
+
+
+## ground enemies stand on ledges and platforms (monster.gd _floor, game.surface_under); flyers do not
+func _king_surface_tests() -> void:
+	var G := 1060.0
+	var g: Node = await _s4_new(0)
+	g.mera.position.x = 1200.0
+	g.mera.invuln = 999.0
+	var x := 5000.0
+	var plat: Node2D = g.build_platform(x, G - 120.0, 400.0, 0.0)
+	var e: Node2D = g.spawn_enemy("wolf", x)
+	await physics_frame
+	e.set_physics_process(false)                    # driven by hand below: no AI, only the floor logic
+	e.position = Vector2(x, G - 500.0)
+	e.on_ground = false
+	e.vy = 0.0
+	e.vx = 0.0
+	for f in 120:
+		e._physics(1.0 / 60.0)
+		if e.on_ground:
+			break
+	_check("king: a ground enemy dropped onto a built platform lands on its top", e.on_ground and absf(e.position.y - (G - 120.0)) < 0.5, "y %.1f" % e.position.y)
+	for f in 40:
+		e._physics(1.0 / 60.0)
+	_check("king: and stays there while standing", e.on_ground and absf(e.position.y - (G - 120.0)) < 0.5, "y %.1f" % e.position.y)
+	e.vx = -300.0
+	var left_air := false
+	for f in 240:
+		e._physics(1.0 / 60.0)
+		if not e.on_ground:
+			left_air = true
+		if e.position.x < x - 205.0 and e.on_ground:
+			break
+	_check("king: walking off the platform's edge it falls to the ground", left_air and e.on_ground and absf(e.position.y - e.rest_y) < 0.5 and e.position.x < x - 200.0, "y %.1f rest %.1f x %.0f" % [e.position.y, e.rest_y, e.position.x])
+	# on the ground under the platform: stays on the ground
+	e.vx = 0.0
+	e.position = Vector2(x, e.rest_y)
+	e.on_ground = true
+	for f in 40:
+		e._physics(1.0 / 60.0)
+	_check("king: a ground enemy on the ground under a ledge stays on the ground", e.on_ground and absf(e.position.y - e.rest_y) < 0.5, "y %.1f" % e.position.y)
+	# walking from the ground into the shadow of a ledge never lifts it
+	e.vx = 200.0
+	for f in 120:
+		e._physics(1.0 / 60.0)
+	_check("king: walking under the platform keeps it on the floor", e.on_ground and absf(e.position.y - e.rest_y) < 0.5, "y %.1f" % e.position.y)
+	g.mobs.erase(e)
+	e.queue_free()
+	var fl: Node2D = g.spawn_enemy("flying_eye", x)
+	await physics_frame
+	_check("king: flyers ignore surfaces (their floor is rest_y)", fl.flyer and absf(float(fl._floor(G - 400.0)) - float(fl.rest_y)) < 0.01, "%f" % fl._floor(G - 400.0))
+	g.mobs.erase(fl)
+	fl.queue_free()
+	plat.queue_free()
+	g.queue_free()
+	await process_frame
+
+
+## the Warlord mid-boss of Stage 3 levels 12 to 18
+func _king_mid_boss_tests() -> void:
+	var T = load("res://scripts/game/tuning.gd")
+	var C = load("res://scripts/game/carry.gd")
+	C.reset()
+	C.test_all = true
+	for lv in [12, 15, 18]:
+		var g: Node = await _s4_new(lv)
+		var mw: float = g.map_w
+		g.mera.position.x = mw * 0.40
+		g.mera.invuln = 999.0
+		g._manage_roster(0.016)
+		_check("king: level %d, Mera at 40 %% of the map: no mid-boss yet" % lv, g.mid_boss == null and not g.mid_spawned, "")
+		g.mera.position.x = mw * 0.42 + 40.0
+		g._manage_roster(0.016)
+		var mb: Node2D = g.mid_boss
+		var ok: bool = mb != null and g.mid_spawned and g.boss == null and not g.boss_spawned
+		if ok:
+			await physics_frame
+			ok = mb.hp == 90 and mb.hp_max == 90 and mb.k == 7.0 and T.MID_BOSS_HP == 90 and T.MID_BOSS_K == 7.0 and absf(absf(mb.sprite.scale.y) - 7.0) < 0.01 and mb.mid and mb.boss
+		_check("king: level %d, Mera past 42 %%: one Warlord mid-boss (hp 90, k 7), never game.boss, boss_spawned unchanged" % lv, ok, "")
+		if mb != null:
+			g._manage_roster(0.016)
+			g._manage_roster(0.016)
+			var n_w := 0
+			for e in g.mobs:
+				if is_instance_valid(e) and e.id == "cl_warlord":
+					n_w += 1
+			_check("king: level %d, the mid-boss comes once" % lv, n_w == 1 and g.mid_boss == mb, "n %d" % n_w)
+			var locked_before: bool = g.exit_locked()
+			var gold0: int = C.gold
+			var pk0 := _king_pickups(g).size()
+			g.on_enemy_defeated(mb)
+			await physics_frame
+			await physics_frame
+			_check("king: level %d, the mid-boss pays %d gold and drops loot, shows no card, opens no exit" % [lv, T.MID_BOSS_GOLD],
+				C.gold - gold0 >= T.MID_BOSS_GOLD and g.mid_boss == null and not g.victory and not g.victory_card and not g.boss_dead and not g.cleared and g.exit_locked() == locked_before and _king_pickups(g).size() > pk0, "gold %d locked %s/%s pk %d" % [C.gold - gold0, locked_before, g.exit_locked(), _king_pickups(g).size()])
+			g.mera.position.x = mw * 0.6
+			g._manage_roster(0.016)
+			_check("king: level %d, no second mid-boss in the same visit" % lv, g.mid_boss == null and g.mid_spawned, "")
+		g.queue_free()
+		await process_frame
+	for lv in [0, 6, 11, 19]:
+		var g2: Node = await _s4_new(lv)
+		g2.mera.position.x = g2.map_w * 0.5
+		g2.mera.invuln = 999.0
+		g2._manage_roster(0.016)
+		_check("king: level index %d has no mid-boss" % lv, g2.mid_boss == null and not g2.mid_spawned, "")
+		g2.queue_free()
+		await process_frame
+	var g3: Node = await _s4_new(14)
+	g3.run_mode = true
+	g3.mera.position.x = g3.map_w * 0.5
+	g3._manage_roster(0.016)
+	_check("king: endless run mode has no mid-boss", g3.mid_boss == null and not g3.mid_spawned, "")
+	g3.queue_free()
+	await process_frame
+	# a normal boss kill still sets boss_dead on level 19 while a mid-boss was never involved
+	LVS.current = 0
+
+
+## level 20: Nerochilde's Court, Nerochilde and the exit texts
+func _king_court_tests() -> void:
+	var CUT = load("res://scripts/game/cutscene.gd")
+	var PRI = load("res://scripts/game/prisoner.gd")
+	var SPG = load("res://scripts/game/story_pages.gd")
+	var R = load("res://scripts/game/roster.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var LV = load("res://scripts/game/levels.gd")
+	C.reset()
+	C.test_all = true
+	var lv: Dictionary = LV.list()[20]
+	_check("king: level 20 is king_court, Nerochilde's Court, 7200 px, art reused from Perry's Arena", String(lv["id"]) == "king_court" and String(lv["name"]) == "Nerochilde's Court" and String(lv["sub"]) == "King Lucius waits alone" and float(lv["map_w"]) == 7200.0 and String(lv["layers"][0]["file"]).find("p_arena") >= 0 and FileAccess.file_exists("res://assets/levels/king_court/thumb.png"), "")
+	_check("king: STAGE4_FROM is 20 and stage_of(20) is 3", LV.STAGE4_FROM == 20 and LV.stage_of(20) == 3, "")
+	_check("king: Roster has nero as boss 20, the finale name and the display name, and no trash waves", R.BOSSES.get(20, "") == "nero" and R.FINALE.get(20, "") == "King Nerochilde" and R.NAMES.get("nero", "") == "Nerochilde" and R.DEFS.has("nero") and not R.LEVELS.has(20), "")
+	var d: Dictionary = R.def("nero")
+	var anims: Array = R.art("nero")["anims"].keys()
+	var need := ["idle", "walk", "attack", "attack2", "cast", "hurt", "death", "bolt"]
+	var anim_ok := true
+	for a in need:
+		anim_ok = anim_ok and a in anims
+	var phases: Array = []
+	for a in d["attacks"]:
+		phases.append(int(a.get("phase", 1)))
+	_check("king: nero has the eight animations, hp 300, the warlord's three phases of attacks, a charge and a slam", anim_ok and bool(d["boss"]) and int(d["hp"]) == 300 and phases.has(1) and phases.has(2) and phases.has(3), "%s" % [anims])
+	var g: Node = await _s4_new(20)
+	g._manage_roster(0.016)
+	await physics_frame
+	var nb: Node2D = g.boss
+	_check("king: level 20 spawns Nerochilde alone (boss-only, nothing else), game.boss is nero", nb != null and nb.id == "nero" and g.boss_spawned and g.mobs.size() == 1 and String(nb.get_script().resource_path).ends_with("nero.gd") and nb.boss and g.props.is_empty(), "mobs %d" % g.mobs.size())
+	_check("king: Nerochilde exit text is DEFEAT THE KING and the exit is locked until he falls", g.exit_lock_text() == "DEFEAT THE KING" and g.exit_locked() and g.is_last_level(), g.exit_lock_text())
+	var take_ok: bool = nb.phase == 1
+	nb.take_damage(int(nb.hp_max * 0.4), nb.global_position.x - 500.0)
+	take_ok = take_ok and nb.phase == 2
+	nb.take_damage(int(nb.hp_max * 0.3), nb.global_position.x - 500.0)
+	_check("king: Nerochilde moves through phases 1, 2, 3 by hp", take_ok and nb.phase == 3 and nb.phase_log == [1, 2, 3], "%s" % [nb.phase_log])
+	g.on_enemy_defeated(nb)
+	_check("king: his death opens the exit, pays the finale gold once, clears the level and the card text names King Nerochilde (the ending pages follow)",
+		g.boss_dead and not g.exit_locked() and g.victory and g.cleared and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated King Nerochilde!" and int(C.clears.get("20", 0)) == 1 and C.gold >= 100, "gold %d %s" % [C.gold, str(g.victory_text)])
+	var gold1: int = C.gold
+	_check("king: the ending is SPG.KING_END, Perry's fall is PERRY_FALLS, other levels have no story finale", g._story_for_finale() == SPG.KING_END, "")
+	g.queue_free()
+	await process_frame
+	g = await _s4_new(19)
+	_check("king: level 19 (the Warlord) says DEFEAT THE WARLORD and is no longer the last level", g.exit_lock_text() == "DEFEAT THE WARLORD" and not g.is_last_level() and g._story_for_finale().is_empty(), "")
+	g.queue_free()
+	await process_frame
+	g = await _s4_new(11)
+	_check("king: level 11 plays PERRY_FALLS as the story finale", g._story_for_finale() == SPG.PERRY_FALLS, "")
+	g.queue_free()
+	await process_frame
+	# the title menu: a fourth page with one card
+	C.reset()
+	C.unlocked = 20
+	LV.current = 19
+	var pm: Control = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(pm)
+	await process_frame
+	var card: Rect2 = pm._card(20)
+	_check("king: after the Warlord (unlocked 20, level 19 played) the menu opens on level 20, page 4", pm.sel == 20 and pm.page_of(20) == 3, "sel %d" % pm.sel)
+	_check("king: page 4 shows level 20 only, as one card centred and inside the screen", pm.page_levels(3) == [20] and absf(card.get_center().x - 960.0) < 1.0 and card.position.x >= 0.0 and card.end.x <= 1920.0 and card.size.x <= 420.0, "%s" % card)
+	_check("king: the menu has the court header and the CONTINUE arrow on level 19", FileAccess.get_file_as_string("res://scripts/menu.gd").find("THE KING'S COURT  SELECT A LEVEL") >= 0 and FileAccess.get_file_as_string("res://scripts/menu.gd").find("i == Levels.STAGE4_FROM - 1") >= 0, "")
+	_check("king: level 20 is open once 20 is unlocked, and locked before", C.stage_open(20), "")
+	pm.queue_free()
+	await process_frame
+	C.reset()
+	_check("king: level 20 is locked on a fresh save", not C.stage_open(20) and C.stage_count() == 21, "")
+	C.unlock_through(20)
+	_check("king: a Warlord clear (unlock_through 20) opens the court", C.stage_open(20), "")
+	C.reset()
+	C.test_all = true
+	LV.current = 0
+	var _unused := gold1
+
+
+## Cutscene: pages, advance, skip, seen keys, pause and restore, refusals
+func _king_cutscene_tests() -> void:
+	var CUT = load("res://scripts/game/cutscene.gd")
+	var PRI = load("res://scripts/game/prisoner.gd")
+	var SPG = load("res://scripts/game/story_pages.gd")
+	var C = load("res://scripts/game/carry.gd")
+	C.reset()
+	C.test_all = true
+	var g: Node = await _s4_new(0)
+	var done_n := [0]
+	var cb := func(): done_n[0] += 1
+	# suppressed: nothing shows, nothing pauses, no callback
+	CUT.suppressed = true
+	var none = CUT.play(g, ["a", "b"], cb, "t_sup")
+	_check("king cutscene: suppressed returns null, pauses nothing, skips the callback and marks nothing seen", none == null and not root.get_tree().paused and done_n[0] == 0 and not C.seen("t_sup"), "")
+	CUT.suppressed = false
+	var cs = CUT.play(g, ["one", ["two gold", "two pale"], ["x", "y", "z"]], cb, "t_a")
+	_check("king cutscene: play builds one, pauses the tree, registers on the game; a page of three lines keeps two", cs != null and root.get_tree().paused and g.cutscene == cs and cs.pages.size() == 3 and cs.pages[2].size() == 2 and cs.pages[0].size() == 1 and not cs.done, "")
+	var second = CUT.play(g, ["other"], cb, "t_b")
+	_check("king cutscene: refuses while another cutscene is open (null, no callback)", second == null and done_n[0] == 0 and g.cutscene == cs, "")
+	cs.advance()
+	_check("king cutscene: advance moves to the next page", cs.page_i == 1 and not cs.done, "")
+	cs.advance()
+	cs.advance()
+	_check("king cutscene: the last advance ends it: callback once, seen key kept, tree unpaused, game cleared", cs.done and done_n[0] == 1 and C.seen("t_a") and not root.get_tree().paused and g.cutscene == null, "")
+	await process_frame
+	_check("king cutscene: a finished cutscene frees itself", not is_instance_valid(cs), "")
+	var again = CUT.play(g, ["one"], cb, "t_a")
+	_check("king cutscene: a seen key does not replay and still calls on_done", again == null and done_n[0] == 2 and not root.get_tree().paused, "")
+	# skip
+	var cs2 = CUT.play(g, ["a", "b", "c", "d"], cb, "t_skip")
+	cs2.skip()
+	_check("king cutscene: skip ends the rest at once, calls back and marks the key seen", cs2.done and done_n[0] == 3 and C.seen("t_skip") and not root.get_tree().paused and g.cutscene == null, "")
+	await process_frame
+	# a keyless scene marks nothing
+	var cs3 = CUT.play(g, ["only"], cb)
+	cs3.advance()
+	_check("king cutscene: a scene with no key plays and marks nothing", cs3.done and done_n[0] == 4 and C.story_seen.size() == 2, str(C.story_seen))
+	await process_frame
+	# refusals: pause menu, puzzle
+	g.paused_play = true
+	var r1 = CUT.play(g, ["x"], cb, "t_r1")
+	g.paused_play = false
+	_check("king cutscene: refused while the pause menu is open (and the key stays unseen)", r1 == null and not C.seen("t_r1") and done_n[0] == 4, "")
+	var dummy := Node.new()
+	g.add_child(dummy)
+	g.puzzle = dummy
+	var r2 = CUT.play(g, ["x"], cb, "t_r2")
+	g.puzzle = null
+	dummy.queue_free()
+	_check("king cutscene: refused while a puzzle is open", r2 == null and not C.seen("t_r2") and done_n[0] == 4, "")
+	# the tree state is restored: paused before, still paused after
+	root.get_tree().paused = true
+	var cs4 = CUT.play(g, ["p"], cb, "t_p")
+	cs4.advance()
+	_check("king cutscene: a tree that was paused before stays paused after", cs4.done and root.get_tree().paused, "")
+	root.get_tree().paused = false
+	await process_frame
+	# empty pages: key marked, callback called, nothing shown
+	var e0 = CUT.play(g, [], cb, "t_empty")
+	_check("king cutscene: no pages marks the key and calls back", e0 == null and C.seen("t_empty") and done_n[0] == 6, "")
+	# freed with the game while open: the tree is given back
+	var cs5 = CUT.play(g, ["q"], cb, "t_free")
+	g.queue_free()
+	await process_frame
+	await process_frame
+	_check("king cutscene: freeing the game under an open cutscene unpauses the tree", not root.get_tree().paused and not is_instance_valid(cs5), "")
+	CUT.suppressed = true
+	C.reset()
+	C.test_all = true
+
+
+## prisoners, Carry flags, Perry's fall, intro keys, the finale pages
+func _king_story_tests() -> void:
+	var CUT = load("res://scripts/game/cutscene.gd")
+	var PRI = load("res://scripts/game/prisoner.gd")
+	var SPG = load("res://scripts/game/story_pages.gd")
+	var C = load("res://scripts/game/carry.gd")
+	var T = load("res://scripts/game/tuning.gd")
+	var LV = load("res://scripts/game/levels.gd")
+	C.reset()
+	C.test_all = true
+	# --- Carry flags and saves
+	C.mark_seen("k1")
+	C.free_prisoner(4)
+	C.perry_freed = true
+	C.save()
+	C.story_seen = {}
+	C.prisoners = {}
+	C.perry_freed = false
+	C.ready = false
+	C.ensure()
+	_check("king carry: seen keys, freed prisoners and perry_freed survive a save and reload", C.seen("k1") and not C.seen("k2") and C.prisoner_freed(4) and not C.prisoner_freed(1) and C.perry_freed, "%s %s" % [C.story_seen, C.prisoners])
+	var f := FileAccess.open(C.PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"gold": 33, "size": 3}))
+	f.close()
+	C.ready = false
+	C.ensure()
+	_check("king carry: an old save without the story fields loads clean", C.gold == 33 and C.story_seen.is_empty() and C.prisoners.is_empty() and not C.perry_freed, "")
+	C.reset()
+	C.test_all = true
+	# --- free_perry
+	C.gold = 250
+	C.moves["earthquake"] = true
+	C.clears["11"] = 1
+	C.unlocked = 12
+	C.perry_owned = {"thrust": true, "taunt": true}
+	C.perry_hp_max = 120
+	C.free_perry()
+	_check("king carry: free_perry clears her unlocks, resets her max HP, keeps gold, moves and clears, and she stays unlocked", C.perry_owned.is_empty() and C.perry_hp_max == T.PERRY_HP_START and C.perry_freed and C.gold == 250 and C.moves.get("earthquake", false) and C.perry_unlocked() and C.unlocked == 12, "%s %d" % [C.perry_owned, C.perry_hp_max])
+	C.perry_owned = {"thrust": true}
+	C.perry_hp_max = 90
+	C.free_perry()
+	_check("king carry: free_perry works once only (a second call changes nothing)", C.perry_owned.has("thrust") and C.perry_hp_max == 90, "")
+	C.reset()
+	C.test_all = true
+	# --- the table of prisoners
+	var g: Node = await _s4_new(1)
+	for pr0 in g.props:                              # cracked walls and doors are solid: Mera is teleported across the map below
+		if is_instance_valid(pr0):
+			pr0.queue_free()
+	g.props.clear()
+	var table_ok := true
+	for li in 21:
+		var pr = PRI.spawn_for_level(g, li)
+		var want: bool = li in [1, 4, 8, 11, 15, 18]
+		table_ok = table_ok and ((pr != null) == want)
+		if pr != null:
+			table_ok = table_ok and absf(pr.position.y - g.GROUND_Y) < 0.5 and absf(pr.position.x - float(PRI.TABLE[li]["x"])) < 0.5 and pr.get_parent() == g.world and not pr.freed
+			pr.queue_free()
+	_check("king prisoner: spawn_for_level gives one only on levels 1, 4, 8, 11, 15, 18", table_ok, "")
+	C.free_prisoner(8)
+	_check("king prisoner: a freed prisoner's level spawns nobody", PRI.spawn_for_level(g, 8) == null, "")
+	C.prisoners = {}
+	# free with the real A button while overlapping
+	var p1: Node = PRI.spawn_for_level(g, 1)
+	await physics_frame
+	g.mera.position = Vector2(p1.position.x, g.GROUND_Y)
+	g.mera.invuln = 999.0
+	await physics_frame
+	await physics_frame
+	_check("king prisoner: the prompt shows while Mera overlaps the cage", p1.prompt != null and p1.prompt.visible and not p1.freed, "")
+	var gold0: int = C.gold
+	var pk0 := _king_pickups(g).size()
+	Input.action_press("btn_a")
+	await process_frame
+	await physics_frame
+	await process_frame
+	Input.action_release("btn_a")
+	await physics_frame
+	await physics_frame
+	_check("king prisoner: A while overlapping frees them: 20 gold, one break_drop, the level's flag set, then they walk off and free themselves", p1.freed and C.gold - gold0 == 20 and _king_pickups(g).size() == pk0 + 1 and C.prisoner_freed(1) and p1.walking, "freed %s gold %d pk %d/%d" % [p1.freed, C.gold - gold0, pk0, _king_pickups(g).size()])
+	var gold_a: int = C.gold
+	p1._free()
+	_check("king prisoner: freeing twice pays once", C.gold == gold_a, "")
+	for i in 600:
+		if not is_instance_valid(p1):
+			break
+		await physics_frame
+	_check("king prisoner: the freed prisoner leaves and frees itself", not is_instance_valid(p1), "")
+	# overlapping without A frees nobody; far away frees nobody
+	C.prisoners = {}
+	var p4: Node = PRI.spawn_for_level(g, 4)
+	g.mera.position = Vector2(p4.position.x + 900.0, g.GROUND_Y)
+	await physics_frame
+	Input.action_press("btn_a")
+	await process_frame
+	await physics_frame
+	Input.action_release("btn_a")
+	await physics_frame
+	_check("king prisoner: A far from the cage frees nobody", not p4.freed and not C.prisoner_freed(4), "")
+	p4.queue_free()
+	# level 11: gold 20 and the earthquake move, once; the advice goes through a Cutscene
+	C.reset()
+	C.test_all = true
+	var p11: Node = PRI.spawn_for_level(g, 11)
+	var line11: String = p11.line
+	CUT.suppressed = false
+	var gold11: int = C.gold
+	p11._free()
+	var cs: Node = g.cutscene
+	_check("king prisoner: level 11 pays 20 gold and grants the earthquake move; the advice line opens as a cutscene", C.gold - gold11 == 20 and C.moves.get("earthquake", false) and cs != null and cs.pages.size() == 1 and cs.pages[0][0] == line11 and line11.find("Earthquake") >= 0, "")
+	if cs != null:
+		cs.skip()
+	await process_frame
+	CUT.suppressed = true
+	_check("king prisoner: the move is granted only once (give_move is false the second time)", not C.give_move("earthquake"), "")
+	var p11b: Node = PRI.spawn_for_level(g, 11)
+	_check("king prisoner: and the level 11 prisoner does not come back", p11b == null, "")
+	# the earthquake move is not re-paid when already owned
+	C.prisoners = {}
+	var gold12: int = C.gold
+	var p11c: Node = PRI.spawn_for_level(g, 11)
+	p11c._free()
+	_check("king prisoner: a prisoner for a Mera who already has the move still pays gold", C.gold - gold12 == 20 and C.moves.get("earthquake", false), "")
+	g.queue_free()
+	await process_frame
+	C.reset()
+	C.test_all = true
+	# --- _story_start: prisoner spawn, intro and the stage keys (non-test mode hooks called by hand)
+	var counts := {}
+	for li in [1, 0, 12, 20]:
+		LV.current = li
+		var gs: Node = await _s4_new(li)
+		gs.test_mode = false
+		CUT.suppressed = false
+		gs._story_start()
+		var csx: Node = gs.cutscene
+		var np := 0
+		for c in gs.world.get_children():
+			if String(c.get_script().resource_path if c.get_script() != null else "").ends_with("prisoner.gd"):
+				np += 1
+		counts[li] = [csx != null, (csx.key if csx != null else ""), (csx.pages.size() if csx != null else 0), np]
+		if csx != null:
+			csx.skip()
+		await process_frame
+		CUT.suppressed = true
+		gs.queue_free()
+		await process_frame
+	_check("king story: level 1 spawns its prisoner and plays no card", counts[1] == [false, "", 0, 1], str(counts[1]))
+	_check("king story: level 0 plays the six-page intro (key intro)", counts[0] == [true, "intro", 6, 0] and SPG.INTRO.size() == 6, str(counts[0]))
+	_check("king story: level 12 plays the two-page Stage 3 step (key stage3_step)", counts[12] == [true, "stage3_step", 2, 0], str(counts[12]))
+	_check("king story: level 20 plays the king's intro (key king_intro, one page)", counts[20] == [true, "king_intro", 1, 0], str(counts[20]))
+	_check("king story: all three keys are remembered after they play", C.seen("intro") and C.seen("stage3_step") and C.seen("king_intro"), str(C.story_seen))
+	for li in [0, 12, 20]:
+		LV.current = li
+		var gs2: Node = await _s4_new(li)
+		gs2.test_mode = false
+		CUT.suppressed = false
+		gs2._story_start()
+		var played: bool = gs2.cutscene != null
+		if played:
+			gs2.cutscene.skip()
+		CUT.suppressed = true
+		_check("king story: level %d's card does not play twice" % li, not played, "")
+		gs2.queue_free()
+		await process_frame
+	# test mode and run mode never get cards
+	LV.current = 0
+	C.reset()
+	C.test_all = true
+	var gt: Node = await _s4_new(0)
+	CUT.suppressed = false
+	gt._story_start()
+	var t_ok: bool = gt.cutscene == null
+	gt.test_mode = false
+	gt.run_mode = true
+	gt._story_start()
+	t_ok = t_ok and gt.cutscene == null
+	CUT.suppressed = true
+	_check("king story: test mode and endless run mode play no story card", t_ok, "")
+	gt.queue_free()
+	await process_frame
+	# --- Perry's finale: pages, no two-line card, free_perry once, unlock and gold once
+	C.reset()
+	C.test_all = true
+	LV.current = 11
+	var gp: Node = await _s4_new(11)
+	gp.wave_i = 100
+	C.perry_owned = {"thrust": true}
+	C.perry_hp_max = 80
+	C.gold = 40
+	var perry: Node2D = gp.spawn_enemy("perry", gp.mera.global_position.x + 600.0)
+	await process_frame
+	gp.on_enemy_defeated(perry)
+	_check("king perry finale: victory_text is set, there is no two-line victory card, the level is cleared and unlocks 12 once", gp.victory and not gp.victory_card and gp.victory_text.size() == 2 and gp.victory_text[0] == "You Defeated Perry!" and C.unlocked >= 12 and int(C.clears.get("11", 0)) == 1 and C.gold >= 140, "gold %d" % C.gold)
+	_check("king perry finale: her spell only breaks when the pages play (nothing changes at the death itself)", C.perry_owned.has("thrust") and not C.perry_freed, "")
+	var gold_p: int = C.gold
+	gp._show_story_finale(SPG.PERRY_FALLS)
+	_check("king perry finale: with cards suppressed the story goes straight on; Perry is freed (unlocks gone, hp reset, gold and clear kept)", C.perry_freed and C.perry_owned.is_empty() and C.perry_hp_max == T.PERRY_HP_START and C.gold == gold_p and C.perry_unlocked(), "")
+	gp.queue_free()
+	await process_frame
+	# the pages as a real cutscene: five pages, then the title hand-off
+	C.reset()
+	C.test_all = true
+	C.clears["11"] = 1
+	C.perry_owned = {"taunt": true}
+	var gq: Node = await _s4_new(11)
+	CUT.suppressed = false
+	gq._show_story_finale(SPG.PERRY_FALLS)
+	var csq: Node = gq.cutscene
+	var five: bool = csq != null and csq.pages.size() == 5 and SPG.PERRY_FALLS.size() == 5 and root.get_tree().paused
+	if csq != null:
+		for i in 5:
+			csq.advance()
+	_check("king perry finale: the five Perry pages play as a cutscene, the tree is unpaused at the end, and Perry is free", five and csq.done and not root.get_tree().paused and C.perry_freed and C.perry_owned.is_empty(), "")
+	CUT.suppressed = true
+	gq.queue_free()
+	await process_frame
+	# the king's end: pages are KING_END (two pages)
+	_check("king ending: KING_END is two pages and the king intro is one page of two lines", SPG.KING_END.size() == 2 and SPG.KING_INTRO.size() == 1 and SPG.KING_INTRO[0].size() == 2, "")
+	var noem := true
+	for arr in [SPG.INTRO, SPG.PERRY_FALLS, SPG.STAGE3_STEP, SPG.KING_INTRO, SPG.KING_END]:
+		for pg in arr:
+			var lines: Array = pg if pg is Array else [pg]
+			for ln in lines:
+				if String(ln).find(char(0x2014)) >= 0 or String(ln).find(char(0x2013)) >= 0:
+					noem = false
+	_check("king story: no page uses an em dash or en dash", noem, "")
+	C.reset()
+	C.test_all = true
+	LV.current = 0

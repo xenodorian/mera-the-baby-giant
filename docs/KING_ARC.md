@@ -115,12 +115,12 @@ Work in parallel. Each agent clones the repo itself, touches only its files, and
 | Step | Status | Files |
 |---|---|---|
 | 0. This plan | done | `docs/KING_ARC.md` |
-| 1. Size 1.5x, attack wait 0.5, drop table 40/30/20/10, 20 arena props | done (untested) | `tuning.gd`, `game.gd` `break_drop`, `props.gd`, `monster.gd` comment |
-| 2. Prisoners, intro, Perry mind-control pages, Stage 3 pages, `Carry.free_perry` | done (untested) | `cutscene.gd`, `prisoner.gd`, `story_pages.gd`, `carry.gd`, `game.gd` (`_story_start`, `prisoner_freed`, `_show_story_finale`) |
-| 3. Mid-boss on 12..18 and enemies on `surface_under` | done (untested) | `monster.gd` `_floor`, `game.gd` `mid_boss`, `cl_warlord.gd` `mid`, `tuning.gd` `MID_BOSS_*` |
-| 4. Nero art, roster, court level, boss, ending pages, menu stage 4 | done (untested) | `tools/build_nero.py`, `assets/`, `roster.gd`, `levels.json`, `levels.gd`, `menu.gd`, `nero.gd`, `CREDITS.md`, export list |
+| 1. Size 1.5x, attack wait 0.5, drop table 40/30/20/10, 20 arena props | done, tested | `tuning.gd`, `game.gd` `break_drop`, `props.gd`, `monster.gd` comment |
+| 2. Prisoners, intro, Perry mind-control pages, Stage 3 pages, `Carry.free_perry` | done, tested | `cutscene.gd`, `prisoner.gd`, `story_pages.gd`, `carry.gd`, `game.gd` (`_story_start`, `prisoner_freed`, `_show_story_finale`) |
+| 3. Mid-boss on 12..18 and enemies on `surface_under` | done, tested | `monster.gd` `_floor`, `game.gd` `mid_boss`, `cl_warlord.gd` `mid`, `tuning.gd` `MID_BOSS_*` |
+| 4. Nero art, roster, court level, boss, ending pages, menu stage 4 | done, tested | `tools/build_nero.py`, `assets/`, `roster.gd`, `levels.json`, `levels.gd`, `menu.gd`, `nero.gd`, `CREDITS.md`, export list |
 
-Work log: 2026-11-03. All four steps are written. The test pass (update stale tests, add tests for the new features, run the suite) comes last.
+Work log: 2026-11-03. All four steps are written and tested: 875 checks pass, 0 fail (2026-11-03). Not released: the version is still 0.15.0 (a release needs a version bump).
 
 ## Rules already in this repo
 
