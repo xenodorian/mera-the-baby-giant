@@ -9,7 +9,7 @@ var thumbs: Array = []
 var t := 0.0
 var _stick_ready := true
 var font: Font
-var row := 0                    # 0 = level cards, 1 = bottom buttons
+var row := 0                    # 0 = level cards, 1 = bottom buttons, 2 = the character toggle
 var btn := 0                    # 0 shop, 1 reset, 2 updates, 3 credits
 var mode := "menu"              # menu | credits | update | shop
 var credit_sel := 0
@@ -178,11 +178,11 @@ const SHOP_PAGES := [
 
 
 func _rows() -> Array:
-	if shop_page < SHOP_PAGES.size():
+	if not _perry_page():
 		return SHOP_PAGES[shop_page]
-	var ids := _perry_ids()                                  # Stage 3: Perry's pages (two, once she is unlocked)
+	var ids := _perry_ids()                                  # Stage 3: Perry's two shop pages while she is the character
 	var half := 14
-	var chunk: Array = ids.slice(0, half) if shop_page == SHOP_PAGES.size() else ids.slice(half)
+	var chunk: Array = ids.slice(0, half) if shop_page == 0 else ids.slice(half)
 	return chunk.map(func(id): return "perry:" + String(id))
 
 
@@ -194,11 +194,11 @@ func _perry_ids() -> Array:
 
 
 func _page_count() -> int:
-	return SHOP_PAGES.size() + (2 if Carry.perry_unlocked() else 0)
+	return 2                                                 # each character has two shop pages
 
 
 func _perry_page() -> bool:
-	return shop_page >= SHOP_PAGES.size()
+	return Carry.perry_selected()                            # the shop shows the character that is selected
 
 
 func _perry_row_id(i: int) -> String:
@@ -411,11 +411,28 @@ func _toggle_character() -> void:
 	Sfx.play("swipe", 1.4, -8.0)
 
 
-func _character_text() -> String:
+## the big character toggle under the level cards: MERA on the left half, PERRY on the right half
+func _char_rect() -> Rect2:
+	return Rect2(560, 700, 800, 112)
+
+
+func _draw_char_toggle() -> void:
 	Carry.ensure()
-	if not Carry.perry_unlocked():
-		return "CHARACTER: MERA     Perry is locked: clear Stage 2, Moonlit Sanctum (level %d)" % (Carry.PERRY_CLEAR_LEVEL + 1)
-	return "CHARACTER: %s" % ("PERRY" if Carry.perry_selected() else "MERA")
+	var r := _char_rect()
+	var on_row := row == 2
+	draw_rect(r, Color(0.12, 0.08, 0.03, 0.95))
+	var g := 0.5 + 0.5 * sin(t * 5.0)
+	draw_rect(r, Color(1.0, 0.8, 0.4, 0.6 + 0.4 * g) if on_row else Color(0.5, 0.45, 0.6), false, 4.0)
+	draw_string(font, Vector2(r.position.x, r.position.y + 30), "CHARACTER   (A / click to switch)", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22, Color(0.85, 0.85, 0.9))
+	var perry := Carry.perry_selected()
+	var half := r.size.x / 2.0
+	var lit_x := r.position.x + (half if perry else 0.0)
+	draw_rect(Rect2(lit_x, r.position.y + 40, half, r.size.y - 48), Color(0.45, 0.3, 0.05, 0.9))
+	draw_string(font, Vector2(r.position.x, r.position.y + 98), "MERA", HORIZONTAL_ALIGNMENT_CENTER, half, 52,
+		Color(1.0, 0.9, 0.5) if not perry else Color(0.6, 0.6, 0.66))
+	var perry_text := "PERRY" if Carry.perry_unlocked() else "PERRY (LOCKED)"
+	draw_string(font, Vector2(r.position.x + half, r.position.y + 98), perry_text, HORIZONTAL_ALIGNMENT_CENTER, half, 52,
+		Color(1.0, 0.9, 0.5) if perry else (Color(0.6, 0.6, 0.66) if Carry.perry_unlocked() else Color(0.9, 0.4, 0.35)))
 
 
 func _move(d: int) -> void:
@@ -447,13 +464,31 @@ func _unhandled_input(e: InputEvent) -> void:
 	if mode == "shop":
 		_shop_input(e)
 		return
+	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _char_rect().has_point(_to_design(e.position)):
+		row = 2
+		_toggle_character()
+		return
 	if e.is_action_pressed("down") and row == 0:
+		row = 2                                              # cards -> character toggle -> bottom buttons
+		Sfx.play("swipe", 1.2, -8.0)
+		return
+	if e.is_action_pressed("down") and row == 2:
 		row = 1
 		Sfx.play("swipe", 1.2, -8.0)
 		return
 	if e.is_action_pressed("up") and row == 1:
+		row = 2
+		Sfx.play("swipe", 1.2, -8.0)
+		return
+	if e.is_action_pressed("up") and row == 2:
 		row = 0
 		Sfx.play("swipe", 1.2, -8.0)
+		return
+	if row == 2:
+		if e.is_action_pressed("btn_a") or e.is_action_pressed("start") or e.is_action_pressed("ui_accept"):
+			_toggle_character()
+		elif e is InputEventKey and e.pressed and e.physical_keycode == KEY_ESCAPE:
+			get_tree().quit()
 		return
 	if row == 1:
 		if e.is_action_pressed("left"):
@@ -521,11 +556,17 @@ func _draw() -> void:
 			draw_rect(r, Color(0.02, 0.0, 0.04, 0.72))
 		draw_string(font, Vector2(r.position.x, r.end.y + 52), "%d  %s" % [i + 1, String(lv["name"])], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28,
 			Color(1, 0.85, 0.5) if on else Color(0.75, 0.75, 0.8))
+		if i == Levels.STAGE2_FROM - 1 and ls.size() > Levels.STAGE2_FROM:       # the last level of stage 1: the game goes on
+			var yel := Color(1.0, 0.92, 0.2)
+			var mid := r.position.y + r.size.y / 2.0 - 20.0
+			var tri := PackedVector2Array([Vector2(r.end.x - 8.0, mid), Vector2(r.end.x - 44.0, mid - 22.0), Vector2(r.end.x - 44.0, mid + 22.0)])
+			draw_colored_polygon(tri, yel)
+			draw_string(font, Vector2(r.end.x - 86.0, r.end.y - 14.0), "CONTINUE", HORIZONTAL_ALIGNMENT_CENTER, 120, 22, yel)
 		var sub := "LOCKED" if not open else String(lv["sub"])
 		draw_string(font, Vector2(r.position.x, r.end.y + 86), sub, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 18,
 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
 	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: Shop / Reset / updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
-	draw_string(font, Vector2(0, 896), _character_text(), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(1.0, 0.85, 0.5) if Carry.perry_selected() else Color(0.8, 0.85, 1.0))
+	_draw_char_toggle()
 	if mode == "menu":
 		_draw_note_at(930)
 	for i in 4:
@@ -600,8 +641,13 @@ func _draw_note_at(y: float) -> void:
 func _draw_shop() -> void:
 	Carry.ensure()
 	_panel(Rect2(120, 60, 1680, 960))
-	draw_string(font, Vector2(0, 150), "SHOP", HORIZONTAL_ALIGNMENT_CENTER, 1920, 50, Color(1.0, 0.8, 0.45))
-	var page_name := "stats" if shop_page == 0 else ("moves and summon time" if shop_page == 1 else "Perry %d" % (shop_page - 1))
+	var who := "PERRY SHOP" if _perry_page() else "MERA SHOP"
+	draw_string(font, Vector2(0, 150), who, HORIZONTAL_ALIGNMENT_CENTER, 1920, 50, Color(1.0, 0.8, 0.45))
+	var page_name := ""
+	if _perry_page():
+		page_name = "unlocks" if shop_page == 0 else "unlocks, page 2"
+	else:
+		page_name = "stats" if shop_page == 0 else "moves and summon time"
 	draw_string(font, Vector2(0, 220), "Gold: %d      page %d / %d  %s" % [Carry.gold, shop_page + 1, _page_count(), page_name], HORIZONTAL_ALIGNMENT_CENTER, 1920, 32, Color(1.0, 0.85, 0.4))
 	var rows := _rows()
 	for i in rows.size():
