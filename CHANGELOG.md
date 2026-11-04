@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.23.0-playable (2026-11-04)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.23.0_Windows.exe
+- Android: Mera_Playable_v0.23.0_Android.apk
+- **The Hollow Warren: the tunnel map is a level.** Your cavern map, scaled up 15x with nearest neighbour (a passage is about 1000 px tall, so a size 6 Mera can jump in it), is the last level of Stage 4 (level 29). It is a **tall level**: the camera follows Mera up and down. Passages give floors, the shafts have **ladders**, and **about 60 enemies** are placed on the floors (they appear as you come near). Climb from the glow at the bottom left to the shrine under the light pillar at the top, where the **Black Knight** waits (he moved here from the Gilded Gate, as the end-of-stage boss). The Warlord and the court are now levels 30 and 31; saves migrate.
+- Limits: the floors and ladders are found from the picture automatically, so some passages are rough, and the rock has no walls: walking off a floor drops you to the one below.
+- Tests: 994 pass, 0 fail.
+
 ## v0.22.0-playable (2026-11-04)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.22.0_Windows.exe

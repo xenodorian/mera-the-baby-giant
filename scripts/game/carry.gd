@@ -76,9 +76,9 @@ static var perry_freed := false                 # Perry was freed from the king'
 ## a save older than `version` has every index >= from_index shifted by `shift` (and "unlocked" when it is > from_index: an
 ## unlocked value equal to from_index only said "the level after the last old one is open", and that is still true).
 ## Version 1: the nine Stage 4 maps went in at 19, so the old Throne and Court (19, 20) became 28 and 29.
-## To insert the tunnel map at 28 later: append [2, 28, 1] and bump LAYOUT_VERSION to 2.
-const LAYOUT_VERSION := 1
-const LAYOUT_MIGRATIONS := [[1, 19, 9]]
+## Version 2 inserted the tunnel map (s4_tunnel) at 28: the Warlord and the court moved on by one.
+const LAYOUT_VERSION := 2
+const LAYOUT_MIGRATIONS := [[1, 19, 9], [2, 28, 1]]
 
 
 static func ensure() -> void:

@@ -63,6 +63,9 @@ var tile_surfaces: Array = []      # one-way tops: [x0, x1, y]
 var pits: Array = []               # the Craftpix maps' real pits [x0, x1]: the floor is gone (levels.json "pits")
 var spikes: Array = []             # ... and their spike beds [x0, x1] (levels.json "spikes")
 var pit_falls := 0                 # (tests)
+var tall := false                  # a tall level (the tunnel map): the camera follows Mera up and down too
+var cam_y := 0.0                   # how far the camera is above its usual height (negative = up)
+var lv_spawns: Array = []          # [[x, y, id], ...] enemies placed in a tall level, created when Mera comes near
 var built_surfaces: Array = []     # phase 4: run-time platform tops [x0, x1, y] (Platform.make); surface_under scans them too
 var ladders: Array = []            # phase 4: live Ladder nodes
 var map_w := 19200.0
@@ -144,6 +147,10 @@ func _ready() -> void:
 	mera.game = self
 	mera.ground_y = GROUND_Y
 	mera.position = Vector2(760, GROUND_Y)
+	if tall:                                              # the tunnel map starts where its data says (_build_background has run)
+		var st: Array = Levels.level()["start"]
+		mera.position = Vector2(float(st[0]), float(st[1]))
+		mera.ground_y = float(st[1])
 	add_child(mera)
 	mera.died.connect(_on_died)
 	cam = Camera2D.new()
@@ -257,6 +264,11 @@ func _build_background() -> void:
 	tile_surfaces = lv.get("surfaces", [])
 	pits = lv.get("pits", [])
 	spikes = lv.get("spikes", [])
+	tall = bool(lv.get("tall", false))
+	if tall:                                              # the tunnel map: start, exit and enemies are placed in the level data
+		lv_spawns = (lv.get("spawns", []) as Array).duplicate()
+		var ex: Array = lv["exit"]
+		exit_gate.position = Vector2(float(ex[0]), float(ex[1]))
 	_build_climbables(lv)
 	_start_music(lv)
 
@@ -479,14 +491,18 @@ func _follow_camera(delta: float) -> void:
 		off = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * shake_amt
 		if shake_t <= 0.0:
 			shake_amt = 0.0
-	cam.position = Vector2(roundf(cam_x + off.x), roundf(540 + off.y))
+	if tall:
+		var want_y := mera.global_position.y - 130.0 - 540.0
+		cam_y += (want_y - cam_y) * minf(1.0, 6.0 * delta)
+	cam.position = Vector2(roundf(cam_x + off.x), roundf(540 + cam_y + off.y))
 
 
 ## jump the camera onto its target (level start / restart)
 func snap_camera() -> void:
 	cam_x = mera.global_position.x
 	_place_layers()
-	cam.position = Vector2(roundf(cam_x), 540)
+	cam_y = (mera.global_position.y - 130.0 - 540.0) if tall else 0.0
+	cam.position = Vector2(roundf(cam_x), roundf(540 + cam_y))
 
 
 func camera_x() -> float:
@@ -801,7 +817,14 @@ func _manage_roster(delta: float) -> void:
 		trickle_t = 8.0
 	elif alive > 0:
 		trickle_t = maxf(trickle_t, 5.0)
-	if Roster.BOSSES.has(Levels.current) and not boss_spawned:
+	if tall:
+		_tall_spawns()
+	if tall and Roster.BOSSES.has(Levels.current) and not boss_spawned:
+		var ba: Array = Levels.level().get("boss_at", [])
+		if not ba.is_empty() and Vector2(float(ba[0]), float(ba[1])).distance_to(mera.global_position) < 2600.0:
+			spawn_enemy(Roster.BOSSES[Levels.current], float(ba[0]), {"floor_y": float(ba[1])})
+			Sfx.play("boom_big", 0.6)
+	elif Roster.BOSSES.has(Levels.current) and not boss_spawned:
 		var boss_only := not Roster.LEVELS.has(Levels.current)
 		if boss_only or mera.global_position.x > map_w - Roster.BOSS_AT:
 			var bx := map_w - Roster.BOSS_X
@@ -818,6 +841,17 @@ func _manage_roster(delta: float) -> void:
 		shake(10.0, 0.3)
 		Sfx.play("boom_big", 0.6)
 		hud.flash("pickup:the Warlord's captain bars the road")
+
+
+## the tunnel map's enemies: each one is created when Mera is within 2600 px sideways and 1800 px up or down of its place
+func _tall_spawns() -> void:
+	var keep: Array = []
+	for sp in lv_spawns:
+		if absf(float(sp[0]) - mera.global_position.x) < 2600.0 and absf(float(sp[1]) - mera.global_position.y) < 1800.0:
+			spawn_enemy(String(sp[2]), float(sp[0]), {"floor_y": float(sp[1])})
+		else:
+			keep.append(sp)
+	lv_spawns = keep
 
 
 ## the current level's roster list (tests)

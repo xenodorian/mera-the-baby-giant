@@ -12,7 +12,7 @@ const EXIT_PAD := 360.0      # the exit gate stands this far from the right end
 const STAGE2_FROM := 6       # the first level index of stage 2
 const STAGE3_FROM := 12      # the first level index of stage 3 (the Changeling maps; 11 is Perry's Arena, the last of stage 2)
 const STAGE4_FROM := 19      # stage 4: the nine new maps (s4_drowned .. s4_gate; the Black Knight ends it at STAGE5_FROM - 1)
-const STAGE5_FROM := 28      # the last stage: the Warlord's Throne (finale, opens the court), then Nerochilde's Court (the final boss)
+const STAGE5_FROM := 29      # the last stage: the Warlord's Throne (finale, opens the court), then Nerochilde's Court (the final boss)
 ## the Warlord's Throne and the king's court follow from STAGE5_FROM (inserting a level before them is a one-number edit above)
 const STAGE_FROM := [0, STAGE2_FROM, STAGE3_FROM, STAGE4_FROM, STAGE5_FROM]   # first level index of each stage (stage_of is the position)
 const THRONE := STAGE5_FROM

@@ -1244,7 +1244,7 @@ func _run() -> void:
 	await process_frame
 	# ================================================================ v0.5 levels, map bounds, earthquake
 	var LV = load("res://scripts/game/levels.gd")
-	_check("30 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..18, stage 4: 19..27, stage 5: 28 and 29)", LV.list().size() == 30 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(18) == 2 and LV.stage_of(19) == 3 and LV.stage_of(27) == 3 and LV.stage_of(28) == 4 and LV.stage_of(29) == 4 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
+	_check("31 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..18, stage 4: 19..28 (the tunnel last), stage 5: 29 and 30)", LV.list().size() == 31 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(18) == 2 and LV.stage_of(19) == 3 and LV.stage_of(28) == 3 and LV.stage_of(29) == 4 and LV.stage_of(30) == 4 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
 	for li in [0, 1, 2, 3, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game()
@@ -1723,7 +1723,7 @@ func _run() -> void:
 	root.add_child(pm)
 	await process_frame
 	_check("menu: after the dragon (unlocked >= 6, level 6 played) it opens on level 7, the stage 2 page", pm.sel == 6 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
-	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..18, stage 4 shows 19..27, the last page 28 and 29", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18] and pm.page_levels(3) == [19, 20, 21, 22, 23, 24, 25, 26, 27] and pm.page_levels(4) == [28, 29], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
+	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..18, stage 4 shows 19..28, the last page 29 and 30", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18] and pm.page_levels(3) == [19, 20, 21, 22, 23, 24, 25, 26, 27, 28] and pm.page_levels(4) == [29, 30], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
 	pm.sel = 5
 	pm._move(1)
 	var page_follow: bool = pm.sel == 6 and pm.page_of(pm.sel) == 1
@@ -1753,6 +1753,7 @@ func _run() -> void:
 	await _session_tests()
 	await _stage3_map_tests()
 	await _craft_hazard_tests()
+	await _tunnel_tests()
 	await _king_arc_tests()
 	await _slideshow_timer_blast_tests()
 	await _speaker_impact_restart_tests()
@@ -4748,12 +4749,12 @@ func _stage3_map_tests() -> void:
 	var CA = load("res://scripts/game/carry.gd")
 	var ids := ["p_arena", "ch_greenwood", "ch_bramble", "ch_watchtower", "ch_marsh", "ch_gate", "ch_undercroft", "ch_faces"]
 	var ls: Array = LVm.list()
-	var order_ok: bool = ls.size() == 30 and LVm.STAGE3_FROM == 12 and LVm.STAGE4_FROM == 19 and LVm.STAGE5_FROM == 28
+	var order_ok: bool = ls.size() == 31 and LVm.STAGE3_FROM == 12 and LVm.STAGE4_FROM == 19 and LVm.STAGE5_FROM == 29
 	for k in ids.size():
 		order_ok = order_ok and String(ls[11 + k]["id"]) == ids[k]
 	order_ok = order_ok and String(ls[LVm.THRONE]["id"]) == "ch_throne" and String(ls[LVm.COURT]["id"]) == "king_court"
-	_check("stage 3: 30 levels, p_arena at 11, the seven Changeling maps at 12..18, the Warlord and the court last", order_ok, str(ls.size()))
-	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(18) == 2 and LVm.stage_of(19) == 3 and LVm.stage_of(28) == 4, "")
+	_check("stage 3: 31 levels, p_arena at 11, the seven Changeling maps at 12..18, the Warlord and the court last", order_ok, str(ls.size()))
+	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(18) == 2 and LVm.stage_of(19) == 3 and LVm.stage_of(28) == 3 and LVm.stage_of(29) == 4, "")
 	var files_ok := true
 	var wide_ok := true
 	var arrays_ok := true
@@ -4808,7 +4809,7 @@ func _stage3_map_tests() -> void:
 	# the level select's third page: eight cards, Left / Right reach them
 	CA.reset()
 	CA.ensure()
-	CA.unlocked = 29
+	CA.unlocked = 30
 	LVm.current = 12
 	var pm: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(pm)
@@ -4868,7 +4869,7 @@ func _stage3_map_tests() -> void:
 	g.queue_free()
 	await process_frame
 	CA.reset()
-	_check("stage 3 flow: the stage key shop item counts 30 levels", CA.stage_count() == 30, str(CA.stage_count()))
+	_check("stage 3 flow: the stage key shop item counts 31 levels", CA.stage_count() == 31, str(CA.stage_count()))
 	# props and cards: four secrets per Changeling map inside the map, none in the arenas
 	var props_ok := true
 	for i in range(12, 19):
@@ -5754,7 +5755,7 @@ func _king_court_tests() -> void:
 	C.test_all = true
 	var lv: Dictionary = LV.list()[LV.COURT]
 	_check("king: the last level (COURT) is king_court, Nerochilde's Court, 7200 px, art reused from Perry's Arena", String(lv["id"]) == "king_court" and String(lv["name"]) == "Nerochilde's Court" and String(lv["sub"]) == "King Lucius waits alone" and float(lv["map_w"]) == 7200.0 and String(lv["layers"][0]["file"]).find("p_arena") >= 0 and FileAccess.file_exists("res://assets/levels/king_court/thumb.png"), "")
-	_check("king: STAGE5_FROM is 28, the court is 29 and stage_of(29) is 4", LV.STAGE5_FROM == 28 and LV.COURT == 29 and LV.stage_of(29) == 4, "")
+	_check("king: STAGE5_FROM is 29, the court is 30 and stage_of(30) is 4", LV.STAGE5_FROM == 29 and LV.COURT == 30 and LV.stage_of(30) == 4, "")
 	_check("king: Roster has nero as boss of the court, the finale name and the display name, and no trash waves", R.BOSSES.get(LV.COURT, "") == "nero" and R.FINALE.get(LV.COURT, "") == "King Nerochilde" and R.NAMES.get("nero", "") == "Nerochilde" and R.DEFS.has("nero") and not R.LEVELS.has(LV.COURT), "")
 	var d: Dictionary = R.def("nero")
 	var anims: Array = R.art("nero")["anims"].keys()
@@ -5823,7 +5824,7 @@ func _king_court_tests() -> void:
 	pm.queue_free()
 	await process_frame
 	C.reset()
-	_check("king: the court is locked on a fresh save", not C.stage_open(Levels.COURT) and C.stage_count() == 30, "")
+	_check("king: the court is locked on a fresh save", not C.stage_open(Levels.COURT) and C.stage_count() == 31, "")
 	C.unlock_through(Levels.COURT)
 	_check("king: a Warlord clear (unlock_through the court) opens the court", C.stage_open(Levels.COURT), "")
 	C.reset()
@@ -6607,6 +6608,22 @@ func _craft_hazard_tests() -> void:
 	await physics_frame
 	g = await _s4_new(16)
 	_check("hazards: the old maps are unchanged (their strips are art only: no run time pits or spikes)", g.pits.is_empty() and g.spikes.is_empty(), "")
+	g.queue_free()
+	await physics_frame
+
+
+## the tunnel map (s4_tunnel): a tall level the camera follows up and down, ladders in its shafts, enemies placed on its floors and made when Mera comes near, the Black Knight at its shrine
+func _tunnel_tests() -> void:
+	var ls: Array = Levels.list()
+	var lv: Dictionary = ls[Levels.BLACK_KNIGHT]
+	_check("tunnel: the last level of stage 4 is s4_tunnel, tall, with a start, an exit, a boss place, ladders and 50+ placed enemies", String(lv["id"]) == "s4_tunnel" and bool(lv.get("tall", false)) and (lv["ladders"] as Array).size() >= 20 and (lv["spawns"] as Array).size() >= 50 and (lv["surfaces"] as Array).size() >= 30 and (lv["start"] as Array).size() == 2 and (lv["exit"] as Array).size() == 2 and (lv["boss_at"] as Array).size() == 2, str(lv.get("spawns", []).size()))
+	_check("tunnel: the Black Knight is its boss and the stage 4 map before it is the Gilded Gate", Roster.BOSSES.get(Levels.BLACK_KNIGHT, "") == "black_knight" and String(ls[Levels.BLACK_KNIGHT - 1]["id"]) == "s4_gate", "")
+	var g: Node = await _s4_new(Levels.BLACK_KNIGHT)
+	var st: Array = lv["start"]
+	_check("tunnel: Mera starts at the level's start, high above the usual ground, and the camera is up with her", g.tall and absf(g.mera.global_position.x - float(st[0])) < 2.0 and absf(g.mera.global_position.y - float(st[1])) < 2.0 and g.mera.global_position.y < -500.0 and g.cam_y < -500.0, "y %.0f cam %.0f" % [g.mera.global_position.y, g.cam_y])
+	var n0: int = g.lv_spawns.size()
+	g._tall_spawns()
+	_check("tunnel: enemies are made only near Mera (some, not all), each standing on its floor", g.lv_spawns.size() < n0 and g.lv_spawns.size() > 0 and g.mobs.size() == n0 - g.lv_spawns.size(), "%d of %d left %d mobs" % [g.lv_spawns.size(), n0, g.mobs.size()])
 	g.queue_free()
 	await physics_frame
 

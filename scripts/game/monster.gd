@@ -111,6 +111,8 @@ func setup(g: Node, enemy_id: String, x: float, opts: Dictionary = {}) -> void:
 		idle_a = s
 		move_a = s
 	var gy: float = float(g.GROUND_Y) if g else 1060.0
+	if opts.has("floor_y"):
+		gy = float(opts["floor_y"])                      # a tall level: the floor this one stands on
 	if flyer:
 		rest_y = gy - float(d.get("hover", 200.0)) - float(art["body"][3]) * k
 	else:
