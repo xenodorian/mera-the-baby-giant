@@ -65,6 +65,7 @@ var spikes: Array = []             # ... and their spike beds [x0, x1] (levels.j
 var pit_falls := 0                 # (tests)
 var tall := false                  # a tall level (the tunnel map): the camera follows Mera up and down too
 var cam_y := 0.0                   # how far the camera is above its usual height (negative = up)
+var solid: Dictionary = {}         # the tunnel map's rock: {x0, y0, cell, w, h, rows of "0" open / "1" rock}
 var lv_spawns: Array = []          # [[x, y, id], ...] enemies placed in a tall level, created when Mera comes near
 var built_surfaces: Array = []     # phase 4: run-time platform tops [x0, x1, y] (Platform.make); surface_under scans them too
 var ladders: Array = []            # phase 4: live Ladder nodes
@@ -267,6 +268,7 @@ func _build_background() -> void:
 	tall = bool(lv.get("tall", false))
 	if tall:                                              # the tunnel map: start, exit and enemies are placed in the level data
 		lv_spawns = (lv.get("spawns", []) as Array).duplicate()
+		solid = lv.get("solid", {})
 		var ex: Array = lv["exit"]
 		exit_gate.position = Vector2(float(ex[0]), float(ex[1]))
 	_build_climbables(lv)
@@ -1297,13 +1299,16 @@ func _clamp_to_map() -> void:
 	var hi := map_w - Levels.EDGE
 	mera.position.x = clampf(mera.position.x, lo, hi)
 	_block_body(mera)
+	_wall_body(mera)
 	for e in enemies():
 		e.position.x = clampf(e.position.x, lo, hi)
 		_block_body(e)
+		_wall_body(e)
 	for a in allies_on:
 		if is_instance_valid(a):
 			a.position.x = clampf(a.position.x, lo, hi)
 			_block_body(a)
+			_wall_body(a)
 	if not cleared and not over and not test_mode_no_exit and not exit_locked() and mera.position.x >= map_w - Levels.EXIT_PAD - 40.0:
 		cleared = true
 		over_t = 0.0
@@ -1330,6 +1335,61 @@ func _line_up_cards() -> void:
 		c.global_position = Vector2(cam_x - 420.0 + float(i) * 220.0, GROUND_Y - 40.0)
 		c.base_y = GROUND_Y - 40.0
 		i += 1
+
+
+## the tunnel map's rock: true when the world point is inside rock (outside the grid counts as rock)
+func solid_at(x: float, y: float) -> bool:
+	if solid.is_empty():
+		return false
+	var cell := float(solid["cell"])
+	var cx := int(floorf((x - float(solid["x0"])) / cell))
+	var cy := int(floorf((y - float(solid["y0"])) / cell))
+	if cx < 0 or cy < 0 or cx >= int(solid["w"]) or cy >= int(solid["h"]):
+		return true
+	return (solid["rows"][cy] as String)[cx] == "1"
+
+
+func _hits_rock(body: Node2D) -> bool:
+	var hr: Rect2 = body.hurt_rect()
+	if hr.size.x < 1.0:
+		return false
+	var l := hr.position.x + 6.0
+	var r := hr.end.x - 6.0
+	var t := hr.position.y + 6.0
+	var b := hr.end.y - 8.0                                   # the feet stand a little inside the floor line
+	var m := (t + b) * 0.5
+	for p in [Vector2(l, t), Vector2(r, t), Vector2(l, m), Vector2(r, m), Vector2(l, b), Vector2(r, b), Vector2((l + r) * 0.5, t), Vector2((l + r) * 0.5, b)]:
+		if solid_at(p.x, p.y):
+			return true
+	return false
+
+
+## a body that ends the frame inside rock goes back: first keep the sideways move, then the up/down move, else the last free spot
+func _wall_body(body: Node2D) -> void:
+	if solid.is_empty() or body == null or not is_instance_valid(body) or not body.has_method("hurt_rect"):
+		return
+	var cur: Vector2 = body.global_position
+	var safe: Vector2 = body.get_meta("_wsafe", cur)
+	if not _hits_rock(body):
+		body.set_meta("_wsafe", cur)
+		return
+	for k in 3:
+		var t: Vector2 = [Vector2(cur.x, safe.y), Vector2(safe.x, cur.y), safe][k]
+		body.global_position = t
+		if not _hits_rock(body):
+			body.set_meta("_wsafe", t)
+			if k != 1:                                             # the up/down part was blocked: head against a ceiling, or the ground
+				if "vel" in body:
+					body.vel.y = 0.0
+				elif "vy" in body:
+					body.vy = 0.0
+			if k != 0:                                             # the sideways part was blocked: a wall
+				if "vel" in body:
+					body.vel.x = 0.0
+				elif "vx" in body:
+					body.vx = 0.0
+			return
+	body.global_position = safe
 
 
 func _block_body(body: Node2D) -> void:

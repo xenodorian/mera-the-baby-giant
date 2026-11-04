@@ -82,6 +82,40 @@ def analyse(m: np.ndarray):
     return cols, surfaces
 
 
+CELL_SRC = 6                # collision cell: 6 source px = 90 world px
+
+
+def collision_grid(m: np.ndarray, surfaces, ladders, start_cell, exit_cell, sy_ref):
+    """Rock = solid. A cell is open when the dilated passage mask touches it, plus a clear band above every floor and a band along every
+    ladder (the dim links between lit passages must not be sealed). The smallest dilation that connects the start to the exit is used."""
+    h, w = m.shape
+    gh, gw = (h + CELL_SRC - 1) // CELL_SRC, (w + CELL_SRC - 1) // CELL_SRC
+    best = None
+    for r in (6, 10, 14, 18, 24, 32):
+        d = ndi.binary_dilation(m, structure=np.ones((3, 3), bool), iterations=r)
+        pad = np.zeros((gh * CELL_SRC, gw * CELL_SRC), bool)
+        pad[:h, :w] = d
+        cells = pad.reshape(gh, CELL_SRC, gw, CELL_SRC).any(axis=(1, 3))
+        for x0, x1, y, t in surfaces:                       # a band of clear air above each floor (a size 6 Mera is about 24 cells... 5 cells tall at 90 px)
+            for cx in range(max(x0 // CELL_SRC, 0), min(x1 // CELL_SRC + 1, gw)):
+                for cy in range(max((y - 40) // CELL_SRC, 0), min(y // CELL_SRC + 1, gh)):
+                    cells[cy, cx] = True
+        for lx, bot, top in ladders:                        # ladders (source coords) run through open air
+            cx = lx // CELL_SRC
+            for cy in range(max(top // CELL_SRC, 0), min(bot // CELL_SRC + 1, gh)):
+                for dx in (-1, 0, 1):
+                    if 0 <= cx + dx < gw:
+                        cells[cy, cx + dx] = True
+        lab, n = ndi.label(cells)
+        a, b = lab[start_cell[1], start_cell[0]], lab[exit_cell[1], exit_cell[0]]
+        ok = a != 0 and a == b
+        print(f"  dilation {r:2d}: open cells {int(cells.sum())} start/exit connected {ok}")
+        best = cells
+        if ok:
+            break
+    return best
+
+
 def to_world(sx: float, sy: float, sy_ref: float):
     return PADX + sx * S, GROUND_Y - (sy_ref - sy) * S
 
@@ -105,6 +139,7 @@ def main() -> None:
         surf_world.append([int(wx0), int(wx1), int(wy)])
     # ladders: tall runs (shafts) climb to the nearest floor above beside them
     ladders = []
+    ladders_src = []
     seen = set()
     for x, t, b in cols:
         if b - t < LADDER_RUN:
@@ -125,6 +160,7 @@ def main() -> None:
         _, wy_t = to_world(x, top_y, sy_ref)
         if wy_b - wy_t >= 400:
             ladders.append([int(wx), int(wy_b), int(wy_t)])
+            ladders_src.append([int(x), int(b - 3), int(top_y)])
     # enemies
     rng = np.random.default_rng(2828)
     ground_pool = ["cl_grunt", "cl_mud", "cl_rat_king", "cl_knight", "cl_ranger", "cl_weaver", "sx_zombie", "sx_skeleton", "sx_witch", "skeleton",
@@ -138,7 +174,7 @@ def main() -> None:
         length = wx1 - wx0
         if length < 900:
             continue
-        n = int(length // 650) + 1
+        n = int(length // 340) + 1
         for i in range(n):
             x = wx0 + 300 + (length - 600) * (i + rng.random() * 0.6) / n
             if abs(x - start[0]) < 2200 and abs(wy - start[1]) < 600:
@@ -146,6 +182,19 @@ def main() -> None:
             flyer = rng.random() < 0.22
             spawns.append([int(x), int(wy), str((fly_pool if flyer else ground_pool)[int(rng.integers(0, len(fly_pool if flyer else ground_pool)))])])
     boss_at = [int(exit_p[0] - 1400), int(exit_p[1])]
+    start_cell = (int(min(max(START_SRC[0], st[0] + 10), st[1] - 10)) // CELL_SRC, int(st[2] - 3) // CELL_SRC)
+    exit_cell = (int((ex[0] + ex[1]) // 2) // CELL_SRC, int(ex[2] - 3) // CELL_SRC)
+    cells = collision_grid(m, surfaces, ladders_src, start_cell, exit_cell, sy_ref)
+    lab, _n = ndi.label(cells)
+    comp = lab[start_cell[1], start_cell[0]]
+    def reach(wx, wy):
+        cx, cy = int((wx - PADX) // (CELL_SRC * S)), int((wy - 10 - (GROUND_Y - sy_ref * S)) // (CELL_SRC * S))
+        return 0 <= cy < cells.shape[0] and 0 <= cx < cells.shape[1] and lab[cy, cx] == comp
+    before = len(spawns)
+    spawns = [sp for sp in spawns if reach(sp[0], sp[1])]            # nothing is placed in a sealed pocket of rock
+    print(f"  spawns kept {len(spawns)} of {before} (reachable from the start)")
+    solid_rows = ["".join("0" if c else "1" for c in row) for row in cells]
+    solid = {"x0": PADX, "y0": int(GROUND_Y - sy_ref * S), "cell": CELL_SRC * S, "w": int(cells.shape[1]), "h": int(cells.shape[0]), "rows": solid_rows}
     # art: the map x3 (nearest), padded so source column 0 sits at world x PADX; world px of texture column c is 5 * (c - 205)
     img = Image.open(SRC).convert("RGB").resize((w * K, h * K), Image.NEAREST)
     left = (PADX + 1025) // ART                              # native columns before source column 0
@@ -169,7 +218,7 @@ def main() -> None:
     bg = [4, 3, 8]
     entry = {"id": LID, "map_w": (canvas.width * ART - 1024 - 1100) // 5 * 5, "name": "The Hollow Warren", "sub": "Climb the tunnels to the shrine", "layers": layers, "bg": bg,
              "music": "res://assets/perry/music/boss3.ogg", "surfaces": surf_world, "ladders": ladders, "platforms": [], "hazards": [], "marks": [],
-             "tall": True, "start": [int(start[0]), int(start[1])], "exit": [int(exit_p[0]), int(exit_p[1])], "boss_at": boss_at, "spawns": spawns}
+             "tall": True, "solid": solid, "start": [int(start[0]), int(start[1])], "exit": [int(exit_p[0]), int(exit_p[1])], "boss_at": boss_at, "spawns": spawns}
     raw = LEVELS_JSON.read_text()
     doc = json.loads(raw)
     ids = [lv["id"] for lv in doc["levels"]]

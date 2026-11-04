@@ -6624,6 +6624,28 @@ func _tunnel_tests() -> void:
 	var n0: int = g.lv_spawns.size()
 	g._tall_spawns()
 	_check("tunnel: enemies are made only near Mera (some, not all), each standing on its floor", g.lv_spawns.size() < n0 and g.lv_spawns.size() > 0 and g.mobs.size() == n0 - g.lv_spawns.size(), "%d of %d left %d mobs" % [g.lv_spawns.size(), n0, g.mobs.size()])
+	_check("tunnel: the rock grid is there; the start is open air and the far edge of the grid is rock", g.solid.size() > 0 and not g.solid_at(float(st[0]), float(st[1]) - 100.0) and g.solid_at(10.0, 10.0), "")
+	var m = g.mera
+	m.invuln = 9999.0
+	for i in 4:
+		await physics_frame
+	var before: Vector2 = m.global_position
+	var rock := Vector2.ZERO
+	for k in range(1, 60):                               # a spot of rock to the right of the start at the same height
+		var px: float = before.x + 120.0 * k
+		if g.solid_at(px, before.y - 120.0):
+			rock = Vector2(px, before.y)
+			break
+	m.global_position = rock
+	m.vel = Vector2(400.0, 0.0)
+	for i in 3:
+		await physics_frame
+	_check("tunnel: a body pushed into rock goes back out of it (a wall)", rock != Vector2.ZERO and not g._hits_rock(m) and absf(m.global_position.x - rock.x) > 40.0, "%s -> %s" % [rock, m.global_position])
+	m.global_position = before
+	m.vel = Vector2.ZERO
+	for i in 3:
+		await physics_frame
+	_check("tunnel: open air is untouched (no body is moved when it is free)", absf(m.global_position.x - before.x) < 40.0, "%s" % m.global_position)
 	g.queue_free()
 	await physics_frame
 

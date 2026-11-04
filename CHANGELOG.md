@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.24.0-playable (2026-11-04)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.24.0_Windows.exe
+- Android: Mera_Playable_v0.24.0_Android.apk
+- **The Hollow Warren has walls.** The rock between the passages is solid now: Mera, the enemies and the summons stop at walls, cannot walk off a floor into the rock, and hit their heads on ceilings. The rock grid is made from the map picture (the lit passages widened a little so the dim links between them stay open, and a clear band over every floor and along every ladder), and the smallest widening that joins the start to the shrine is used. Enemies are only placed in open air you can reach from the start (65 of them).
+- Tests: 997 pass, 0 fail.
+
 ## v0.23.1-playable (2026-11-04)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.23.1_Windows.exe
