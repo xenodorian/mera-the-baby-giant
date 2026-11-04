@@ -2,6 +2,15 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.22.0-playable (2026-11-04)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.22.0_Windows.exe
+- Android: Mera_Playable_v0.22.0_Android.apk
+- **A new stage: nine painted levels** between the Changeling maps and the Warlord (level select page 4): Drowned Ruins, Bluelit Skyline, Clocktower Quarter, Overgrown Chapel, Sunken Courtyard, Golden Terrace, Hoard Vault, Mushroom Hollow and Gilded Gate. They are the nine scenes cut from your two painting strips, scaled up with nearest neighbour into huge pixel art, with floating stone slabs to climb, waves of Changeling, Perry and wizard enemies and ally cards. **The Black Knight now ends the stage** at the Gilded Gate (he moved from the Hall of Faces).
+- **The last stage** is the Warlord's Throne and Nerochilde's Court (their own page). Old saves are migrated so cleared levels stay cleared.
+- **Perry's moves compared with the original source** (Biboo): the jump crash and the earthquake now have the impact frame, rumble and quake (the crash also shocks nearby enemies); push kick and energy kick use the source hit boxes; the sequence window is 700 ms (earthquake, meteor shower, rainbow, flight, sky dash); all three dash thrusts have the long reach; Left+A is the thrust; the taunt makes enemies faster and harder hitting; the energy burst stuns 0.5 s. The meteor shower and the earthquake are drawn 2.5x bigger so they fill this game's wider screen.
+- Tests: 990 pass, 0 fail.
+
 ## v0.21.0-playable (2026-11-03)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.21.0_Windows.exe

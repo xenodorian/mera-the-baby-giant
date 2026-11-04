@@ -1244,7 +1244,7 @@ func _run() -> void:
 	await process_frame
 	# ================================================================ v0.5 levels, map bounds, earthquake
 	var LV = load("res://scripts/game/levels.gd")
-	_check("21 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..19, stage 4: 20)", LV.list().size() == 21 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(19) == 2 and LV.stage_of(20) == 3 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
+	_check("30 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..18, stage 4: 19..27, stage 5: 28 and 29)", LV.list().size() == 30 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(18) == 2 and LV.stage_of(19) == 3 and LV.stage_of(27) == 3 and LV.stage_of(28) == 4 and LV.stage_of(29) == 4 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
 	for li in [0, 1, 2, 3, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game()
@@ -1723,7 +1723,7 @@ func _run() -> void:
 	root.add_child(pm)
 	await process_frame
 	_check("menu: after the dragon (unlocked >= 6, level 6 played) it opens on level 7, the stage 2 page", pm.sel == 6 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
-	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..19, stage 4 shows 20", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18, 19] and pm.page_levels(3) == [20], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
+	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..18, stage 4 shows 19..27, the last page 28 and 29", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18] and pm.page_levels(3) == [19, 20, 21, 22, 23, 24, 25, 26, 27] and pm.page_levels(4) == [28, 29], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
 	pm.sel = 5
 	pm._move(1)
 	var page_follow: bool = pm.sel == 6 and pm.page_of(pm.sel) == 1
@@ -4601,7 +4601,7 @@ func _cl_tests() -> void:
 	for id in ["cl_knight", "cl_ranger", "cl_weaver"]:
 		if bool(RO.def(id).get("boss", false)) or int(RO.def(id)["hp"]) < 2 * int(RO.def("cl_grunt")["hp"]):
 			faces_ok = false
-	_check("changeling: the four faces are tough non-boss enemies; the Warlord is the boss", faces_ok and bool(RO.def("cl_warlord")["boss"]) and RO.BOSSES.get(19, "") == "cl_warlord" and not RO.LEVELS.has(19), "")
+	_check("changeling: the four faces are tough non-boss enemies; the Warlord is the boss", faces_ok and bool(RO.def("cl_warlord")["boss"]) and RO.BOSSES.get(Levels.THRONE, "") == "cl_warlord" and not RO.LEVELS.has(Levels.THRONE), "")
 	var waves_ok := true
 	var seen := {}
 	for li in range(12, 19):
@@ -4746,13 +4746,14 @@ func _cl_tests() -> void:
 func _stage3_map_tests() -> void:
 	var LVm = load("res://scripts/game/levels.gd")
 	var CA = load("res://scripts/game/carry.gd")
-	var ids := ["p_arena", "ch_greenwood", "ch_bramble", "ch_watchtower", "ch_marsh", "ch_gate", "ch_undercroft", "ch_faces", "ch_throne"]
+	var ids := ["p_arena", "ch_greenwood", "ch_bramble", "ch_watchtower", "ch_marsh", "ch_gate", "ch_undercroft", "ch_faces"]
 	var ls: Array = LVm.list()
-	var order_ok: bool = ls.size() == 21 and LVm.STAGE3_FROM == 12 and LVm.STAGE4_FROM == 20
+	var order_ok: bool = ls.size() == 30 and LVm.STAGE3_FROM == 12 and LVm.STAGE4_FROM == 19 and LVm.STAGE5_FROM == 28
 	for k in ids.size():
 		order_ok = order_ok and String(ls[11 + k]["id"]) == ids[k]
-	_check("stage 3: 21 levels, p_arena at 11 and the eight Changeling maps at 12..19 in order", order_ok, str(ls.size()))
-	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(19) == 2, "")
+	order_ok = order_ok and String(ls[LVm.THRONE]["id"]) == "ch_throne" and String(ls[LVm.COURT]["id"]) == "king_court"
+	_check("stage 3: 30 levels, p_arena at 11, the seven Changeling maps at 12..18, the Warlord and the court last", order_ok, str(ls.size()))
+	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(18) == 2 and LVm.stage_of(19) == 3 and LVm.stage_of(28) == 4, "")
 	var files_ok := true
 	var wide_ok := true
 	var arrays_ok := true
@@ -4807,12 +4808,12 @@ func _stage3_map_tests() -> void:
 	# the level select's third page: eight cards, Left / Right reach them
 	CA.reset()
 	CA.ensure()
-	CA.unlocked = 19
+	CA.unlocked = 29
 	LVm.current = 12
 	var pm: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(pm)
 	await process_frame
-	_check("stage 3 menu: the page shows 8 cards, all inside the screen and not overlapping", pm.page_levels(2).size() == 8 and pm.page_of(12) == 2, str(pm.page_levels(2)))
+	_check("stage 3 menu: the page shows 7 cards, all inside the screen and not overlapping", pm.page_levels(2).size() == 7 and pm.page_of(12) == 2, str(pm.page_levels(2)))
 	var inside := true
 	for a in pm.page_levels(2):
 		var ra: Rect2 = pm._card(a)
@@ -4820,15 +4821,16 @@ func _stage3_map_tests() -> void:
 		for b in pm.page_levels(2):
 			if a != b and ra.intersects(pm._card(b)):
 				inside = false
-	_check("stage 3 menu: eight cards are in two rows of four", inside and absf(pm._card(12).position.y - pm._card(15).position.y) < 0.1 and pm._card(16).position.y > pm._card(12).end.y, "")
+	_check("stage 3 menu: seven cards are in two rows of four", inside and absf(pm._card(12).position.y - pm._card(15).position.y) < 0.1 and pm._card(16).position.y > pm._card(12).end.y, "")
 	pm.sel = 12
 	var reached := [pm.sel]
-	for k in 7:
+	for k in 6:
 		pm._move(1)
 		reached.append(pm.sel)
-	_check("stage 3 menu: Right walks 12 to 19 and Left walks back", reached == [12, 13, 14, 15, 16, 17, 18, 19], str(reached))
+	_check("stage 3 menu: Right walks 12 to 18", reached == [12, 13, 14, 15, 16, 17, 18], str(reached))
 	pm._move(1)
-	_check("stage 3 menu: Right from the Warlord's card goes to the king's court (page 4), and Right from there wraps to level 1", pm.sel == 20 and pm.page_of(20) == 3, "sel %d" % pm.sel)
+	_check("stage 3 menu: Right from the last Changeling card goes to the first card of the new stage (page 4)", pm.sel == 19 and pm.page_of(19) == 3, "sel %d" % pm.sel)
+	pm.sel = LVm.COURT
 	pm._move(1)
 	_check("stage 3 menu: Right from the last card wraps to level 1 (page 1)", pm.sel == 0 and pm.page_of(0) == 0, "sel %d" % pm.sel)
 	pm.sel = 11
@@ -4856,17 +4858,17 @@ func _stage3_map_tests() -> void:
 	g.queue_free()
 	await process_frame
 	CA.reset()
-	# the Warlord: finale on level index 19
-	LVm.current = 19
-	g = await _s4_new(19)
+	# the Warlord: finale on level index THRONE
+	LVm.current = LVm.THRONE
+	g = await _s4_new(LVm.THRONE)
 	var warlord_lock: String = g.exit_lock_text()
 	var last: bool = g.is_last_level()
 	g._start_finale_victory()
-	_check("stage 3 flow: the Warlord's level locks the exit with DEFEAT THE WARLORD, its card says the king's court is open (no longer the last level)", not last and warlord_lock == "DEFEAT THE WARLORD" and g.victory and g.victory_text[0] == "You Defeated the Warlord!" and g.victory_text[1] == "The king's court is open" and load("res://scripts/game/roster.gd").FINALE.has(19) and CA.unlocked >= 20, "%s %s" % [warlord_lock, str(g.victory_text)])
+	_check("stage 3 flow: the Warlord's level locks the exit with DEFEAT THE WARLORD, its card says the king's court is open (no longer the last level)", not last and warlord_lock == "DEFEAT THE WARLORD" and g.victory and g.victory_text[0] == "You Defeated the Warlord!" and g.victory_text[1] == "The king's court is open" and load("res://scripts/game/roster.gd").FINALE.has(Levels.THRONE) and CA.unlocked >= Levels.COURT, "%s %s" % [warlord_lock, str(g.victory_text)])
 	g.queue_free()
 	await process_frame
 	CA.reset()
-	_check("stage 3 flow: the stage key shop item counts 21 levels", CA.stage_count() == 21, str(CA.stage_count()))
+	_check("stage 3 flow: the stage key shop item counts 30 levels", CA.stage_count() == 30, str(CA.stage_count()))
 	# props and cards: four secrets per Changeling map inside the map, none in the arenas
 	var props_ok := true
 	for i in range(12, 19):
@@ -4875,8 +4877,8 @@ func _stage3_map_tests() -> void:
 		props_ok = props_ok and cards.size() == 4 and load("res://scripts/game/props.gd").SECRETS.get(i, []).size() == 4
 		for c in cards:
 			props_ok = props_ok and float(c[0]) > 1720.0 and float(c[0]) < mw and String(c[1]).begins_with("cl_")
-	props_ok = props_ok and not load("res://scripts/game/allies.gd").CARDS.has(11) and not load("res://scripts/game/allies.gd").CARDS.has(19)
-	props_ok = props_ok and load("res://scripts/game/props.gd").layout(11, 7200.0).size() == 20 and load("res://scripts/game/props.gd").layout(19, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(20, 7200.0).is_empty()
+	props_ok = props_ok and not load("res://scripts/game/allies.gd").CARDS.has(11) and not load("res://scripts/game/allies.gd").CARDS.has(LVm.THRONE)
+	props_ok = props_ok and load("res://scripts/game/props.gd").layout(11, 7200.0).size() == 20 and load("res://scripts/game/props.gd").layout(LVm.THRONE, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(LVm.COURT, 7200.0).is_empty()
 	_check("stage 3 props: 4 cards (Changeling faces) and 4 secrets on each map, nothing in the two arenas", props_ok, "")
 	LVm.current = 0
 
@@ -5607,7 +5609,7 @@ func _king_drop_and_arena_tests() -> void:
 	_check("king: Perry's Arena props stand between x 700 and map_w - 1500, at least 150 px apart", range_ok and gap_ok, "%s" % [xs.slice(0, 3)])
 	var lay2: Array = P.layout(11, 7200.0)
 	_check("king: the arena layout is deterministic", lay2.size() == lay.size() and str(lay2) == str(lay), "")
-	for li in [3, 5, 19, 20]:
+	for li in [3, 5, Levels.THRONE, Levels.COURT]:
 		_check("king: level index %d (boss-only / cemetery) still has no breakables" % li, P.layout(li, 7200.0).is_empty(), "")
 	g = await _s4_new(11)
 	var live := 0
@@ -5750,10 +5752,10 @@ func _king_court_tests() -> void:
 	var LV = load("res://scripts/game/levels.gd")
 	C.reset()
 	C.test_all = true
-	var lv: Dictionary = LV.list()[20]
-	_check("king: level 20 is king_court, Nerochilde's Court, 7200 px, art reused from Perry's Arena", String(lv["id"]) == "king_court" and String(lv["name"]) == "Nerochilde's Court" and String(lv["sub"]) == "King Lucius waits alone" and float(lv["map_w"]) == 7200.0 and String(lv["layers"][0]["file"]).find("p_arena") >= 0 and FileAccess.file_exists("res://assets/levels/king_court/thumb.png"), "")
-	_check("king: STAGE4_FROM is 20 and stage_of(20) is 3", LV.STAGE4_FROM == 20 and LV.stage_of(20) == 3, "")
-	_check("king: Roster has nero as boss 20, the finale name and the display name, and no trash waves", R.BOSSES.get(20, "") == "nero" and R.FINALE.get(20, "") == "King Nerochilde" and R.NAMES.get("nero", "") == "Nerochilde" and R.DEFS.has("nero") and not R.LEVELS.has(20), "")
+	var lv: Dictionary = LV.list()[LV.COURT]
+	_check("king: the last level (COURT) is king_court, Nerochilde's Court, 7200 px, art reused from Perry's Arena", String(lv["id"]) == "king_court" and String(lv["name"]) == "Nerochilde's Court" and String(lv["sub"]) == "King Lucius waits alone" and float(lv["map_w"]) == 7200.0 and String(lv["layers"][0]["file"]).find("p_arena") >= 0 and FileAccess.file_exists("res://assets/levels/king_court/thumb.png"), "")
+	_check("king: STAGE5_FROM is 28, the court is 29 and stage_of(29) is 4", LV.STAGE5_FROM == 28 and LV.COURT == 29 and LV.stage_of(29) == 4, "")
+	_check("king: Roster has nero as boss of the court, the finale name and the display name, and no trash waves", R.BOSSES.get(LV.COURT, "") == "nero" and R.FINALE.get(LV.COURT, "") == "King Nerochilde" and R.NAMES.get("nero", "") == "Nerochilde" and R.DEFS.has("nero") and not R.LEVELS.has(LV.COURT), "")
 	var d: Dictionary = R.def("nero")
 	var anims: Array = R.art("nero")["anims"].keys()
 	var need := ["idle", "walk", "attack", "attack2", "attack3", "hurt", "bolt"]
@@ -5773,11 +5775,11 @@ func _king_court_tests() -> void:
 		has_slam = has_slam or bool(a.get("slam", false))
 	var fx_all: Dictionary = R.data()["_fx"]
 	_check("king: three forms (the Medieval King, the reaper, the giant), hp 300, the king's animations, the reaper's charge, the giant's slam and a slash effect for each late form", anim_ok and bool(d["boss"]) and int(d["hp"]) == 300 and has_charge and has_slam and R.art("nero_reaper")["anims"].has("slash") and R.art("nero_giant")["anims"].has("slash") and int(R.art("nero_giant")["facing"]) == -1 and fx_all.has("slash_pale") and fx_all.has("slash_green"), "%s" % [anims])
-	var g: Node = await _s4_new(20)
+	var g: Node = await _s4_new(LV.COURT)
 	g._manage_roster(0.016)
 	await physics_frame
 	var nb: Node2D = g.boss
-	_check("king: level 20 spawns Nerochilde alone (boss-only, nothing else), game.boss is nero", nb != null and nb.id == "nero" and g.boss_spawned and g.mobs.size() == 1 and String(nb.get_script().resource_path).ends_with("nero.gd") and nb.boss and g.props.is_empty(), "mobs %d" % g.mobs.size())
+	_check("king: the court spawns Nerochilde alone (boss-only, nothing else), game.boss is nero", nb != null and nb.id == "nero" and g.boss_spawned and g.mobs.size() == 1 and String(nb.get_script().resource_path).ends_with("nero.gd") and nb.boss and g.props.is_empty(), "mobs %d" % g.mobs.size())
 	_check("king: Nerochilde exit text is DEFEAT THE KING and the exit is locked until he falls", g.exit_lock_text() == "DEFEAT THE KING" and g.exit_locked() and g.is_last_level(), g.exit_lock_text())
 	var take_ok: bool = nb.phase == 1
 	nb.take_damage(int(nb.hp_max * 0.4), nb.global_position.x - 500.0)
@@ -5793,13 +5795,13 @@ func _king_court_tests() -> void:
 	_check("king: Nerochilde moves through phases 1, 2, 3 by hp, wearing the King, the reaper, then the giant", take_ok and nb.phase == 3 and nb.phase_log == [1, 2, 3] and nb.forms_log == ["nero", "nero_reaper", "nero_giant"] and nb.form_id == "nero_giant" and nb.sprite.sprite_frames.has_animation("slash") and nb.id == "nero" and nb.slashes >= 2, "%s %s" % [nb.phase_log, nb.forms_log])
 	g.on_enemy_defeated(nb)
 	_check("king: his death opens the exit, pays the finale gold once, clears the level and the card text names King Nerochilde (the ending pages follow)",
-		g.boss_dead and not g.exit_locked() and g.victory and g.cleared and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated King Nerochilde!" and int(C.clears.get("20", 0)) == 1 and C.gold >= 100, "gold %d %s" % [C.gold, str(g.victory_text)])
+		g.boss_dead and not g.exit_locked() and g.victory and g.cleared and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated King Nerochilde!" and int(C.clears.get(str(Levels.COURT), 0)) == 1 and C.gold >= 100, "gold %d %s" % [C.gold, str(g.victory_text)])
 	var gold1: int = C.gold
 	_check("king: the ending is SPG.KING_END, Perry's fall is PERRY_FALLS, other levels have no story finale", g._story_for_finale() == SPG.KING_END, "")
 	g.queue_free()
 	await process_frame
-	g = await _s4_new(19)
-	_check("king: level 19 (the Warlord) says DEFEAT THE WARLORD and is no longer the last level", g.exit_lock_text() == "DEFEAT THE WARLORD" and not g.is_last_level() and g._story_for_finale().is_empty(), "")
+	g = await _s4_new(Levels.THRONE)
+	_check("king: the Warlord's level says DEFEAT THE WARLORD and is no longer the last level", g.exit_lock_text() == "DEFEAT THE WARLORD" and not g.is_last_level() and g._story_for_finale().is_empty(), "")
 	g.queue_free()
 	await process_frame
 	g = await _s4_new(11)
@@ -5808,22 +5810,22 @@ func _king_court_tests() -> void:
 	await process_frame
 	# the title menu: a fourth page with one card
 	C.reset()
-	C.unlocked = 20
-	LV.current = 19
+	C.unlocked = Levels.COURT
+	LV.current = Levels.THRONE
 	var pm: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(pm)
 	await process_frame
-	var card: Rect2 = pm._card(20)
-	_check("king: after the Warlord (unlocked 20, level 19 played) the menu opens on level 20, page 4", pm.sel == 20 and pm.page_of(20) == 3, "sel %d" % pm.sel)
-	_check("king: page 4 shows level 20 only, as one card centred and inside the screen", pm.page_levels(3) == [20] and absf(card.get_center().x - 960.0) < 1.0 and card.position.x >= 0.0 and card.end.x <= 1920.0 and card.size.x <= 420.0, "%s" % card)
-	_check("king: the menu has the court header and the CONTINUE arrow on level 19", FileAccess.get_file_as_string("res://scripts/menu.gd").find("THE KING'S COURT  SELECT A LEVEL") >= 0 and FileAccess.get_file_as_string("res://scripts/menu.gd").find("i == Levels.STAGE4_FROM - 1") >= 0, "")
-	_check("king: level 20 is open once 20 is unlocked, and locked before", C.stage_open(20), "")
+	var card: Rect2 = pm._card(Levels.COURT)
+	_check("king: after the Warlord (court unlocked, the Warlord played) the menu opens on the court, the last page", pm.sel == Levels.COURT and pm.page_of(Levels.COURT) == 4, "sel %d" % pm.sel)
+	_check("king: the last page shows the Warlord and the court inside the screen", pm.page_levels(4) == [Levels.THRONE, Levels.COURT] and card.position.x >= 0.0 and card.end.x <= 1920.0 and card.size.x <= 420.0, "%s" % card)
+	_check("king: the menu has the court header and the CONTINUE arrow on the last level of each stage", FileAccess.get_file_as_string("res://scripts/menu.gd").find("THE KING'S COURT  SELECT A LEVEL") >= 0 and FileAccess.get_file_as_string("res://scripts/menu.gd").find("(i + 1) in Levels.STAGE_FROM") >= 0, "")
+	_check("king: the court is open once it is unlocked, and locked before", C.stage_open(Levels.COURT), "")
 	pm.queue_free()
 	await process_frame
 	C.reset()
-	_check("king: level 20 is locked on a fresh save", not C.stage_open(20) and C.stage_count() == 21, "")
-	C.unlock_through(20)
-	_check("king: a Warlord clear (unlock_through 20) opens the court", C.stage_open(20), "")
+	_check("king: the court is locked on a fresh save", not C.stage_open(Levels.COURT) and C.stage_count() == 30, "")
+	C.unlock_through(Levels.COURT)
+	_check("king: a Warlord clear (unlock_through the court) opens the court", C.stage_open(Levels.COURT), "")
 	C.reset()
 	C.test_all = true
 	LV.current = 0
@@ -6030,7 +6032,7 @@ func _king_story_tests() -> void:
 	C.test_all = true
 	# --- _story_start: prisoner spawn, intro and the stage keys (non-test mode hooks called by hand)
 	var counts := {}
-	for li in [1, 0, 12, 20]:
+	for li in [1, 0, 12, LV.COURT]:
 		LV.current = li
 		var gs: Node = await _s4_new(li)
 		gs.test_mode = false
@@ -6051,7 +6053,7 @@ func _king_story_tests() -> void:
 	_check("king story: level 1 spawns its prisoner and plays no card", counts[1] == [false, "", 0, 1], str(counts[1]))
 	_check("king story: level 0 plays the six-page intro (key intro)", counts[0] == [true, "intro", 6, 0] and SPG.INTRO.size() == 6, str(counts[0]))
 	_check("king story: level 12 plays the two-page Stage 3 step (key stage3_step)", counts[12] == [true, "stage3_step", 2, 0], str(counts[12]))
-	_check("king story: level 20 plays the king's intro (key king_intro, one page)", counts[20] == [true, "king_intro", 1, 0], str(counts[20]))
+	_check("king story: the court plays the king's intro (key king_intro, one page)", counts[LV.COURT] == [true, "king_intro", 1, 0], str(counts[LV.COURT]))
 	_check("king story: all three keys are remembered after they play", C.seen("intro") and C.seen("stage3_step") and C.seen("king_intro"), str(C.story_seen))
 	for li in [0, 12, 20]:
 		LV.current = li
@@ -6549,7 +6551,7 @@ func _bk_checks() -> void:
 	for an in art["anims"]:
 		if not used.has(an):
 			unused.append(an)
-	_check("black knight: a boss at level 18 (not a finale), every animation has a use", Roster.BOSSES.get(18, "") == "black_knight" and not Roster.FINALE.has(18) and unused.is_empty() and String(d["spawn"]) == "draw", "unused=%s" % [unused])
+	_check("black knight: the boss of the last level of the new stage (not a finale), every animation has a use", Roster.BOSSES.get(Levels.BLACK_KNIGHT, "") == "black_knight" and not Roster.FINALE.has(Levels.BLACK_KNIGHT) and unused.is_empty() and String(d["spawn"]) == "draw", "unused=%s" % [unused])
 	var g: Node = await _new_game()
 	var bk: Node2D = g.spawn_enemy("black_knight", g.mera.global_position.x + 900.0)
 	await physics_frame

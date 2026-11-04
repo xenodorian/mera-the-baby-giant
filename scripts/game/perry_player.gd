@@ -12,6 +12,8 @@ const DATA_PATH := "res://assets/perry/perry_player.json"
 const DIR := "res://assets/characters/perry/player/"
 const S := Tuning.PERRY_SCALE
 const BEAMS := {"l2": ["beam_cloud", "cloud"], "l1": ["beam_laser", "laser"], "r2": ["beam_fire", "fire"], "r1": ["beam_plasma", "plasma"]}
+## the supers that fill the screen (the meteor shower, the earthquake): the original drew them over its 384 px screen at Perry's scale 2 = 768 px; this game's screen is 1920 px wide, so they are drawn 2.5x bigger
+const SCREEN_FX := ["meteor_shower", "earthquake"]
 const CHAIN_MOVES := ["slash", "chain2", "chain3", "chain4"]
 const SHOULDER_KEYS := ["l1", "l2", "r1", "r2"]
 const ULT_STEPS := ["taunt", "beam_plasma", "beam_cloud", "beam_fire", "beam_laser"]
@@ -107,7 +109,7 @@ static func _prepare(raw: Dictionary) -> Dictionary:
 		var an: Array = m["anchor"]
 		out["moves"][id] = {"anim": String(m["anim"]), "frames": frames, "loop": bool(m["loop"]), "loop_from": int(m["loopFrom"]),
 			"origin": Vector2(float(pv[0]) + hc, float(pv[1])), "anchor": Vector2(float(an[0]), float(an[1])),
-			"ao": float(pv[0]) + hc - float(an[0]), "last_hit": last_hit, "fx": String(m.get("fx", "")), "fx_scale": float(m.get("fxScale", 1.0)),
+			"ao": float(pv[0]) + hc - float(an[0]), "last_hit": last_hit, "fx": String(m.get("fx", "")), "fx_scale": float(m.get("fxScale", 1.0)) * (Tuning.PERRY_SCREEN_FX_K if id in SCREEN_FX else 1.0),
 			"enter": m.get("enter")}
 	return out
 

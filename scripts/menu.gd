@@ -30,6 +30,8 @@ func _ready() -> void:
 		var from: int = Levels.STAGE_FROM[k]
 		if Carry.unlocked >= from and Levels.current == from - 1:
 			sel = from                                # just beat the last level of a stage (the dragon, Perry, the Black Knight): open on the next
+	if Levels.current == Levels.THRONE and Carry.unlocked >= Levels.COURT:
+		sel = Levels.COURT                            # just beat the Warlord: the king's court is next
 	for lv in Levels.list():
 		thumbs.append(load("res://assets/levels/%s/thumb.png" % String(lv["id"])))
 	RenderingServer.set_default_clear_color(Color(0.02, 0.01, 0.04))

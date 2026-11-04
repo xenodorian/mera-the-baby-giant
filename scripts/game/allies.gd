@@ -65,4 +65,14 @@ const CARDS := {
 	16: [[2600.0, "cl_knight"], [6720.0, "cl_ranger"], [10230.0, "cl_weaver"], [15250.0, "cl_ranger"]],
 	17: [[2600.0, "cl_ranger"], [6420.0, "cl_weaver"], [13580.0, "cl_knight"], [17200.0, "cl_knight"]],
 	18: [[2200.0, "cl_weaver"], [9520.0, "cl_ranger"], [13530.0, "cl_knight"], [17750.0, "cl_ranger"]],
+	# stage 4 (the painted maps)
+	19: [[2600.0, "cl_ranger"], [3960.0, "cl_weaver"], [6960.0, "cl_knight"], [8800.0, "cl_knight"]],
+	20: [[2600.0, "cl_weaver"], [4220.0, "cl_knight"], [7420.0, "cl_ranger"], [9600.0, "cl_knight"]],
+	21: [[2600.0, "cl_knight"], [4490.0, "cl_ranger"], [7890.0, "cl_weaver"], [10400.0, "cl_knight"]],
+	22: [[2600.0, "cl_ranger"], [4750.0, "cl_weaver"], [8350.0, "cl_knight"], [11200.0, "cl_knight"]],
+	23: [[2600.0, "cl_weaver"], [5020.0, "cl_knight"], [8820.0, "cl_ranger"], [12000.0, "cl_knight"]],
+	24: [[2600.0, "cl_knight"], [4290.0, "cl_ranger"], [7540.0, "cl_weaver"], [9800.0, "cl_knight"]],
+	25: [[2600.0, "cl_ranger"], [4620.0, "cl_weaver"], [8120.0, "cl_knight"], [10800.0, "cl_knight"]],
+	26: [[2600.0, "cl_weaver"], [4880.0, "cl_knight"], [8580.0, "cl_ranger"], [11600.0, "cl_knight"]],
+	27: [[2600.0, "cl_knight"], [5280.0, "cl_ranger"], [9280.0, "cl_weaver"], [12800.0, "cl_knight"]],
 }

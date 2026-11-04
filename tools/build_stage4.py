@@ -22,7 +22,7 @@ import build_stage3 as B3  # noqa: E402
 SRC = ROOT / "assets" / "_source" / "stage4"
 LEVELS_JSON = ROOT / "assets" / "levels" / "levels.json"
 K = 2                       # nearest neighbour scale of the painting
-SCALE = {6: 3}              # the Golden Terrace painting is only 104 rows tall: x3 so it fills the screen without stretching its top row
+SCALE = {6: 3, 8: 3, 9: 3}              # the Golden Terrace painting is only 104 rows tall: x3 so it fills the screen without stretching its top row
 ART = B3.ART
 IMG_X0 = B3.IMG_X0
 FLOOR_ROW = B3.FLOOR_ROW    # 212
@@ -35,10 +35,10 @@ LEVELS = [
     ("s4_clock", "Clocktower Quarter", "The clock still counts", 3, 153, 13600, "res://assets/perry/music/level4.ogg"),
     ("s4_chapel", "Overgrown Chapel", "Roots hold the walls up", 4, 152, 14400, "res://assets/perry/music/level3.ogg"),
     ("s4_courtyard", "Sunken Courtyard", "Doors that lead nowhere", 5, 156, 15200, "res://assets/perry/music/level2.ogg"),
-    ("s4_terrace", "Golden Terrace", "White stone and gold leaves", 6, 90, 13000, "res://assets/perry/music/level1.ogg"),
-    ("s4_vault", "Hoard Vault", "Candles over the king's gold", 7, 176, 14000, "res://assets/music/caverns.ogg"),
-    ("s4_mushroom", "Mushroom Hollow", "A forest that glows", 8, 116, 14800, "res://assets/music/mist.ogg"),
-    ("s4_gate", "Gilded Gate", "The Black Knight keeps the way", 9, 121, 16000, "res://assets/perry/music/boss4.ogg"),
+    ("s4_terrace", "Golden Terrace", "White stone and gold leaves", 6, 78, 13000, "res://assets/perry/music/level1.ogg"),
+    ("s4_vault", "Hoard Vault", "Candles over the king's gold", 7, 160, 14000, "res://assets/music/caverns.ogg"),
+    ("s4_mushroom", "Mushroom Hollow", "A forest that glows", 8, 90, 14800, "res://assets/music/mist.ogg"),
+    ("s4_gate", "Gilded Gate", "The Black Knight keeps the way", 9, 85, 16000, "res://assets/perry/music/boss4.ogg"),
 ]
 
 

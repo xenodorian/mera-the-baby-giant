@@ -251,6 +251,16 @@ const LEVELS := {
 	16: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_knight", "cl_ranger"],
 	17: ["cl_knight", "cl_grunt", "cl_mud", "cl_ranger", "cl_archer", "cl_rat_king", "cl_knight"],
 	18: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "cl_grunt"],
+	# Stage 4, the nine painted maps (s4_*): the Changeling and Perry creatures and the wizards; 27 ends with the Black Knight
+	19: ["cl_mud", "cl_grunt", "x_dark_wizard", "x_lightning_mage", "sx_zombie", "ghost"],
+	20: ["x_wanderer_mage", "p_firemage", "cl_archer", "x_bat", "cl_rat_king", "death"],
+	21: ["cl_knight", "cl_ranger", "x_lightning_mage", "cl_grunt", "sx_skeleton", "nightmare"],
+	22: ["sx_witch", "x_mimic", "cl_mud", "x_frost_guardian", "werewolf", "cl_rat_king"],
+	23: ["cl_knight", "cl_weaver", "cl_grunt", "p_orc", "x_fire_worm", "hell_beast"],
+	24: ["p_firemage", "x_wanderer_mage", "x_lightning_mage", "cl_archer", "flying_eye", "p_goblin"],
+	25: ["skeleton", "x_mimic", "demon", "death", "cl_knight", "hell_hound"],
+	26: ["lm_mushroom", "x_slime", "sx_witch", "x_wanderer_mage", "lm_eye", "mutant_toad"],
+	27: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "x_wanderer_mage", "p_orc"],
 }
 ## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
 const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", Levels.BLACK_KNIGHT: "black_knight", Levels.THRONE: "cl_warlord", Levels.COURT: "nero"}

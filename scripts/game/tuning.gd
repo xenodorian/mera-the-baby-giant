@@ -262,6 +262,7 @@ const PERRY_PARRY_STUN_S := 2.0
 const PERRY_PARRY_KNOCK_PX := 200.0
 const PERRY_BLOCK_SLIDE_PX := 40.0
 const PERRY_DASH_REACH := 2.5         # the travel of the dash, the dash thrust and the energy dash thrust (all three cover the same 120 px in 04_chain.js) x this. The original dash covers 120 px of a 384 px screen (31 %); at S 2 that is 240 px of 1920, so 2.5x keeps it 31 %
+const PERRY_SCREEN_FX_K := 2.5        # the screen-filling supers are drawn this much bigger (1920 px screen vs the original 384 px at Perry scale 2)
 const PERRY_HEAVY_AOE_R := 620.0      # px: every enemy this close to where the overhead chop lands takes its full damage (the original's blast was 25 px of a 384 px screen, far too small for Mera's scale)
 const PERRY_HEAVY_BW_MS := 110.0      # original BW_HOLD: how long a full-charge chop holds its black and white impact frame
 const PERRY_HEAVY_QUAKE_SHAKE := 24.0 # original QUAKE_AMP 14 on a 384 px screen, scaled up; fades over PERRY_HEAVY_QUAKE_S (QUAKE_MS 1000)
