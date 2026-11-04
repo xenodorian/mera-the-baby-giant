@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.23.1-playable (2026-11-04)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.23.1_Windows.exe
+- Android: Mera_Playable_v0.23.1_Android.apk
+- **Fix: the Stage 3 and Stage 4 maps now end where their art ends.** Every Changeling, painted and tunnel level without its own length used the old default of 19200 px, so the short maps (Greenwood Road 11200, the nine painted levels 12000 to 16000) let you run past the end of the painting into empty space, and the long ones (Undercroft 20250, Hall of Faces 21600) cut off before the end of their art with the exit gate short of it. Each now has its real length (`map_w` in levels.json, written by the builders).
+- Fix: the Dragon's Lair thumbnail was missing from the export list (a blank card on the level select in the exe and apk).
+- Tests: 994 pass, 0 fail.
+
 ## v0.23.0-playable (2026-11-04)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.23.0_Windows.exe

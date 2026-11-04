@@ -1297,7 +1297,8 @@
      "j",
      10640
     ]
-   ]
+   ],
+   "map_w": 11200
   },
   {
    "id": "ch_bramble",
@@ -1603,7 +1604,8 @@
      "j",
      16080
     ]
-   ]
+   ],
+   "map_w": 16640
   },
   {
    "id": "ch_watchtower",
@@ -1888,7 +1890,8 @@
      "a",
      13520
     ]
-   ]
+   ],
+   "map_w": 14080
   },
   {
    "id": "ch_marsh",
@@ -2202,7 +2205,8 @@
      "m",
      18480
     ]
-   ]
+   ],
+   "map_w": 19200
   },
   {
    "id": "ch_gate",
@@ -2362,7 +2366,8 @@
      "a",
      15997
     ]
-   ]
+   ],
+   "map_w": 17550
   },
   {
    "id": "ch_undercroft",
@@ -2538,7 +2543,8 @@
      "j",
      18427
     ]
-   ]
+   ],
+   "map_w": 20250
   },
   {
    "id": "ch_faces",
@@ -2702,7 +2708,8 @@
      "m",
      19507
     ]
-   ]
+   ],
+   "map_w": 21600
   },
   {
    "id": "s4_drowned",
@@ -2764,7 +2771,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 12000
   },
   {
    "id": "s4_skyline",
@@ -2826,7 +2834,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 12800
   },
   {
    "id": "s4_clock",
@@ -2903,7 +2912,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 13600
   },
   {
    "id": "s4_chapel",
@@ -2980,7 +2990,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 14400
   },
   {
    "id": "s4_courtyard",
@@ -3057,7 +3068,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 15200
   },
   {
    "id": "s4_terrace",
@@ -3134,7 +3146,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 13000
   },
   {
    "id": "s4_vault",
@@ -3211,7 +3224,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 14000
   },
   {
    "id": "s4_mushroom",
@@ -3278,7 +3292,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 14800
   },
   {
    "id": "s4_gate",
@@ -3365,7 +3380,8 @@
    "ladders": [],
    "platforms": [],
    "hazards": [],
-   "marks": []
+   "marks": [],
+   "map_w": 16000
   },
   {
    "id": "s4_tunnel",
@@ -4293,7 +4309,8 @@
      -2855,
      "cl_rat_king"
     ]
-   ]
+   ],
+   "map_w": 20110
   },
   {
    "id": "ch_throne",

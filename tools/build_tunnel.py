@@ -167,7 +167,7 @@ def main() -> None:
     crop = Image.open(SRC).convert("RGB").crop((max(sx0, 0), max(sy0, 0), max(sx0, 0) + cw, max(sy0, 0) + ch)).resize((384, 216), Image.NEAREST)
     crop.save(dest / "thumb.png")
     bg = [4, 3, 8]
-    entry = {"id": LID, "name": "The Hollow Warren", "sub": "Climb the tunnels to the shrine", "layers": layers, "bg": bg,
+    entry = {"id": LID, "map_w": (canvas.width * ART - 1024 - 1100) // 5 * 5, "name": "The Hollow Warren", "sub": "Climb the tunnels to the shrine", "layers": layers, "bg": bg,
              "music": "res://assets/perry/music/boss3.ogg", "surfaces": surf_world, "ladders": ladders, "platforms": [], "hazards": [], "marks": [],
              "tall": True, "start": [int(start[0]), int(start[1])], "exit": [int(exit_p[0]), int(exit_p[1])], "boss_at": boss_at, "spawns": spawns}
     raw = LEVELS_JSON.read_text()

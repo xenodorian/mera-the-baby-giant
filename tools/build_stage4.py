@@ -131,7 +131,7 @@ def main() -> None:
         bg = [int(v) for v in c_top]
         B3.save_thumb(dest, bg, layers)
         surfaces = [[x0, x1, GROUND_Y - 130 * t] for x0, x1, t in slabs]
-        entries.append({"id": lid, "name": name, "sub": sub, "layers": layers, "bg": bg, "music": music,
+        entries.append({"id": lid, "name": name, "sub": sub, "map_w": map_w, "layers": layers, "bg": bg, "music": music,
                         "surfaces": surfaces, "ladders": [], "platforms": [], "hazards": [], "marks": []})
         print(f"{lid:14s} scene{sc} scene {scene.width}x{scene.height} floor {floor_src} map_w {map_w} slabs {len(slabs)}")
     anchor = ids.index("ch_faces") + 1

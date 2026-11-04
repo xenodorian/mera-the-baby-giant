@@ -450,6 +450,7 @@ def build_map(level_id, name, sub, theme, music, rows) -> dict:
     entry = {"id": level_id, "name": name, "sub": sub}
     if level_id == THRONE_ID:
         entry["map_w"] = map_w
+    entry["map_w"] = map_w                      # the game falls back to 19200 without it, past the end of the art
     entry.update({"layers": layers, "bg": bg, "music": music,
                   "surfaces": [s[:3] for s in surfaces], "ladders": ladders, "platforms": [],
                   "hazards": info["hazards"], "marks": info["marks"]})
@@ -491,7 +492,7 @@ def build_craft_map(level_id, name, sub, music) -> dict:
     save_thumb(dest, bg, layers)
     pits = [[a * colw, b * colw] for a, b in runs(sorted(info["pit_cols"]))]
     spikes = [[a * colw, b * colw] for a, b in runs(sorted(info["spike_cols"]))]
-    entry = {"id": level_id, "name": name, "sub": sub, "layers": layers, "bg": bg, "music": music,
+    entry = {"id": level_id, "name": name, "sub": sub, "map_w": map_w, "layers": layers, "bg": bg, "music": music,
              "surfaces": [s[:3] for s in surfaces], "ladders": ladders, "platforms": [],
              "hazards": info["hazards"], "pits": pits, "spikes": spikes, "marks": info["marks"]}
     print(f"{level_id:14s} {variant:9s} cols {info['nc']:3d} map_w {map_w:6d} surfaces {len(surfaces):2d} ladders {len(ladders):2d} "
