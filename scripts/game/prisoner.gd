@@ -132,7 +132,7 @@ func _process(delta: float) -> void:
 	if m != null and m.state != "dead":
 		touching = _cage_world().intersects(m.hurt_rect())
 	if prompt != null:
-		prompt.text = "%s: FREE" % ("Z" if Controls.scheme == "key" else "A")
+		prompt.text = "%s: FREE" % Controls.button("btn_a")
 		prompt.visible = touching
 	if touching and Input.is_action_just_pressed("btn_a"):
 		_free()

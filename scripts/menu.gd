@@ -1,6 +1,6 @@
 extends Control
 ## Title / level select. Left/Right choose, A / Start plays.
-## Down goes to SHOP, RESET, CHECK FOR UPDATES, and CREDITS.
+## Down goes to SHOP, RESET, CONTROLS, CHECK FOR UPDATES, and CREDITS.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
 
@@ -10,8 +10,9 @@ var t := 0.0
 var _stick_ready := true
 var font: Font
 var row := 0                    # 0 = level cards, 1 = bottom buttons, 2 = the character toggle
-var btn := 0                    # 0 shop, 1 reset, 2 updates, 3 credits
-var mode := "menu"              # menu | credits | update | shop
+var btn := 0                    # 0 shop, 1 reset, 2 controls, 3 updates, 4 credits
+var mode := "menu"              # menu | credits | update | shop | controls
+var prompt_i := 0
 var credit_sel := 0
 var shop_i := 0
 var shop_page := 0             # v0.12.2: 0 stats, 1 moves and summon times
@@ -115,8 +116,15 @@ func _card(i: int) -> Rect2:
 	return Rect2(x0 + float(k) * (w + gap), 400, w, 168)
 
 
+const BTN_N := 5
+
+
 func _button(i: int) -> Rect2:
-	return Rect2(80 + i * 444, 980, 420, 64)
+	var w := 344.0
+	var gap := 16.0
+	var total := w * float(BTN_N) + gap * float(BTN_N - 1)
+	var x0 := (1920.0 - total) * 0.5
+	return Rect2(x0 + float(i) * (w + gap), 980.0, w, 64.0)
 
 
 func _button_text(i: int) -> String:
@@ -124,7 +132,9 @@ func _button_text(i: int) -> String:
 		return "SHOP"
 	if i == 1:
 		return "RESET"
-	if i == 3:
+	if i == 2:
+		return "CONTROLS"
+	if i == 4:
 		return "CREDITS"
 	var u := _upd()
 	if u and u.state in ["available", "ready"]:
@@ -145,7 +155,12 @@ func _press_button() -> void:
 		note = "Reset. Gold, items, and upgrades cleared."
 		note_t = 4.0
 		return
-	if btn == 3:
+	if btn == 2:
+		var choices: Array = Controls.prompt_choices()
+		prompt_i = maxi(choices.find(Controls.prompt_style()), 0)
+		mode = "controls"
+		return
+	if btn == 4:
 		mode = "credits"
 		credit_sel = 0
 		return
@@ -460,7 +475,7 @@ func _draw_char_toggle() -> void:
 	draw_rect(r, Color(0.12, 0.08, 0.03, 0.95))
 	var g := 0.5 + 0.5 * sin(t * 5.0)
 	draw_rect(r, Color(1.0, 0.8, 0.4, 0.6 + 0.4 * g) if on_row else Color(0.5, 0.45, 0.6), false, 4.0)
-	draw_string(font, Vector2(r.position.x, r.position.y + 30), "CHARACTER   (A / click to switch)", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(r.position.x, r.position.y + 30), Controls.faces("CHARACTER   (A / click to switch)"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22, Color(0.85, 0.85, 0.9))
 	var perry := Carry.perry_selected()
 	var half := r.size.x / 2.0
 	var lit_x := r.position.x + (half if perry else 0.0)
@@ -501,6 +516,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	if mode == "shop":
 		_shop_input(e)
 		return
+	if mode == "controls":
+		_prompt_input(e)
+		return
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT and _char_rect().has_point(_to_design(e.position)):
 		row = 2
 		_toggle_character()
@@ -529,10 +547,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		return
 	if row == 1:
 		if e.is_action_pressed("left"):
-			btn = (btn + 3) % 4
+			btn = (btn + BTN_N - 1) % BTN_N
 			Sfx.play("swipe", 1.4, -8.0)
 		elif e.is_action_pressed("right"):
-			btn = (btn + 1) % 4
+			btn = (btn + 1) % BTN_N
 			Sfx.play("swipe", 1.4, -8.0)
 		elif e.is_action_pressed("btn_a") or e.is_action_pressed("start") or e.is_action_pressed("ui_accept"):
 			_press_button()
@@ -560,7 +578,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 
 func _click_buttons(p: Vector2) -> bool:
-	for i in 4:
+	for i in BTN_N:
 		if _button(i).has_point(p):
 			row = 1
 			btn = i
@@ -605,18 +623,18 @@ func _draw() -> void:
 		var sub := "LOCKED" if not open else String(lv["sub"])
 		draw_string(font, Vector2(lx, r.end.y + (64 if lw > r.size.x else 86)), sub, HORIZONTAL_ALIGNMENT_CENTER, lw, 18,
 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
-	draw_string(font, Vector2(0, 860), "Left / Right: choose      A / Start: play      Down: Shop / Reset / updates / credits      Esc: quit", HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 860), Controls.faces("Left / Right: choose      A / Start: play      Down: shop, reset, controls, updates, credits      Esc: quit"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))
 	_draw_char_toggle()
 	if mode == "menu":
 		_draw_note_at(930)
-	for i in 4:
+	for i in BTN_N:
 		var r := _button(i)
 		var on := row == 1 and btn == i
 		var u := _upd()
-		var hot: bool = i == 2 and u != null and u.state in ["available", "ready"]
+		var hot: bool = i == 3 and u != null and u.state in ["available", "ready"]
 		draw_rect(r, Color(0.25, 0.12, 0.05, 0.9) if on else Color(0.08, 0.05, 0.12, 0.8))
 		draw_rect(r, Color(1.0, 0.8, 0.4) if on else (Color(0.4, 1.0, 0.5) if hot else Color(0.5, 0.45, 0.6)), false, 3.0)
-		draw_string(font, Vector2(r.position.x, r.position.y + 42), _button_text(i), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28,
+		draw_string(font, Vector2(r.position.x, r.position.y + 42), _button_text(i), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22,
 			Color(1, 0.9, 0.6) if on else (Color(0.6, 1.0, 0.65) if hot else Color(0.85, 0.85, 0.9)))
 	_draw_version()
 	if mode == "credits":
@@ -625,6 +643,8 @@ func _draw() -> void:
 		_draw_update()
 	elif mode == "shop":
 		_draw_shop()
+	elif mode == "controls":
+		_draw_prompts()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
@@ -668,7 +688,7 @@ func _draw_credits() -> void:
 		draw_string(font, Vector2(180, y + 30), "%s  -  %s" % [String(c["what"]), String(c["url"])], HORIZONTAL_ALIGNMENT_LEFT, 1560, 20, Color(0.75, 0.75, 0.85))
 		i += 1
 	draw_string(font, Vector2(0, 950), CREDITS.FOOTER, HORIZONTAL_ALIGNMENT_CENTER, 1920, 20, Color(0.7, 0.7, 0.8))
-	draw_string(font, Vector2(0, 990), "Up / Down: select    A (Z) or click: open the link    B (X) / Esc: back", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 990), Controls.faces("Up / Down: select    A or click: open the link    B / Esc: back"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
 
 
 func _draw_note_at(y: float) -> void:
@@ -691,16 +711,16 @@ func _draw_shop() -> void:
 		if on:
 			draw_rect(r, Color(0.3, 0.15, 0.05, 0.8))
 		var col := Color(1, 0.9, 0.6) if on else Color(0.95, 0.9, 1.0)
-		if _perry_page():
+		if _perry_page() and _shop_what(i) != "respawn":
 			_draw_perry_row(i, r, col)
 			continue
-		draw_string(font, Vector2(r.position.x + 24, r.position.y + 50), _shop_name(i), HORIZONTAL_ALIGNMENT_LEFT, 1220, 38, col)
-		draw_string(font, Vector2(r.position.x + 24, r.position.y + 100), _shop_stat(i), HORIZONTAL_ALIGNMENT_LEFT, 1200, 30, Color(0.8, 0.8, 0.88))
+		draw_string(font, Vector2(r.position.x + 24, r.position.y + 50), Controls.faces(_shop_name(i)), HORIZONTAL_ALIGNMENT_LEFT, 1220, 38, col)
+		draw_string(font, Vector2(r.position.x + 24, r.position.y + 100), Controls.faces(_shop_stat(i)), HORIZONTAL_ALIGNMENT_LEFT, 1200, 30, Color(0.8, 0.8, 0.88))
 		var price := _shop_price(i)
 		var pc := Color(1.0, 0.8, 0.45) if Carry.gold >= price else Color(0.75, 0.45, 0.4)
 		draw_string(font, Vector2(r.position.x + 1280, r.position.y + 50), "%d g" % price, HORIZONTAL_ALIGNMENT_RIGHT, 300, 40, pc)
 	_draw_note_at(900)
-	draw_string(font, Vector2(0, 985), "Up/Down: row    Left/Right: page    A: buy    B: back", HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 985), Controls.faces("Up/Down: row    Left/Right: page    A: buy    B: back"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 34, Color(0.85, 0.85, 0.9))
 
 
 ## a Perry shop row: name and price on the first line, hint and owned / why it is locked on the second
@@ -708,13 +728,82 @@ func _draw_perry_row(i: int, r: Rect2, col: Color) -> void:
 	var pid := _perry_row_id(i)
 	var owned := PerryUnlocks.owned(pid)
 	var hint := "+%d max HP, up to %d" % [Tuning.PERRY_HP_STEP, Tuning.PERRY_HP_CAP] if pid == PerryUnlocks.POWDER_ID else String(PerryUnlocks.by_id(pid)["hint"])
-	draw_string(font, Vector2(r.position.x + 24, r.position.y + 50), _shop_name(i), HORIZONTAL_ALIGNMENT_LEFT, 1220, 38, Color(0.6, 1.0, 0.65) if owned else col)
-	draw_string(font, Vector2(r.position.x + 24, r.position.y + 100), hint, HORIZONTAL_ALIGNMENT_LEFT, 880, 28, Color(0.8, 0.8, 0.88))
+	draw_string(font, Vector2(r.position.x + 24, r.position.y + 50), Controls.faces(_shop_name(i)), HORIZONTAL_ALIGNMENT_LEFT, 1220, 38, Color(0.6, 1.0, 0.65) if owned else col)
+	draw_string(font, Vector2(r.position.x + 24, r.position.y + 100), Controls.faces(hint), HORIZONTAL_ALIGNMENT_LEFT, 880, 28, Color(0.8, 0.8, 0.88))
 	var stat := _shop_stat(i)
 	draw_string(font, Vector2(r.position.x + 920, r.position.y + 100), stat, HORIZONTAL_ALIGNMENT_LEFT, 660, 28, Color(0.6, 1.0, 0.65) if owned else (Color(1.0, 0.5, 0.45) if stat.begins_with("Clear") else Color(0.85, 0.85, 0.9)))
 	if not owned or pid == PerryUnlocks.POWDER_ID:
 		var price := _shop_price(i)
 		draw_string(font, Vector2(r.position.x + 1280, r.position.y + 50), "%d g" % price, HORIZONTAL_ALIGNMENT_RIGHT, 300, 40, Color(1.0, 0.8, 0.45) if Carry.gold >= price else Color(0.75, 0.45, 0.4))
+
+
+## the prompt style screen: Left/Right pick, and the choice is saved as soon as it changes. B closes.
+const PROMPT_ROWS := [
+	["Confirm", "btn_a"], ["Back", "btn_b"], ["Attack", "btn_x"], ["Quick", "btn_y"],
+	["Heal", "l1"], ["Summon", "r1"], ["Bubble", "l2"], ["Lightning", "r2"],
+	["Pause", "start"], ["Freeze slash", "r3"],
+]
+
+
+func _prompt_card(i: int) -> Rect2:
+	var choices: Array = Controls.prompt_choices()
+	var n := maxi(choices.size(), 1)
+	var w := 460.0
+	var gap := 28.0
+	var total := w * float(n) + gap * float(n - 1)
+	var x0 := (1920.0 - total) * 0.5
+	return Rect2(x0 + float(i) * (w + gap), 270.0, w, 560.0)
+
+
+func _apply_prompt(i: int) -> void:
+	var choices: Array = Controls.prompt_choices()
+	if i < 0 or i >= choices.size():
+		return
+	prompt_i = i
+	Controls.set_prompt(String(choices[i]))
+
+
+func _prompt_input(e: InputEvent) -> void:
+	var n: int = Controls.prompt_choices().size()
+	if e.is_action_pressed("btn_b") or (e is InputEventKey and e.pressed and e.physical_keycode == KEY_ESCAPE):
+		mode = "menu"
+	elif e.is_action_pressed("left") or e.is_action_pressed("up"):
+		_apply_prompt(posmod(prompt_i - 1, n))
+		Sfx.play("swipe", 1.3, -8.0)
+	elif e.is_action_pressed("right") or e.is_action_pressed("down"):
+		_apply_prompt(posmod(prompt_i + 1, n))
+		Sfx.play("swipe", 1.3, -8.0)
+	elif e.is_action_pressed("btn_a") or e.is_action_pressed("start") or e.is_action_pressed("ui_accept"):
+		_apply_prompt(prompt_i)
+		mode = "menu"
+	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		var p := _to_design(e.position)
+		for i in n:
+			if _prompt_card(i).has_point(p):
+				_apply_prompt(i)
+				return
+
+
+func _draw_prompts() -> void:
+	_panel(Rect2(120, 60, 1680, 960))
+	draw_string(font, Vector2(0, 150), "CONTROLLER", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(1.0, 0.8, 0.45))
+	draw_string(font, Vector2(0, 210), "Changes the names on the controls list, the HUD and the death duel. The buttons still do the same thing.", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.8, 0.8, 0.88))
+	var choices: Array = Controls.prompt_choices()
+	for i in choices.size():
+		var r := _prompt_card(i)
+		var on := i == prompt_i
+		var id := String(choices[i])
+		draw_rect(r, Color(0.28, 0.14, 0.04, 0.95) if on else Color(0.08, 0.05, 0.12, 0.92))
+		draw_rect(r, Color(1.0, 0.8, 0.4) if on else Color(0.45, 0.4, 0.55), false, 4.0)
+		draw_string(font, Vector2(r.position.x, r.position.y + 52), Controls.prompt_label(id), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 36, Color(1.0, 0.9, 0.55) if on else Color(0.9, 0.9, 0.95))
+		var y := r.position.y + 110.0
+		for row_i in PROMPT_ROWS:
+			var label := String(row_i[0])
+			var shown := Controls.button(String(row_i[1]), id)
+			draw_string(font, Vector2(r.position.x + 36, y), label, HORIZONTAL_ALIGNMENT_LEFT, 250, 28, Color(0.75, 0.75, 0.82))
+			draw_string(font, Vector2(r.position.x + 250, y), shown, HORIZONTAL_ALIGNMENT_LEFT, 170, 28, Color(1.0, 0.85, 0.45))
+			y += 40.0
+	draw_string(font, Vector2(0, 900), Controls.faces("Left / Right: choose (saved at once)    A: close    B: back"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 28, Color(0.85, 0.85, 0.9))
 
 
 func _draw_update() -> void:
@@ -731,8 +820,8 @@ func _draw_update() -> void:
 		draw_rect(b, Color(0.15, 0.1, 0.2))
 		draw_rect(Rect2(b.position, Vector2(b.size.x * u.progress, b.size.y)), Color(0.4, 1.0, 0.5))
 		draw_rect(b, Color(0.8, 0.8, 0.9), false, 2.0)
-	var hint := {"available": "A (Z): download and verify      B (X): later",
-		"ready": "A (Z): install and restart%s      B (X): later" % (" (opens the Android installer)" if u.platform_name() == "Android" else ""),
-		"checking": "B (X): close", "downloading": "B (X): hide (the download continues)", "installing": "",
-		"uptodate": "A / B: close", "error": "A / B: close", "unsupported": "A / B: close", "idle": "B (X): close"}
-	draw_string(font, Vector2(0, 690), String(hint.get(u.state, "")), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))
+	var hint := {"available": "A: download and verify      B: later",
+		"ready": "A: install and restart%s      B: later" % (" (opens the Android installer)" if u.platform_name() == "Android" else ""),
+		"checking": "B: close", "downloading": "B: hide (the download continues)", "installing": "",
+		"uptodate": "A / B: close", "error": "A / B: close", "unsupported": "A / B: close", "idle": "B: close"}
+	draw_string(font, Vector2(0, 690), Controls.faces(String(hint.get(u.state, ""))), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))

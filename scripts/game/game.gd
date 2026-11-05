@@ -1096,7 +1096,15 @@ func summonable() -> Array:
 
 ## the control that summons an ally, for hint text: Perry uses the right stick, Mera R1
 func summon_key() -> String:
-	return "right stick" if is_instance_valid(mera) and mera.get("is_perry") == true else "R1"
+	if is_instance_valid(mera) and mera.get("is_perry") == true:
+		match Controls.prompt_style():
+			"key":
+				return "numpad"
+			"touch":
+				return "a swipe"
+			_:
+				return "right stick"
+	return Controls.button("r1")
 
 
 ## R1 (mera.gd): one type -> summon it; several -> the picker; none -> false (fail cue)

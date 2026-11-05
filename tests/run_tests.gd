@@ -2543,7 +2543,7 @@ func _updater_tests() -> void:
 		var right := InputEventAction.new()
 		right.action = "right"
 		right.pressed = true
-		for _i in 3:
+		for _i in 4:
 			menu._unhandled_input(right)
 		var acc := InputEventAction.new()
 		acc.action = "btn_a"
@@ -2554,7 +2554,7 @@ func _updater_tests() -> void:
 		back.action = "btn_b"
 		back.pressed = true
 		menu._unhandled_input(back)
-		_check("menu: Down x2 -> bottom row (past the character toggle), Right x3 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1, "mode=%s row=%d" % [menu.mode, menu.row])
+		_check("menu: Down x2 -> bottom row (past the character toggle), Right x4 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1 and menu._button_text(2) == "CONTROLS" and menu._button_text(4) == "CREDITS", "mode=%s row=%d btn=%d" % [menu.mode, menu.row, menu.btn])
 		var C = load("res://scripts/app/credits.gd")
 		var whos: Array = []
 		for c in C.ENTRIES:
@@ -2565,6 +2565,27 @@ func _updater_tests() -> void:
 			all_in = all_in and whos.has(n)
 		var chierit: Dictionary = C.ENTRIES[0]
 		_check("credits: every pack author + Godot (MIT, godotengine.org/license); chierit CC-BY 4.0 with his itch link, incl. Minotaur", all_in and whos.any(func(x): return String(x).find("ansimuz") >= 0) and String(chierit["lic"]) == "CC-BY 4.0" and String(chierit["url"]) == "https://chierit.itch.io" and String(chierit["what"]).find("Minotaur") >= 0 and String(C.ENTRIES[C.ENTRIES.size() - 1]["url"]) == "https://godotengine.org/license", str(whos))
+		var CT = root.get_node("Controls")
+		CT.set_prompt("key")
+		var kept: String = CT.prompt_style()
+		Carry.reset()
+		_check("prompts: keyboard remaps buttons and leaves 1x/2x, and Reset does not clear the choice", kept == "key" and CT.prompt_style() == "key" and CT.faces("X X X = 1x 2x 2x-1") == "A A A = 1x 2x 2x-1" and CT.button("btn_a") == "Z" and CT.button("btn_b") == "X" and CT.button("l1") == "Q" and CT.button("r2") == "2" and CT.button("start") == "Enter" and CT.mark_name() == "Numpad 5" and not CT.prompt_arrows() and CT.prompt_choices() == ["key", "xbox", "playstation"], CT.faces("X X X = 1x 2x 2x-1"))
+		menu.btn = 2
+		menu.row = 1
+		menu._press_button()
+		_check("menu: CONTROLS opens the prompt screen on Keyboard", menu.mode == "controls" and menu.prompt_i == 0, "mode %s i %d" % [menu.mode, menu.prompt_i])
+		var pr := InputEventAction.new()
+		pr.action = "right"
+		pr.pressed = true
+		menu._prompt_input(pr)
+		_check("prompts: choosing Xbox saves LB / Menu / RS", menu.prompt_i == 1 and CT.prompt_style() == "xbox" and CT.button("l1") == "LB" and CT.button("r1") == "RB" and CT.button("l2") == "LT" and CT.button("start") == "Menu" and CT.mark_name() == "RS" and CT.prompt_arrows() and CT.faces("L2 + R2") == "LT + RT", CT.faces("L2 + R2"))
+		menu._prompt_input(pr)
+		_check("prompts: PlayStation uses cross, circle, square, triangle and Options", CT.prompt_style() == "playstation" and CT.button("btn_a") == "×" and CT.button("btn_b") == "○" and CT.button("btn_x") == "□" and CT.button("btn_y") == "△" and CT.button("l1") == "L1" and CT.button("start") == "Options", CT.button("btn_a"))
+		var duel = load("res://scripts/game/ambidex.gd").new()
+		_check("ambidex: the duel glyphs follow the title prompt, not its old pad question", duel._glyph("K") == "×" and duel._glyph("I") == "△" and duel._glyph("W") == "↑" and String(duel._hand_labels()[1]).find("×") >= 0, duel._glyph("K"))
+		CT.set_prompt("key")
+		_check("ambidex: keyboard prompts stay the letters, and touch names are PAUSE and TAP", duel._glyph("K") == "K" and String(duel._hand_labels()[0]).find("WASD") >= 0 and CT.button("start", "touch") == "PAUSE" and CT.button("r3", "touch") == "TAP" and CT.button("btn_a", "touch") == "A", duel._glyph("K"))
+		duel.free()
 		menu.queue_free()
 		await process_frame
 		U.auto_check = true
@@ -2624,6 +2645,7 @@ func _mark_tests() -> void:
 	await physics_frame
 	_check("a touch swipe is that direction, and a device of its own", swipe == 8 and C.scheme == "touch", "swipe=%d scheme=%s" % [swipe, C.scheme])
 	C.scheme = "key"
+	C.set_prompt("key")
 	C.joy_r = Vector2.ZERO
 	C.pad_keys.clear()
 	C.clear_gestures()
@@ -2670,6 +2692,7 @@ func _mark_tests() -> void:
 	g.queue_free()
 	await physics_frame
 	C.scheme = "pad"
+	C.set_prompt("xbox")
 	C.clear_gestures()
 	g = await _new_game()
 	m = g.mera
@@ -2736,6 +2759,7 @@ func _mark_tests() -> void:
 	g.queue_free()
 	await physics_frame
 	C.scheme = "key"
+	C.set_prompt("key")
 	C.joy_r = Vector2.ZERO
 	C.pad_keys.clear()
 	C.clear_gestures()
@@ -4324,12 +4348,12 @@ func _perry_tests() -> void:
 	menu.shop_i = 2
 	menu._toggle_character()
 	_check("menu: with Perry unlocked the toggle switches to her, resets the shop to its first page, and her shop has six pages", C.perry_selected() and menu.shop_page == 0 and menu.shop_i == 0 and menu._page_count() == 6, "%s %d page %d" % [C.character, menu._page_count(), menu.shop_page])
-	menu.shop_i = 1
-	var row_what: String = menu._shop_what(1)
-	var price_txt: int = menu._shop_price(1)
-	var stat_locked: String = menu._shop_stat(1)
+	menu.shop_i = 2
+	var row_what: String = menu._shop_what(2)
+	var price_txt: int = menu._shop_price(2)
+	var stat_locked: String = menu._shop_stat(2)
 	menu._shop_buy()
-	_check("menu: a Perry row shows its price in gold, buying it makes the row 'owned'", row_what == "perry:thrust" and price_txt == 25 and C.gold == 75 and menu._shop_stat(1) == "owned" and stat_locked.begins_with("Clear Stage 2 level") == false, "%s %d %s gold %d" % [row_what, price_txt, stat_locked, C.gold])
+	_check("menu: a Perry row shows its price in gold, buying it makes the row 'owned'", row_what == "perry:thrust" and price_txt == 25 and C.gold == 75 and menu._shop_stat(2) == "owned" and stat_locked.begins_with("Clear Stage 2 level") == false, "%s %d %s gold %d" % [row_what, price_txt, stat_locked, C.gold])
 	menu.queue_free()
 	await process_frame
 	# ---- the controls: Y is the spin, L1 is only the Push Kick, R1 never summons, the right stick drinks and summons

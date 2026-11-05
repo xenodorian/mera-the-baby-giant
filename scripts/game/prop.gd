@@ -344,7 +344,7 @@ func _chest_tick(delta: float) -> void:
 		return
 	if not touching or _retry_t > 0.0:
 		return
-	prompt.text = "%s: OPEN" % ("Z" if Controls.scheme == "key" else "A")
+	prompt.text = "%s: OPEN" % Controls.button("btn_a")
 	prompt.visible = true
 	if touch_opens and Input.is_action_just_pressed("btn_a"):          # standing on the chest, press A to open it
 		try_open()

@@ -50,6 +50,18 @@ const FLICK_OFF := 0.35
 const SWIPE_PX := 64.0
 ## last device that actually did something: "key", "pad" or "touch". Numpad counts as the pad.
 var scheme := "key"
+## How button names are drawn. Separate from scheme, so a touch still plays while the prompts say Xbox.
+## Saved in user://prompt_style.txt. Carry.reset does not remove it.
+const PROMPT_PATH := "user://prompt_style.txt"
+const FACE := {
+	"key": {"A": "Z", "B": "X", "X": "A", "Y": "S", "L1": "Q", "R1": "W", "L2": "1", "R2": "2", "L3": "E", "R3": "Numpad 5", "Start": "Enter"},
+	"xbox": {"A": "A", "B": "B", "X": "X", "Y": "Y", "L1": "LB", "R1": "RB", "L2": "LT", "R2": "RT", "L3": "LS", "R3": "RS", "Start": "Menu"},
+	"playstation": {"A": "×", "B": "○", "X": "□", "Y": "△", "L1": "L1", "R1": "R1", "L2": "L2", "R2": "R2", "L3": "L3", "R3": "R3", "Start": "Options"},
+	"touch": {"A": "A", "B": "B", "X": "X", "Y": "Y", "L1": "L1", "R1": "R1", "L2": "L2", "R2": "R2", "L3": "L3", "R3": "TAP", "Start": "PAUSE"},
+}
+const _FACE_KEYS := ["Start", "L1", "L2", "L3", "R1", "R2", "R3", "A", "B", "X", "Y"]
+var _prompt := ""
+signal prompt_changed(style: String)
 var joy_r := Vector2.ZERO
 var pad_keys := {}
 var armed := true
@@ -63,6 +75,7 @@ var _touch_swiped := false
 
 
 func _ready() -> void:
+	_load_prompt()
 	for action in MAP:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action, DEAD)
@@ -219,15 +232,9 @@ func consume_r3_fresh() -> bool:
 	return fresh
 
 
-## the name of that trigger for the input the player is using right now (hud prompts and the controls screen)
+## the name of the freeze-slash trigger for the prompt style the player picked (not the last device)
 func mark_name() -> String:
-	match scheme:
-		"touch":
-			return "TAP"
-		"key":
-			return "NUMPAD 5"
-		_:
-			return "R3"
+	return button("r3")
 
 
 func consume_r3() -> bool:
@@ -244,7 +251,7 @@ func clear_gestures() -> void:
 
 
 func prompt_arrows() -> bool:
-	return scheme != "key"
+	return prompt_style() != "key"
 
 
 static func is_trigger_event(event: InputEvent) -> bool:
@@ -285,3 +292,127 @@ static func key_bindings() -> Dictionary:
 static func key_label(action: String) -> String:
 	var ks: Array = MAP[action][0]
 	return OS.get_keycode_string(ks[0]) if not ks.is_empty() else ""
+
+
+## Android and iOS show touchscreen prompts. Desktop shows keyboard prompts. Both can switch to a pad.
+func mobile_ui() -> bool:
+	return OS.get_name() == "Android" or OS.get_name() == "iOS"
+
+
+func prompt_choices() -> Array:
+	if mobile_ui():
+		return ["touch", "xbox", "playstation"]
+	return ["key", "xbox", "playstation"]
+
+
+func prompt_style() -> String:
+	if _prompt == "" or not prompt_choices().has(_prompt):
+		_load_prompt()
+	return _prompt
+
+
+func set_prompt(style: String) -> void:
+	if not prompt_choices().has(style):
+		return
+	var changed := style != _prompt
+	_prompt = style
+	var f := FileAccess.open(PROMPT_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(style)
+	if changed:
+		prompt_changed.emit(style)
+
+
+func _load_prompt() -> void:
+	var choices := prompt_choices()
+	_prompt = String(choices[0])
+	if not FileAccess.file_exists(PROMPT_PATH):
+		return
+	var f := FileAccess.open(PROMPT_PATH, FileAccess.READ)
+	if f == null:
+		return
+	var raw := f.get_as_text().strip_edges()
+	if choices.has(raw):
+		_prompt = raw
+
+
+func prompt_label(style: String = "") -> String:
+	var use := style if style != "" else prompt_style()
+	match use:
+		"key":
+			return "Keyboard"
+		"touch":
+			return "Touchscreen"
+		"xbox":
+			return "Xbox"
+		"playstation":
+			return "PlayStation"
+		_:
+			return use
+
+
+## the on-screen name of one action ("btn_a", "l1", "start", "r3")
+func button(action: String, style: String = "") -> String:
+	var tok := ""
+	match action:
+		"btn_a":
+			tok = "A"
+		"btn_b":
+			tok = "B"
+		"btn_x":
+			tok = "X"
+		"btn_y":
+			tok = "Y"
+		"l1":
+			tok = "L1"
+		"r1":
+			tok = "R1"
+		"l2":
+			tok = "L2"
+		"r2":
+			tok = "R2"
+		"mana":
+			tok = "L3"
+		"start":
+			tok = "Start"
+		"r3":
+			tok = "R3"
+		_:
+			return ""
+	return faces(tok, style)
+
+
+## rewrite Xbox button words in a sentence. "1x" and "2x" stay. Pass style to preview a choice that is not saved yet.
+func faces(text: String, style: String = "") -> String:
+	var use := style if style != "" else prompt_style()
+	if not FACE.has(use):
+		use = String(prompt_choices()[0])
+	var map: Dictionary = FACE[use]
+	var out := ""
+	var i := 0
+	var n := text.length()
+	while i < n:
+		var hit := ""
+		if _face_edge(text, i - 1):
+			for k in _FACE_KEYS:
+				var L := String(k).length()
+				if i + L <= n and text.substr(i, L) == String(k) and _face_edge(text, i + L):
+					hit = String(k)
+					break
+		if hit != "":
+			out += String(map[hit])
+			i += hit.length()
+		else:
+			out += text.substr(i, 1)
+			i += 1
+	return out
+
+
+func _face_edge(text: String, i: int) -> bool:
+	if i < 0 or i >= text.length():
+		return true
+	return not _face_alnum(text.unicode_at(i))
+
+
+func _face_alnum(c: int) -> bool:
+	return (c >= 48 and c <= 57) or (c >= 65 and c <= 90) or (c >= 97 and c <= 122)

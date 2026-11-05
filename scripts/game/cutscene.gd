@@ -393,8 +393,8 @@ func _paint() -> void:
 		y += lh + 24.0
 	if _portrait != null:
 		_draw_portrait()
-	var next_key := "Z" if Controls.scheme == "key" else "A"
-	var skip_key := "X" if Controls.scheme == "key" else "B"
+	var next_key := Controls.button("btn_a")
+	var skip_key := Controls.button("btn_b")
 	var hint := "%s: next    %s: skip" % [next_key, skip_key]
 	var hint_y := 1068.0 if has_slides else 1010.0
 	ui.draw_string(font, Vector2(2, hint_y + 2), hint, HORIZONTAL_ALIGNMENT_CENTER, W, 26, Color(0, 0, 0, 0.7))

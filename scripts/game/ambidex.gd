@@ -116,10 +116,7 @@ func _ready() -> void:
 	best = _load_best()
 	_load_pad()
 	Input.joy_connection_changed.connect(_on_joy_connection)
-	if pad_style == "" and not Input.get_connected_joypads().is_empty():
-		_open_ask()
-	else:
-		start_run()
+	start_run()
 
 
 func _exit_tree() -> void:
@@ -184,19 +181,10 @@ func _blow(kind: String) -> void:
 	sfx_players[0].play()
 
 func _glyph(letter: String) -> String:
-	if input_method != "pad" or pad_style == "":
+	var style := Controls.prompt_style()
+	if style == "key":
 		return letter
-	if pad_style == "xbox":
-		match letter:
-			"W": return "↑"
-			"A": return "←"
-			"S": return "↓"
-			"D": return "→"
-			"I": return "Y"
-			"J": return "X"
-			"K": return "A"
-			"L": return "B"
-	else:
+	if style == "playstation":
 		match letter:
 			"W": return "↑"
 			"A": return "←"
@@ -206,6 +194,16 @@ func _glyph(letter: String) -> String:
 			"J": return "□"
 			"K": return "×"
 			"L": return "○"
+	else:
+		match letter:
+			"W": return "↑"
+			"A": return "←"
+			"S": return "↓"
+			"D": return "→"
+			"I": return "Y"
+			"J": return "X"
+			"K": return "A"
+			"L": return "B"
 	return letter
 
 func _open_ask() -> void:
@@ -246,9 +244,6 @@ func _on_joy_connection(_device: int, connected: bool) -> void:
 		if Input.get_connected_joypads().is_empty():
 			pad_dismissed = false
 		return
-	if pad_style == "" and not pad_dismissed and not ask_pad:
-		_open_ask()
-		pad_lock_until = Time.get_ticks_msec() + 350
 
 func _ask_rects(size: Vector2) -> Dictionary:
 	var card_w := 250.0
@@ -499,9 +494,6 @@ func _input(event: InputEvent) -> void:
 			elif event.button_index == JOY_BUTTON_A:
 				_confirm_style(pad_highlight)
 			return
-		if pad_style == "":
-			_open_ask()
-			return
 		input_method = "pad"
 		_boot_audio()
 		if event.button_index == JOY_BUTTON_START:
@@ -555,9 +547,6 @@ func _input(event: InputEvent) -> void:
 				_confirm_style("playstation")
 			elif rects.keep.has_point(event.position):
 				_dismiss_pad()
-			return
-		if (state == "menu" or state == "pause") and _style_button_rect(size).has_point(event.position):
-			_open_ask()
 			return
 		if button.has_point(event.position):
 			if state == "menu":
@@ -861,16 +850,9 @@ func _draw() -> void:
 	draw_rect(Rect2(size.x * 0.5, 0, size.x * 0.5, size.y), PANEL, true)
 	draw_rect(Rect2(size.x * 0.5 - 1, 0, 2, size.y), CREAM.darkened(0.55), true)
 	var font := ThemeDB.fallback_font
-	var left_label := "LEFT HAND  ·  WASD"
-	var right_label := "RIGHT HAND  ·  IJKL"
-	if input_method == "pad" and pad_style == "xbox":
-		left_label = "LEFT HAND  ·  D-PAD"
-		right_label = "RIGHT HAND  ·  A B X Y"
-	elif input_method == "pad" and pad_style == "playstation":
-		left_label = "LEFT HAND  ·  D-PAD"
-		right_label = "RIGHT HAND  ·  × ○ □ △"
-	draw_string(font, Vector2(size.x * 0.25 - 70, 128), left_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
-	draw_string(font, Vector2(size.x * 0.75 - 90, 128), right_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
+	var hands := _hand_labels()
+	draw_string(font, Vector2(size.x * 0.25 - 70, 128), String(hands[0]), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
+	draw_string(font, Vector2(size.x * 0.75 - 90, 128), String(hands[1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
 	_draw_fighters(layout)
 	var slot := Rect2(layout.lane_x - (layout.key_size + 36) * 0.5, layout.hit_y - layout.zone_h * 0.5, layout.key_size + 36, layout.zone_h)
 	draw_rect(slot, INK, true)
@@ -918,6 +900,18 @@ func _draw() -> void:
 	_draw_overlay(layout)
 	if ask_pad:
 		_draw_ask(size)
+
+func _hand_labels() -> Array:
+	match Controls.prompt_style():
+		"key":
+			return ["LEFT HAND  ·  WASD", "RIGHT HAND  ·  IJKL"]
+		"playstation":
+			return ["LEFT HAND  ·  D-PAD", "RIGHT HAND  ·  × ○ □ △"]
+		"touch":
+			return ["LEFT HAND  ·  D-PAD", "RIGHT HAND  ·  A B X Y"]
+		_:
+			return ["LEFT HAND  ·  D-PAD", "RIGHT HAND  ·  A B X Y"]
+
 
 func _draw_style_card(rect: Rect2, title: String, detail: String, top: String, left: String, right: String, bottom: String, active: bool) -> void:
 	draw_rect(rect, INK, true)
@@ -969,12 +963,7 @@ func _draw_overlay(layout: Dictionary) -> void:
 	if state == "menu" or state == "pause":
 		var style_rect := _style_button_rect(size)
 		draw_rect(style_rect, INK, true)
-		var style_label := "PlayStation or Xbox"
-		if pad_style == "xbox":
-			style_label = "Face buttons: Xbox"
-		elif pad_style == "playstation":
-			style_label = "Face buttons: PlayStation"
-		draw_string(font, style_rect.position + Vector2(48, 30), style_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, CREAM)
+		draw_string(font, style_rect.position + Vector2(28, 30), "Prompts: %s" % Controls.prompt_label(), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, CREAM)
 	if state == "menu":
 		var hint := "or press any game key"
 		if input_method == "pad":

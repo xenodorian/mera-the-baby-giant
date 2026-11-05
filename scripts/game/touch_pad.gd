@@ -51,7 +51,14 @@ func _ready() -> void:
 	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_root)
 	Input.joy_connection_changed.connect(func(_d, _c): _scan_pads())
+	if not Controls.prompt_changed.is_connected(_on_prompt):
+		Controls.prompt_changed.connect(_on_prompt)
 	_scan_pads()
+	_layout()
+
+
+func _on_prompt(_style: String) -> void:
+	_laid = Vector2.ZERO
 	_layout()
 
 
@@ -88,18 +95,13 @@ func _layout() -> void:
 
 
 func _label(action: String) -> String:
-	match action:
-		"l1": return "L1"
-		"l2": return "L2"
-		"mana": return "L3"
-		"start": return "PAUSE"
-		"r1": return "R1"
-		"r2": return "R2"
-		"btn_a": return "A"
-		"btn_b": return "B"
-		"btn_x": return "X"
-		"btn_y": return "Y"
-		_: return action
+	if action in ["up", "down", "left", "right"]:
+		return action
+	var style := Controls.prompt_style()
+	if style == "key":
+		style = "touch"
+	var named := Controls.button(action, style)
+	return named if named != "" else action
 
 
 func _add(action: String, rect: Rect2, label: String, round: bool) -> void:

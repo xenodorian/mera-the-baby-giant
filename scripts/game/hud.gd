@@ -77,21 +77,27 @@ func _draw_controls_panel() -> void:
 	var m = game.mera
 	var perry: bool = is_instance_valid(m) and m.get("is_perry") == true
 	_txt(Vector2(180, 150), "%s CONTROLS" % ("PERRY" if perry else "MERA"), 64, Color(1.0, 0.82, 0.45))
+	_txt(Vector2(180, 198), Controls.prompt_label(), 28, Color(0.7, 0.82, 0.95))
 	var table := _controls_table()
 	controls_page = clampi(controls_page, 0, _controls_pages() - 1)
 	var from := controls_page * CTRL_PER_PAGE
-	var y := 245.0
+	var y := 250.0
 	for i in range(from, mini(from + CTRL_PER_PAGE, table.size())):
-		var pad_name := String(table[i][0])
-		if pad_name == "Start" and OS.get_name() == "Android":
-			pad_name = "Start / PAUSE button"
-		pad_name = pad_name.replace("{MARK}", Controls.mark_name())
-		_txt(Vector2(180, y), pad_name, 46, Color(1, 0.75, 0.45))
-		_txt(Vector2(180, y + 46), "Keyboard: %s" % String(table[i][1]), 32, Color(0.55, 0.85, 1.0))
-		ui.draw_multiline_string(font, Vector2(180, y + 92), String(table[i][2]), HORIZONTAL_ALIGNMENT_LEFT, 1440.0, 36, 2, Color(0.95, 0.92, 0.88))
+		_txt(Vector2(180, y), _prompt_primary(table[i]), 46, Color(1, 0.75, 0.45))
+		ui.draw_multiline_string(font, Vector2(180, y + 64), Controls.faces(String(table[i][2])), HORIZONTAL_ALIGNMENT_LEFT, 1440.0, 32, 2, Color(0.95, 0.92, 0.88))
 		y += 178.0
-	_center(985, "Page %d / %d      Left / Right: page      B / Start: back" % [controls_page + 1, _controls_pages()], 32, Color(0.85, 0.85, 0.9))
+	_center(985, Controls.faces("Page %d / %d      Left / Right: page      B / Start: back" % [controls_page + 1, _controls_pages()]), 32, Color(0.85, 0.85, 0.9))
 	ui.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## the button line for the saved prompt style. Keyboard uses the keyboard column. Anything else renames the Xbox column.
+func _prompt_primary(row: Array) -> String:
+	var pad_name := String(row[0]).replace("{MARK}", Controls.mark_name())
+	if Controls.prompt_style() == "key":
+		var kb := String(row[1]) if row.size() > 1 else ""
+		if kb != "":
+			return kb
+	return Controls.faces(pad_name)
 
 
 ## Perry's list while she is the character in play; Mera's otherwise
@@ -242,11 +248,11 @@ func _draw_ui() -> void:
 	ui.draw_rect(Rect2(140 + hx, 78, w, 26), Color(0.05, 0.03, 0.06), false, 3.0)
 	_txt(Vector2(482 + hx, 100), ("%d/%d" % [int(m.rage), int(m.rage_max)]), 24)
 	if m.rage >= 100.0 and not m.fury and not perry and int(Time.get_ticks_msec() / 300) % 2 == 0:
-		_txt(Vector2(140 + hx, 136), "R2 LIGHTNING   ·   L2+R2 FURY   ·   %s SLASH" % Controls.mark_name(), 22, Color(1, 0.3, 0.25))
+		_txt(Vector2(140 + hx, 136), Controls.faces("R2 LIGHTNING   ·   L2+R2 FURY   ·   %s SLASH" % Controls.mark_name()), 22, Color(1, 0.3, 0.25))
 	if _flash == "rage" and _flash_t > 0.0:
 		_txt(Vector2(200 + hx, 146), "Fury, lightning and the freeze slash each need 100 rage", 22, Color(1, 0.5, 0.4))
 	if _flash == "fury_chord" and _flash_t > 0.0:
-		_txt(Vector2(260 + hx, 146), "Fury is L2 + R2 together. She is invulnerable while it lasts", 22, Color(1, 0.6, 0.4))
+		_txt(Vector2(260 + hx, 146), Controls.faces("Fury is L2 + R2 together. She is invulnerable while it lasts"), 22, Color(1, 0.6, 0.4))
 	if _flash == "parry" and _flash_t > 0.0:            # v0.8
 		_txt(Vector2(840, 300), "PARRY!", 64, Color(1.0, 0.92, 0.55, minf(_flash_t * 2.0, 1.0)))
 	if m.counter_active():
@@ -318,11 +324,11 @@ func _draw_ui() -> void:
 		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_center(o.y + 520, "GAME OVER", 110, Color(0.95, 0.2, 0.2))
 		if game.run_mode and game.run_wiped:
-			_center(o.y + 640, "No lives left. Your save stays.   A / Start: title    B: title", 28, Color(0.95, 0.92, 0.88))
+			_center(o.y + 640, Controls.faces("No lives left. Your save stays.   A / Start: title    B: title"), 28, Color(0.95, 0.92, 0.88))
 		elif game.run_mode:
-			_center(o.y + 640, "Back at the start of this map. Your save stays.   A: retry    B: title", 28, Color(0.95, 0.92, 0.88))
+			_center(o.y + 640, Controls.faces("Back at the start of this map. Your save stays.   A: retry    B: title"), 28, Color(0.95, 0.92, 0.88))
 		else:
-			_center(o.y + 640, "Back at the start of the stage. Your save stays.   A / Start: retry    B: level select", 28, Color(0.95, 0.92, 0.88))
+			_center(o.y + 640, Controls.faces("Back at the start of the stage. Your save stays.   A / Start: retry    B: level select"), 28, Color(0.95, 0.92, 0.88))
 		if not Carry.has_respawn():
 			_center(o.y + 690, "Shop: Respawn with minigame, 200 gold. Win it and you get up where you fell.", 24, Color(0.8, 0.85, 0.95))
 	if game.cleared and game.over_t > 0.3 and not game.victory:
@@ -331,10 +337,10 @@ func _draw_ui() -> void:
 		var last: bool = game.has_method("is_last_level") and game.is_last_level() and not game.run_mode
 		_center(o2.y + 500, "JOURNEY COMPLETE" if last else ("STAGE CLEAR" if game.run_mode else "LEVEL CLEAR"), 90, Color(1.0, 0.85, 0.45))
 		if game.run_mode:
-			_center(o2.y + 620, "Stage %d cleared. Saved. +1 life (%d). Next map has %d foes.   A: continue    B: title" % [game.cleared_stage, game.lives, game.quota], 28, Color(0.95, 0.92, 0.88))
+			_center(o2.y + 620, Controls.faces("Stage %d cleared. Saved. +1 life (%d). Next map has %d foes.   A: continue    B: title" % [game.cleared_stage, game.lives, game.quota]), 28, Color(0.95, 0.92, 0.88))
 			_center(o2.y + 670, "Upgrades and items come with you. A death does not erase the save.", 26, Color(0.8, 0.9, 1.0))
 		else:
-			_center(o2.y + 620, "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32, Color(0.95, 0.92, 0.88))
+			_center(o2.y + 620, Controls.faces("A / Start: level select      B: level select" if last else "A / Start: next level      B: level select"), 32, Color(0.95, 0.92, 0.88))
 			if not last:
 				_center(o2.y + 670, "potions, cards, mana and rage come with you. A death returns her to 2x", 26, Color(0.8, 0.9, 1.0))
 	if game.paused_play:
