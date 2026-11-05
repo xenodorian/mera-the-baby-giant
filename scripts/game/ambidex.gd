@@ -67,6 +67,7 @@ var reap_hurt_tex: Texture2D = preload("res://ambidex/art/reaper_hurt.png")
 var reap_death_tex: Texture2D = preload("res://ambidex/art/reaper_death.png")
 var died_tex: Texture2D = preload("res://ambidex/art/you-died.png")
 var cheat_tex: Texture2D = preload("res://ambidex/art/you-cheated.png")
+var bgm_stream: AudioStream = preload("res://ambidex/audio/bgm.mp3")
 var land_sfx: AudioStream = preload("res://ambidex/audio/land.wav")
 var block_sfx: AudioStream = preload("res://ambidex/audio/block.wav")
 var hurt_sfx: AudioStream = preload("res://ambidex/audio/hurt.wav")
@@ -88,6 +89,7 @@ var time := 0.0
 var particles: Array = []
 var floaters: Array = []
 var button := Rect2()
+var decline_button := Rect2()
 var duel := "idle"
 var duel_age := 0.0
 var ending_time := 0.0
@@ -103,6 +105,7 @@ var muted := false
 var audio_ready := false
 var death_age := 0.0
 var sent := false
+var bgm_player: AudioStreamPlayer
 var sfx_players: Array[AudioStreamPlayer] = []
 
 func _ready() -> void:
@@ -114,7 +117,12 @@ func _ready() -> void:
 	best = _load_best()
 	_load_pad()
 	Input.joy_connection_changed.connect(_on_joy_connection)
-	start_run()
+	_boot_audio()
+
+
+func _exit_tree() -> void:
+	if bgm_player and is_instance_valid(bgm_player):
+		bgm_player.stop()
 
 
 func _load_pad() -> void:
@@ -137,15 +145,27 @@ func _boot_audio() -> void:
 	if audio_ready:
 		return
 	audio_ready = true
+	bgm_player = AudioStreamPlayer.new()
+	bgm_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(bgm_player)
+	var stream := bgm_stream.duplicate()
+	if stream is AudioStreamMP3:
+		stream.loop = true
+	bgm_player.stream = stream
+	bgm_player.volume_db = -80.0 if muted else -8.0
+	bgm_player.play()
 	for _i in 4:
 		var player := AudioStreamPlayer.new()
 		player.volume_db = -3.0
+		player.process_mode = Node.PROCESS_MODE_ALWAYS
 		add_child(player)
 		sfx_players.append(player)
 
 func _toggle_mute() -> void:
 	_boot_audio()
 	muted = not muted
+	if bgm_player:
+		bgm_player.volume_db = -80.0 if muted else -8.0
 
 func _blow(kind: String) -> void:
 	_boot_audio()
@@ -258,9 +278,9 @@ func _save_best() -> void:
 
 func _layout() -> Dictionary:
 	var size := get_viewport_rect().size
-	var hit_y := maxf(210.0, size.y * 0.68)
-	var zone_h := clampf(size.y * 0.2, 112.0, 160.0)
-	var key_size := clampf(zone_h * 0.58, 64.0, 96.0)
+	var key_size := size.y * 0.26
+	var zone_h := key_size * 1.35
+	var hit_y := size.y * 0.74
 	return {
 		"size": size,
 		"hit_y": hit_y,
@@ -323,6 +343,16 @@ func start_run() -> void:
 	_arm_right()
 	_spawn(_layout())
 
+func _accept() -> void:
+	if state == "menu":
+		start_run()
+
+func _decline() -> void:
+	if state != "menu" or sent:
+		return
+	sent = true
+	finished.emit(false)
+
 func _hurt(amount: int) -> void:
 	if state != "play" or hp <= 0:
 		return
@@ -373,9 +403,6 @@ func _award(side: String, at: Vector2) -> void:
 	_cue("slash" if side == "L" else "guard")
 
 func _press_letter(letter: String) -> void:
-	if state == "menu" and (letter in LEFT or letter in RIGHT):
-		start_run()
-		return
 	if state != "play":
 		return
 	var layout := _layout()
@@ -446,6 +473,10 @@ func _input(event: InputEvent) -> void:
 			state = "play"
 			get_viewport().set_input_as_handled()
 			return
+		if event.keycode == KEY_ESCAPE and state == "menu":
+			_decline()
+			get_viewport().set_input_as_handled()
+			return
 		if event.keycode == KEY_ESCAPE:
 			get_viewport().set_input_as_handled()
 			return
@@ -480,13 +511,21 @@ func _input(event: InputEvent) -> void:
 			return
 		input_method = "pad"
 		_boot_audio()
-		if event.button_index == JOY_BUTTON_START:
-			if state == "play":
-				state = "pause"
-			elif state == "pause":
+		if event.button_index == JOY_BUTTON_START or event.button_index == JOY_BUTTON_A:
+			if state == "menu":
+				_accept()
+				get_viewport().set_input_as_handled()
+				return
+			if state == "pause":
 				state = "play"
-			elif state == "menu":
-				start_run()
+				get_viewport().set_input_as_handled()
+				return
+			if event.button_index == JOY_BUTTON_START and state == "play":
+				state = "pause"
+				get_viewport().set_input_as_handled()
+				return
+		if event.button_index == JOY_BUTTON_B and state == "menu":
+			_decline()
 			get_viewport().set_input_as_handled()
 			return
 		var pad_letter := _joy_letter(event.button_index)
@@ -494,6 +533,18 @@ func _input(event: InputEvent) -> void:
 			_press_letter(pad_letter)
 		get_viewport().set_input_as_handled()
 	if event is InputEventAction and event.pressed and not event.is_echo():
+		if state == "menu" and (event.action == "btn_a" or event.action == "start" or event.action == "ui_accept"):
+			_accept()
+			get_viewport().set_input_as_handled()
+			return
+		if state == "menu" and (event.action == "btn_b" or event.action == "ui_cancel"):
+			_decline()
+			get_viewport().set_input_as_handled()
+			return
+		if state == "pause" and (event.action == "btn_a" or event.action == "start" or event.action == "ui_accept"):
+			state = "play"
+			get_viewport().set_input_as_handled()
+			return
 		if event.action == "start":
 			if state == "play":
 				state = "pause"
@@ -534,9 +585,11 @@ func _input(event: InputEvent) -> void:
 			return
 		if button.has_point(event.position):
 			if state == "menu":
-				start_run()
+				_accept()
 			elif state == "pause":
 				state = "play"
+		elif state == "menu" and decline_button.has_point(event.position):
+			_decline()
 		get_viewport().set_input_as_handled()
 
 func _advance_right(dt: float) -> void:
@@ -641,7 +694,7 @@ func _draw_fighters(layout: Dictionary) -> void:
 	if state != "play" and state != "pause" and state != "death":
 		return
 	var size: Vector2 = layout.size
-	var body_h := clampf(minf(size.x, size.y) * 0.2, 86.0, 140.0)
+	var body_h := clampf(minf(size.x, size.y) * 0.24, 160.0, size.y * 0.32)
 	var scale := body_h / float(IDLE_H)
 	var reap_scale := body_h / REAP_IDLE.y
 	var slot_top: float = layout.hit_y - layout.zone_h * 0.5
@@ -834,11 +887,12 @@ func _draw() -> void:
 	draw_rect(Rect2(size.x * 0.5, 0, size.x * 0.5, size.y), PANEL, true)
 	draw_rect(Rect2(size.x * 0.5 - 1, 0, 2, size.y), CREAM.darkened(0.55), true)
 	var font := ThemeDB.fallback_font
+	var s := size.y / 1080.0
 	var hands := _hand_labels()
-	draw_string(font, Vector2(size.x * 0.25 - 70, 128), String(hands[0]), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
-	draw_string(font, Vector2(size.x * 0.75 - 90, 128), String(hands[1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
+	draw_string(font, Vector2(size.x * 0.08, 150.0 * s), String(hands[0]), HORIZONTAL_ALIGNMENT_LEFT, -1, int(32.0 * s), MUTED)
+	draw_string(font, Vector2(size.x * 0.55, 150.0 * s), String(hands[1]), HORIZONTAL_ALIGNMENT_LEFT, -1, int(32.0 * s), MUTED)
 	_draw_fighters(layout)
-	var slot := Rect2(layout.lane_x - (layout.key_size + 36) * 0.5, layout.hit_y - layout.zone_h * 0.5, layout.key_size + 36, layout.zone_h)
+	var slot := Rect2(layout.lane_x - layout.key_size * 0.62, layout.hit_y - layout.zone_h * 0.5, layout.key_size * 1.24, layout.zone_h)
 	draw_rect(slot, INK, true)
 	var hot := false
 	for key in keys:
@@ -858,7 +912,7 @@ func _draw() -> void:
 	elif _right_live():
 		shown = _glyph(flash)
 	if shown != "":
-		var letter_size := int(minf(size.x * 0.16, 140.0))
+		var letter_size := int(size.y * 0.28)
 		draw_string(font, Vector2(size.x * 0.75 - letter_size * 0.32, maxf(180.0, size.y * 0.46) + letter_size * 0.28), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, letter_size, SIGNAL)
 	draw_string(font, Vector2(28, 42), "AMBIDEX", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, CREAM)
 	draw_string(font, Vector2(size.x * 0.5 - 28, 48), str(hp), HORIZONTAL_ALIGNMENT_LEFT, -1, 36, CREAM)
@@ -921,37 +975,39 @@ func _draw_ask(size: Vector2) -> void:
 	draw_rect(rects.keep, PANEL, true)
 	draw_string(font, rects.keep.position + Vector2(82, 32), "Keep keyboard", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, CREAM)
 
+func _draw_prompt_button(rect: Rect2, label: String, font: Font, fill: Color, ink: Color) -> void:
+	draw_rect(rect, fill, true)
+	var fs := int(rect.size.y * 0.38)
+	draw_string(font, Vector2(rect.position.x, rect.position.y + rect.size.y * 0.68), label, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, fs, ink)
+
 func _draw_overlay(layout: Dictionary) -> void:
 	if state == "play" or state == "death":
 		button = Rect2()
+		decline_button = Rect2()
 		return
 	if state == "over" or state == "win":
 		_draw_ending(layout)
 		return
 	var size: Vector2 = layout.size
-	draw_rect(Rect2(Vector2.ZERO, size), Color(INK, 0.9), true)
+	var s := size.y / 1080.0
+	draw_rect(Rect2(Vector2.ZERO, size), Color(INK, 0.92), true)
 	var font := ThemeDB.fallback_font
-	var title := "SPLIT ATTENTION"
-	var body := "Left hand catches. Right hand taps.\nSurvive 30 seconds."
-	var action := "Start"
+	var title := "YOU DIED"
+	var body := "Fight the reaper.\nLast 30 seconds and you get back up where you fell."
+	var fight := "%s   FIGHT" % Controls.button("btn_a")
+	var leave := "%s   TITLE" % Controls.button("btn_b")
 	if state == "pause":
 		title = "PAUSED"
-		body = "Esc, Start, or the button resumes."
-		action = "Resume"
-	draw_string(font, Vector2(size.x * 0.5 - 90, size.y * 0.32), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, SIGNAL)
-	draw_string(font, Vector2(size.x * 0.5 - 180, size.y * 0.40), "AMBIDEX", HORIZONTAL_ALIGNMENT_LEFT, -1, 54, CREAM)
-	draw_multiline_string(font, Vector2(size.x * 0.5 - 190, size.y * 0.50), body, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, 24, CREAM)
-	button = Rect2(size.x * 0.5 - 160, size.y * 0.64, 320, 56)
-	draw_rect(button, SIGNAL, true)
-	draw_string(font, button.position + Vector2(110, 36), action, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, INK)
-	if state == "menu" or state == "pause":
-		var style_rect := _style_button_rect(size)
-		draw_rect(style_rect, INK, true)
-		draw_string(font, style_rect.position + Vector2(28, 30), "Prompts: %s" % Controls.prompt_label(), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, CREAM)
+		body = "The fight is waiting."
+		fight = "%s   RESUME" % Controls.button("btn_a")
+	draw_string(font, Vector2(0, size.y * 0.24), title, HORIZONTAL_ALIGNMENT_CENTER, size.x, int(72.0 * s), SIGNAL)
+	draw_multiline_string(font, Vector2(size.x * 0.12, size.y * 0.40), body, HORIZONTAL_ALIGNMENT_CENTER, size.x * 0.76, int(36.0 * s), int(48.0 * s), CREAM)
+	var bw := size.x * 0.46
+	var bh := size.y * 0.14
+	button = Rect2((size.x - bw) * 0.5, size.y * 0.56, bw, bh)
+	_draw_prompt_button(button, fight, font, SIGNAL, INK)
+	decline_button = Rect2()
 	if state == "menu":
-		var hint := "or press any game key"
-		if input_method == "pad":
-			hint = "or press a controller button"
-		draw_string(font, Vector2(size.x * 0.5 - 110, button.end.y + 132), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, MUTED)
-		if best > 0:
-			draw_string(font, Vector2(size.x * 0.5 - 40, button.end.y + 156), "Best %d" % best, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, CREAM)
+		decline_button = Rect2((size.x - bw) * 0.5, button.end.y + size.y * 0.03, bw, bh)
+		_draw_prompt_button(decline_button, leave, font, PANEL, CREAM)
+		draw_rect(decline_button, CREAM, false, 4.0)

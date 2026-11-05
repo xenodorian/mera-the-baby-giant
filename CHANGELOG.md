@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.3-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.3_Windows.exe
+- Android: Mera_Playable_v0.26.3_Android.apk
+- **The death duel plays its own 21 second song, and only that.** The level music stops while it is open and comes back if you win.
+- Dying no longer throws you straight into the fight. A prompt asks first: Fight, or back to the title.
+- The falling keys, the flashed letter, and those two prompt buttons are a large share of the screen, so they read on a 4K television.
+
 ## v0.26.2-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.2_Windows.exe
