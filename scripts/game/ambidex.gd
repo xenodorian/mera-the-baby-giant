@@ -67,7 +67,6 @@ var reap_hurt_tex: Texture2D = preload("res://ambidex/art/reaper_hurt.png")
 var reap_death_tex: Texture2D = preload("res://ambidex/art/reaper_death.png")
 var died_tex: Texture2D = preload("res://ambidex/art/you-died.png")
 var cheat_tex: Texture2D = preload("res://ambidex/art/you-cheated.png")
-var bgm_stream: AudioStream = preload("res://ambidex/audio/bgm.mp3")
 var land_sfx: AudioStream = preload("res://ambidex/audio/land.wav")
 var block_sfx: AudioStream = preload("res://ambidex/audio/block.wav")
 var hurt_sfx: AudioStream = preload("res://ambidex/audio/hurt.wav")
@@ -104,7 +103,6 @@ var muted := false
 var audio_ready := false
 var death_age := 0.0
 var sent := false
-var bgm_player: AudioStreamPlayer
 var sfx_players: Array[AudioStreamPlayer] = []
 
 func _ready() -> void:
@@ -118,10 +116,6 @@ func _ready() -> void:
 	Input.joy_connection_changed.connect(_on_joy_connection)
 	start_run()
 
-
-func _exit_tree() -> void:
-	if bgm_player:
-		bgm_player.stop()
 
 func _load_pad() -> void:
 	var path := "user://pad.txt"
@@ -143,14 +137,6 @@ func _boot_audio() -> void:
 	if audio_ready:
 		return
 	audio_ready = true
-	bgm_player = AudioStreamPlayer.new()
-	add_child(bgm_player)
-	var stream := bgm_stream.duplicate()
-	if stream is AudioStreamMP3:
-		stream.loop = true
-	bgm_player.stream = stream
-	bgm_player.volume_db = -80.0 if muted else -14.0
-	bgm_player.play()
 	for _i in 4:
 		var player := AudioStreamPlayer.new()
 		player.volume_db = -3.0
@@ -160,8 +146,6 @@ func _boot_audio() -> void:
 func _toggle_mute() -> void:
 	_boot_audio()
 	muted = not muted
-	if bgm_player:
-		bgm_player.volume_db = -80.0 if muted else -14.0
 
 func _blow(kind: String) -> void:
 	_boot_audio()

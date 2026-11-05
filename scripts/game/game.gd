@@ -2023,8 +2023,6 @@ func _open_ambidex() -> void:
 		return
 	ambidex_on = true
 	HitStop.clear()
-	if music_player:
-		music_player.stop()
 	var tree := get_tree()
 	if tree:
 		tree.paused = true
@@ -2048,8 +2046,6 @@ func _close_ambidex() -> void:
 	var tree := get_tree()
 	if tree:
 		tree.paused = false
-	if music_player and not music_player.playing:
-		music_player.play()
 
 
 func _respawn_here() -> void:
