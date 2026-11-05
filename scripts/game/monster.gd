@@ -38,6 +38,7 @@ var vx := 0.0
 var knock_left := 0.0          # signed px still to slide from a parry or a held barrier (v0.9.3)
 var vy := 0.0
 var on_ground := true
+var hazard_cd := 0.0
 var rest_y := 0.0
 var bob := 0.0
 var swoop_v := Vector2.ZERO
@@ -647,8 +648,37 @@ func _on_anim_done() -> void:
 			pass
 
 
+func fall_in_pit() -> void:
+	if has_meta("pit_fall") or hp <= 0:
+		return
+	hp = 0
+	last_kind = "pit"
+	last_from_x = global_position.x
+	vx = 0.0
+	vy = 0.0
+	on_ground = false
+	marker.visible = false
+	_set_state("dead")
+	set_meta("pit_fall", true)
+	set_meta("pit_x", global_position.x)
+	set_meta("pit_vy", 40.0)
+	if d.has("death"):
+		_play(String(d["death"]))
+	else:
+		sprite.pause()
+	if game and game.has_method("on_enemy_defeated"):
+		game.on_enemy_defeated(self)
+	defeated.emit(self)
+
+
 # ---------------------------------------------------------------- tick
 func _physics_process(delta: float) -> void:
+	if has_meta("pit_fall"):
+		if game != null:
+			game.pit_drop(self, delta)
+		if position.y > rest_y + 900.0:
+			_burst()
+		return
 	t_state += delta
 	flash -= delta
 	_tint()
@@ -759,10 +789,13 @@ func _distracted(delta: float) -> bool:
 func _floor(from_y: float) -> float:
 	if game == null or flyer or not game.has_method("surface_under"):
 		return rest_y
-	return minf(float(game.surface_under(Vector2(position.x, from_y), from_y)), rest_y)
+	var floor_y := minf(float(game.surface_under(Vector2(position.x, from_y), from_y)), rest_y)
+	return floor_y
 
 
 func _physics(delta: float) -> void:
+	if hazard_cd > 0.0:
+		hazard_cd = maxf(hazard_cd - delta, 0.0)
 	if flyer:
 		if state == "atk" and String(atk.get("mode", "")) == "contact":
 			position += swoop_v * delta

@@ -4,8 +4,8 @@ extends RefCounted
 ## Prices are the original's, paid in gold instead of leaves: a scroll costs 15 + 10 * level, a mutagen 25 + 15 * level.
 ## An unlock is a mutagen when it uses a meter (energy, empower, super) or is meter_charge. Bone Powder (+25 max HP,
 ## up to 200) costs 90. Owned ids live in Carry.perry_owned, max HP in Carry.perry_hp_max (saved with Carry).
-## "level" is the Perry level that sold the unlock. It opens once Stage 2 level (5 + level, at most 10, the level before Perry's Arena) is cleared:
-## level 1 -> level index 6 (Stage 2 level 1) ... level 5 -> index 10 (Moonlit Sanctum).
+## "level" is the Perry level that sold the unlock. It opens once that Stage 2 level is cleared
+## (level 1 is the first island map, level 5 is Moonlit Sanctum, the map before Perry's Arena).
 
 const POWDER_ID := "bone_powder"
 const POWDER_PRICE := 90
@@ -71,12 +71,12 @@ static func price(id: String) -> int:
 	return 25 + 15 * lv if shop_kind(u) == "mutagen" else 15 + 10 * lv
 
 
-## the Stage 2 level index that must be cleared before an unlock opens (5 + level, at most 10, the level before Perry's Arena)
+## the Stage 2 level index that must be cleared before an unlock opens (capped at the map before Perry's Arena)
 static func req_index(id: String) -> int:
 	var u = by_id(id)
 	if u == null:
 		return Carry.PERRY_CLEAR_LEVEL
-	return mini(5 + int(u["level"]), Carry.PERRY_CLEAR_LEVEL - 1)
+	return mini(Levels.STAGE2_FROM - 1 + int(u["level"]), Carry.PERRY_CLEAR_LEVEL - 1)
 
 
 static func req_cleared(id: String) -> bool:

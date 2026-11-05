@@ -18,6 +18,7 @@ func _tap(steps: Array, frame: int, action: String, hold: int = 3) -> void:
 
 
 func _new_game(knights: bool = false) -> Node:
+	root.get_tree().paused = false
 	var g: Node = load("res://scenes/game.tscn").instantiate()
 	g.test_mode = not knights
 	root.add_child(g)
@@ -594,7 +595,7 @@ func _run() -> void:
 		await process_frame
 	# cemetery: three Fire Knights on fixed points (25 / 50 / 75 % of the walkable map), 10 HP each, sphere +10 % rage,
 	# a death refills the same point until KNIGHT_CAP have been spawned, and nobody despawns for distance
-	LVS.current = 3                       # Moonlit Cemetery is the knight fight
+	LVS.current = 2                       # Moonlit Cemetery is the knight fight
 	g = await _new_game(true)
 	m = g.mera
 	await _drive(g, [], 30)
@@ -1244,7 +1245,7 @@ func _run() -> void:
 	await process_frame
 	# ================================================================ v0.5 levels, map bounds, earthquake
 	var LV = load("res://scripts/game/levels.gd")
-	_check("31 levels in the level list (stage 1: 0..5, stage 2: 6..11, stage 3: 12..18, stage 4: 19..28 (the tunnel last), stage 5: 29 and 30)", LV.list().size() == 31 and LV.stage_of(5) == 0 and LV.stage_of(6) == 1 and LV.stage_of(11) == 1 and LV.stage_of(12) == 2 and LV.stage_of(18) == 2 and LV.stage_of(19) == 3 and LV.stage_of(28) == 3 and LV.stage_of(29) == 4 and LV.stage_of(30) == 4 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 19200.0, "%d" % LV.list().size())
+	_check("26 levels in the level list (stage 1: 0..4, stage 2: 5..10, stage 3: 11..17, stage 4: 18..23, stage 5: 24 and 25)", LV.list().size() == 26 and LV.stage_of(4) == 0 and LV.stage_of(5) == 1 and LV.stage_of(10) == 1 and LV.stage_of(11) == 2 and LV.stage_of(17) == 2 and LV.stage_of(18) == 3 and LV.stage_of(23) == 3 and LV.stage_of(24) == 4 and LV.stage_of(25) == 4 and LV.stage_of(0) == 0 and float(LV.data()["map_w"]) >= 14000.0, "%d" % LV.list().size())
 	for li in [0, 1, 2, 3, 6, 7, 8, 9, 10]:
 		LV.current = li
 		g = await _new_game()
@@ -1348,8 +1349,8 @@ func _run() -> void:
 	for aid2 in all_ids:
 		if not uniq.has(aid2) and not (aid2 in RO.RUN_POOL):
 			unplaced.append(aid2)
-	_check("every roster enemy is on a level or in the endless-run pool; the cemetery (index 3) has none", unplaced.is_empty() and not RO.LEVELS.has(3) and not RO.BOSSES.has(3), "unplaced=%s repeated-between-levels=%s" % [unplaced, dup])
-	var dragon_boss: bool = RO.def("dragon").get("boss", false) and RO.BOSSES.get(5, "") == "dragon" and not RO.BOSSES.has(4)
+	_check("every roster enemy is on a level or in the endless-run pool; the cemetery (index 2) has none", unplaced.is_empty() and not RO.LEVELS.has(2) and not RO.BOSSES.has(2), "unplaced=%s repeated-between-levels=%s" % [unplaced, dup])
+	var dragon_boss: bool = RO.def("dragon").get("boss", false) and RO.BOSSES.get(4, "") == "dragon" and not RO.BOSSES.has(3)
 	_check("the dragon is his own stage, not the end of Infernal Caverns", dragon_boss, "")
 	var tell_ok := true
 	var tell_info := ""
@@ -1375,7 +1376,7 @@ func _run() -> void:
 		var k_fixed := true
 		for variant in runs.get(eid, [""]):
 			for dist in [760.0, 150.0]:
-				LV.current = 1
+				LV.current = 2
 				g = await _new_game()
 				m = g.mera
 				m.position.x = 6000.0
@@ -1462,7 +1463,7 @@ func _run() -> void:
 	g.queue_free()
 	await process_frame
 	# the spawner: walking a wave level meets every enemy on its list; the dragon is not on Infernal Caverns
-	for li in [0, 1, 2, 4, 6, 7, 8, 9, 10]:
+	for li in [0, 1, 3, 5, 6, 7, 8, 9]:
 		LV.current = li
 		g = await _new_game(true)
 		m = g.mera
@@ -1492,7 +1493,7 @@ func _run() -> void:
 	# ================================================================ v0.7 allies
 	var AL = load("res://scripts/game/allies.gd")
 	var cards_ok := true
-	for li in [0, 1, 2, 4, 6, 7, 8, 9, 10]:
+	for li in [0, 1, 3, 5, 6, 7, 8, 9]:
 		var ids: Array = []
 		for pr in AL.CARDS[li]:
 			ids.append(pr[1])
@@ -1504,8 +1505,8 @@ func _run() -> void:
 	var cols := {}
 	for aid in AL.CORE_IDS:
 		cols[str(AL.COLORS[aid])] = true
-	_check("country, woods, town and caverns each hold one card per ally; the cemetery has none", cards_ok and cols.size() == 4 and not AL.CARDS.has(3), "")
-	LV.current = 3
+	_check("woods, town and caverns each hold one card per ally; the cemetery has none", cards_ok and cols.size() == 4 and not AL.CARDS.has(2), "")
+	LV.current = 2
 	g = await _new_game()
 	_check("cemetery has no ally cards on the map", g.card_nodes.is_empty(), "")
 	g.queue_free()
@@ -1599,7 +1600,7 @@ func _run() -> void:
 		g.queue_free()
 		await process_frame
 	# the dancing girl: non-boss enemies on screen rush over and hop; the boss ignores her; nobody attacks
-	LV.current = 3
+	LV.current = 2
 	g = await _new_game()
 	m = g.mera
 	m.position.x = 12000.0
@@ -1713,26 +1714,25 @@ func _run() -> void:
 	_check("menu: Right selects level 2", menu.sel == 1, "")
 	menu.queue_free()
 	await process_frame
-	# stage 2 menu pages: 6 cards on page 0, 5 on page 1; the page follows sel; opens on level 7 after the dragon
+	# stage 2 menu pages: the page follows sel; opens on Mossy Falls after the dragon
 	var CA = load("res://scripts/game/carry.gd")
 	CA.reset()
 	CA.ensure()
-	CA.unlocked = 6
-	LV.current = 5
+	CA.unlocked = 5
+	LV.current = 4
 	var pm: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(pm)
 	await process_frame
-	_check("menu: after the dragon (unlocked >= 6, level 6 played) it opens on level 7, the stage 2 page", pm.sel == 6 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
-	_check("menu pages: stage 1 shows levels 0..5, stage 2 shows 6..11, stage 3 shows 12..18, stage 4 shows 19..28, the last page 29 and 30", pm.page_levels(0) == [0, 1, 2, 3, 4, 5] and pm.page_levels(1) == [6, 7, 8, 9, 10, 11] and pm.page_levels(2) == [12, 13, 14, 15, 16, 17, 18] and pm.page_levels(3) == [19, 20, 21, 22, 23, 24, 25, 26, 27, 28] and pm.page_levels(4) == [29, 30], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
-	pm.sel = 5
+	_check("menu: after the dragon (unlocked >= 5, the lair just played) it opens on Mossy Falls, the stage 2 page", pm.sel == 5 and pm.page_of(pm.sel) == 1, "sel=%d" % pm.sel)
+	_check("menu pages: stage 1 is 0..4, stage 2 is 5..10, stage 3 is 11..17, stage 4 is 18..23, the last page is 24 and 25", pm.page_levels(0) == [0, 1, 2, 3, 4] and pm.page_levels(1) == [5, 6, 7, 8, 9, 10] and pm.page_levels(2) == [11, 12, 13, 14, 15, 16, 17] and pm.page_levels(3) == [18, 19, 20, 21, 22, 23] and pm.page_levels(4) == [24, 25], "%s %s %s %s" % [pm.page_levels(0), pm.page_levels(1), pm.page_levels(2), pm.page_levels(3)])
+	pm.sel = 4
 	pm._move(1)
-	var page_follow: bool = pm.sel == 6 and pm.page_of(pm.sel) == 1
+	var page_follow: bool = pm.sel == 5 and pm.page_of(pm.sel) == 1
 	pm._move(-1)
-	_check("menu: Right from level 6 goes to level 7 (page 2) and Left comes back", page_follow and pm.sel == 5 and pm.page_of(pm.sel) == 0, "sel=%d" % pm.sel)
-	var c6: Rect2 = pm._card(6)
-	var c10: Rect2 = pm._card(11)
-	var cs1: Rect2 = pm._card(0)
-	_check("menu: stage 2 now has six cards laid out like stage 1 (same margin, inside the screen)", absf(c6.position.x - cs1.position.x) < 0.1 and absf(c6.size.x - cs1.size.x) < 0.1 and c10.end.x <= 1920.0 and absf(pm._card(7).position.x - (c6.end.x + 18.0)) < 0.1, "%s %s" % [c6, c10])
+	_check("menu: Right from the dragon goes to Mossy Falls and Left comes back", page_follow and pm.sel == 4 and pm.page_of(pm.sel) == 0, "sel=%d" % pm.sel)
+	var c6: Rect2 = pm._card(5)
+	var c10: Rect2 = pm._card(10)
+	_check("menu: stage 2 has six cards inside the screen, evenly gapped", c10.end.x <= 1920.0 and c6.position.x >= 0.0 and absf(pm._card(6).position.x - (c6.end.x + 18.0)) < 0.1, "%s %s" % [c6, c10])
 	pm.queue_free()
 	await process_frame
 	LV.current = 0
@@ -1793,9 +1793,9 @@ func _s4_tests() -> void:
 	var P = load("res://scripts/game/props.gd")
 	var T = load("res://scripts/game/tuning.gd")
 	# ---- props per level
-	var lay_ok: bool = P.layout(3, 20000.0).is_empty()
+	var lay_ok: bool = P.layout(2, 20000.0).is_empty()
 	var lay_info := ""
-	for lv in [0, 1, 2, 4, 6, 7, 8, 9, 10]:
+	for lv in [0, 1, 3, 5, 6, 7, 8, 9]:
 		var kinds := {}
 		for it in P.layout(lv, 24000.0):
 			kinds[String(it[0])] = true
@@ -1960,7 +1960,7 @@ func _s4_tests() -> void:
 	await physics_frame
 
 	# ---- breakables, drops, barrels, chandeliers (Moonlit Town)
-	g = await _s4_new(2)
+	g = await _s4_new(1)
 	m = g.mera
 	var cd: Node2D = _s4_prop(g, "candle", 4000.0)
 	if cd == null:
@@ -2047,7 +2047,7 @@ func _s4_tests() -> void:
 	await physics_frame
 
 	# ---- secrets: wall, ledge + crumbling plank, lever + door (Misty Woods)
-	g = await _s4_new(1)
+	g = await _s4_new(0)
 	m = g.mera
 	var wall: Node2D = _s4_prop(g, "wall")
 	m.position.x = wall.global_position.x - 200.0
@@ -2152,7 +2152,7 @@ func _dragon_tests() -> void:
 					fly_fire += 1
 	_check("dragon fly loop: the user's 4 frames in order (breath 1,5,4,5, plume-free copies), looping at >= 10 fps", order_ok, str(fly["frames"]))
 	_check("dragon fly loop: no fire at all (no plume pixel, nothing in front of the head: no small fireball)", fly_fire == 0 and min_x >= 55, "fire=%d min_x=%d" % [fly_fire, min_x])
-	var g: Node = await _s4_new(3)
+	var g: Node = await _s4_new(2)
 	var m: Node = g.mera
 	m.position.x = 12000.0
 	m.set_size(6, true)
@@ -2288,14 +2288,14 @@ func _dragon_tests() -> void:
 	for i in 240:
 		await physics_frame
 		m.invuln = 1.0
-	LVS.current = 5                       # the exit rule for a boss level (the dragon's own stage is index 5)
+	LVS.current = 4                       # the exit rule for a boss level (the dragon's own stage is index 4)
 	var exit_open: bool = g.boss_dead and not g.exit_locked()
 	LVS.current = 3
 	_check("dragon: its death unlocks the exit", exit_open, "boss_dead=%s" % g.boss_dead)
 	g.queue_free()
 	await physics_frame
 	# growth: a phase bolt that hurts Mera -> +3 sizes, once per phase, and the used threshold is not re-armed
-	g = await _s4_new(3)
+	g = await _s4_new(2)
 	m = g.mera
 	m.position.x = 12000.0
 	m.set_size(6, true)
@@ -2333,7 +2333,7 @@ func _dragon_tests() -> void:
 ## v0.8 SUPER EARTHQUAKE: Down+Y crouching with a full meter (outside Fury)
 func _super_quake_tests() -> void:
 	var T = load("res://scripts/game/tuning.gd")
-	var g: Node = await _s4_new(2)
+	var g: Node = await _s4_new(0)
 	var m: Node = g.mera
 	m.position.x = 6000.0
 	m.set_size(4, true)
@@ -3010,8 +3010,8 @@ func _v091_tests() -> void:
 	_check("keyboard: Up arrow + S -> vertical quick fire", "vfire" in m.move_keys.slice(nk) and not ("adash" in m.move_keys.slice(nk)), "%s" % [m.move_keys.slice(nk)])
 	g.queue_free(); await process_frame
 
-	# ---------------------------------------------------------------- monsters from behind (levels 2-4)
-	for L in [3, 0, 1, 2, 4]:
+	# ---------------------------------------------------------------- monsters from behind (a flat stage with waves, and the cemetery which has none)
+	for L in [2, 0, 1, 3]:
 		LVS.current = L
 		g = await _new_game(true); m = g.mera
 		m.facing = 1
@@ -3032,12 +3032,13 @@ func _v091_tests() -> void:
 					g.mobs.erase(e)
 					e.queue_free()
 		var bs: Array = g.behind_spawns
-		var ok := bs.size() == (0 if L == 3 else 2)
+		var expect: int = 0 if L == 2 else 2
+		var ok := bs.size() == expect
 		for b in bs:
 			if float(b["x"]) > float(b["mera_x"]) - 960.0 or int(b["facing"]) != 1:
 				ok = false                               # off-screen behind her (she faces right: x < mera - 960)
-		_check("level %d: %d monsters come from behind (off-screen, behind her)" % [L + 1, 0 if L == 3 else 2], ok, "%s" % [bs.map(func(b): return [b["id"], int(b["x"] - b["mera_x"])])])
-		if L != 3:
+		_check("level %d: %d monsters come from behind (off-screen, behind her)" % [L + 1, expect], ok, "%s" % [bs.map(func(b): return [b["id"], int(b["x"] - b["mera_x"])])])
+		if L != 2:
 			g.props = g.props.filter(func(p): return not (is_instance_valid(p) and p.blocks_path()))     # walls and doors would push her back
 			for e in g.mobs.duplicate():
 				if is_instance_valid(e) and not e.boss:
@@ -3717,7 +3718,7 @@ func _chest_tests() -> void:
 	await process_frame
 
 	# cemetery: the far graves layer sits on the ground (lowered by Tuning.LAYER_LOWER)
-	var gc: Node = await _s4_new(3)
+	var gc: Node = await _s4_new(2)
 	var gf_y := -1.0
 	for c in gc.get_children():
 		if c is Sprite2D and c.texture != null and String(c.texture.resource_path).ends_with("graves_far.png"):
@@ -3754,7 +3755,7 @@ func _unlock_tests() -> void:
 	# two destructible walls on every stage map, each hiding its own card
 	var wall_ok := true
 	var wall_info := ""
-	for lv in [0, 1, 2, 4]:
+	for lv in [0, 1, 3]:
 		var walls := 0
 		var cards_seen := {}
 		for it in P.layout(lv, 19200.0):
@@ -3775,7 +3776,7 @@ func _unlock_tests() -> void:
 	g.queue_free()
 	await process_frame
 	# the dancer runs back when she is about to leave the view, then dances again
-	g = await _s4_new(3)
+	g = await _s4_new(2)
 	g.mera.global_position.x = 6000.0
 	await _s4_frames(g, 2)
 	var dn: Node2D = AL2.new()
@@ -3818,7 +3819,7 @@ func _unlock_tests() -> void:
 func _task_tests() -> void:
 	var C = load("res://scripts/game/carry.gd")
 	# 1. spawn cap: a stage spawns every wave enemy, so the cap is far above the old five
-	for lv in [0, 1, 2, 4]:
+	for lv in [0, 1, 3]:
 		var gc: Node = await _s4_new(lv)
 		var cap: int = gc._stage_cap()
 		_check("spawn cap: level %d allows more than %d alive (cap %d)" % [lv + 1, Roster.MAX_ALIVE, cap], cap > Roster.MAX_ALIVE, "%d" % cap)
@@ -3880,11 +3881,11 @@ func _task_tests() -> void:
 	await process_frame
 	# 5. dragon victory: cleared once, 15 + 100 gold, card text is drawn by the HUD (no Label)
 	C.reset()
-	g = await _s4_new(5)
+	g = await _s4_new(4)
 	var dr: Node2D = g.spawn_enemy("dragon", g.mera.global_position.x + 600.0)
 	await process_frame
 	g.on_enemy_defeated(dr)
-	_check("dragon victory: sets cleared and pays clear gold plus 100, once", g.cleared and g.victory and C.gold == 115 and int(C.clears.get("5", 0)) == 1, "gold %d" % C.gold)
+	_check("dragon victory: sets cleared and pays clear gold plus 100, once", g.cleared and g.victory and C.gold == 115 and int(C.clears.get("4", 0)) == 1, "gold %d" % C.gold)
 	var t0 := Time.get_ticks_msec()
 	while not g.victory_card and Time.get_ticks_msec() - t0 < 8000:
 		await create_timer_always(0.1)
@@ -3895,14 +3896,14 @@ func _task_tests() -> void:
 				if n is Label:
 					labels += 1
 	_check("dragon victory: the card is drawn by the HUD, with no Label in the victory layer", g.victory_card and labels == 0, "card=%s labels=%d" % [g.victory_card, labels])
-	_check("dragon victory: the card says Stage 2 is open and the flash names the dragon", g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated the Cavern Dragon!" and g.victory_text[1].find("Stage 2") >= 0 and C.unlocked >= 6, str(g.victory_text))
+	_check("dragon victory: the card says Stage 2 is open and the flash names the dragon", g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated the Cavern Dragon!" and g.victory_text[1].find("Stage 2") >= 0 and C.unlocked >= 5, str(g.victory_text))
 	root.get_tree().paused = false
 	g.queue_free()
 	await process_frame
 	C.reset()
 	# 5b. stage 2: a boss that is not a finale only opens the exit; Perry (level 12) ends stage 2
-	LVS.current = 6
-	g = await _s4_new(6)
+	LVS.current = 5
+	g = await _s4_new(5)
 	g.wave_i = 100
 	var og: Node2D = g.spawn_enemy("p_clubogre", g.mera.global_position.x + 600.0)
 	await process_frame
@@ -3912,7 +3913,7 @@ func _task_tests() -> void:
 	_check("stage 2 boss (level 7): its death opens the exit with no victory card", locked_before and txt_boss == "SLAY THE CLUB OGRE" and g.boss_dead and not g.exit_locked() and not g.victory and not g.victory_card and not g.cleared, "text=%s dead=%s victory=%s" % [txt_boss, g.boss_dead, g.victory])
 	g.queue_free()
 	await process_frame
-	g = await _s4_new(6)
+	g = await _s4_new(5)
 	_check("stage 2 boss level: CLEAR THE ROAD while waves remain, locked even with the boss dead", g.exit_lock_text() == "CLEAR THE ROAD" and g.exit_locked(), g.exit_lock_text())
 	g.boss_dead = true
 	_check("stage 2 boss level: a dead boss does not open the exit before the waves are done", g.exit_locked(), "")
@@ -3921,13 +3922,13 @@ func _task_tests() -> void:
 	g.queue_free()
 	await process_frame
 	C.reset()
-	g = await _s4_new(11)
+	g = await _s4_new(10)
 	g.wave_i = 100
 	var pe: Node2D = g.spawn_enemy("perry", g.mera.global_position.x + 600.0)
 	await process_frame
 	_check("level 12 (Perry's Arena): the exit stays locked until Perry is dead ('DEFEAT PERRY')", g.exit_locked() and g.exit_lock_text() == "DEFEAT PERRY" and not g.boss_dead, g.exit_lock_text())
 	g.on_enemy_defeated(pe)
-	_check("level 12 (Perry's Arena): Perry's death opens the exit, pays the 100 gold bonus and shows the Stage 3 card", g.victory and g.boss_dead and not g.exit_locked() and C.gold >= 100 and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1].find("Stage 3") >= 0 and C.unlocked >= 12, "gold %d %s" % [C.gold, g.victory_text])
+	_check("level 11 (Perry's Arena): Perry's death opens the exit, pays the 100 gold bonus and shows the Stage 3 card", g.victory and g.boss_dead and not g.exit_locked() and C.gold >= 100 and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1].find("Stage 3") >= 0 and C.unlocked >= 11, "gold %d %s" % [C.gold, g.victory_text])
 	_check("level 12 (Perry's Arena): no two-line victory card (the story pages replace it)", not g.victory_card, "")
 	g.queue_free()
 	await process_frame
@@ -4120,7 +4121,7 @@ func _perry_new(level: int = 0) -> Node:
 
 
 func _perry_clear_stage2(C) -> void:
-	for i in range(6, 12):
+	for i in range(5, 11):
 		C.record_clear(i)
 
 
@@ -4227,11 +4228,11 @@ func _perry_tests() -> void:
 	# ---- locked by stage progress: names the level to clear
 	C.reset()
 	C.record_clear(C.PERRY_CLEAR_LEVEL)
-	C.record_clear(10)                      # the shop gate for the top unlocks is level index 10 (Moonlit Sanctum)
+	C.record_clear(9)                       # the shop gate for the top unlocks is Moonlit Sanctum
 	C.gold = 500
 	var rl: String = C.buy("perry:crash")
 	_check("perry shop: a row whose Stage 2 level is not cleared says 'Clear Stage 2 level 3 first' and takes no gold", rl == "locked" and C.gold == 500 and PU.locked_reason("crash") == "Clear Stage 2 level 3 first" and reason_before == "" , "%s / %s / before '%s'" % [rl, PU.locked_reason("crash"), reason_before])
-	_check("perry shop: level 5 and above cap at Stage 2 level 5 (earthquake)", PU.locked_reason("earthquake") == "" and PU.req_index("earthquake") == 10 and PU.req_index("thrust") == 6, "")
+	_check("perry shop: level 5 and above cap at Stage 2 level 5 (earthquake)", PU.locked_reason("earthquake") == "" and PU.req_index("earthquake") == 9 and PU.req_index("thrust") == 5, "")
 	# ---- parry, block, HP, death
 	C.reset()
 	C.record_clear(C.PERRY_CLEAR_LEVEL)
@@ -4629,7 +4630,7 @@ func _cl_tests() -> void:
 	_check("changeling: the four faces are tough non-boss enemies; the Warlord is the boss", faces_ok and bool(RO.def("cl_warlord")["boss"]) and RO.BOSSES.get(Levels.THRONE, "") == "cl_warlord" and not RO.LEVELS.has(Levels.THRONE), "")
 	var waves_ok := true
 	var seen := {}
-	for li in range(12, 19):
+	for li in range(11, 15):
 		if not RO.LEVELS.has(li) or not RO.BEHIND_WAVES.has(li):
 			waves_ok = false
 			continue
@@ -4638,7 +4639,7 @@ func _cl_tests() -> void:
 	for id in ids:
 		if id != "cl_warlord" and not seen.has(id):
 			waves_ok = false
-	_check("changeling: levels 12 to 18 have waves that use every Changeling enemy", waves_ok, str(seen.keys()))
+	_check("changeling: the remaining Changeling maps have waves that use every Changeling enemy", waves_ok, str(seen.keys()))
 	# Stage 3 gets plain DEFS values (no Stage 2 doubling), Stage 2 still doubles
 	LV.current = 1
 	var g: Node = await _new_game()
@@ -4655,7 +4656,7 @@ func _cl_tests() -> void:
 	# behaviours, one fresh game each
 	var beh := {}
 	for id in ["cl_grunt", "cl_rat_king", "cl_archer", "cl_mud", "cl_ranger", "cl_weaver"]:
-		LV.current = 1
+		LV.current = 2
 		g = await _new_game()
 		m = g.mera
 		m.position.x = 6000.0
@@ -4771,20 +4772,20 @@ func _cl_tests() -> void:
 func _stage3_map_tests() -> void:
 	var LVm = load("res://scripts/game/levels.gd")
 	var CA = load("res://scripts/game/carry.gd")
-	var ids := ["p_arena", "ch_greenwood", "ch_bramble", "ch_watchtower", "ch_marsh", "ch_gate", "ch_undercroft", "ch_faces"]
+	var ids := ["p_arena", "ch_bramble", "ch_marsh", "ch_gate", "ch_faces", "s4_drowned", "s4_skyline", "s4_clock"]
 	var ls: Array = LVm.list()
-	var order_ok: bool = ls.size() == 31 and LVm.STAGE3_FROM == 12 and LVm.STAGE4_FROM == 19 and LVm.STAGE5_FROM == 29
+	var order_ok: bool = ls.size() == 26 and LVm.STAGE3_FROM == 11 and LVm.STAGE4_FROM == 18 and LVm.STAGE5_FROM == 24
 	for k in ids.size():
-		order_ok = order_ok and String(ls[11 + k]["id"]) == ids[k]
+		order_ok = order_ok and String(ls[10 + k]["id"]) == ids[k]
 	order_ok = order_ok and String(ls[LVm.THRONE]["id"]) == "ch_throne" and String(ls[LVm.COURT]["id"]) == "king_court"
-	_check("stage 3: 31 levels, p_arena at 11, the seven Changeling maps at 12..18, the Warlord and the court last", order_ok, str(ls.size()))
-	_check("stage 3: stage_of is 0 below 6, 1 for 6..11, 2 from 12", LVm.stage_of(0) == 0 and LVm.stage_of(5) == 0 and LVm.stage_of(6) == 1 and LVm.stage_of(11) == 1 and LVm.stage_of(12) == 2 and LVm.stage_of(18) == 2 and LVm.stage_of(19) == 3 and LVm.stage_of(28) == 3 and LVm.stage_of(29) == 4, "")
+	_check("stage 3: 26 levels, Perry's Arena at 10, seven maps at 11..17, the Warlord and the court last", order_ok, str(ls.size()))
+	_check("stage 3: stage_of is 0 below 5, 1 for 5..10, 2 from 11", LVm.stage_of(0) == 0 and LVm.stage_of(4) == 0 and LVm.stage_of(5) == 1 and LVm.stage_of(10) == 1 and LVm.stage_of(11) == 2 and LVm.stage_of(17) == 2 and LVm.stage_of(18) == 3 and LVm.stage_of(23) == 3 and LVm.stage_of(24) == 4, "")
 	var files_ok := true
 	var wide_ok := true
 	var arrays_ok := true
 	var steps_ok := true
 	var bad := ""
-	for i in range(11, 20):
+	for i in range(10, 18):
 		var lv: Dictionary = ls[i]
 		var id := String(lv["id"])
 		for f in ["sky", "ground", "thumb"]:
@@ -4833,12 +4834,12 @@ func _stage3_map_tests() -> void:
 	# the level select's third page: eight cards, Left / Right reach them
 	CA.reset()
 	CA.ensure()
-	CA.unlocked = 30
-	LVm.current = 12
+	CA.unlocked = 25
+	LVm.current = 11
 	var pm: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(pm)
 	await process_frame
-	_check("stage 3 menu: the page shows 7 cards, all inside the screen and not overlapping", pm.page_levels(2).size() == 7 and pm.page_of(12) == 2, str(pm.page_levels(2)))
+	_check("stage 3 menu: the page shows 7 cards, all inside the screen and not overlapping", pm.page_levels(2).size() == 7 and pm.page_of(11) == 2, str(pm.page_levels(2)))
 	var inside := true
 	for a in pm.page_levels(2):
 		var ra: Rect2 = pm._card(a)
@@ -4846,21 +4847,21 @@ func _stage3_map_tests() -> void:
 		for b in pm.page_levels(2):
 			if a != b and ra.intersects(pm._card(b)):
 				inside = false
-	_check("stage 3 menu: seven cards are in two rows of four", inside and absf(pm._card(12).position.y - pm._card(15).position.y) < 0.1 and pm._card(16).position.y > pm._card(12).end.y, "")
-	pm.sel = 12
+	_check("stage 3 menu: seven cards are in two rows of four", inside and absf(pm._card(11).position.y - pm._card(14).position.y) < 0.1 and pm._card(15).position.y > pm._card(11).end.y, "")
+	pm.sel = 11
 	var reached := [pm.sel]
 	for k in 6:
 		pm._move(1)
 		reached.append(pm.sel)
-	_check("stage 3 menu: Right walks 12 to 18", reached == [12, 13, 14, 15, 16, 17, 18], str(reached))
+	_check("stage 3 menu: Right walks 11 to 17", reached == [11, 12, 13, 14, 15, 16, 17], str(reached))
 	pm._move(1)
-	_check("stage 3 menu: Right from the last Changeling card goes to the first card of the new stage (page 4)", pm.sel == 19 and pm.page_of(19) == 3, "sel %d" % pm.sel)
+	_check("stage 3 menu: Right from the last stage 3 card goes to the first card of stage 4", pm.sel == 18 and pm.page_of(18) == 3, "sel %d" % pm.sel)
 	pm.sel = LVm.COURT
 	pm._move(1)
 	_check("stage 3 menu: Right from the last card wraps to level 1 (page 1)", pm.sel == 0 and pm.page_of(0) == 0, "sel %d" % pm.sel)
-	pm.sel = 11
+	pm.sel = 10
 	pm._move(1)
-	_check("stage 3 menu: Right from Perry's Arena goes to Greenwood Road on the third page", pm.sel == 12 and pm.page_of(pm.sel) == 2, "sel %d" % pm.sel)
+	_check("stage 3 menu: Right from Perry's Arena goes to Bramble Hollow on the third page", pm.sel == 11 and pm.page_of(pm.sel) == 2, "sel %d" % pm.sel)
 	pm.queue_free()
 	await process_frame
 	# unlocks: clearing level index 10 opens 11; Perry's Arena opens Stage 3
@@ -4873,13 +4874,13 @@ func _stage3_map_tests() -> void:
 	_check("stage 3 flow: Perry's card unlocks index 12", CA.stage_open(12) and not CA.stage_open(13), "")
 	CA.reset()
 	# Perry's finale card: Stage 3 text, unlocks index 12, and the title screen follows
-	LVm.current = 11
-	var g: Node = await _s4_new(11)
+	LVm.current = 10
+	var g: Node = await _s4_new(10)
 	g.wave_i = 100
 	var pe: Node2D = g.spawn_enemy("perry", g.mera.global_position.x + 600.0)
 	await process_frame
 	g.on_enemy_defeated(pe)
-	_check("stage 3 flow: Perry's card says Stage 3: Changeling is open and unlocks level index 12", g.victory and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1] == "Stage 3: Changeling is open" and CA.unlocked >= 12 and CA.stage_open(12), str(g.victory_text))
+	_check("stage 3 flow: Perry's card says Stage 3: Changeling is open and unlocks the next level", g.victory and g.victory_text.size() == 2 and g.victory_text[0] == "You Defeated Perry!" and g.victory_text[1] == "Stage 3: Changeling is open" and CA.unlocked >= 11 and CA.stage_open(11), str(g.victory_text))
 	g.queue_free()
 	await process_frame
 	CA.reset()
@@ -4893,17 +4894,17 @@ func _stage3_map_tests() -> void:
 	g.queue_free()
 	await process_frame
 	CA.reset()
-	_check("stage 3 flow: the stage key shop item counts 31 levels", CA.stage_count() == 31, str(CA.stage_count()))
+	_check("stage 3 flow: the stage key shop item counts 26 levels", CA.stage_count() == 26, str(CA.stage_count()))
 	# props and cards: four secrets per Changeling map inside the map, none in the arenas
 	var props_ok := true
-	for i in range(12, 19):
+	for i in range(11, 15):
 		var cards: Array = load("res://scripts/game/allies.gd").CARDS.get(i, [])
 		var mw: float = _ground_w(ls[i]) - 1100.0 - 1024.0
 		props_ok = props_ok and cards.size() == 4 and load("res://scripts/game/props.gd").SECRETS.get(i, []).size() == 4
 		for c in cards:
 			props_ok = props_ok and float(c[0]) > 1720.0 and float(c[0]) < mw and String(c[1]).begins_with("cl_")
-	props_ok = props_ok and not load("res://scripts/game/allies.gd").CARDS.has(11) and not load("res://scripts/game/allies.gd").CARDS.has(LVm.THRONE)
-	props_ok = props_ok and load("res://scripts/game/props.gd").layout(11, 7200.0).size() == 20 and load("res://scripts/game/props.gd").layout(LVm.THRONE, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(LVm.COURT, 7200.0).is_empty()
+	props_ok = props_ok and not load("res://scripts/game/allies.gd").CARDS.has(10) and not load("res://scripts/game/allies.gd").CARDS.has(LVm.THRONE)
+	props_ok = props_ok and load("res://scripts/game/props.gd").layout(10, 7200.0).size() == 20 and load("res://scripts/game/props.gd").layout(LVm.THRONE, 7200.0).is_empty() and load("res://scripts/game/props.gd").layout(LVm.COURT, 7200.0).is_empty()
 	_check("stage 3 props: 4 cards (Changeling faces) and 4 secrets on each map, nothing in the two arenas", props_ok, "")
 	LVm.current = 0
 
@@ -5163,8 +5164,8 @@ func _pb_tests() -> void:
 	var LV = load("res://scripts/game/levels.gd")
 	var C = load("res://scripts/game/carry.gd")
 	# ---- data
-	_check("perry boss: she is boss 11 (Perry's Arena), Moonlit Sanctum (10) has no boss, no wave list for 11, finale on 11",
-		RO.BOSSES.get(11, "") == "perry" and not RO.BOSSES.has(10) and not RO.LEVELS.has(11) and RO.FINALE.get(11, "") == "Perry" and RO.NAMES.get("perry", "") == "Perry", "")
+	_check("perry boss: she is the boss of Perry's Arena, Moonlit Sanctum has no boss, no wave list on the arena, finale names her Perry",
+		RO.BOSSES.get(10, "") == "perry" and not RO.BOSSES.has(9) and not RO.LEVELS.has(10) and RO.FINALE.get(10, "") == "Perry" and RO.NAMES.get("perry", "") == "Perry", "")
 	var tbl: Dictionary = T.PERRY_BOSS_MOVES
 	var tbl_ok := true
 	var tbl_info := ""
@@ -5531,7 +5532,7 @@ func _pb_tests() -> void:
 	await process_frame
 	# ---- a boss-only arena: only she is ever on screen
 	if DirAccess.dir_exists_absolute("res://assets/levels/p_arena"):
-		LV.current = 11
+		LV.current = 10
 		C.reset()
 		g = await _new_game(true)
 		g.mera.position.x = 400.0
@@ -5619,7 +5620,7 @@ func _king_drop_and_arena_tests() -> void:
 	g.queue_free()
 	await process_frame
 	# Perry's Arena: exactly 20 breakables
-	var lay: Array = P.layout(11, 7200.0)
+	var lay: Array = P.layout(10, 7200.0)
 	var kinds_ok := true
 	var xs: Array = []
 	for pr in lay:
@@ -5632,11 +5633,11 @@ func _king_drop_and_arena_tests() -> void:
 		gap_ok = gap_ok and xs[i] - xs[i - 1] >= 150.0
 	_check("king: Perry's Arena layout has exactly 20 props, all crate / urn / candle / candle_b, no barrel or chest", lay.size() == 20 and P.ARENA_BREAKABLES == 20 and kinds_ok, "n %d" % lay.size())
 	_check("king: Perry's Arena props stand between x 700 and map_w - 1500, at least 150 px apart", range_ok and gap_ok, "%s" % [xs.slice(0, 3)])
-	var lay2: Array = P.layout(11, 7200.0)
+	var lay2: Array = P.layout(10, 7200.0)
 	_check("king: the arena layout is deterministic", lay2.size() == lay.size() and str(lay2) == str(lay), "")
-	for li in [3, 5, Levels.THRONE, Levels.COURT]:
+	for li in [2, 4, Levels.THRONE, Levels.COURT]:
 		_check("king: level index %d (boss-only / cemetery) still has no breakables" % li, P.layout(li, 7200.0).is_empty(), "")
-	g = await _s4_new(11)
+	g = await _s4_new(10)
 	var live := 0
 	var bad_kind := 0
 	for pr in g.props:
@@ -5779,7 +5780,7 @@ func _king_court_tests() -> void:
 	C.test_all = true
 	var lv: Dictionary = LV.list()[LV.COURT]
 	_check("king: the last level (COURT) is king_court, Nerochilde's Court, 7200 px, art reused from Perry's Arena", String(lv["id"]) == "king_court" and String(lv["name"]) == "Nerochilde's Court" and String(lv["sub"]) == "King Lucius waits alone" and float(lv["map_w"]) == 7200.0 and String(lv["layers"][0]["file"]).find("p_arena") >= 0 and FileAccess.file_exists("res://assets/levels/king_court/thumb.png"), "")
-	_check("king: STAGE5_FROM is 29, the court is 30 and stage_of(30) is 4", LV.STAGE5_FROM == 29 and LV.COURT == 30 and LV.stage_of(30) == 4, "")
+	_check("king: STAGE5_FROM is 24, the court is 25 and stage_of(25) is 4", LV.STAGE5_FROM == 24 and LV.COURT == 25 and LV.stage_of(25) == 4, "")
 	_check("king: Roster has nero as boss of the court, the finale name and the display name, and no trash waves", R.BOSSES.get(LV.COURT, "") == "nero" and R.FINALE.get(LV.COURT, "") == "King Nerochilde" and R.NAMES.get("nero", "") == "Nerochilde" and R.DEFS.has("nero") and not R.LEVELS.has(LV.COURT), "")
 	var d: Dictionary = R.def("nero")
 	var anims: Array = R.art("nero")["anims"].keys()
@@ -5829,7 +5830,7 @@ func _king_court_tests() -> void:
 	_check("king: the Warlord's level says DEFEAT THE WARLORD and is no longer the last level", g.exit_lock_text() == "DEFEAT THE WARLORD" and not g.is_last_level() and g._story_for_finale().is_empty(), "")
 	g.queue_free()
 	await process_frame
-	g = await _s4_new(11)
+	g = await _s4_new(10)
 	_check("king: level 11 plays PERRY_FALLS as the story finale", g._story_for_finale() == SPG.PERRY_FALLS, "")
 	g.queue_free()
 	await process_frame
@@ -5848,7 +5849,7 @@ func _king_court_tests() -> void:
 	pm.queue_free()
 	await process_frame
 	C.reset()
-	_check("king: the court is locked on a fresh save", not C.stage_open(Levels.COURT) and C.stage_count() == 31, "")
+	_check("king: the court is locked on a fresh save", not C.stage_open(Levels.COURT) and C.stage_count() == 26, "")
 	C.unlock_through(Levels.COURT)
 	_check("king: a Warlord clear (unlock_through the court) opens the court", C.stage_open(Levels.COURT), "")
 	C.reset()
@@ -5961,7 +5962,7 @@ func _king_story_tests() -> void:
 	# --- free_perry
 	C.gold = 250
 	C.moves["earthquake"] = true
-	C.clears["11"] = 1
+	C.clears["10"] = 1
 	C.unlocked = 12
 	C.perry_owned = {"thrust": true, "taunt": true}
 	C.perry_hp_max = 120
@@ -5982,17 +5983,17 @@ func _king_story_tests() -> void:
 	var table_ok := true
 	for li in 21:
 		var pr = PRI.spawn_for_level(g, li)
-		var want: bool = li in [1, 4, 8, 11, 15, 18]
+		var want: bool = li in [0, 3, 7, 10, 12, 14]
 		table_ok = table_ok and ((pr != null) == want)
 		if pr != null:
 			table_ok = table_ok and absf(pr.position.y - g.GROUND_Y) < 0.5 and absf(pr.position.x - float(PRI.TABLE[li]["x"])) < 0.5 and pr.get_parent() == g.world and not pr.freed
 			pr.queue_free()
-	_check("king prisoner: spawn_for_level gives one only on levels 1, 4, 8, 11, 15, 18", table_ok, "")
-	C.free_prisoner(8)
-	_check("king prisoner: a freed prisoner's level spawns nobody", PRI.spawn_for_level(g, 8) == null, "")
+	_check("king prisoner: spawn_for_level gives one only on levels 0, 3, 7, 10, 12, 14", table_ok, "")
+	C.free_prisoner(7)
+	_check("king prisoner: a freed prisoner's level spawns nobody", PRI.spawn_for_level(g, 7) == null, "")
 	C.prisoners = {}
 	# free with the real A button while overlapping
-	var p1: Node = PRI.spawn_for_level(g, 1)
+	var p1: Node = PRI.spawn_for_level(g, 0)
 	await physics_frame
 	g.mera.position = Vector2(p1.position.x, g.GROUND_Y)
 	g.mera.invuln = 999.0
@@ -6008,7 +6009,7 @@ func _king_story_tests() -> void:
 	Input.action_release("btn_a")
 	await physics_frame
 	await physics_frame
-	_check("king prisoner: A while overlapping frees them: 20 gold, one break_drop, the level's flag set, then they walk off and free themselves", p1.freed and C.gold - gold0 == 20 and _king_pickups(g).size() == pk0 + 1 and C.prisoner_freed(1) and p1.walking, "freed %s gold %d pk %d/%d" % [p1.freed, C.gold - gold0, pk0, _king_pickups(g).size()])
+	_check("king prisoner: A while overlapping frees them: 20 gold, one break_drop, the level's flag set, then they walk off and free themselves", p1.freed and C.gold - gold0 == 20 and _king_pickups(g).size() == pk0 + 1 and C.prisoner_freed(0) and p1.walking, "freed %s gold %d pk %d/%d" % [p1.freed, C.gold - gold0, pk0, _king_pickups(g).size()])
 	var gold_a: int = C.gold
 	p1._free()
 	_check("king prisoner: freeing twice pays once", C.gold == gold_a, "")
@@ -6019,7 +6020,7 @@ func _king_story_tests() -> void:
 	_check("king prisoner: the freed prisoner leaves and frees itself", not is_instance_valid(p1), "")
 	# overlapping without A frees nobody; far away frees nobody
 	C.prisoners = {}
-	var p4: Node = PRI.spawn_for_level(g, 4)
+	var p4: Node = PRI.spawn_for_level(g, 3)
 	g.mera.position = Vector2(p4.position.x + 900.0, g.GROUND_Y)
 	await physics_frame
 	Input.action_press("btn_a")
@@ -6027,12 +6028,12 @@ func _king_story_tests() -> void:
 	await physics_frame
 	Input.action_release("btn_a")
 	await physics_frame
-	_check("king prisoner: A far from the cage frees nobody", not p4.freed and not C.prisoner_freed(4), "")
+	_check("king prisoner: A far from the cage frees nobody", not p4.freed and not C.prisoner_freed(3), "")
 	p4.queue_free()
 	# level 11: gold 20 and the earthquake move, once; the advice goes through a Cutscene
 	C.reset()
 	C.test_all = true
-	var p11: Node = PRI.spawn_for_level(g, 11)
+	var p11: Node = PRI.spawn_for_level(g, 10)
 	var line11: String = p11.line
 	CUT.suppressed = false
 	var gold11: int = C.gold
@@ -6043,12 +6044,12 @@ func _king_story_tests() -> void:
 		cs.skip()
 	await process_frame
 	CUT.suppressed = true
-	var p11b: Node = PRI.spawn_for_level(g, 11)
+	var p11b: Node = PRI.spawn_for_level(g, 10)
 	_check("king prisoner: and the level 11 prisoner does not come back", p11b == null, "")
 	# the earthquake move is not re-paid when already owned
 	C.prisoners = {}
 	var gold12: int = C.gold
-	var p11c: Node = PRI.spawn_for_level(g, 11)
+	var p11c: Node = PRI.spawn_for_level(g, 10)
 	p11c._free()
 	_check("king prisoner: a prisoner for a Mera who already has the move still pays gold", C.gold - gold12 == 20, "")
 	g.queue_free()
@@ -6057,7 +6058,7 @@ func _king_story_tests() -> void:
 	C.test_all = true
 	# --- _story_start: prisoner spawn, intro and the stage keys (non-test mode hooks called by hand)
 	var counts := {}
-	for li in [1, 0, 12, LV.COURT]:
+	for li in [0, 3, 11, LV.COURT]:
 		LV.current = li
 		var gs: Node = await _s4_new(li)
 		gs.test_mode = false
@@ -6075,12 +6076,12 @@ func _king_story_tests() -> void:
 		CUT.suppressed = true
 		gs.queue_free()
 		await process_frame
-	_check("king story: level 1 spawns its prisoner and plays no card", counts[1] == [false, "", 0, 1], str(counts[1]))
-	_check("king story: level 0 plays the six-page intro (key intro)", counts[0] == [true, "intro", 6, 0] and SPG.INTRO.size() == 6, str(counts[0]))
-	_check("king story: level 12 plays the two-page Stage 3 step (key stage3_step)", counts[12] == [true, "stage3_step", 2, 0], str(counts[12]))
+	_check("king story: level 0 plays the intro and has the woodsman", counts[0] == [true, "intro", 6, 1] and SPG.INTRO.size() == 6, str(counts[0]))
+	_check("king story: level 3 spawns its prisoner and plays no card", counts[3] == [false, "", 0, 1], str(counts[3]))
+	_check("king story: level 11 plays the two-page Stage 3 step (key stage3_step)", counts[11] == [true, "stage3_step", 2, 0], str(counts[11]))
 	_check("king story: the court plays the king's intro (key king_intro, one page)", counts[LV.COURT] == [true, "king_intro", 1, 0], str(counts[LV.COURT]))
 	_check("king story: all three keys are remembered after they play", C.seen("intro") and C.seen("stage3_step") and C.seen("king_intro"), str(C.story_seen))
-	for li in [0, 12, 20]:
+	for li in [0, 11, LV.COURT]:
 		LV.current = li
 		var gs2: Node = await _s4_new(li)
 		gs2.test_mode = false
@@ -6112,8 +6113,8 @@ func _king_story_tests() -> void:
 	# --- Perry's finale: pages, no two-line card, free_perry once, unlock and gold once
 	C.reset()
 	C.test_all = true
-	LV.current = 11
-	var gp: Node = await _s4_new(11)
+	LV.current = 10
+	var gp: Node = await _s4_new(10)
 	gp.wave_i = 100
 	C.perry_owned = {"thrust": true}
 	C.perry_hp_max = 80
@@ -6121,7 +6122,7 @@ func _king_story_tests() -> void:
 	var perry: Node2D = gp.spawn_enemy("perry", gp.mera.global_position.x + 600.0)
 	await process_frame
 	gp.on_enemy_defeated(perry)
-	_check("king perry finale: victory_text is set, there is no two-line victory card, the level is cleared and unlocks 12 once", gp.victory and not gp.victory_card and gp.victory_text.size() == 2 and gp.victory_text[0] == "You Defeated Perry!" and C.unlocked >= 12 and int(C.clears.get("11", 0)) == 1 and C.gold >= 140, "gold %d" % C.gold)
+	_check("king perry finale: victory_text is set, there is no two-line victory card, the level is cleared and unlocks the next level once", gp.victory and not gp.victory_card and gp.victory_text.size() == 2 and gp.victory_text[0] == "You Defeated Perry!" and C.unlocked >= 11 and int(C.clears.get("10", 0)) == 1 and C.gold >= 140, "gold %d" % C.gold)
 	_check("king perry finale: her spell only breaks when the pages play (nothing changes at the death itself)", C.perry_owned.has("thrust") and not C.perry_freed, "")
 	var gold_p: int = C.gold
 	gp._show_story_finale(SPG.PERRY_FALLS)
@@ -6131,9 +6132,9 @@ func _king_story_tests() -> void:
 	# the pages as a real cutscene: five pages, then the title hand-off
 	C.reset()
 	C.test_all = true
-	C.clears["11"] = 1
+	C.clears["10"] = 1
 	C.perry_owned = {"taunt": true}
-	var gq: Node = await _s4_new(11)
+	var gq: Node = await _s4_new(10)
 	CUT.suppressed = false
 	gq._show_story_finale(SPG.PERRY_FALLS)
 	var csq: Node = gq.cutscene
@@ -6606,28 +6607,52 @@ func _bk_checks() -> void:
 	await physics_frame
 
 
-## the Craftpix maps' pits and spike beds are real: a pit on the floor costs 1 and puts Mera back at its edge; a jump clears it
+## a pit swallows a body only when its whole sprite is inside the hole, then it falls straight down and dies
 func _craft_hazard_tests() -> void:
-	var g: Node = await _s4_new(15)
+	var g: Node = await _s4_new(12)
 	var m: Node = g.mera
 	m.set_size(5, true)
-	var pr: Array = g.pits[3]                       # the long flooded stretch (no secret wall near its middle)
-	m.global_position = Vector2((float(pr[0]) + float(pr[1])) * 0.5, g.GROUND_Y)
+	var wide: Array = g.pits[0]
+	var wide_w := 0.0
+	for pr in g.pits:
+		var w := float(pr[1]) - float(pr[0])
+		if w > wide_w:
+			wide = pr
+			wide_w = w
+	m.global_position = Vector2(800.0, g.GROUND_Y)
 	m.invuln = 0.0
 	await physics_frame
-	await physics_frame
-	_check("hazards: walking into a pit on the floor costs 1 size and puts Mera back at its near edge, briefly protected", g.pit_falls == 1 and m.size == 4 and m.global_position.x < float(pr[0]) and m.invuln > 0.5, "falls %d size %d x %.0f" % [g.pit_falls, m.size, m.global_position.x])
-	m.invuln = 0.0
-	m.global_position = Vector2((float(pr[0]) + float(pr[1])) * 0.5, g.GROUND_Y - 150.0)
+	var base: Vector2 = g.sprite_span_x(m)
+	m.global_position.x += float(wide[1]) + 36.0 - base.y
 	await physics_frame
 	await physics_frame
-	_check("hazards: crossing the same pit in the air is safe", g.pit_falls == 1 and m.size == 4, "falls %d size %d" % [g.pit_falls, m.size])
+	var span: Vector2 = g.sprite_span_x(m)
+	var hung := span.y > float(wide[1]) or span.x < float(wide[0])
+	_check("hazards: a sprite that sticks out of a pit stays on the lip", hung and m.state != "dead" and m.global_position.y <= g.GROUND_Y + 2.0 and not m.has_meta("pit_fall"), "span %.0f-%.0f pit %.0f-%.0f y %.0f state %s" % [span.x, span.y, float(wide[0]), float(wide[1]), m.global_position.y, m.state])
+	m.global_position = Vector2((float(wide[0]) + float(wide[1])) * 0.5, g.GROUND_Y - 180.0)
+	await physics_frame
+	await physics_frame
+	_check("hazards: crossing a pit in the air is safe", m.state != "dead" and not m.has_meta("pit_fall"), "state %s y %.0f" % [m.state, m.global_position.y])
+	var x0 := (float(wide[0]) + float(wide[1])) * 0.5
+	m.global_position = Vector2(x0, g.GROUND_Y)
+	m.vel = Vector2.ZERO
+	await physics_frame
+	var span_in: Vector2 = g.sprite_span_x(m)
+	var inside := span_in.x >= float(wide[0]) and span_in.y <= float(wide[1])
+	for i in 12:
+		await physics_frame
+	_check("hazards: a sprite fully inside a pit falls straight down and dies", inside and m.state == "dead" and m.has_meta("pit_fall") and m.global_position.y > g.GROUND_Y + 40.0 and absf(m.global_position.x - x0) < 2.0, "inside %s state %s y %.0f x %.0f span %.0f-%.0f" % [inside, m.state, m.global_position.y, m.global_position.x, span_in.x, span_in.y])
+	g.queue_free()
+	await physics_frame
+	g = await _s4_new(12)
+	m = g.mera
+	m.set_size(5, true)
 	var sp: Array = g.spikes[1]
 	m.invuln = 0.0
 	m.global_position = Vector2((float(sp[0]) + float(sp[1])) * 0.5, g.GROUND_Y)
 	await physics_frame
 	await physics_frame
-	_check("hazards: touching a spike bed on the floor costs 1 size", m.size == 3, "size %d" % m.size)
+	_check("hazards: touching a spike bed on the floor costs 1 size", m.size == 4, "size %d" % m.size)
 	g.queue_free()
 	await physics_frame
 	g = await _s4_new(16)
@@ -6636,42 +6661,15 @@ func _craft_hazard_tests() -> void:
 	await physics_frame
 
 
-## the tunnel map (s4_tunnel): a tall level the camera follows up and down, ladders in its shafts, enemies placed on its floors and made when Mera comes near, the Black Knight at its shrine
+## the warren (s4_tunnel) is gone. The Black Knight now ends stage 4 on the Gilded Gate.
 func _tunnel_tests() -> void:
 	var ls: Array = Levels.list()
-	var lv: Dictionary = ls[Levels.BLACK_KNIGHT]
-	_check("tunnel: the last level of stage 4 is s4_tunnel, tall, with a start, an exit, a boss place, ladders and 50+ placed enemies", String(lv["id"]) == "s4_tunnel" and bool(lv.get("tall", false)) and (lv["ladders"] as Array).size() >= 20 and (lv["spawns"] as Array).size() >= 50 and (lv["surfaces"] as Array).size() >= 30 and (lv["start"] as Array).size() == 2 and (lv["exit"] as Array).size() == 2 and (lv["boss_at"] as Array).size() == 2, str(lv.get("spawns", []).size()))
-	_check("tunnel: the Black Knight is its boss and the stage 4 map before it is the Gilded Gate", Roster.BOSSES.get(Levels.BLACK_KNIGHT, "") == "black_knight" and String(ls[Levels.BLACK_KNIGHT - 1]["id"]) == "s4_gate", "")
-	var g: Node = await _s4_new(Levels.BLACK_KNIGHT)
-	var st: Array = lv["start"]
-	_check("tunnel: Mera starts at the level's start, high above the usual ground, and the camera is up with her", g.tall and absf(g.mera.global_position.x - float(st[0])) < 2.0 and absf(g.mera.global_position.y - float(st[1])) < 2.0 and g.mera.global_position.y < -500.0 and g.cam_y < -500.0, "y %.0f cam %.0f" % [g.mera.global_position.y, g.cam_y])
-	var n0: int = g.lv_spawns.size()
-	g._tall_spawns()
-	_check("tunnel: enemies are made only near Mera (some, not all), each standing on its floor", g.lv_spawns.size() < n0 and g.lv_spawns.size() > 0 and g.mobs.size() == n0 - g.lv_spawns.size(), "%d of %d left %d mobs" % [g.lv_spawns.size(), n0, g.mobs.size()])
-	_check("tunnel: the rock grid is there; the start is open air and the far edge of the grid is rock", g.solid.size() > 0 and not g.solid_at(float(st[0]), float(st[1]) - 100.0) and g.solid_at(10.0, 10.0), "")
-	var m = g.mera
-	m.invuln = 9999.0
-	for i in 4:
-		await physics_frame
-	var before: Vector2 = m.global_position
-	var rock := Vector2.ZERO
-	for k in range(1, 60):                               # a spot of rock to the right of the start at the same height
-		var px: float = before.x + 120.0 * k
-		if g.solid_at(px, before.y - 120.0):
-			rock = Vector2(px, before.y)
-			break
-	m.global_position = rock
-	m.vel = Vector2(400.0, 0.0)
-	for i in 3:
-		await physics_frame
-	_check("tunnel: a body pushed into rock goes back out of it (a wall)", rock != Vector2.ZERO and not g._hits_rock(m) and absf(m.global_position.x - rock.x) > 40.0, "%s -> %s" % [rock, m.global_position])
-	m.global_position = before
-	m.vel = Vector2.ZERO
-	for i in 3:
-		await physics_frame
-	_check("tunnel: open air is untouched (no body is moved when it is free)", absf(m.global_position.x - before.x) < 40.0, "%s" % m.global_position)
-	g.queue_free()
-	await physics_frame
+	var gone := true
+	for lv in ls:
+		if String(lv["id"]) == "s4_tunnel":
+			gone = false
+	var gate: Dictionary = ls[Levels.BLACK_KNIGHT]
+	_check("black knight: he ends stage 4 on the Gilded Gate, and the warren is gone", gone and String(gate["id"]) == "s4_gate" and Roster.BOSSES.get(Levels.BLACK_KNIGHT, "") == "black_knight" and not bool(gate.get("tall", false)), String(gate["id"]))
 
 
 ## the width of a level's ground layer (the Craftpix maps carry extra backdrop layers below it, so it is not always layer 1)
@@ -6744,7 +6742,7 @@ func _speaker_impact_restart_tests() -> void:
 	cs2.skip()
 	await process_frame
 	# a freed prisoner plays a speaker page
-	var pr: Node = PRI.spawn_for_level(g, 4)
+	var pr: Node = PRI.spawn_for_level(g, 3)
 	pr._free()
 	var csp: Node = g.cutscene
 	_check("prisoners: freeing one plays [lore, tip] with the prisoner as the speaker", csp != null and csp.pages[0] == [pr.lore, pr.tip] and csp.extras[0]["speaker"] == "x_dark_wizard" and csp.extras[0]["name"] == "Court Mage" and csp._portrait != null and pr.line == pr.lore + " " + pr.tip, "")
@@ -6829,7 +6827,7 @@ func _ally_hurt_tests() -> void:
 	var CW = load("res://scripts/game/cl_wave.gd")
 	C.reset()
 	C.test_all = true
-	LV.current = 1
+	LV.current = 2
 	var g: Node = await _new_game()
 	var m: Node2D = g.mera
 	m.position.x = 6000.0

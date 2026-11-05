@@ -536,6 +536,14 @@ func _enter_frame() -> void:
 # ---------------------------------------------------------------- the main loop
 func _physics_process(delta: float) -> void:
 	now += HitStop.input_dt(delta) * 1000.0
+	if has_meta("pit_fall"):
+		vel = Vector2.ZERO
+		on_ground = false
+		if game != null:
+			game.pit_drop(self, delta)
+		_advance_pose(delta)
+		_place()
+		return
 	_poll_input()
 	_log_presses()
 	if game != null and game.mark_lock:
@@ -1578,6 +1586,21 @@ func _hurt_tick(delta: float) -> void:
 		state = "ground"
 		pa = ""
 		vel = Vector2.ZERO
+
+
+func fall_in_pit() -> void:
+	if has_meta("pit_fall") or state == "dead":
+		return
+	_interrupt_p()
+	state = "dead"
+	vel = Vector2.ZERO
+	on_ground = false
+	_set_hurt_pose()
+	Sfx.play("boom_big", 0.6)
+	set_meta("pit_fall", true)
+	set_meta("pit_x", global_position.x)
+	set_meta("pit_vy", 40.0)
+	died.emit()
 
 
 func _die(from_x: float) -> void:

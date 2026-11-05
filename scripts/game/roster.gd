@@ -230,42 +230,37 @@ const DEFS := {
 			{"anim": "slash", "kind": "ranged", "dmg": 2, "tell": 0.8, "near": -999.0, "far": 2600.0, "cd": 2.6, "mode": "frames", "active": [8, 14], "beam": "zigzag", "phase": 1}]},
 }
 
-## who appears where. 12 to 18 are Stage 3 (the Changeling levels, cl_* ids). 0 Sunlit Country, 1 Misty Woods, 2 Moonlit Town, 4 Infernal Caverns,
-## 6 Mossy Falls, 7 Sunstone Canyon, 8 Sunset Shore, 9 Mire Wood, 10 Moonlit Sanctum (stage 2, the p_* ids).
-## Index 3 is Moonlit Cemetery and is not listed: it keeps the Fire Knights.
-## Index 5 is the Dragon's Lair: no trash waves, only the boss.
+## who appears where. Stage 3 starts at 11 (Bramble). Stage 4 starts at 18 (the Chapel) and the Gilded Gate ends it.
+## 0 Misty Woods, 1 Moonlit Town, 3 Infernal Caverns, 5 Mossy Falls, 6 Sunstone Canyon, 7 Sunset Shore, 8 Mire Wood, 9 Moonlit Sanctum.
+## Index 2 is Moonlit Cemetery and is not listed: it keeps the Fire Knights.
+## Index 4 is the Dragon's Lair: no trash waves, only the boss. Index 10 is Perry's Arena: boss only.
 const LEVELS := {
-	0: ["wolf", "lm_goblin", "mutant_toad", "flying_eye", "werewolf", "lm_mushroom"],
-	1: ["wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur"],
-	2: ["skeleton", "hell_gato", "ghost", "death", "nightmare"],
-	4: ["hell_hound", "fire_skull", "hell_beast", "demon"],
-	6: ["p_goblin", "p_orc", "x_slime", "x_bat", "x_rat"],
-	7: ["p_orc", "x_fire_worm", "p_goblin", "x_mimic", "x_wanderer_mage", "x_rat"],
-	8: ["p_goblin", "x_slime", "p_firemage", "x_bat", "x_mimic", "p_orc"],
-	9: ["p_orc", "x_dark_wizard", "x_lightning_mage", "x_fire_worm", "x_frost_guardian", "x_slime", "p_goblin"],
-	10: ["p_orc", "p_firemage", "x_dark_wizard", "x_frost_guardian", "x_mimic", "x_bat"],
-	12: ["cl_grunt", "cl_rat_king", "cl_grunt", "cl_rat_king"],
-	13: ["cl_grunt", "cl_rat_king", "cl_archer", "cl_grunt", "cl_archer"],
-	14: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_mud"],
-	15: ["cl_mud", "cl_rat_king", "cl_mud", "cl_grunt", "cl_archer", "cl_rat_king"],
-	16: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_knight", "cl_ranger"],
-	17: ["cl_knight", "cl_grunt", "cl_mud", "cl_ranger", "cl_archer", "cl_rat_king", "cl_knight"],
-	18: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "cl_grunt"],
-	# Stage 4, the nine painted maps (s4_*): the Changeling and Perry creatures and the wizards; 27 ends with the Black Knight
-	19: ["cl_mud", "cl_grunt", "x_dark_wizard", "x_lightning_mage", "sx_zombie", "ghost"],
-	20: ["x_wanderer_mage", "p_firemage", "cl_archer", "x_bat", "cl_rat_king", "death"],
-	21: ["cl_knight", "cl_ranger", "x_lightning_mage", "cl_grunt", "sx_skeleton", "nightmare"],
-	22: ["sx_witch", "x_mimic", "cl_mud", "x_frost_guardian", "werewolf", "cl_rat_king"],
-	23: ["cl_knight", "cl_weaver", "cl_grunt", "p_orc", "x_fire_worm", "hell_beast"],
-	24: ["p_firemage", "x_wanderer_mage", "x_lightning_mage", "cl_archer", "flying_eye", "p_goblin"],
-	25: ["skeleton", "x_mimic", "demon", "death", "cl_knight", "hell_hound"],
-	26: ["lm_mushroom", "x_slime", "sx_witch", "x_wanderer_mage", "lm_eye", "mutant_toad"],
-	27: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "x_wanderer_mage", "p_orc"],
+	0: ["wolf", "mutant_toad", "werewolf", "flying_eye", "ogre", "minotaur"],
+	1: ["skeleton", "hell_gato", "ghost", "death", "nightmare"],
+	3: ["hell_hound", "fire_skull", "hell_beast", "demon"],
+	5: ["p_goblin", "p_orc", "x_slime", "x_bat", "x_rat"],
+	6: ["p_orc", "x_fire_worm", "p_goblin", "x_mimic", "x_wanderer_mage", "x_rat"],
+	7: ["p_goblin", "x_slime", "p_firemage", "x_bat", "x_mimic", "p_orc"],
+	8: ["p_orc", "x_dark_wizard", "x_lightning_mage", "x_fire_worm", "x_frost_guardian", "x_slime", "p_goblin"],
+	9: ["p_orc", "p_firemage", "x_dark_wizard", "x_frost_guardian", "x_mimic", "x_bat"],
+	11: ["cl_grunt", "cl_rat_king", "cl_archer", "cl_grunt", "cl_archer"],
+	12: ["cl_mud", "cl_rat_king", "cl_mud", "cl_grunt", "cl_archer", "cl_rat_king"],
+	13: ["cl_grunt", "cl_archer", "cl_mud", "cl_rat_king", "cl_knight", "cl_ranger"],
+	14: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "cl_grunt"],
+	15: ["cl_mud", "cl_grunt", "x_dark_wizard", "x_lightning_mage", "sx_zombie", "ghost"],
+	16: ["x_wanderer_mage", "p_firemage", "cl_archer", "x_bat", "cl_rat_king", "death"],
+	17: ["cl_knight", "cl_ranger", "x_lightning_mage", "cl_grunt", "sx_skeleton", "nightmare"],
+	18: ["sx_witch", "x_mimic", "cl_mud", "x_frost_guardian", "werewolf", "cl_rat_king"],
+	19: ["cl_knight", "cl_weaver", "cl_grunt", "p_orc", "x_fire_worm", "hell_beast"],
+	20: ["p_firemage", "x_wanderer_mage", "x_lightning_mage", "cl_archer", "flying_eye", "p_goblin"],
+	21: ["skeleton", "x_mimic", "demon", "death", "cl_knight", "hell_hound"],
+	22: ["lm_mushroom", "x_slime", "sx_witch", "x_wanderer_mage", "lm_eye", "mutant_toad"],
+	23: ["cl_knight", "cl_ranger", "cl_weaver", "x_lightning_mage", "x_wanderer_mage", "p_orc"],
 }
-## the end boss of a level. 5 has no waves (boss only); 6 to 10 are wave levels whose boss waits near the exit.
-const BOSSES := {5: "dragon", 6: "p_clubogre", 7: "x_demon_slime", 8: "p_mirrormax", 9: "p_percy", 11: "perry", Levels.BLACK_KNIGHT: "black_knight", Levels.THRONE: "cl_warlord", Levels.COURT: "nero"}
+## the end boss of a level. 4 has no waves (boss only); 5 to 9 are wave levels whose boss waits near the exit.
+const BOSSES := {4: "dragon", 5: "p_clubogre", 6: "x_demon_slime", 7: "p_mirrormax", 8: "p_percy", 10: "perry", Levels.BLACK_KNIGHT: "black_knight", Levels.THRONE: "cl_warlord", Levels.COURT: "nero"}
 ## levels whose boss ends a stage with a victory card (level index -> what falls). Other bosses only open the exit.
-const FINALE := {5: "the Cavern Dragon", 11: "Perry", Levels.THRONE: "the Warlord", Levels.COURT: "King Nerochilde"}
+const FINALE := {4: "the Cavern Dragon", 10: "Perry", Levels.THRONE: "the Warlord", Levels.COURT: "King Nerochilde"}
 ## display names of the bosses (exit lock text)
 const NAMES := {"dragon": "Dragon", "p_clubogre": "Club Ogre", "p_mirrormax": "Mirror Max", "p_percy": "Percy", "perry": "Perry", "x_demon_slime": "Fire Demon", "cl_warlord": "Warlord", "nero": "Nerochilde", "black_knight": "Black Knight"}
 ## v0.10 endless run. New itch monsters are listed twice so they show up alongside the older roster.
@@ -284,10 +279,10 @@ const KNIGHT_CAP := 5          # Moonlit Cemetery: this many Fire Knights, then 
 const WAVE_FIRST := 2200.0     # first wave trigger x
 const WAVE_EVERY := 1500.0     # then one wave every this many px
 const WAVE_SIZES := [1, 2, 2, 3]
-## on every wave level, two monsters per level come from BEHIND Mera. Cemetery (index 3) is the knight fight.
-const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 2: [1, 3], 4: [1, 3], 6: [1, 3], 7: [1, 3], 8: [1, 3], 9: [1, 3], 10: [1, 3],
-	12: [1, 3], 13: [1, 3], 14: [1, 3], 15: [1, 3], 16: [1, 3], 17: [1, 3], 18: [1, 3],
-	19: [1, 3], 20: [1, 3], 21: [1, 3], 22: [1, 3], 23: [1, 3], 24: [1, 3], 25: [1, 3], 26: [1, 3], 27: [1, 3]}   # stage 4 (19..27; 27 ends with the Black Knight)
+## on every wave level, two monsters per level come from BEHIND Mera. Cemetery (index 2) is the knight fight.
+const BEHIND_WAVES := {0: [1, 3], 1: [1, 3], 3: [1, 3], 5: [1, 3], 6: [1, 3], 7: [1, 3], 8: [1, 3], 9: [1, 3],
+	11: [1, 3], 12: [1, 3], 13: [1, 3], 14: [1, 3], 15: [1, 3], 16: [1, 3], 17: [1, 3],
+	18: [1, 3], 19: [1, 3], 20: [1, 3], 21: [1, 3], 22: [1, 3], 23: [1, 3]}
 const MAX_ALIVE := 5
 const BOSS_AT := 3400.0        # the boss appears when Mera gets this close to the map end ...
 const BOSS_X := 1300.0         # ... standing this far from the end, in front of the exit (locked until he falls)

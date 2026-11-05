@@ -417,7 +417,28 @@ func _idle() -> void:
 	_go("idle", "hips" if id == "dancer" else "idle")
 
 
+func fall_in_pit() -> void:
+	if has_meta("pit_fall") or state == "dead" or state == "leave":
+		return
+	hp = 0
+	vx = 0.0
+	vy = 0.0
+	on_ground = false
+	if bar != null:
+		bar.visible = false
+	set_meta("pit_fall", true)
+	set_meta("pit_x", global_position.x)
+	set_meta("pit_vy", 40.0)
+	_go("dead", "hurt" if id == "brawler" else "death")
+
+
 func _physics_process(delta: float) -> void:
+	if has_meta("pit_fall"):
+		if game != null:
+			game.pit_drop(self, delta)
+		if global_position.y > gy + 900.0:
+			queue_free()
+		return
 	t_state += delta
 	age += delta
 	heal_cd -= delta

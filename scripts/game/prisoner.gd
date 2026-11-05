@@ -17,22 +17,22 @@ const IRON_HI := Color(0.36, 0.36, 0.42)
 
 ## level index (Levels) -> the prisoner there. Copy of the king arc table; the lines are shown by the orchestrator.
 const TABLE := {
-	1: {"x": 4200.0, "gold": 20, "who": "cl_ranger", "name": "Woodsman",
+	0: {"x": 4200.0, "gold": 20, "who": "cl_ranger", "name": "Woodsman",
 		"lore": "The king burned my village for hiding a giant's child. He calls it keeping the peace.",
 		"tip": "Green potions make you grow, and your size is your health. Break crates and urns on the road for more."},
-	4: {"x": 6100.0, "gold": 25, "who": "x_dark_wizard", "name": "Court Mage",
+	3: {"x": 6100.0, "gold": 25, "who": "x_dark_wizard", "name": "Court Mage",
 		"lore": "I wove his mind spell myself. It takes a caster to hold it, and he holds it on his own daughter.",
 		"tip": "Time a parry just before a hit lands. It cancels the hit and sends shots back at whoever fired them."},
-	8: {"x": 3100.0, "gold": 25, "who": "cl_weaver", "name": "Old Guard",
+	7: {"x": 3100.0, "gold": 25, "who": "cl_weaver", "name": "Old Guard",
 		"lore": "Perry was gentle once. The king took her at seven and taught her one lesson: never be touched.",
 		"tip": "Summon cards call an ally to fight for you. Spend gold in the shop to make summons last longer."},
-	11: {"x": 480.0, "gold": 20, "who": "cl_knight", "name": "Captain",
+	10: {"x": 480.0, "gold": 20, "who": "cl_knight", "name": "Captain",
 		"lore": "That is not Perry in there. His spell holds her mind and drives her arm. She cannot stop it.",
 		"tip": "Perry is hard to beat without being stunned. Parry her attacks, or purchase Earthquake from the shop."},
-	15: {"x": 7520.0, "gold": 30, "who": "cl_ranger", "name": "Scout",
+	12: {"x": 7520.0, "gold": 30, "who": "cl_ranger", "name": "Scout",
 		"lore": "He feeds the Changeling court our faces and sends us out as his monsters. Nothing here is what it was.",
 		"tip": "A Warlord's captain waits halfway along every road. Beat him for gold and a drop."},
-	18: {"x": 2400.0, "gold": 30, "who": "cl_weaver", "name": "Bone Scribe",
+	14: {"x": 2400.0, "gold": 30, "who": "cl_weaver", "name": "Bone Scribe",
 		"lore": "Lucius was never afraid of giants. He feared anyone who could grow stronger than a king. That fear made him mad.",
 		"tip": "The king charges across his court and slams the floor. Jump the shockwaves and strike him while he is stunned against the wall."},
 }

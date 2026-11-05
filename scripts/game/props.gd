@@ -37,28 +37,22 @@ const DROP_P := {"small": 0.7, "medium": 0.9, "big": 1.0}
 const CHEST_ITEM_W := {"potion": 25.0, "mana": 25.0, "card": 10.0}   # what a chest holds besides coins
 
 ## secrets per level index: [card index into Allies.CARDS[level], how it's hidden]
-## Cemetery (3) has none. Caverns are index 4.
-## v0.12.2: two cracked walls per map (each stage map has one card index unused by the other secrets).
+## Cemetery (2) and the Dragon's Lair (4) have none.
 const SECRETS := {
 	0: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
-	1: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
-	2: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
-	4: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
-	6: [[0, "ledge"], [1, "wall"], [2, "door"], [3, "wall"]],
-	7: [[0, "wall"], [1, "door"], [2, "ledge"], [3, "wall"]],
-	8: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
-	9: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
-	10: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
-	# stage 3 (Changeling, 12..18; stage 4 (19..27) has no SECRETS yet: layout() tolerates that; Perry's Arena 11 and the Warlord's Throne 28 are bare arenas)
-	12: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
-	13: [[0, "door"], [1, "wall"], [2, "ledge"], [3, "wall"]],
-	14: [[0, "wall"], [1, "door"], [2, "wall"], [3, "ledge"]],
-	15: [[0, "wall"], [1, "wall"], [2, "door"], [3, "ledge"]],
-	16: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
-	17: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
-	18: [[0, "wall"], [1, "door"], [2, "ledge"], [3, "wall"]],
+	1: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
+	3: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
+	5: [[0, "ledge"], [1, "wall"], [2, "door"], [3, "wall"]],
+	6: [[0, "wall"], [1, "door"], [2, "ledge"], [3, "wall"]],
+	7: [[0, "door"], [1, "wall"], [2, "wall"], [3, "ledge"]],
+	8: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
+	9: [[0, "wall"], [1, "ledge"], [2, "door"], [3, "wall"]],
+	11: [[0, "door"], [1, "wall"], [2, "ledge"], [3, "wall"]],
+	12: [[0, "wall"], [1, "wall"], [2, "door"], [3, "ledge"]],
+	13: [[0, "wall"], [1, "ledge"], [2, "wall"], [3, "door"]],
+	14: [[0, "wall"], [1, "door"], [2, "ledge"], [3, "wall"]],
 }
-const CHANDELIERS := {2: true, 4: true, 10: true, 16: true, 17: true, 18: true}   # Moonlit Town, Infernal Caverns and Moonlit Sanctum have something to hang them from
+const CHANDELIERS := {1: true, 3: true, 9: true, 13: true, 14: true}   # Moonlit Town, Infernal Caverns, Moonlit Sanctum, the Gate and the Hall of Faces
 const LEVER_BACK := 620.0                     # the lever for a door stands this far before it
 const ARENA_BREAKABLES := 20                  # Perry's Arena (p_arena): exactly this many breakables, all crate / urn / candle kinds
 
@@ -71,7 +65,7 @@ static func layout(level: int, map_w: float) -> Array:
 		id = String(Levels.list()[level].get("id", ""))
 	if id == "p_arena":
 		return _arena_breakables(level, map_w)
-	if id == "cemetery" or id == "dragon_lair" or id == "ch_throne" or id == "king_court" or id == "s4_tunnel":
+	if id == "cemetery" or id == "dragon_lair" or id == "ch_throne" or id == "king_court":
 		return out
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7700 + level * 131

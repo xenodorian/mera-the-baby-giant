@@ -63,8 +63,8 @@ static var clears: Dictionary = {}   # level index (as a string key) -> times cl
 const CLEAR_GOLD_FIRST := 15         # first clear of a level
 const CLEAR_GOLD_REPEAT := 5         # each clear after that
 
-## Stage 3 phase 3 (docs/STAGE3_PLAN.md): Perry becomes playable once Perry's Arena is cleared (level index 11)
-const PERRY_CLEAR_LEVEL := 11
+## Perry becomes playable once Perry's Arena is cleared (level index 10)
+const PERRY_CLEAR_LEVEL := 10
 static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
 static var respawn := false                     # shop: 200 gold. A death plays the reaper duel and a win puts her back where she fell.
 static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
@@ -79,8 +79,11 @@ static var perry_freed := false                 # Perry was freed from the king'
 ## unlocked value equal to from_index only said "the level after the last old one is open", and that is still true).
 ## Version 1: the nine Stage 4 maps went in at 19, so the old Throne and Court (19, 20) became 28 and 29.
 ## Version 2 inserted the tunnel map (s4_tunnel) at 28: the Warlord and the court moved on by one.
-const LAYOUT_VERSION := 2
+## Version 3 removed five levels (0 country, 12 greenwood, 14 watchtower, 17 undercroft, 28 the warren).
+## Later indices move down, and a removed index is dropped. "unlocked" follows the last level that is still there.
+const LAYOUT_VERSION := 3
 const LAYOUT_MIGRATIONS := [[1, 19, 9], [2, 28, 1]]
+const DROPPED_LEVELS := [0, 12, 14, 17, 28]
 
 
 static func ensure() -> void:
@@ -128,8 +131,47 @@ static func migrate(d: Dictionary) -> Dictionary:
 				out[key] = moved
 		if out.has("unlocked") and int(out["unlocked"]) > from_i:
 			out["unlocked"] = int(out["unlocked"]) + shift
+	if v < 3:
+		_drop_removed_levels(out)
 	out["layout"] = LAYOUT_VERSION
 	return out
+
+
+## layout 3: five levels were removed. A kept index moves down by how many removed levels sat before it.
+static func _remap_kept(idx: int) -> int:
+	var shift := 0
+	for d in DROPPED_LEVELS:
+		if int(d) == idx:
+			return -1
+		if int(d) < idx:
+			shift += 1
+	return idx - shift
+
+
+static func _drop_removed_levels(out: Dictionary) -> void:
+	for key: String in ["clears", "prisoners"]:
+		var src = out.get(key, {})
+		if src is Dictionary:
+			var moved := {}
+			for k in src:
+				var idx := int(String(k)) if String(k).is_valid_int() else -1
+				if idx < 0:
+					moved[String(k)] = src[k]
+					continue
+				var n := _remap_kept(idx)
+				if n >= 0:
+					moved[str(n)] = src[k]
+			out[key] = moved
+	if out.has("unlocked"):
+		var u := int(out["unlocked"])
+		var best := 0
+		var any := false
+		for i in range(maxi(u, 0) + 1):
+			var n := _remap_kept(i)
+			if n >= 0:
+				best = n
+				any = true
+		out["unlocked"] = best if any else 0
 
 
 static func _read(d: Dictionary) -> void:

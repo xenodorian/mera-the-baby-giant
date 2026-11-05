@@ -373,30 +373,179 @@ func _parse_args() -> void:
 
 
 # ---------------------------------------------------------------- frame
-## Pits and spike beds of the Craftpix maps (levels.json "pits" / "spikes"; the old maps only have art strips). Walking on the floor into a pit
-## costs 1 and puts Mera back on the near edge (jump it, or use a ledge); a spike bed costs 1 on touch. Above the floor (jumping, on a ledge,
-## flying) is safe.
+## Pits and spike beds (levels.json "pits" / "spikes"). A body falls into a pit only when its whole
+## visible sprite sits inside the pit's width, and only from the floor (a jump still clears it).
+## The fall is straight down and death is instant. A spike bed still costs 1 on touch.
 func _hazard_tick() -> void:
-	if (pits.is_empty() and spikes.is_empty()) or mera == null or not is_instance_valid(mera) or mera.state in ["dead", "gallery"] or mera.flying:
+	if pits.is_empty() and spikes.is_empty():
 		return
-	var p: Vector2 = mera.global_position
-	if p.y < GROUND_Y - 6.0 or mera.invuln > 0.0:
-		return
+	if mera != null and is_instance_valid(mera):
+		_try_pit(mera)
+	for e in enemies():
+		_try_pit(e)
+	for a in allies_on:
+		if is_instance_valid(a):
+			_try_pit(a)
+	if mera != null and is_instance_valid(mera) and mera.state not in ["dead", "gallery"] and not mera.flying and not mera.has_meta("pit_fall"):
+		var p: Vector2 = mera.global_position
+		if p.y >= GROUND_Y - 6.0 and mera.invuln <= 0.0:
+			for sp in spikes:
+				if p.x > float(sp[0]) + 24.0 and p.x < float(sp[1]) - 24.0:
+					mera.take_hit(1, (float(sp[0]) + float(sp[1])) * 0.5)
+					break
+	for e in enemies():
+		if not is_instance_valid(e) or not e.has_method("alive") or not e.alive():
+			continue
+		if bool(e.get("flyer")) or not bool(e.get("on_ground")) or e.has_meta("pit_fall"):
+			continue
+		if float(e.get("hazard_cd")) > 0.0:
+			continue
+		var ex: float = e.global_position.x
+		var bed = _span_at(spikes, ex, 16.0)
+		if bed != null and e.global_position.y <= GROUND_Y + 8.0:
+			e.hazard_cd = 0.7
+			e.take_damage(4, (float(bed[0]) + float(bed[1])) * 0.5, "spike")
+
+
+## the pit whose width fully contains [span.x, span.y], or null. The whole sprite has to be inside.
+func pit_holding(span: Vector2):
+	var left := span.x
+	var right := span.y
+	if right - left < 8.0:
+		return null
+	var best = null
+	var best_w := INF
 	for pr in pits:
-		if p.x > float(pr[0]) + 50.0 and p.x < float(pr[1]) - 50.0:
-			pit_falls += 1
-			var left: bool = absf(p.x - float(pr[0])) < absf(p.x - float(pr[1]))
-			mera.global_position.x = float(pr[0]) - 170.0 if left else float(pr[1]) + 170.0       # back to the near edge first: the hit's knock slides from where she stands
-			mera.vel = Vector2.ZERO
-			mera.take_hit(1, (float(pr[0]) + float(pr[1])) * 0.5)
-			if mera.state != "dead":
-				mera.invuln = maxf(mera.invuln, 1.2)
-			shake(8.0, 0.2)
-			return
-	for sp in spikes:
-		if p.x > float(sp[0]) + 24.0 and p.x < float(sp[1]) - 24.0:
-			mera.take_hit(1, (float(sp[0]) + float(sp[1])) * 0.5)
-			return
+		var x0 := float(pr[0])
+		var x1 := float(pr[1])
+		var w := x1 - x0
+		if left >= x0 and right <= x1 and w < best_w:
+			best = pr
+			best_w = w
+	return best
+
+
+func _try_pit(body: Node) -> void:
+	if body == null or not is_instance_valid(body) or not body.has_method("fall_in_pit"):
+		return
+	if body.has_meta("pit_fall"):
+		return
+	if body.get("flying") == true or body.get("flyer") == true:
+		return
+	var st := String(body.get("state"))
+	if st in ["dead", "gallery", "leave", "gone"]:
+		return
+	if body.global_position.y < GROUND_Y - 14.0:
+		return
+	if pit_holding(sprite_span_x(body)) == null:
+		return
+	pit_falls += 1
+	body.fall_in_pit()
+
+
+## straight down from the x where the sprite first fit in the hole. No sideways drift.
+func pit_drop(body: Node2D, delta: float) -> void:
+	var x := float(body.get_meta("pit_x", body.global_position.x))
+	var vy := float(body.get_meta("pit_vy", 40.0)) + 3400.0 * delta
+	vy = minf(vy, 2400.0)
+	body.set_meta("pit_vy", vy)
+	body.global_position = Vector2(x, body.global_position.y + vy * delta)
+
+
+## world x of the opaque sprite: left, right. Transparent padding does not count.
+func sprite_span_x(body: Node2D) -> Vector2:
+	if body == null or not is_instance_valid(body):
+		return Vector2.ZERO
+	if body.get("is_perry") == true and body.get("spr") is Sprite2D:
+		var ps: Sprite2D = body.spr
+		if ps.texture != null:
+			var reg := ps.region_rect if ps.region_enabled else Rect2()
+			var local := _opaque_local(ps.texture, reg)
+			return _world_x(ps, ps.offset.x + local.x, ps.offset.x + local.y)
+	var anim_n = body.get("anim")
+	if anim_n is LayeredAnim:
+		var bspr: Sprite2D = anim_n.body
+		if bspr != null and bspr.texture != null and bspr.visible:
+			var reg2 := bspr.region_rect if bspr.region_enabled else Rect2()
+			var local2 := _opaque_local(bspr.texture, reg2)
+			return _world_x(bspr, local2.x, local2.y)
+	var spr2 = body.get("sprite")
+	if spr2 is AnimatedSprite2D and spr2.sprite_frames != null and spr2.sprite_frames.has_animation(String(spr2.animation)):
+		var tex: Texture2D = spr2.sprite_frames.get_frame_texture(spr2.animation, spr2.frame)
+		if tex != null:
+			var local3 := _opaque_local(tex, Rect2())
+			return _world_x(spr2, spr2.offset.x + local3.x, spr2.offset.x + local3.y)
+	if body.has_method("hurt_rect"):
+		var hr: Rect2 = body.hurt_rect()
+		if hr.size.x > 1.0:
+			return Vector2(hr.position.x, hr.end.x)
+	return Vector2(body.global_position.x, body.global_position.x)
+
+
+func _world_x(node: CanvasItem, local_x0: float, local_x1: float) -> Vector2:
+	var a := node.get_global_transform() * Vector2(local_x0, 0.0)
+	var b := node.get_global_transform() * Vector2(local_x1, 0.0)
+	return Vector2(minf(a.x, b.x), maxf(a.x, b.x))
+
+
+var _opaque_x_cache: Dictionary = {}
+
+
+## opaque pixel span inside a texture (or a region of it), in drawn-rect pixels: (left, right)
+func _opaque_local(tex: Texture2D, region: Rect2) -> Vector2:
+	var src: Texture2D = tex
+	var reg := region
+	if tex is AtlasTexture:
+		var at := tex as AtlasTexture
+		if at.atlas != null:
+			src = at.atlas
+			reg = at.region
+	var key := "%s|%s" % [src.resource_path if src != null else str(src), reg]
+	if _opaque_x_cache.has(key):
+		return _opaque_x_cache[key]
+	var img: Image = src.get_image() if src != null else null
+	var full_w := float(tex.get_width())
+	if img == null:
+		var empty := Vector2(0.0, full_w)
+		_opaque_x_cache[key] = empty
+		return empty
+	var x0 := 0
+	var y0 := 0
+	var w := img.get_width()
+	var h := img.get_height()
+	if reg.size.x > 1.0 and reg.size.y > 1.0:
+		x0 = clampi(int(reg.position.x), 0, img.get_width() - 1)
+		y0 = clampi(int(reg.position.y), 0, img.get_height() - 1)
+		w = mini(int(reg.size.x), img.get_width() - x0)
+		h = mini(int(reg.size.y), img.get_height() - y0)
+	var left := w
+	var right := -1
+	var step := 2 if w * h > 180000 else 1
+	for y in range(0, h, step):
+		var py := y0 + y
+		for x in range(0, w, step):
+			if img.get_pixel(x0 + x, py).a > 0.12:
+				if x < left:
+					left = x
+				if x + step - 1 > right:
+					right = x + step - 1
+	if right < 0:
+		left = 0
+		right = maxi(w - 1, 0)
+	var out := Vector2(float(left), float(right + 1))
+	_opaque_x_cache[key] = out
+	return out
+
+
+func pit_at(x: float):
+	return _span_at(pits, x, 0.0)
+
+
+func _span_at(spans: Array, x: float, inset: float):
+	for s in spans:
+		if x > float(s[0]) + inset and x < float(s[1]) - inset:
+			return s
+	return null
 
 
 func _physics_process(delta: float) -> void:
@@ -868,6 +1017,8 @@ func Roster_list() -> Array:
 
 ## returns true when this one came from behind Mera (v0.9.1: `behind` asks for it; risers never do)
 func _spawn_next(list: Array, j: int, behind: bool = false) -> bool:
+	if list.is_empty():
+		return false
 	var eid: String = list[wave_type_i % list.size()]
 	wave_type_i += 1
 	var riser: bool = Roster.def(eid).has("spawn")
@@ -944,7 +1095,7 @@ func _start_finale_victory() -> void:
 		return
 	victory = true
 	var who: String = String(Roster.FINALE.get(Levels.current, "the Cavern Dragon"))
-	if Levels.current == 5:
+	if String(Roster.BOSSES.get(Levels.current, "")) == "dragon":
 		victory_text = PackedStringArray(["You Defeated the Cavern Dragon!", "Stage 2: The Island is open"])
 	elif Levels.current == Levels.STAGE3_FROM - 1:
 		victory_text = PackedStringArray(["You Defeated Perry!", "Stage 3: Changeling is open"])
@@ -1200,7 +1351,7 @@ func finish_endpoint() -> void:
 
 
 func exit_lock_text() -> String:
-	if Levels.current == 5:
+	if String(Roster.BOSSES.get(Levels.current, "")) == "dragon":
 		return "SLAY THE DRAGON"
 	if Levels.current == Levels.STAGE3_FROM - 1:
 		return "DEFEAT PERRY"
@@ -2025,6 +2176,7 @@ func _open_ambidex() -> void:
 	HitStop.clear()
 	if music_player:
 		music_player.stop()
+		music_player.process_mode = Node.PROCESS_MODE_DISABLED
 	var tree := get_tree()
 	if tree:
 		tree.paused = true
@@ -2061,8 +2213,10 @@ func _respawn_here() -> void:
 func _on_ambidex_finished(won: bool) -> void:
 	_close_ambidex()
 	if won:
-		if music_player and not music_player.playing:
-			music_player.play()
+		if music_player:
+			music_player.process_mode = Node.PROCESS_MODE_ALWAYS
+			if not music_player.playing:
+				music_player.play()
 		_respawn_here()
 		return
 	over = true

@@ -544,6 +544,15 @@ func _physics_process(delta: float) -> void:
 	# v0.8: Mera's input clock runs on real time through a hit-stop (the world freezes, her timing windows don't),
 	# so a press made during the freeze is judged exactly as it would be without it
 	now += HitStop.input_dt(delta) * 1000.0
+	if has_meta("pit_fall"):
+		vel = Vector2.ZERO
+		on_ground = false
+		flying = false
+		if game != null:
+			game.pit_drop(self, delta)
+		anim.step(delta * 1000.0)
+		_update_boxes()
+		return
 	_poll_input()
 	if game != null and game.mark_lock:
 		for e in presses:
@@ -2300,6 +2309,26 @@ func _hurt_tick(delta: float) -> void:
 		vel.y = move_toward(vel.y, 0.0, 900.0 * shown * delta)
 	else:
 		_gravity(delta)
+
+
+func fall_in_pit() -> void:
+	if has_meta("pit_fall") or state == "gallery":
+		return
+	if state != "dead":
+		_interrupt()
+		flying = false
+		state = "dead"
+		vel = Vector2.ZERO
+		on_ground = false
+		_play("knockback")
+		Sfx.play("boom_big", 0.6)
+		if fury:
+			fury_left = 0.0
+			_fury_tick(0.0)
+		died.emit()
+	set_meta("pit_fall", true)
+	set_meta("pit_x", global_position.x)
+	set_meta("pit_vy", 40.0)
 
 
 func _die(from_x: float) -> void:

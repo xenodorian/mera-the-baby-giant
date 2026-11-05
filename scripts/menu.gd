@@ -81,7 +81,7 @@ func _to_design(p: Vector2) -> Vector2:
 	return p - _origin()
 
 
-## the level indices on the page that shows level i (stage 1: 0..5, stage 2: 6..11, stage 3: 12..18, stage 4: 19..27, last stage: 28 and 29)
+## the level indices on the page that shows level i (stage 1: 0..4, stage 2: 5..10, stage 3: 11..17, stage 4: 18..23, last stage: 24 and 25)
 func page_levels(page: int) -> Array:
 	var out: Array = []
 	for i in thumbs.size():
@@ -95,7 +95,7 @@ func page_of(i: int) -> int:
 
 
 const PAGE_HEADS := ["STAGE 1  SELECT A LEVEL", "STAGE 2: THE ISLAND  SELECT A LEVEL", "STAGE 3: CHANGELING  SELECT A LEVEL", "STAGE 4: THE FALLEN CITY  SELECT A LEVEL", "THE KING'S COURT  SELECT A LEVEL"]   # one per Levels.stage_of
-const WIDE_PAGE := 6          # a page with more cards than this lays them out in two rows (stages 3 and 4: 7 and 9 cards)
+const WIDE_PAGE := 6          # a page with more cards than this lays them out in two rows (stage 3 has 7)
 
 
 func _card(i: int) -> Rect2:

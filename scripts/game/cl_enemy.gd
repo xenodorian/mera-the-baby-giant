@@ -17,6 +17,9 @@ var hops_back := 0                   # tests
 
 
 func _physics_process(delta: float) -> void:
+	if has_meta("pit_fall"):
+		super(delta)
+		return
 	hold_cd -= delta
 	if blinking and state != "blink":      # a launch or stun cut the blink short: show him again
 		blinking = false

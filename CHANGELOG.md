@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.4-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.4_Windows.exe
+- Android: Mera_Playable_v0.26.4_Android.apk
+- **Pits kill.** Mera, enemies, and summons fall straight down and die the moment their whole visible sprite is inside a pit. A sprite that still hangs over the lip stays up. Jumping over a pit is still safe. Spike beds are unchanged.
+
 ## v0.26.3-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.3_Windows.exe

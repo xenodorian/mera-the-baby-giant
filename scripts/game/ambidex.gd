@@ -71,6 +71,7 @@ var bgm_stream: AudioStream = preload("res://ambidex/audio/bgm.mp3")
 var land_sfx: AudioStream = preload("res://ambidex/audio/land.wav")
 var block_sfx: AudioStream = preload("res://ambidex/audio/block.wav")
 var hurt_sfx: AudioStream = preload("res://ambidex/audio/hurt.wav")
+var bass_sfx: AudioStream = preload("res://ambidex/audio/bass.ogg")
 var as_perry := false
 
 var state := "menu"
@@ -152,14 +153,25 @@ func _boot_audio() -> void:
 	if stream is AudioStreamMP3:
 		stream.loop = true
 	bgm_player.stream = stream
-	bgm_player.volume_db = -80.0 if muted else -8.0
-	bgm_player.play()
+	bgm_player.volume_db = -80.0
 	for _i in 4:
 		var player := AudioStreamPlayer.new()
 		player.volume_db = -3.0
 		player.process_mode = Node.PROCESS_MODE_ALWAYS
 		add_child(player)
 		sfx_players.append(player)
+
+
+## the duel song plays only while a round is running, never on the prompt or the result
+func _sync_bgm() -> void:
+	if bgm_player == null:
+		return
+	if state == "play" and not muted:
+		bgm_player.volume_db = -8.0
+		if not bgm_player.playing:
+			bgm_player.play()
+	elif bgm_player.playing:
+		bgm_player.stop()
 
 func _toggle_mute() -> void:
 	_boot_audio()
@@ -176,6 +188,8 @@ func _blow(kind: String) -> void:
 		stream = block_sfx
 	elif kind == "hurt":
 		stream = hurt_sfx
+	elif kind == "bass":
+		stream = bass_sfx
 	for player in sfx_players:
 		if not player.playing:
 			player.stream = stream
@@ -399,7 +413,7 @@ func _award(side: String, at: Vector2) -> void:
 			"max": 0.5,
 			"side": side,
 		})
-	_blow("land" if side == "L" else "block")
+	_blow("land" if side == "L" else "bass")
 	_cue("slash" if side == "L" else "guard")
 
 func _press_letter(letter: String) -> void:
@@ -430,7 +444,7 @@ func _press_letter(letter: String) -> void:
 	if letter in RIGHT:
 		if not _right_live() or letter != flash:
 			_cue("shield")
-			_blow("block")
+			_blow("bass")
 			_blow("hurt")
 			_hurt(1)
 			return
@@ -614,6 +628,7 @@ func _advance_right(dt: float) -> void:
 				_arm_right()
 
 func _process(delta: float) -> void:
+	_sync_bgm()
 	time += delta
 	var layout := _layout()
 	for i in range(particles.size() - 1, -1, -1):
