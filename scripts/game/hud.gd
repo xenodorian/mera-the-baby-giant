@@ -318,11 +318,13 @@ func _draw_ui() -> void:
 		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.08, 0, 0.02, minf((game.over_t - 0.9) * 1.5, 0.7)))
 		_center(o.y + 520, "GAME OVER", 110, Color(0.95, 0.2, 0.2))
 		if game.run_mode and game.run_wiped:
-			_center(o.y + 640, "No lives left. The save is gone.   A / Start: title    B: title", 28, Color(0.95, 0.92, 0.88))
+			_center(o.y + 640, "No lives left. Your save stays.   A / Start: title    B: title", 28, Color(0.95, 0.92, 0.88))
 		elif game.run_mode:
-			_center(o.y + 640, "Back at 2x. One life spent (%d left). Items stay.   A: retry this map    B: title" % game.lives, 28, Color(0.95, 0.92, 0.88))
+			_center(o.y + 640, "Back at the start of this map. Your save stays.   A: retry    B: title", 28, Color(0.95, 0.92, 0.88))
 		else:
-			_center(o.y + 640, "Back at 2x. Potions, cards, mana and rage stay.   A / Start: retry    B: level select", 28, Color(0.95, 0.92, 0.88))
+			_center(o.y + 640, "Back at the start of the stage. Your save stays.   A / Start: retry    B: level select", 28, Color(0.95, 0.92, 0.88))
+		if not Carry.has_respawn():
+			_center(o.y + 690, "Shop: Respawn with minigame, 200 gold. Win it and you get up where you fell.", 24, Color(0.8, 0.85, 0.95))
 	if game.cleared and game.over_t > 0.3 and not game.victory:
 		var o2 := _origin()
 		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))
@@ -330,7 +332,7 @@ func _draw_ui() -> void:
 		_center(o2.y + 500, "JOURNEY COMPLETE" if last else ("STAGE CLEAR" if game.run_mode else "LEVEL CLEAR"), 90, Color(1.0, 0.85, 0.45))
 		if game.run_mode:
 			_center(o2.y + 620, "Stage %d cleared. Saved. +1 life (%d). Next map has %d foes.   A: continue    B: title" % [game.cleared_stage, game.lives, game.quota], 28, Color(0.95, 0.92, 0.88))
-			_center(o2.y + 670, "Upgrades and items come with you. A death with no lives ends the run.", 26, Color(0.8, 0.9, 1.0))
+			_center(o2.y + 670, "Upgrades and items come with you. A death does not erase the save.", 26, Color(0.8, 0.9, 1.0))
 		else:
 			_center(o2.y + 620, "A / Start (Z / Enter): level select      B (X): level select" if last else "A / Start (Z / Enter): next level      B (X): level select", 32, Color(0.95, 0.92, 0.88))
 			if not last:

@@ -30,6 +30,8 @@ The playable level also uses ansimuz **Grotto Escape 2 FX** `electro-shock.png`,
 The Fury flame aura (v0.4: CPU particles with a procedural flame-tongue texture, `Mera._make_flame`), the dash afterimages and the blue/blue-and-white stamina potions are made in this project too.
 The **Blue Knight** is chierit's Fire Knight (CC-BY 4.0) recoloured at runtime by `shaders/knight_blue.gdshader`; the original sheets are not modified. Credit: chierit.
 
+**Ambidex** (the respawn duel, v0.25) is the owner's minigame from BeelzTimeKey. Mera's idle and slash sheets are the default fighter. A Perry run uses her own idle and slash (`assets/characters/perry/player/`). The you-died and you-cheated cards, and the duel music and hits, are from the same minigame. The grim reaper idle, attack and hurt frames are cut from the owner's pixel sheets (backdrop and floor removed). The death is made from the hurt recoil plus a fall, because those sheets have no death.
+
 The v0.5 level maps (`assets/levels/`, built by `tools/build_levels.py`) are composed from copies of the ansimuz CC0 packs: Gothicvania Cemetery, Mist Forest Background, Night Town Background and Lava Background. The cobbled street in Moonlit Town and the exit gate are made in this project.
 
 The v0.6 enemies come from copies of: ansimuz (CC0) Ogre, Werewolf, Wolf running cycle, Hell Hound, Hell Beast, Demon, Flying Eye Demon, Death, Nightmare, Enemy Ghost, Fire Skull, Mutant Toad, Grotto Escape 2 boss dragon, Gothicvania Cemetery hell-gato, skeleton and enemy-death; and chierit's Minotaur. `tools/build_roster.py` only reads them; wolf frames are cut from its sprite sheets into `assets/enemies/wolf/`.

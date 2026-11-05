@@ -1593,6 +1593,21 @@ func _die(from_x: float) -> void:
 	died.emit()
 
 
+## The respawn minigame won: back where she fell, with a third of her HP (at least 15) and a short invulnerability.
+func revive_here(x: float, gy: float) -> void:
+	_interrupt_p()
+	state = "ground"
+	position.x = x
+	ground_y = gy
+	position.y = gy
+	on_ground = true
+	vel = Vector2.ZERO
+	hp = clampi(maxi(15, int(float(hp_max) / 3.0)), 1, hp_max)
+	invuln = 1.8
+	hurt_t = 0.0
+	pa = ""
+
+
 # ---------------------------------------------------------------- deal() for Mera's callers (shots, reflected projectiles)
 func deal(e: Node, base: int, from_x: float, kind: String = "melee") -> void:
 	_strike(e, base * 3, from_x, kind)

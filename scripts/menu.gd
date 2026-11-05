@@ -190,7 +190,7 @@ func _credits_input(e: InputEvent) -> void:
 
 ## v0.12.2: two shop pages. Left/Right switch page. Page 1 is the stats, page 2 the moves and summon times.
 const SHOP_PAGES := [
-	["potion_cap", "mana_cap", "card_cap", "card", "fury", "mana_bar", "scale", "key"],
+	["potion_cap", "mana_cap", "card_cap", "card", "fury", "mana_bar", "scale", "key", "respawn"],
 	["move:beam", "move:earthquake", "move:super_quake", "move:rear", "move:fury_mode", "move:homing", "summon:1", "summon:2", "summon:3"],
 ]
 
@@ -202,7 +202,9 @@ const SHOP_PER_PAGE := 5
 ## every row of the selected character's shop, in order
 func _all_rows() -> Array:
 	if _perry_page():
-		return _perry_ids().map(func(id): return "perry:" + String(id))
+		var rows: Array = ["respawn"]
+		rows.append_array(_perry_ids().map(func(id): return "perry:" + String(id)))
+		return rows
 	var out: Array = []
 	for pg in SHOP_PAGES:
 		out.append_array(pg)
@@ -265,6 +267,8 @@ func _shop_name(i: int) -> String:
 			return "Size cap +1 (max %dx)" % Carry.SCALE_CAP_MAX
 		"key":
 			return "Stage key"
+		"respawn":
+			return "Respawn with minigame"
 		"move:beam":
 			return "Beam at the end of a combo (X X X, then Y)"
 		"move:earthquake":
@@ -326,6 +330,8 @@ func _shop_stat(i: int) -> String:
 			if Carry.unlocked >= Carry.stage_count() - 1:
 				return "all open"
 			return "opens stage %d" % (Carry.unlocked + 2)
+		"respawn":
+			return "owned" if Carry.respawn else "locked"
 		_:
 			return ""
 
@@ -355,6 +361,8 @@ func _shop_price(i: int) -> int:
 			return Carry.PRICE_SCALE
 		"key":
 			return Carry.PRICE_KEY
+		"respawn":
+			return Carry.PRICE_RESPAWN
 		_:
 			return 0
 

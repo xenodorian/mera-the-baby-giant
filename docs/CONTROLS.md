@@ -41,7 +41,7 @@ v0.4: every button acts on the frame it is pressed. Moves marked with a **mana**
 | **R1** (v0.7) | **summon an ally** with a collected card. One card type: she comes at once. Several types: a picker (game paused; Left/Right, R1/A summon, B cancel). No usable card: fail cue + HUD note |
 | **R1** | **summon an ally** (from v0.7: needs a collected ally card; with several card types a picker opens). No card: fail cue |
 | Fury flight | Up in the air takes off. 8-way movement; Mera tilts head-first toward where she flies and eases upright when hovering. Raised-arms pose while moving, tucked hover while idle. Down at ground level, or R2, lands |
-| Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. On Android the on-screen PAUSE button does this (the volume keys do not). Restart after Game Over |
+| Start | **pause menu** (v0.11.4): Continue, Restart level, Back to title, Controls, Quit game. Up/Down choose, A confirms, B or Start continues. On Android the on-screen PAUSE button does this (the volume keys do not). If Respawn with minigame is owned, dying opens the Ambidex duel instead of a restart |
 | Back (Share) | nothing. The animation gallery is not bound to any key or button |
 
 **Chest puzzles.** Touching a chest pauses the game on a puzzle (see `docs/GAME_RULES.md`, Puzzle chests). Start and the PAUSE button do nothing while it is open. The on-screen pad is hidden on Android so taps reach the puzzle; a **GIVE UP** button sits at the top right of every puzzle.
@@ -73,12 +73,14 @@ Every key is just another binding of the same action, so combos, chords (67 ms w
 | **1** (top row only) | L2 | hold = full bubble, just before a hit = parry |
 | **2** (top row only) | R2 | alone = lightning (costs 100 rage). **1 + 2** = Fury. Numpad 1 and 2 are not these |
 | **Numpad 5** (keyboard), **R3** (pad) or a **tap on the screen** (mobile) at 100 rage or more | R3 | **freeze slash**: costs **100 rage**. Freezes Mera and every enemy. Every enemy on screen gets a mark, 1–9 (numbers repeat past 9; one input slashes all with that number). On a keyboard the mark is that digit; on a pad or a touchscreen it is the matching arrow (5 is a dot). Top-row number, numpad direction, right-stick flick, swipe, or tap / R3 / numpad 5 slashes for a flat 15 and plays the slice. The world unfreezes the moment every number shown is entered, or after 8 s. This does not start Fury |
-| Enter or F1 | Start | pause menu (continue, restart level, title, controls, quit). B / Start / Esc continues. Restarts after Game Over |
+| Enter or F1 | Start | pause menu (continue, restart level, title, controls, quit). B / Start / Esc continues. Owned respawn opens the Ambidex duel on death |
 | Tab or G | (unbound; the gallery does not open) | |
 | F2 | debug: hit/hurt boxes, and enables free size keys PageUp/PageDown (or + / −, or right stick up/down), 1x–19x | |
 | F11 / Esc | fullscreen / leave fullscreen, then quit | |
 
-**Menus** (level select, ally picker, Level Clear / Game Over): arrows choose, **Z** = confirm (A), **X** = back/cancel (B); Enter also confirms. The controls overlay (Start / Enter / F1) lists the keyboard key next to every pad button.
+**Menus** (level select, ally picker, Level Clear): arrows choose, **Z** = confirm (A), **X** = back/cancel (B); Enter also confirms. The controls overlay (Start / Enter / F1) lists the keyboard key next to every pad button.
+
+**Death is a duel, once you buy it.** Respawn with minigame costs 200 gold in the title shop. Without it, a death retries the stage from the start and the save stays. With it, dying pauses the level and opens Ambidex against the grim reaper (Esc here pauses the duel and does not quit). Left hand: WASD, the d-pad, or the on-screen pad's arrows, catches the falling letters. Right hand: IJKL, the face buttons, or the on-screen A B X Y, taps the letter that flashes. Survive 30 seconds and you get up where you fell. Lose and you return to the title screen. The save is never wiped by a death. On a Perry run she uses her own sprite. M mutes the duel. A joypad with no saved face-button style asks Xbox or PlayStation first.
 Until v0.7 the keys were WASD/Shift/L/J/K/U/I/O/P; those are gone (A, S, W and Q now mean pad buttons).
 Numpad digits (Num Lock on) are the right stick: 8 up, 2 down, 4 left, 6 right, corners for the diagonals, 5 = R3. They never press L2 or R2. A finger swipe is that same stick; a tap with no swipe is R3. The game remembers whether the last real input was the keyboard, a pad (numpad included) or the touchscreen.
 

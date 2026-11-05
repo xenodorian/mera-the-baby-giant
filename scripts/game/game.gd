@@ -18,6 +18,7 @@ const ART := 5
 # around never shifts the view and fast moves never drift. Vertical stays fixed (the level is one screen tall).
 const KNIGHT_GAP := 480.0     # new knights appear this far past the screen edge, ahead of Mera
 const POTION_EVERY := 2600.0  # a potion appears on the ground ahead for every 2600 px of new ground
+const AmbidexDuel := preload("res://scripts/game/ambidex.gd")
 
 var mera: Mera
 var cam: Camera2D
@@ -37,6 +38,10 @@ var world: Node2D
 var debug_draw: Node2D
 var over := false
 var over_t := 0.0
+var ambidex_on := false
+var ambidex_layer: CanvasLayer = null
+var death_x := 0.0
+var death_gy := 0.0
 var explored_max := 0.0
 var explored_min := 0.0
 var potion_next_r := POTION_EVERY
@@ -1984,16 +1989,76 @@ func _quake_tick(delta: float) -> void:
 
 # ---------------------------------------------------------------- game over / input
 func _on_died() -> void:
+	if over or ambidex_on:
+		return
+	death_x = mera.global_position.x
+	death_gy = mera.ground_y
+	if test_mode or DisplayServer.get_name() == "headless" or not Carry.has_respawn():
+		_death_bank()
+		return
+	_open_ambidex()
+
+
+func _death_bank() -> void:
 	over = true
 	over_t = 0.0
 	if run_mode:
 		if lives > 0:
 			lives -= 1
-			_bank(true, true)
-		else:
-			_wipe_run()
+		_bank(true, true)
 		return
 	_bank(true)
+
+
+func _open_ambidex() -> void:
+	if ambidex_on:
+		return
+	ambidex_on = true
+	HitStop.clear()
+	if music_player:
+		music_player.stop()
+	var tree := get_tree()
+	if tree:
+		tree.paused = true
+	var layer := CanvasLayer.new()
+	layer.layer = 25
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	var duel := AmbidexDuel.new()
+	duel.as_perry = mera.get("is_perry") == true
+	duel.process_mode = Node.PROCESS_MODE_ALWAYS
+	duel.finished.connect(_on_ambidex_finished)
+	layer.add_child(duel)
+	ambidex_layer = layer
+	add_child(layer)
+
+
+func _close_ambidex() -> void:
+	ambidex_on = false
+	if ambidex_layer != null and is_instance_valid(ambidex_layer):
+		ambidex_layer.queue_free()
+	ambidex_layer = null
+	var tree := get_tree()
+	if tree:
+		tree.paused = false
+	if music_player and not music_player.playing:
+		music_player.play()
+
+
+func _respawn_here() -> void:
+	over = false
+	over_t = 0.0
+	HitStop.clear()
+	if mera and mera.has_method("revive_here"):
+		mera.revive_here(death_x, death_gy)
+
+
+func _on_ambidex_finished(won: bool) -> void:
+	_close_ambidex()
+	if won:
+		_respawn_here()
+		return
+	over = true
+	to_menu()
 
 
 var restart_requests := 0       # tests

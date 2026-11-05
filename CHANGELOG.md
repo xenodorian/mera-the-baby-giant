@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.25.0-playable (2026-11-05)
+- **Respawn with minigame is a shop unlock, 200 gold.** It is on the title shop for Mera and for Perry. Dying without it still ends the stage: you retry from the start, and the save is not erased. Dying with it pauses the level and opens the Ambidex duel against the grim reaper. Survive 30 seconds and you stand back up where you fell (Mera at 2x, Perry at a third of her HP, both briefly untouchable). Lose the duel and you return to the title screen. Gold, unlocks and the save stay either way.
+- **Perry fights the reaper as herself.** On a Perry run the duel uses her idle and slash, not Mera's.
+- The reaper is the owner's idle, attack and hurt sheets with the backdrop and floor cut out. There was no death sheet, so the death is the hurt recoil followed by a fall. A left-hand hit plays hurt. The reaper's own swings play attack.
+- Headless tests still take the old death path, so they do not open the duel.
+
 ## v0.24.0-playable (2026-11-04)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.24.0_Windows.exe

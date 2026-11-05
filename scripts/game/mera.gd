@@ -2318,6 +2318,22 @@ func _die(from_x: float) -> void:
 	died.emit()
 
 
+## The respawn minigame won: back on her feet where she fell, at 2x, with a short invulnerability.
+func revive_here(x: float, gy: float) -> void:
+	_interrupt()
+	flying = false
+	state = "ground"
+	position.x = x
+	ground_y = gy
+	position.y = gy
+	on_ground = true
+	vel = Vector2.ZERO
+	set_size(2, true)
+	invuln = 1.8
+	anim.modulate.a = 1.0
+	_go_neutral()
+
+
 # ---------------------------------------------------------------- gallery (every animation, in place)
 func gallery_toggle() -> void:
 	if state == "gallery":

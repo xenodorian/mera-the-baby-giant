@@ -576,7 +576,7 @@ func _run() -> void:
 	m.set_size(1, true)
 	m.take_hit(1, m.global_position.x + 100.0)
 	await _drive(g, [], 10)
-	_check("hit at 1x -> death, Game Over", m.state == "dead" and g.over, "state=%s over=%s" % [m.state, g.over])
+	_check("hit at 1x -> death, Game Over", m.state == "dead" and g.over and not g.ambidex_on, "state=%s over=%s ambidex=%s" % [m.state, g.over, g.ambidex_on])
 	g.queue_free()
 	await process_frame
 	# damage x size against a Fire Knight
@@ -4004,7 +4004,7 @@ func _session_tests() -> void:
 	var menu: Node = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(menu)
 	await process_frame
-	_check("shop pages: Mera's shop has 17 rows on 4 pages", menu._all_rows().size() == 17 and menu._page_count() == 4, "rows %d pages %d" % [menu._all_rows().size(), menu._page_count()])
+	_check("shop pages: Mera's shop has 18 rows on 4 pages", menu._all_rows().size() == 18 and menu._page_count() == 4, "rows %d pages %d" % [menu._all_rows().size(), menu._page_count()])
 	menu.shop_page = 2
 	menu.shop_i = 3
 	menu.btn = 0
@@ -4023,7 +4023,7 @@ func _session_tests() -> void:
 	menu.shop_page = 3
 	menu.shop_i = 2
 	menu._toggle_character()
-	_check("shop pages: Perry's shop has 27 rows on 6 pages, and the toggle resets to page 1 row 1", C.perry_selected() and menu._all_rows().size() == 27 and menu._page_count() == 6 and menu.shop_page == 0 and menu.shop_i == 0, "rows %d pages %d" % [menu._all_rows().size(), menu._page_count()])
+	_check("shop pages: Perry's shop has 28 rows on 6 pages, and the toggle resets to page 1 row 1", C.perry_selected() and menu._all_rows().size() == 28 and menu._page_count() == 6 and menu.shop_page == 0 and menu.shop_i == 0, "rows %d pages %d" % [menu._all_rows().size(), menu._page_count()])
 	ev.action = "left"
 	menu._shop_input(ev)
 	_check("shop pages: Left from Perry's page 1 wraps to page 6", menu.shop_page == 5, "page %d" % menu.shop_page)

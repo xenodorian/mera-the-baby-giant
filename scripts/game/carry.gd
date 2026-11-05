@@ -29,6 +29,7 @@ const PRICE_FURY := 50
 const PRICE_MANA_BAR := 50
 const PRICE_SCALE := 90
 const PRICE_KEY := 200
+const PRICE_RESPAWN := 200
 
 const ALLIES := ["priestess", "ranger", "brawler", "dancer", "cl_knight", "cl_ranger", "cl_weaver", "perry"]
 
@@ -65,6 +66,7 @@ const CLEAR_GOLD_REPEAT := 5         # each clear after that
 ## Stage 3 phase 3 (docs/STAGE3_PLAN.md): Perry becomes playable once Perry's Arena is cleared (level index 11)
 const PERRY_CLEAR_LEVEL := 11
 static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
+static var respawn := false                     # shop: 200 gold. A death plays the reaper duel and a win puts her back where she fell.
 static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
 static var perry_hp_max := Tuning.PERRY_HP_START
 static var story_seen: Dictionary = {}          # cutscene key -> true once shown (scripts/game/cutscene.gd)
@@ -153,6 +155,7 @@ static func _read(d: Dictionary) -> void:
 	size = clampi(int(d.get("size", 2)), 1, scale_cap)
 	unlocked = maxi(int(d.get("unlocked", 0)), 0)
 	character = "perry" if String(d.get("character", "mera")) == "perry" else "mera"     # old saves: no Perry fields
+	respawn = bool(d.get("respawn", false))
 	perry_hp_max = clampi(int(d.get("perry_hp_max", Tuning.PERRY_HP_START)), Tuning.PERRY_HP_START, Tuning.PERRY_HP_CAP)
 	perry_owned = {}
 	var po = d.get("perry_owned", {})
@@ -210,6 +213,7 @@ static func pack() -> Dictionary:
 		"moves": moves.duplicate(),
 		"summon_tier": summon_tier,
 		"character": character,
+		"respawn": respawn,
 		"perry_owned": perry_owned.duplicate(),
 		"perry_hp_max": perry_hp_max,
 		"story_seen": story_seen.duplicate(),
@@ -245,6 +249,7 @@ static func reset() -> void:
 	moves = {}
 	summon_tier = 0
 	character = "mera"
+	respawn = false
 	perry_owned = {}
 	perry_hp_max = Tuning.PERRY_HP_START
 	story_seen = {}
@@ -334,6 +339,11 @@ static func perry_unlocked() -> bool:
 ## the title menu's choice, only while Perry is unlocked
 static func perry_selected() -> bool:
 	return character == "perry" and perry_unlocked()
+
+
+static func has_respawn() -> bool:
+	ensure()
+	return respawn
 
 
 ## "mera" or "perry"; a locked Perry falls back to Mera
@@ -563,6 +573,13 @@ static func buy(what: String, ally_id: String = "") -> String:
 				return "gold"
 			gold -= PRICE_KEY
 			unlocked += 1
+		"respawn":
+			if respawn:
+				return "owned"
+			if gold < PRICE_RESPAWN:
+				return "gold"
+			gold -= PRICE_RESPAWN
+			respawn = true
 		_:
 			return "bad"
 	save()
