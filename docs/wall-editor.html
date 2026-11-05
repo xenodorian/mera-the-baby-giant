@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wall bench</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" />
+    <style>
+      :root {
+        --bg: #0c0a10;
+        --floor: #16121c;
+        --wall: #e2b04a;
+        --fg: #f4efe6;
+        --muted: #a89880;
+        --surface: #221c30;
+        --line: #3a3348;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: Silkscreen, ui-monospace, monospace;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        padding: 16px;
+        gap: 12px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      h1 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+      }
+      p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      button {
+        background: var(--surface);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 11px;
+      }
+      button:hover { border-color: var(--wall); }
+      .stage {
+        flex: 1;
+        display: grid;
+        place-items: center;
+        min-height: 0;
+      }
+      .board {
+        width: min(100%, calc((100dvh - 132px) * 16 / 9));
+        aspect-ratio: 16 / 9;
+        display: grid;
+        grid-template-columns: repeat(23, 1fr);
+        grid-template-rows: repeat(13, 1fr);
+        gap: 2px;
+        background: #100e16;
+        padding: 2px;
+        touch-action: none;
+        user-select: none;
+      }
+      .cell {
+        background: var(--floor);
+        border: 0;
+        padding: 0;
+        min-width: 0;
+        min-height: 0;
+      }
+      .cell.on { background: var(--wall); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Wall bench</h1>
+        <p>23 × 13. Click or drag a tile to place or lift a wall. <span id="count">0 walls</span></p>
+      </div>
+      <div class="actions">
+        <button type="button" id="clear">Clear inside</button>
+        <button type="button" id="copy">Copy layout</button>
+      </div>
+    </header>
+    <div class="stage">
+      <div class="board" id="board" role="grid" aria-label="Wall tiles"></div>
+    </div>
+    <script>
+      const COLS = 23;
+      const ROWS = 13;
+      const KEY = "wall-bench";
+      const board = document.getElementById("board");
+      const countEl = document.getElementById("count");
+
+      function blank() {
+        const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+        for (let y = 0; y < ROWS; y++) {
+          for (let x = 0; x < COLS; x++) {
+            if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1) grid[y][x] = true;
+          }
+        }
+        return grid;
+      }
+
+      function load() {
+        try {
+          const raw = JSON.parse(localStorage.getItem(KEY) || "null");
+          if (!Array.isArray(raw) || raw.length !== ROWS) return blank();
+          if (raw.some((row) => !Array.isArray(row) || row.length !== COLS)) return blank();
+          return raw.map((row) => row.map(Boolean));
+        } catch {
+          return blank();
+        }
+      }
+
+      let grid = load();
+      let painting = null;
+
+      function save() {
+        localStorage.setItem(KEY, JSON.stringify(grid));
+        const walls = grid.flat().filter(Boolean).length;
+        countEl.textContent = walls + (walls === 1 ? " wall" : " walls");
+      }
+
+      function paint(x, y, on) {
+        if (grid[y][x] === on) return;
+        grid[y][x] = on;
+        const cell = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+        cell.classList.toggle("on", on);
+        cell.setAttribute("aria-pressed", on ? "true" : "false");
+        save();
+      }
+
+      function cellFromPoint(event) {
+        const el = document.elementFromPoint(event.clientX, event.clientY);
+        const cell = el && el.closest ? el.closest("[data-x]") : null;
+        if (!cell || !board.contains(cell)) return null;
+        return [Number(cell.dataset.x), Number(cell.dataset.y)];
+      }
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const cell = document.createElement("button");
+          cell.type = "button";
+          cell.className = "cell" + (grid[y][x] ? " on" : "");
+          cell.dataset.x = String(x);
+          cell.dataset.y = String(y);
+          cell.setAttribute("aria-pressed", grid[y][x] ? "true" : "false");
+          cell.setAttribute("aria-label", `Row ${y + 1}, column ${x + 1}`);
+          board.appendChild(cell);
+        }
+      }
+      save();
+
+      board.addEventListener("pointerdown", (event) => {
+        const hit = cellFromPoint(event);
+        if (!hit) return;
+        event.preventDefault();
+        board.setPointerCapture(event.pointerId);
+        painting = !grid[hit[1]][hit[0]];
+        paint(hit[0], hit[1], painting);
+      });
+      board.addEventListener("pointermove", (event) => {
+        if (painting === null || event.buttons === 0) return;
+        const hit = cellFromPoint(event);
+        if (hit) paint(hit[0], hit[1], painting);
+      });
+      function stopPaint() { painting = null; }
+      board.addEventListener("pointerup", stopPaint);
+      board.addEventListener("pointercancel", stopPaint);
+
+      document.getElementById("clear").addEventListener("click", () => {
+        grid = blank();
+        board.querySelectorAll(".cell").forEach((cell) => {
+          const on = grid[Number(cell.dataset.y)][Number(cell.dataset.x)];
+          cell.classList.toggle("on", on);
+          cell.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        save();
+      });
+
+      document.getElementById("copy").addEventListener("click", async () => {
+        const text = grid.map((row) => row.map((on) => (on ? "#" : ".")).join("")).join("\n");
+        try {
+          await navigator.clipboard.writeText(text);
+          countEl.textContent = "Copied";
+        } catch {
+          countEl.textContent = "Copy failed";
+        }
+      });
+    </script>
+  </body>
+</html>
