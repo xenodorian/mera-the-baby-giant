@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.2-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.2_Windows.exe
+- Android: Mera_Playable_v0.26.2_Android.apk
+- **The in-game updater no longer aborts the download.** v0.26.0 and v0.26.1 were about 130 MB (Windows) and 75 MB (Android). The updater gave up after 20 seconds and reported it as no connection. The build download now waits until it finishes, then still checks the size and the checksum. The Windows swap script also waits with `ping` instead of `timeout`, which was quitting the swap when the game launched it.
+
 ## v0.26.1-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.1_Windows.exe

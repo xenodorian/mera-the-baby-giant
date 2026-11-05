@@ -12,11 +12,12 @@
 - It calls `GET https://api.github.com/repos/xenodorian/mera-the-baby-giant/releases` with no token (public repo; 60 requests per hour per IP).
 - It skips drafts but counts pre-releases. It takes the highest tag `vX.Y[.Z]-…` newer than `application/config/version` in `project.godot` that has an asset for this platform: `_Windows.exe`, `_Android.apk` or `_Linux.x86_64`.
 - **Every release must attach `SHA256SUMS.txt`** (`sha256sum` format). The updater refuses a release without one. A download is accepted only if its byte size equals the release asset's size **and** its SHA-256 matches. Otherwise the file is deleted.
+- The check and the checksum file give up after 30 seconds. The build itself does not: a 20 second cap was cancelling the 130 MB exe and the 75 MB apk (`Download failed (no connection)`). Gzip is turned off so the file that lands is the file that was hashed.
 
 ## How it installs
 | Platform | Where the download goes | Install |
 |---|---|---|
-| Windows | `<exe name>.new` next to the running exe (falls back to `user://update/` if the folder isn't writable) | It writes `mera_update.bat` next to the exe and starts it with `cmd /c`, then the game quits. The .bat waits for the game's PID to exit, moves the new exe over the old one (copy+delete if move fails), relaunches it, and deletes itself. |
+| Windows | `<exe name>.new` next to the running exe (falls back to `user://update/` if the folder isn't writable) | It writes `mera_update.bat` next to the exe and starts it with `cmd /c`, then the game quits. The .bat waits for the game's PID to exit (`ping`, not `timeout`, which aborts when stdin is not a console), moves the new exe over the old one (copy+delete if move fails), relaunches it, and deletes itself. |
 | Linux | same, `mera_update.sh` | same with `sh`: wait for the PID, `mv`, `chmod +x`, `exec` the new build. |
 | Android | `user://update/<apk>` (app-internal files dir) | `OS.shell_open(path)`. Godot's Android template turns a file path into a `content://` URI with its own FileProvider (`<package>.fileprovider`, `files-path /` covers the app's files dir) and sends `ACTION_VIEW` with the APK mime type, so the system package installer opens. The preset sets `REQUEST_INSTALL_PACKAGES` + `INTERNET`. All releases are signed with the same keystore (`AI_HANDOFF` → Tools), so the APK **updates in place** and keeps the save. |
 

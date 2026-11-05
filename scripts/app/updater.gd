@@ -39,9 +39,10 @@ func _ready() -> void:
 	if OS.has_environment("MERA_UPDATE_API"):
 		api_url = OS.get_environment("MERA_UPDATE_API")
 	_http = HTTPRequest.new()
-	_http.timeout = 20.0
+	_http.timeout = 30.0
 	_http.use_threads = true
 	_http.max_redirects = 8
+	_http.accept_gzip = false
 	add_child(_http)
 	_http.request_completed.connect(_on_done)
 	if "--update-selftest" in OS.get_cmdline_user_args():
@@ -151,7 +152,7 @@ static func windows_helper(pid: int, new_exe: String, exe: String) -> String:
 	return "@echo off\r\n" \
 		+ ":wait\r\n" \
 		+ "tasklist /FI \"PID eq %d\" 2>NUL | find \"%d\" >NUL\r\n" % [pid, pid] \
-		+ "if not errorlevel 1 (timeout /t 1 /nobreak >NUL & goto wait)\r\n" \
+		+ "if not errorlevel 1 (ping -n 2 127.0.0.1 >NUL & goto wait)\r\n" \
 		+ "move /Y \"%s\" \"%s\" >NUL\r\n" % [n, e] \
 		+ "if errorlevel 1 (copy /Y \"%s\" \"%s\" >NUL & del \"%s\")\r\n" % [n, e, n] \
 		+ "start \"\" \"%s\"\r\n" % e \
@@ -167,6 +168,18 @@ static func posix_helper(pid: int, new_bin: String, bin: String) -> String:
 
 
 # ---------------------------------------------------------------- flow
+func _why(result: int, code: int) -> String:
+	if result == HTTPRequest.RESULT_TIMEOUT:
+		return "timed out"
+	if result == HTTPRequest.RESULT_BODY_SIZE_LIMIT_EXCEEDED:
+		return "file too large"
+	if result in [HTTPRequest.RESULT_CANT_CONNECT, HTTPRequest.RESULT_CANT_RESOLVE, HTTPRequest.RESULT_TLS_HANDSHAKE_ERROR]:
+		return "no connection"
+	if result == HTTPRequest.RESULT_SUCCESS:
+		return "HTTP %d" % code
+	return "error %d" % result
+
+
 func _state(s: String, msg: String = "") -> void:
 	state = s
 	message = msg
@@ -181,6 +194,8 @@ func check() -> void:
 		return
 	_job = "check"
 	_state("checking", "Checking for updates...")
+	_http.timeout = 30.0
+	_http.download_file = ""
 	var url := api_url if api_url != "" else API % REPO
 	var err := _http.request(url, ["User-Agent: MeraTheBabyGiant-Updater", "Accept: application/vnd.github+json"])
 	if err != OK:
@@ -196,6 +211,8 @@ func download() -> void:
 	_job = "sums"
 	_state("downloading", "Downloading checksums...")
 	progress = 0.0
+	_http.timeout = 30.0
+	_http.download_file = ""
 	var err := _http.request(String(latest["sums_url"]), ["User-Agent: MeraTheBabyGiant-Updater"])
 	if err != OK:
 		_state("error", "Download failed to start (error %d)." % err)
@@ -221,6 +238,7 @@ func _start_asset() -> void:
 	if FileAccess.file_exists(file_path):
 		DirAccess.remove_absolute(file_path)
 	_http.download_file = file_path
+	_http.timeout = 0.0
 	_state("downloading", "Downloading %s..." % String(latest["asset"]))
 	var err := _http.request(String(latest["url"]), ["User-Agent: MeraTheBabyGiant-Updater"])
 	if err != OK:
@@ -233,7 +251,7 @@ func _on_done(result: int, code: int, _headers: PackedStringArray, body: PackedB
 	_job = ""
 	if result != HTTPRequest.RESULT_SUCCESS or code < 200 or code >= 300:
 		_http.download_file = ""
-		var why := "no connection" if result in [HTTPRequest.RESULT_CANT_CONNECT, HTTPRequest.RESULT_CANT_RESOLVE, HTTPRequest.RESULT_TLS_HANDSHAKE_ERROR, HTTPRequest.RESULT_TIMEOUT] else ("HTTP %d" % code if result == HTTPRequest.RESULT_SUCCESS else "error %d" % result)
+		var why := _why(result, code)
 		if job == "asset" and FileAccess.file_exists(file_path):
 			DirAccess.remove_absolute(file_path)
 		_state("error", ("Update check failed (%s)." if job == "check" else "Download failed (%s).") % why)
