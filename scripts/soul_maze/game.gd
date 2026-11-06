@@ -31,6 +31,7 @@ var mode_time := 20.0
 var fright := 0.0
 var anim := 0.0
 var tunnels := {}
+var shafts := {}
 
 var mera: Array[Texture2D] = []
 var reaper: Array[Texture2D] = []
@@ -73,6 +74,7 @@ func _ready() -> void:
 func _new_maze() -> void:
 	grid = Board.generate()
 	tunnels.clear()
+	shafts.clear()
 	ghosts.clear()
 	var homes: Array[Vector2i] = []
 	souls_left = 0
@@ -91,6 +93,9 @@ func _new_maze() -> void:
 				door = Vector2i(x, y)
 			elif t == "o":
 				souls_left += 1
+	for x in COLS:
+		if _at(x, 0) != "#" and _at(x, ROWS - 1) != "#":
+			shafts[x] = true
 	souls_total = souls_left
 	score = 0
 	px = float(spawn.x)
@@ -125,9 +130,11 @@ func _put(x: int, y: int, ch: String) -> void:
 
 func _at(x: int, y: int) -> String:
 	if y < 0 or y >= ROWS:
-		return "#"
+		if x < 0 or x >= COLS or not shafts.has(x):
+			return "#"
+		y = posmod(y, ROWS)
 	if x < 0 or x >= COLS:
-		if not tunnels.has(y):
+		if y < 0 or y >= ROWS or not tunnels.has(y):
 			return "#"
 		x = posmod(x, COLS)
 	return grid[y][x]
@@ -161,9 +168,19 @@ func _wrap(x: float, y: float) -> float:
 		return x
 	if x < -0.5:
 		return x + COLS
-	if x > COLS - 0.5:
+	if x > float(COLS) - 0.5:
 		return x - COLS
 	return x
+
+
+func _wrap_y(x: float, y: float) -> float:
+	if not shafts.has(int(round(x))):
+		return y
+	if y < -0.5:
+		return y + ROWS
+	if y > float(ROWS) - 0.5:
+		return y - ROWS
+	return y
 
 
 func _held_dir() -> Vector2i:
@@ -232,6 +249,8 @@ func _cruise(x: float, y: float, d: Vector2i, dist: float, who: String) -> Dicti
 		var ny := pos if d.y != 0 else y
 		if d.x != 0:
 			nx = _wrap(nx, ny)
+		else:
+			ny = _wrap_y(nx, ny)
 		return Vector2(nx, ny)
 	var next_blocked := func() -> bool:
 		var tx := int(center) + d.x if d.x != 0 else int(round(x))
@@ -437,6 +456,11 @@ func _collide() -> void:
 			if dx < float(COLS) * -0.5:
 				dx += COLS
 		var dy := float(g["y"]) - py
+		if shafts.has(int(round(px))):
+			if dy > float(ROWS) * 0.5:
+				dy -= ROWS
+			if dy < float(ROWS) * -0.5:
+				dy += ROWS
 		if dx * dx + dy * dy > 0.32:
 			continue
 		if g["state"] == "fright":

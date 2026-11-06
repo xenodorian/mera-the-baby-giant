@@ -40,7 +40,8 @@ static func generate() -> Array:
 
 
 ## Eight boards drawn on the wall bench. The house is stamped on top.
-## A horizontal mirror is the other deal. Dead-end notches stay as drawn.
+## A horizontal mirror is the other deal. A gap in the border is a tunnel
+## to the gap straight across, not a dead end.
 const MAPS := [
 	[
 		"#######################",
