@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.7-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.7_Windows.exe
+- Android: Mera_Playable_v0.26.7_Android.apk
+- **Soul Maze reapers are the full sprite.** The hood, scythe, and feet are in the frame, scaled to the tile. The old art was a square crop that cut them off.
+- **Mera faces the way she moves.** Standing still is the idle pose. Going up uses the jump pose. Going down uses the crouch pose. Left and right flip the sprite.
+
 ## v0.26.6-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.6_Windows.exe

@@ -17,6 +17,7 @@ var spawn := Vector2i(1, 1)
 var dir := Vector2i.ZERO
 var want := Vector2i.ZERO
 var facing := 1
+var face_right := true
 var moving := false
 var ghosts: Array = []
 var door := Vector2i(11, 5)
@@ -35,6 +36,9 @@ var mera: Array[Texture2D] = []
 var reaper: Array[Texture2D] = []
 var soul: Array[Texture2D] = []
 var coin: Texture2D
+var idle_sheet: Texture2D
+var jump_sheet: Texture2D
+var crouch_sheet: Texture2D
 var font: Font
 var _steer_g: Dictionary
 
@@ -59,6 +63,10 @@ func _ready() -> void:
 	for i in 12:
 		soul.append(load("res://soul_maze/art/soul_%d.png" % i))
 	coin = load("res://soul_maze/art/coin.png")
+	# Official sheets face left. The walk frames in soul_maze/art face right.
+	idle_sheet = load("res://assets/characters/merakintsugi/game/idle.png")
+	jump_sheet = load("res://assets/characters/merakintsugi/game/jump.png")
+	crouch_sheet = load("res://assets/characters/merakintsugi/game/crouch.png")
 	_new_maze()
 
 
@@ -305,15 +313,17 @@ func _step(delta: float) -> void:
 				px = float(cx)
 				py = float(cy)
 				dir = want
-	if dir.x < 0:
-		facing = -1
-	elif dir.x > 0:
-		facing = 1
 	var moved: Dictionary = _slide(px, py, dir, PLAYER_SPEED * delta, "player", _steer_player)
 	px = moved["x"]
 	py = moved["y"]
 	dir = moved["dir"]
 	moving = moved["moving"]
+	if dir.x > 0:
+		face_right = true
+		facing = 1
+	elif dir.x < 0:
+		face_right = false
+		facing = -1
 	_collect()
 	if phase != "play":
 		return
@@ -439,6 +449,24 @@ func _collide() -> void:
 		return
 
 
+func _paint(tex: Texture2D, src: Rect2, center: Vector2, box: float, flip: float, tint: Color) -> void:
+	if tex == null:
+		return
+	var size := src.size if src.size.x > 0.0 else tex.get_size()
+	if size.x < 1.0 or size.y < 1.0:
+		return
+	var fit := box / maxf(size.x, size.y)
+	var dw := size.x * fit
+	var dh := size.y * fit
+	draw_set_transform(center, 0.0, Vector2(flip, 1.0))
+	var dest := Rect2(Vector2(-dw, -dh) * 0.5, Vector2(dw, dh))
+	if src.size.x > 0.0:
+		draw_texture_rect_region(tex, dest, src, tint)
+	else:
+		draw_texture_rect(tex, dest, false, tint)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _draw() -> void:
 	var view := get_viewport_rect().size
 	var tile := minf(view.x * 0.96 / float(COLS), (view.y - 72.0) * 0.96 / float(ROWS))
@@ -466,24 +494,33 @@ func _draw() -> void:
 					draw_texture_rect(frame, Rect2(r.position + (Vector2(tile, tile) - Vector2(s2, s2)) * 0.5, Vector2(s2, s2)), false)
 	for g in ghosts:
 		var frame: Texture2D = reaper[int(anim * 8.0 + float(g["bob"]) * 3.0) % maxi(1, reaper.size())] if not reaper.is_empty() else null
-		var s := tile * (0.5 if g["state"] == "eaten" else 0.78)
 		var center := origin + Vector2(float(g["x"]) + 0.5, float(g["y"]) + 0.5) * tile
 		var flip := -1.0 if int(g["dir"].x) < 0 else 1.0
-		draw_set_transform(center, 0.0, Vector2(flip, 1.0))
 		var tint := Color(1, 1, 1, 0.4) if g["state"] == "eaten" else Color.WHITE
 		if g["state"] == "fright":
 			var flash := fright < 1.0 and int(anim * 8.0) % 2 == 0
 			tint = Color.WHITE if flash else Color(0.25, 0.35, 1.0)
-		if frame:
-			draw_texture_rect(frame, Rect2(Vector2(-s, -s) * 0.5, Vector2(s, s)), false, tint)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		# Full body, scaled to the tile. The old art was a square crop that cut off the legs.
+		var box := tile * (0.7 if g["state"] == "eaten" else 1.35)
+		_paint(frame, Rect2(), center, box, flip, tint)
 	if not mera.is_empty():
-		var frame: Texture2D = mera[int(anim * 10.0) % mera.size() if moving else 0]
-		var s := tile * 0.78
-		var center := origin + Vector2(px + 0.5, py + 0.5) * tile
-		draw_set_transform(center, 0.0, Vector2(float(facing), 1.0))
-		draw_texture_rect(frame, Rect2(Vector2(-s, -s) * 0.5, Vector2(s, s)), false)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		var sheet: Texture2D = mera[int(anim * 10.0) % mera.size() if moving else 0]
+		var src := Rect2()
+		var faces_left := false
+		if not moving:
+			sheet = idle_sheet
+			src = Rect2(0, 0, 50, 59)
+			faces_left = true
+		elif dir.y < 0:
+			sheet = jump_sheet
+			src = Rect2(0, 0, 56, 73)
+			faces_left = true
+		elif dir.y > 0:
+			sheet = crouch_sheet
+			src = Rect2(542, 0, 56, 44)
+			faces_left = true
+		var flip := -1.0 if face_right == faces_left else 1.0
+		_paint(sheet, src, origin + Vector2(px + 0.5, py + 0.5) * tile, tile * 0.92, flip, Color.WHITE)
 	if phase != "play":
 		draw_rect(Rect2(Vector2.ZERO, view), Color(0.047, 0.039, 0.063, 0.78))
 		var title := "SOUL MAZE"
