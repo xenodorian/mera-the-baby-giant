@@ -49,17 +49,20 @@
         color: var(--muted);
         font-size: 11px;
         line-height: 1.5;
+        max-width: 40rem;
       }
       .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-      button {
+      button.action {
         background: var(--surface);
         color: var(--fg);
         border: 1px solid var(--line);
         padding: 10px 12px;
+        min-height: 44px;
         font: inherit;
         font-size: 11px;
+        cursor: pointer;
       }
-      button:hover { border-color: var(--wall); }
+      button.action:hover { border-color: var(--wall); }
       .stage {
         flex: 1;
         display: grid;
@@ -85,18 +88,25 @@
         min-width: 0;
         min-height: 0;
       }
-      .cell.on { background: var(--wall); }
+      .cell.wall { background: var(--wall); }
+      .cell.house { box-shadow: inset 0 0 0 2px var(--bg); }
+      .cell.pen { background: var(--surface); }
+      .cell.door {
+        background: linear-gradient(to bottom, var(--floor) 34%, var(--wall) 34% 66%, var(--floor) 66%);
+      }
+      .cell.mouth { box-shadow: inset 0 -3px 0 var(--wall); }
+      .cell.locked { cursor: default; }
     </style>
   </head>
   <body>
     <header>
       <div>
         <h1>Wall bench</h1>
-        <p>23 × 13. Click or drag a tile to place or lift a wall. <span id="count">0 walls</span></p>
+        <p>23 × 13. Click or drag a tile to place or lift a wall. The ghost box stays put, door on top. <span id="count">0 walls</span></p>
       </div>
       <div class="actions">
-        <button type="button" id="clear">Clear inside</button>
-        <button type="button" id="copy">Copy layout</button>
+        <button type="button" class="action" id="clear">Clear inside</button>
+        <button type="button" class="action" id="copy">Copy layout</button>
       </div>
     </header>
     <div class="stage">
@@ -109,11 +119,38 @@
       const board = document.getElementById("board");
       const countEl = document.getElementById("count");
 
+      function houseTile(x, y) {
+        if (x === 11 && y === 4) return ".";
+        if (x < 9 || x > 13 || y < 5 || y > 8) return null;
+        if (y === 5 && x === 11) return "=";
+        if (y >= 6 && y <= 7 && x >= 10 && x <= 12) return "G";
+        return "#";
+      }
+
+      function locked(x, y) {
+        return houseTile(x, y) !== null;
+      }
+
       function blank() {
-        const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+        const grid = [];
+        for (let y = 0; y < ROWS; y++) {
+          const row = [];
+          for (let x = 0; x < COLS; x++) {
+            const house = houseTile(x, y);
+            if (house) row.push(house);
+            else if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1) row.push("#");
+            else row.push(".");
+          }
+          grid.push(row);
+        }
+        return grid;
+      }
+
+      function stamp(grid) {
         for (let y = 0; y < ROWS; y++) {
           for (let x = 0; x < COLS; x++) {
-            if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1) grid[y][x] = true;
+            const house = houseTile(x, y);
+            if (house) grid[y][x] = house;
           }
         }
         return grid;
@@ -123,8 +160,16 @@
         try {
           const raw = JSON.parse(localStorage.getItem(KEY) || "null");
           if (!Array.isArray(raw) || raw.length !== ROWS) return blank();
-          if (raw.some((row) => !Array.isArray(row) || row.length !== COLS)) return blank();
-          return raw.map((row) => row.map(Boolean));
+          const grid = raw.map((row) => {
+            if (!Array.isArray(row) || row.length !== COLS) throw new Error("bad");
+            return row.map((cell) => {
+              if (cell === true || cell === "#") return "#";
+              if (cell === "=") return "=";
+              if (cell === "G") return "G";
+              return ".";
+            });
+          });
+          return stamp(grid);
         } catch {
           return blank();
         }
@@ -133,18 +178,26 @@
       let grid = load();
       let painting = null;
 
+      function kind(x, y, tile) {
+        if (tile === "=") return "door";
+        if (tile === "G") return "pen";
+        if (tile === "#") return locked(x, y) ? "house" : "wall";
+        if (locked(x, y)) return "mouth";
+        return "";
+      }
+
       function save() {
         localStorage.setItem(KEY, JSON.stringify(grid));
-        const walls = grid.flat().filter(Boolean).length;
+        const walls = grid.flat().filter((tile) => tile === "#").length;
         countEl.textContent = walls + (walls === 1 ? " wall" : " walls");
       }
 
-      function paint(x, y, on) {
-        if (grid[y][x] === on) return;
-        grid[y][x] = on;
+      function paint(x, y, tile) {
+        if (locked(x, y) || grid[y][x] === tile) return;
+        grid[y][x] = tile;
         const cell = board.querySelector(`[data-x="${x}"][data-y="${y}"]`);
-        cell.classList.toggle("on", on);
-        cell.setAttribute("aria-pressed", on ? "true" : "false");
+        cell.className = "cell " + kind(x, y, tile) + (locked(x, y) ? " locked" : "");
+        cell.setAttribute("aria-pressed", tile === "#" ? "true" : "false");
         save();
       }
 
@@ -155,15 +208,25 @@
         return [Number(cell.dataset.x), Number(cell.dataset.y)];
       }
 
+      function caption(x, y, tile) {
+        const where = `Row ${y + 1}, column ${x + 1}`;
+        if (tile === "=") return where + ", ghost door";
+        if (tile === "G") return where + ", ghost pen";
+        if (locked(x, y)) return where + ", door mouth";
+        return where + (tile === "#" ? ", wall" : ", floor");
+      }
+
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
+          const tile = grid[y][x];
           const cell = document.createElement("button");
           cell.type = "button";
-          cell.className = "cell" + (grid[y][x] ? " on" : "");
+          cell.className = "cell " + kind(x, y, tile) + (locked(x, y) ? " locked" : "");
           cell.dataset.x = String(x);
           cell.dataset.y = String(y);
-          cell.setAttribute("aria-pressed", grid[y][x] ? "true" : "false");
-          cell.setAttribute("aria-label", `Row ${y + 1}, column ${x + 1}`);
+          cell.disabled = locked(x, y);
+          cell.setAttribute("aria-pressed", tile === "#" ? "true" : "false");
+          cell.setAttribute("aria-label", caption(x, y, tile));
           board.appendChild(cell);
         }
       }
@@ -171,10 +234,10 @@
 
       board.addEventListener("pointerdown", (event) => {
         const hit = cellFromPoint(event);
-        if (!hit) return;
+        if (!hit || locked(hit[0], hit[1])) return;
         event.preventDefault();
         board.setPointerCapture(event.pointerId);
-        painting = !grid[hit[1]][hit[0]];
+        painting = grid[hit[1]][hit[0]] === "#" ? "." : "#";
         paint(hit[0], hit[1], painting);
       });
       board.addEventListener("pointermove", (event) => {
@@ -189,15 +252,17 @@
       document.getElementById("clear").addEventListener("click", () => {
         grid = blank();
         board.querySelectorAll(".cell").forEach((cell) => {
-          const on = grid[Number(cell.dataset.y)][Number(cell.dataset.x)];
-          cell.classList.toggle("on", on);
-          cell.setAttribute("aria-pressed", on ? "true" : "false");
+          const x = Number(cell.dataset.x);
+          const y = Number(cell.dataset.y);
+          const tile = grid[y][x];
+          cell.className = "cell " + kind(x, y, tile) + (locked(x, y) ? " locked" : "");
+          cell.setAttribute("aria-pressed", tile === "#" ? "true" : "false");
         });
         save();
       });
 
       document.getElementById("copy").addEventListener("click", async () => {
-        const text = grid.map((row) => row.map((on) => (on ? "#" : ".")).join("")).join("\n");
+        const text = grid.map((row) => row.join("")).join("\n");
         try {
           await navigator.clipboard.writeText(text);
           countEl.textContent = "Copied";
