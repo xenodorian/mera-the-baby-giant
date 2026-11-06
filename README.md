@@ -3,13 +3,13 @@
 A 2D **sword-and-sorcery action game with fighting-game mechanics**: chainable combos,
 an input buffer, a super meter and supers, built in **Godot 4.7.2** with mostly free pixel-art assets.
 
-## Current release: **v0.26.10-playable**
-- Download: GitHub → Releases → [`v0.26.10-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.26.10-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.26.10-playable/Mera_Playable_v0.26.10_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.26.10-playable/Mera_Playable_v0.26.10_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
+## Current release: **v0.26.11-playable**
+- Download: GitHub → Releases → [`v0.26.11-playable`](https://github.com/xenodorian/mera-the-baby-giant/releases/tag/v0.26.11-playable). [Windows exe](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.26.11-playable/Mera_Playable_v0.26.11_Windows.exe) and [Android apk](https://github.com/xenodorian/mera-the-baby-giant/releases/download/v0.26.11-playable/Mera_Playable_v0.26.11_Android.apk), plus `SHA256SUMS.txt`. Linux stays on `v0.9.0-playable`. From v0.9.0 on, the game updates itself from the title menu (`docs/UPDATER.md`). Notes: `CHANGELOG.md`. Plan: `docs/WORKFLOW.md`. For agents: `docs/AI_HANDOFF.md`.
 - Controls: see `docs/CONTROLS.md` for the full table. In short (Xbox names, PS4 in brackets):
   - D-pad / left stick: move. Up: jump (in Fury: fly). Down: crouch.
   - A [✕] hold: run. **X [□]: attack**. **Y [△]: special**.
   - B [○]: back dodge (B then X: dodge attack, B then Y: fast quick fire). **B+Y: rising slash** (Y again: slam). A+Y: ground dash. In the air, X: jump attack, Y: aerial dash.
-  - L1: health potion (size, cap starts at 3x). **E** or left-stick click (on Android, the round L3 button in the middle of the on-screen d-pad): mana potion. **L2 hold: full bubble**. **R2 alone: lightning** (100 rage, spends the bar). **L2+R2: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.** Title: Down to Shop, Reset, Controls (prompt names), Updates, Credits, Soul Maze.
+  - L1: health potion (size, cap starts at 3x). **E** or left-stick click (on Android, the round L3 button in the middle of the on-screen d-pad): mana potion. **L2 hold: full bubble**. **R2 alone: lightning** (100 rage, spends the bar). **L2+R2: Fury** (costs 100 rage). R1: summon an ally (cards). **Down+Y crouching: earthquake.** Title: Down to Shop, Reset, Controls (prompt names), Updates, Credits.
   - Combos: X X X, X X hold X, X X Y, and **X X X Y beam**. Spells, dashes, the bubble and the beam use **mana** (60, +1/s).
   - Keyboard (v0.8): arrows = d-pad, Z=A, X=B, A=X, S=Y, Q=L1, W=R1, 1=L2, 2=R2 (lightning = 2, Fury = 1+2), Enter/F1 = Start.
 

@@ -2555,7 +2555,7 @@ func _updater_tests() -> void:
 		back.pressed = true
 		menu._unhandled_input(back)
 		_check("menu: Down x2 -> bottom row (past the character toggle), Right x4 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1 and menu._button_text(2) == "CONTROLS" and menu._button_text(4) == "CREDITS", "mode=%s row=%d btn=%d" % [menu.mode, menu.row, menu.btn])
-		_check("menu: SOUL MAZE is the last bottom button", menu._button_text(5) == "SOUL MAZE", menu._button_text(5))
+		_check("menu: Soul Maze is not a title button", menu.BTN_N == 5 and menu._button_text(4) == "CREDITS", "n=%d last=%s" % [menu.BTN_N, menu._button_text(4)])
 		var Board = load("res://scripts/soul_maze/maze.gd")
 		var maze_grid: Array = Board.generate()
 		var soul_n := 0
@@ -2582,6 +2582,12 @@ func _updater_tests() -> void:
 		started.pressed = true
 		sm._unhandled_input(started)
 		_check("soul maze: Start begins, four reapers are out, B is not needed yet", sm.phase == "play" and sm.ghosts.size() == 4 and sm.souls_left == 4, "phase=%s ghosts=%d souls=%d" % [sm.phase, sm.ghosts.size(), sm.souls_left])
+		var reported: Array = []
+		sm.embedded = true
+		sm.finished.connect(func(won: bool) -> void: reported.append(won))
+		sm.phase = "won"
+		sm._process(1.2)
+		_check("soul maze: a death-minigame win reports finished", reported.size() == 1 and reported[0] == true, str(reported))
 		sm.queue_free()
 		await process_frame
 		var C = load("res://scripts/app/credits.gd")

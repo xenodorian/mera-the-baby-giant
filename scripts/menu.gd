@@ -1,6 +1,6 @@
 extends Control
 ## Title / level select. Left/Right choose, A / Start plays.
-## Down goes to SHOP, RESET, CONTROLS, CHECK FOR UPDATES, CREDITS, and SOUL MAZE.
+## Down goes to SHOP, RESET, CONTROLS, CHECK FOR UPDATES, and CREDITS.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
 
@@ -10,7 +10,7 @@ var t := 0.0
 var _stick_ready := true
 var font: Font
 var row := 0                    # 0 = level cards, 1 = bottom buttons, 2 = the character toggle
-var btn := 0                    # 0 shop, 1 reset, 2 controls, 3 updates, 4 credits, 5 soul maze
+var btn := 0                    # 0 shop, 1 reset, 2 controls, 3 updates, 4 credits
 var mode := "menu"              # menu | credits | update | shop | controls
 var prompt_i := 0
 var credit_sel := 0
@@ -116,7 +116,7 @@ func _card(i: int) -> Rect2:
 	return Rect2(x0 + float(k) * (w + gap), 400, w, 168)
 
 
-const BTN_N := 6
+const BTN_N := 5
 
 
 func _button(i: int) -> Rect2:
@@ -135,8 +135,6 @@ func _button_text(i: int) -> String:
 		return "CONTROLS"
 	if i == 4:
 		return "CREDITS"
-	if i == 5:
-		return "SOUL MAZE"
 	var u := _upd()
 	if u and u.state in ["available", "ready"]:
 		return "UPDATE TO v%s" % u.version_text(u.latest["version"])
@@ -164,9 +162,6 @@ func _press_button() -> void:
 	if btn == 4:
 		mode = "credits"
 		credit_sel = 0
-		return
-	if btn == 5:
-		get_tree().change_scene_to_file.call_deferred("res://scenes/soul_maze.tscn")
 		return
 	mode = "update"
 	var u := _upd()

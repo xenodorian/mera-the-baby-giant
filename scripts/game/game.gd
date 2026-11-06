@@ -19,6 +19,7 @@ const ART := 5
 const KNIGHT_GAP := 480.0     # new knights appear this far past the screen edge, ahead of Mera
 const POTION_EVERY := 2600.0  # a potion appears on the ground ahead for every 2600 px of new ground
 const AmbidexDuel := preload("res://scripts/game/ambidex.gd")
+const SoulMazeScene := preload("res://scenes/soul_maze.tscn")
 
 var mera: Mera
 var cam: Camera2D
@@ -2183,11 +2184,18 @@ func _open_ambidex() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 25
 	layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	var duel := AmbidexDuel.new()
-	duel.as_perry = mera.get("is_perry") == true
-	duel.process_mode = Node.PROCESS_MODE_ALWAYS
-	duel.finished.connect(_on_ambidex_finished)
-	layer.add_child(duel)
+	if randi() % 2 == 0:
+		var duel := AmbidexDuel.new()
+		duel.as_perry = mera.get("is_perry") == true
+		duel.process_mode = Node.PROCESS_MODE_ALWAYS
+		duel.finished.connect(_on_ambidex_finished)
+		layer.add_child(duel)
+	else:
+		var maze = SoulMazeScene.instantiate()
+		maze.embedded = true
+		maze.process_mode = Node.PROCESS_MODE_ALWAYS
+		maze.finished.connect(_on_ambidex_finished)
+		layer.add_child(maze)
 	ambidex_layer = layer
 	add_child(layer)
 

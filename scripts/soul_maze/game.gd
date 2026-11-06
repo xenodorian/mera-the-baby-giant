@@ -1,6 +1,8 @@
 extends Node2D
 ## Soul Maze. Arrows, the touch pad, and a gamepad d-pad or left stick move.
-## Enter or Start begins a run and restarts after a win or a catch. B or Esc returns to the title.
+## Enter or Start begins a run. As a death minigame, a win or a catch reports finished.
+
+signal finished(won: bool)
 
 const Board := preload("res://scripts/soul_maze/maze.gd")
 const COLS := 23
@@ -42,6 +44,9 @@ var jump_sheet: Texture2D
 var crouch_sheet: Texture2D
 var font: Font
 var _steer_g: Dictionary
+var embedded := false
+var _end_t := 0.0
+var _ended := false
 
 
 func _steer_player(_here: Vector2i) -> Vector2i:
@@ -64,7 +69,7 @@ func _ready() -> void:
 	for i in 12:
 		soul.append(load("res://soul_maze/art/soul_%d.png" % i))
 	coin = load("res://soul_maze/art/coin.png")
-	# Official sheets face left. The walk frames in soul_maze/art face right.
+	# Walk frames and the pose sheets all face left.
 	idle_sheet = load("res://assets/characters/merakintsugi/game/idle.png")
 	jump_sheet = load("res://assets/characters/merakintsugi/game/jump.png")
 	crouch_sheet = load("res://assets/characters/merakintsugi/game/crouch.png")
@@ -204,9 +209,20 @@ func _held_dir() -> Vector2i:
 
 
 func _begin() -> void:
+	if embedded and (phase == "won" or phase == "over"):
+		_finish(phase == "won")
+		return
 	if phase == "won" or phase == "over":
 		_new_maze()
 	phase = "play"
+
+
+func _finish(won: bool) -> void:
+	if _ended:
+		return
+	_ended = true
+	if embedded:
+		finished.emit(won)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -217,9 +233,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			_begin()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("btn_b") or (event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE):
-		# Deferred. Changing scene inside this callback frees the node that is
-		# still handling the key, and the title treats that same Escape as quit.
-		get_tree().change_scene_to_file.call_deferred("res://scenes/menu.tscn")
+		if embedded:
+			_finish(false)
+		else:
+			# Deferred. Changing scene inside this callback frees the node that is
+			# still handling the key, and the title treats that same Escape as quit.
+			get_tree().change_scene_to_file.call_deferred("res://scenes/menu.tscn")
 		get_viewport().set_input_as_handled()
 
 
@@ -230,6 +249,10 @@ func _process(delta: float) -> void:
 		want = held
 	if phase == "play":
 		_step(delta)
+	elif embedded and not _ended and (phase == "won" or phase == "over"):
+		_end_t += delta
+		if _end_t >= 1.1:
+			_finish(phase == "won")
 	queue_redraw()
 
 
@@ -530,20 +553,17 @@ func _draw() -> void:
 	if not mera.is_empty():
 		var sheet: Texture2D = mera[int(anim * 10.0) % mera.size() if moving else 0]
 		var src := Rect2()
-		var faces_left := false
 		if not moving:
 			sheet = idle_sheet
 			src = Rect2(0, 0, 50, 59)
-			faces_left = true
 		elif dir.y < 0:
 			sheet = jump_sheet
 			src = Rect2(0, 0, 56, 73)
-			faces_left = true
 		elif dir.y > 0:
 			sheet = crouch_sheet
 			src = Rect2(542, 0, 56, 44)
-			faces_left = true
-		var flip := -1.0 if face_right == faces_left else 1.0
+		# Every sheet here faces left. Mirror it only when she is facing right.
+		var flip := -1.0 if face_right else 1.0
 		_paint(sheet, src, origin + Vector2(px + 0.5, py + 0.5) * tile, tile * 0.92, flip, Color.WHITE)
 	if phase != "play":
 		draw_rect(Rect2(Vector2.ZERO, view), Color(0.047, 0.039, 0.063, 0.78))

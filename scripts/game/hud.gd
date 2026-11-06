@@ -330,7 +330,7 @@ func _draw_ui() -> void:
 		else:
 			_center(o.y + 640, Controls.faces("Back at the start of the stage. Your save stays.   A / Start: retry    B: level select"), 28, Color(0.95, 0.92, 0.88))
 		if not Carry.has_respawn():
-			_center(o.y + 690, "Shop: Respawn with minigame, 200 gold. Win it and you get up where you fell.", 24, Color(0.8, 0.85, 0.95))
+			_center(o.y + 690, "Shop: Respawn with minigame, 200 gold. Win Ambidex or Soul Maze and you get up where you fell.", 24, Color(0.8, 0.85, 0.95))
 	if game.cleared and game.over_t > 0.3 and not game.victory:
 		var o2 := _origin()
 		ui.draw_rect(Rect2(Vector2.ZERO, ui.size), Color(0.02, 0.02, 0.06, minf(game.over_t * 1.5, 0.65)))

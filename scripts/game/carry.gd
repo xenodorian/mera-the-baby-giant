@@ -66,7 +66,7 @@ const CLEAR_GOLD_REPEAT := 5         # each clear after that
 ## Perry becomes playable once Perry's Arena is cleared (level index 10)
 const PERRY_CLEAR_LEVEL := 10
 static var character := "mera"                  # "mera" | "perry": the player the title menu chose (Perry only counts while unlocked)
-static var respawn := false                     # shop: 200 gold. A death plays the reaper duel and a win puts her back where she fell.
+static var respawn := false                     # shop: 200 gold. A death plays Ambidex or Soul Maze. A win puts her back where she fell.
 static var perry_owned: Dictionary = {}         # Perry unlock id -> true (scripts/game/perry_unlocks.gd)
 static var perry_hp_max := Tuning.PERRY_HP_START
 static var story_seen: Dictionary = {}          # cutscene key -> true once shown (scripts/game/cutscene.gd)

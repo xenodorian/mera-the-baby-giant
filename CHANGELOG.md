@@ -2,6 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.11-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.11_Windows.exe
+- Android: Mera_Playable_v0.26.11_Android.apk
+- **Soul Maze is a death minigame.** It is no longer a button on the title screen. If Respawn with minigame is owned, a death plays either the Ambidex duel or Soul Maze, picked at random. Win and she gets up where she fell. Lose, or leave, and the title screen comes back. The save stays.
+- **Mera faces the way she walks in Soul Maze.** Her walk frames face left, the same as idle, jump, and crouch. They were being mirrored the wrong way.
+
 ## v0.26.10-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.10_Windows.exe
