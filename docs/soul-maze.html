@@ -22,9 +22,10 @@
   p { line-height:1.5; }
   button.start { margin-top:18px; background:var(--gold); color:var(--bg); border:0; font:inherit; font-size:16px; padding:12px 22px; }
   .hint { color:var(--muted); font-size:12px; }
-  .pad { display:grid; grid-template-columns:repeat(3, 4.5rem); gap:8px; justify-content:center; padding:8px 16px calc(12px + env(safe-area-inset-bottom)); }
-  .pad button { height:3.4rem; background:#221c30; color:var(--fg); border:0; font:inherit; font-size:18px; }
+  .pad { display:grid; grid-template-columns:repeat(3, 4.5rem); gap:8px; justify-content:center; padding:8px 16px calc(12px + env(safe-area-inset-bottom)); touch-action:none; }
+  .pad button { height:3.4rem; background:#221c30; color:var(--fg); border:0; font:inherit; font-size:18px; touch-action:none; }
   .pad .gap { visibility:hidden; }
+  body.pad-on .pad { display:none; }
 </style>
 </head>
 <body>
@@ -40,7 +41,7 @@
       <h1 id="title">Soul Maze</h1>
       <p id="blurb">Slip the reapers. Pocket the coins. The level ends when every soul fragment is yours.</p>
       <button class="start" id="go" type="button">Slip out</button>
-      <p class="hint" id="hint">Arrows or WASD. Swipe the maze. A soul turns the reapers blue and they run.</p>
+      <p class="hint" id="hint">Arrows or the pad. A gamepad d-pad works too. Enter or Start begins and restarts.</p>
     </div>
   </div>
 </div>
@@ -962,8 +963,10 @@ function beep(freq, dur, type, gain) {
   o.start(); o.stop(audioCtx.currentTime + dur);
 }
 function unlock() {
-  if (!audioCtx) audioCtx = new AudioContext();
-  audioCtx.resume();
+  try {
+    if (!audioCtx) audioCtx = new AudioContext();
+    audioCtx.resume();
+  } catch (err) {}
 }
 function showVeil() {
   const phase = sim.phase;
@@ -986,6 +989,82 @@ function begin() {
   showVeil();
 }
 go.addEventListener("click", begin);
+
+const DEAD = 0.45;
+const keyStack = [];
+let enterHeld = false;
+let touchDir = null;
+let startLatch = false;
+const padEl = document.querySelector(".pad");
+
+function keyDir(e) {
+  const code = e.code || "";
+  const key = e.key || "";
+  const which = e.keyCode || e.which || 0;
+  if (code === "ArrowLeft" || key === "ArrowLeft" || which === 37 || which === 21) return { x: -1, y: 0 };
+  if (code === "ArrowRight" || key === "ArrowRight" || which === 39 || which === 22) return { x: 1, y: 0 };
+  if (code === "ArrowUp" || key === "ArrowUp" || which === 38 || which === 19) return { x: 0, y: -1 };
+  if (code === "ArrowDown" || key === "ArrowDown" || which === 40 || which === 20) return { x: 0, y: 1 };
+  return null;
+}
+function isStartKey(e) {
+  const code = e.code || "";
+  const key = e.key || "";
+  const which = e.keyCode || e.which || 0;
+  return code === "Enter" || code === "NumpadEnter" || code === "F1" || key === "Enter" || key === "F1" || which === 13 || which === 108 || which === 112;
+}
+function keyId(e) {
+  return e.code || e.key || ("k" + (e.keyCode || e.which || 0));
+}
+function heldKeyDir() {
+  for (let i = keyStack.length - 1; i >= 0; i--) {
+    const hit = keyStack[i];
+    if (hit.dir) return hit.dir;
+  }
+  return null;
+}
+function stickDir(gp) {
+  const b = gp.buttons || [];
+  const pressed = (i) => !!(b[i] && (b[i].pressed || b[i].value > DEAD));
+  let x = 0;
+  let y = 0;
+  if (pressed(14)) x -= 1;
+  if (pressed(15)) x += 1;
+  if (pressed(12)) y -= 1;
+  if (pressed(13)) y += 1;
+  if (x || y) {
+    if (x && y) return Math.abs(x) >= Math.abs(y) ? { x: Math.sign(x), y: 0 } : { x: 0, y: Math.sign(y) };
+    return { x: x || 0, y: y || 0 };
+  }
+  const ax = gp.axes && gp.axes.length ? gp.axes[0] : 0;
+  const ay = gp.axes && gp.axes.length > 1 ? gp.axes[1] : 0;
+  if (Math.abs(ax) < DEAD && Math.abs(ay) < DEAD) return null;
+  if (Math.abs(ax) >= Math.abs(ay)) return { x: ax > 0 ? 1 : -1, y: 0 };
+  return { x: 0, y: ay > 0 ? 1 : -1 };
+}
+function pollInput() {
+  let padOn = false;
+  let padStart = false;
+  let padMove = null;
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const gp of pads) {
+    if (!gp) continue;
+    padOn = true;
+    const dir = stickDir(gp);
+    if (dir) padMove = dir;
+    const start = gp.buttons && gp.buttons[9];
+    if (start && (start.pressed || start.value > DEAD)) padStart = true;
+  }
+  document.body.classList.toggle("pad-on", padOn);
+  if (padEl) padEl.setAttribute("aria-hidden", padOn ? "true" : "false");
+  const dir = touchDir || padMove || heldKeyDir();
+  if (dir) want = dir;
+  const startDown = enterHeld || padStart;
+  if (startDown && !startLatch) {
+    startLatch = true;
+    if (sim.phase !== "play" && sim.phase !== "dead") begin();
+  } else if (!startDown) startLatch = false;
+}
 
 function paint() {
   const rect = canvas.getBoundingClientRect();
@@ -1072,6 +1151,7 @@ let last = performance.now();
 let acc = 0;
 let shown = "";
 function frame(now) {
+  pollInput();
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
   acc += dt;
@@ -1104,21 +1184,42 @@ requestAnimationFrame(frame);
 showVeil();
 
 addEventListener("keydown", (e) => {
-  const d = dirFromCode(e.code);
-  if (!d) return;
-  e.preventDefault();
-  if (sim.phase === "ready" || sim.phase === "won" || sim.phase === "over") begin();
-  want = d;
-});
+  const d = keyDir(e);
+  if (d) {
+    e.preventDefault();
+    const id = keyId(e);
+    if (!keyStack.some((item) => item.id === id)) keyStack.push({ id, dir: d });
+    want = d;
+    if (sim.phase !== "play" && sim.phase !== "dead") begin();
+    return;
+  }
+  if (isStartKey(e)) {
+    e.preventDefault();
+    enterHeld = true;
+    pollInput();
+  }
+}, true);
+addEventListener("keyup", (e) => {
+  const id = keyId(e);
+  const at = keyStack.findIndex((item) => item.id === id);
+  if (at >= 0) keyStack.splice(at, 1);
+  if (isStartKey(e)) enterHeld = false;
+}, true);
 document.querySelectorAll(".pad button").forEach((btn) => {
   const dir = { x: Number(btn.dataset.x), y: Number(btn.dataset.y) };
   btn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     btn.setPointerCapture(e.pointerId);
-    if (sim.phase !== "play") begin();
+    touchDir = dir;
     want = dir;
+    if (sim.phase !== "play" && sim.phase !== "dead") begin();
   });
-  const up = () => { if (want && want.x === dir.x && want.y === dir.y) want = null; };
+  const up = (e) => {
+    if (e && e.currentTarget && e.pointerId != null && e.currentTarget.hasPointerCapture && e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    if (touchDir && touchDir.x === dir.x && touchDir.y === dir.y) touchDir = null;
+  };
   btn.addEventListener("pointerup", up);
   btn.addEventListener("pointercancel", up);
 });
@@ -1129,9 +1230,11 @@ canvas.addEventListener("pointerup", (e) => {
   const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
   swipe = null;
   if (Math.hypot(dx, dy) < 24) return;
-  if (sim.phase !== "play") begin();
   want = Math.abs(dx) > Math.abs(dy) ? { x: dx > 0 ? 1 : -1, y: 0 } : { x: 0, y: dy > 0 ? 1 : -1 };
+  if (sim.phase !== "play" && sim.phase !== "dead") begin();
 });
+addEventListener("gamepadconnected", () => pollInput());
+addEventListener("gamepaddisconnected", () => pollInput());
 </script>
 </body>
 </html>
