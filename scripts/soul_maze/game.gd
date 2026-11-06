@@ -78,7 +78,7 @@ func _new_maze() -> void:
 	souls_left = 0
 	for y in ROWS:
 		var row: String = grid[y]
-		if row[0] != "#":
+		if row[0] != "#" and row[COLS - 1] != "#":
 			tunnels[y] = true
 		for x in COLS:
 			var t := row[x]

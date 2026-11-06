@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.8-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.8_Windows.exe
+- Android: Mera_Playable_v0.26.8_Android.apk
+- **Soul Maze deals eight drawn boards.** Each run picks one of the wall-bench drawings, or its mirror. Corridors stay one tile wide. The ghost pen is in the middle.
+
 ## v0.26.7-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.7_Windows.exe
