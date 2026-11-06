@@ -4,7 +4,7 @@
 
 ## What the player sees
 - The title menu quietly checks once at launch. If a newer build exists, a gold banner appears under the level cards ("Update available: vX.Y.Z").
-- Press **Down** to reach the bottom row: **CHECK FOR UPDATES** (it reads **UPDATE TO vX.Y.Z** when one is found) and **CREDITS**. Press **A** (Enter/Z, or a click) to open it.
+- Press **Down** to reach the bottom row: **CHECK FOR UPDATES** (it reads **UPDATE TO vX.Y.Z** when one is found), **CREDITS**, and **SOUL MAZE**. Press **A** (Enter/Z, or a click) to open it.
 - In the update panel: **A** downloads, then **A** again installs. **B** (Esc/X) closes it. A progress bar shows the download.
 - With no network, a GitHub rate limit, or any HTTP error, the panel only shows a message ("Update check failed (no connection)."). The game never blocks or crashes.
 

@@ -2,6 +2,12 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.5-playable (2026-11-05)
+Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
+- Windows: Mera_Playable_v0.26.5_Windows.exe
+- Android: Mera_Playable_v0.26.5_Android.apk
+- **Soul Maze is in the Godot game.** On the title screen, Down to the bottom row and pick Soul Maze (the last button, after Credits). Arrows, the on-screen pad, or a gamepad d-pad / left stick move. Enter or Start begins, and begins again after a win or a catch. B or Esc returns to the title. One life. The reapers turn blue for 3 seconds when Mera takes a soul. Collect all four souls to win.
+
 ## v0.26.4-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.
 - Windows: Mera_Playable_v0.26.4_Windows.exe

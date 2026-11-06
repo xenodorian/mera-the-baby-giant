@@ -2555,6 +2555,35 @@ func _updater_tests() -> void:
 		back.pressed = true
 		menu._unhandled_input(back)
 		_check("menu: Down x2 -> bottom row (past the character toggle), Right x4 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1 and menu._button_text(2) == "CONTROLS" and menu._button_text(4) == "CREDITS", "mode=%s row=%d btn=%d" % [menu.mode, menu.row, menu.btn])
+		_check("menu: SOUL MAZE is the last bottom button", menu._button_text(5) == "SOUL MAZE", menu._button_text(5))
+		var Board = load("res://scripts/soul_maze/maze.gd")
+		var maze_grid: Array = Board.generate()
+		var soul_n := 0
+		var spawn_n := 0
+		var door_n := 0
+		var rows_ok := maze_grid.size() == 13
+		for row in maze_grid:
+			var line := String(row)
+			rows_ok = rows_ok and line.length() == 23
+			for i in line.length():
+				var ch := line[i]
+				if ch == "o":
+					soul_n += 1
+				elif ch == "P":
+					spawn_n += 1
+				elif ch == "=":
+					door_n += 1
+		_check("soul maze: 23x13 with four souls, one spawn and the house door", rows_ok and soul_n == 4 and spawn_n == 1 and door_n == 1, "souls=%d spawn=%d door=%d" % [soul_n, spawn_n, door_n])
+		var sm: Node2D = load("res://scenes/soul_maze.tscn").instantiate()
+		root.add_child(sm)
+		await process_frame
+		var started := InputEventAction.new()
+		started.action = "start"
+		started.pressed = true
+		sm._unhandled_input(started)
+		_check("soul maze: Start begins, four reapers are out, B is not needed yet", sm.phase == "play" and sm.ghosts.size() == 4 and sm.souls_left == 4, "phase=%s ghosts=%d souls=%d" % [sm.phase, sm.ghosts.size(), sm.souls_left])
+		sm.queue_free()
+		await process_frame
 		var C = load("res://scripts/app/credits.gd")
 		var whos: Array = []
 		for c in C.ENTRIES:

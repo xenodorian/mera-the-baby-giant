@@ -2,6 +2,8 @@
 
 _Last updated: 2026-11-05._
 
+**v0.26.5 Soul Maze:** `soul_maze/art/` is cropped from art already credited here (Mera, the owner's reaper, a soul, the coin). Not a new pack, and not under `assets/`.
+
 **v0.25 Ambidex:** the duel art and audio under `ambidex/` come from the owner's BeelzTimeKey minigame and the owner's grim-reaper sheets. Backdrop removed. Death is synthesized (hurt recoil, then a fall). A Perry run swaps the fighter for sheets packed from `assets/characters/perry/player/idle` and `slash`. Not a third-party pack.
 
 **Owner decision, 2026-11-01:** the licence notes below record what each pack's item page says. The owner states they hold full distribution rights to the purchased Merakintsugi pack and has overridden the no-redistribution notes for it: all assets are published in this repo. The rejected Sprite Kitchen pack is published as well, on the owner's decision.

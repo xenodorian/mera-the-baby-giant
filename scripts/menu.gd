@@ -1,6 +1,6 @@
 extends Control
 ## Title / level select. Left/Right choose, A / Start plays.
-## Down goes to SHOP, RESET, CONTROLS, CHECK FOR UPDATES, and CREDITS.
+## Down goes to SHOP, RESET, CONTROLS, CHECK FOR UPDATES, CREDITS, and SOUL MAZE.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
 
@@ -10,7 +10,7 @@ var t := 0.0
 var _stick_ready := true
 var font: Font
 var row := 0                    # 0 = level cards, 1 = bottom buttons, 2 = the character toggle
-var btn := 0                    # 0 shop, 1 reset, 2 controls, 3 updates, 4 credits
+var btn := 0                    # 0 shop, 1 reset, 2 controls, 3 updates, 4 credits, 5 soul maze
 var mode := "menu"              # menu | credits | update | shop | controls
 var prompt_i := 0
 var credit_sel := 0
@@ -116,15 +116,14 @@ func _card(i: int) -> Rect2:
 	return Rect2(x0 + float(k) * (w + gap), 400, w, 168)
 
 
-const BTN_N := 5
+const BTN_N := 6
 
 
 func _button(i: int) -> Rect2:
-	var w := 344.0
-	var gap := 16.0
-	var total := w * float(BTN_N) + gap * float(BTN_N - 1)
-	var x0 := (1920.0 - total) * 0.5
-	return Rect2(x0 + float(i) * (w + gap), 980.0, w, 64.0)
+	var gap := 12.0
+	var margin := 28.0
+	var w := (1920.0 - margin * 2.0 - gap * float(BTN_N - 1)) / float(BTN_N)
+	return Rect2(margin + float(i) * (w + gap), 980.0, w, 64.0)
 
 
 func _button_text(i: int) -> String:
@@ -136,6 +135,8 @@ func _button_text(i: int) -> String:
 		return "CONTROLS"
 	if i == 4:
 		return "CREDITS"
+	if i == 5:
+		return "SOUL MAZE"
 	var u := _upd()
 	if u and u.state in ["available", "ready"]:
 		return "UPDATE TO v%s" % u.version_text(u.latest["version"])
@@ -163,6 +164,9 @@ func _press_button() -> void:
 	if btn == 4:
 		mode = "credits"
 		credit_sel = 0
+		return
+	if btn == 5:
+		get_tree().change_scene_to_file("res://scenes/soul_maze.tscn")
 		return
 	mode = "update"
 	var u := _upd()
@@ -623,7 +627,7 @@ func _draw() -> void:
 		var sub := "LOCKED" if not open else String(lv["sub"])
 		draw_string(font, Vector2(lx, r.end.y + (64 if lw > r.size.x else 86)), sub, HORIZONTAL_ALIGNMENT_CENTER, lw, 18,
 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
-	draw_string(font, Vector2(0, 860), Controls.faces("Left / Right: choose      A / Start: play      Down: shop, reset, controls, updates, credits      Esc: quit"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 860), Controls.faces("Left / Right: choose      A / Start: play      Down: shop, reset, controls, updates, credits, soul maze      Esc: quit"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))
 	_draw_char_toggle()
 	if mode == "menu":
 		_draw_note_at(930)
