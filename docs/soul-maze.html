@@ -139,7 +139,7 @@ function canPlace(grid, cells, ox, oy, reserved) {
     }
     return abs;
 }
-function paint(grid, cells) {
+function stampCells(grid, cells) {
     for (const [x, y] of cells)
         grid[y][x] = "#";
 }
@@ -323,7 +323,7 @@ function build() {
     ];
     const armorNames = ["i3", "i3", "i3", "i3", "i5", "i3", "i2"];
     armor.forEach((cells, index) => {
-        paint(grid, cells);
+        stampCells(grid, cells);
         tally[armorNames[index]]++;
     });
     const byName = Object.fromEntries(FORMS.map((shape) => [shape.name, shape]));
@@ -332,7 +332,7 @@ function build() {
         const spot = placeAnywhere(grid, byName[name].forms, reserved);
         if (!spot)
             return { grid, ok: false, wide: wideFloors(grid) };
-        paint(grid, spot);
+        stampCells(grid, spot);
         tally[name]++;
     }
     let guard = 0;
@@ -354,7 +354,7 @@ function build() {
                     const placed = placeCovering(grid, shape.forms, reserved, hole);
                     if (!placed)
                         continue;
-                    paint(grid, placed);
+                    stampCells(grid, placed);
                     tally[shape.name]++;
                     sealed = true;
                     break;
