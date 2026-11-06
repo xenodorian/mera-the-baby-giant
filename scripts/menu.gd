@@ -166,7 +166,7 @@ func _press_button() -> void:
 		credit_sel = 0
 		return
 	if btn == 5:
-		get_tree().change_scene_to_file("res://scenes/soul_maze.tscn")
+		get_tree().change_scene_to_file.call_deferred("res://scenes/soul_maze.tscn")
 		return
 	mode = "update"
 	var u := _upd()

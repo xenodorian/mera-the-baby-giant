@@ -369,20 +369,49 @@ function build() {
     return { grid, ok: countsOk && wide <= 1 && connected(grid), wide };
 }
 function generateMaze() {
-    let best = null;
-    let bestWide = 1e9;
-    for (let attempt = 0; attempt < 20; attempt++) {
-        const made = build();
-        if (made.ok) {
-            sprinkle(made.grid);
-            return made.grid;
-        }
-        if (made.wide < bestWide) {
-            bestWide = made.wide;
-            best = made.grid.map((row) => row.slice());
+    const bench = [
+        "#######################",
+        "..#.####.#.............",
+        "#.#......#.###.###.####",
+        "#.#.####.#.##.........#",
+        "#.............#.#.###.#",
+        "#.###.#.###.###.#.#...#",
+        "......#..#........#.#..",
+        "##.#.###.#.###.##.#.#.#",
+        "##.#.......#...#......#",
+        "##.#.#.###...###.#.##.#",
+        "##.#.#...#.#.....#.####",
+        ".....###...#####.#.....",
+        "#######################",
+    ];
+    const flip = Math.random() < 0.5;
+    const grid = bench.map((row) => {
+        const line = flip ? row.split("").reverse().join("") : row;
+        return line.split("");
+    });
+    stampHouse(grid);
+    grid[4][11] = ".";
+    let changed = true;
+    while (changed) {
+        changed = false;
+        for (let y = 0; y < MAZE_ROWS; y++) {
+            for (let x = 1; x < MAZE_COLS - 1; x++) {
+                if (grid[y][x] !== ".") continue;
+                let deg = 0;
+                for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (ny < 0 || ny >= MAZE_ROWS || nx < 0 || nx >= MAZE_COLS) continue;
+                    const t = grid[ny][nx];
+                    if (t === "." || t === "o" || t === "P" || t === " " || t === "=") deg++;
+                }
+                if (deg <= 1) {
+                    grid[y][x] = "#";
+                    changed = true;
+                }
+            }
         }
     }
-    const grid = best ?? build().grid;
     sprinkle(grid);
     return grid;
 }

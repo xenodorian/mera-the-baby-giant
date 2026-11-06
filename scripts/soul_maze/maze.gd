@@ -20,20 +20,65 @@ const SHAPES := [
 
 
 static func generate() -> Array:
-	var forms := _forms()
-	var best: Array = []
-	var best_wide := 100000
-	for _attempt in 20:
-		var made: Dictionary = _build(forms)
-		if made["ok"]:
-			_sprinkle(made["grid"])
-			return made["grid"]
-		if int(made["wide"]) < best_wide:
-			best_wide = int(made["wide"])
-			best = _copy_grid(made["grid"])
-	var grid: Array = best if not best.is_empty() else _build(forms)["grid"]
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var grid: Array = []
+	var flip := rng.randi() % 2 == 1
+	for row in BENCH:
+		var line := String(row)
+		if flip:
+			var rev := ""
+			for i in range(line.length() - 1, -1, -1):
+				rev += line[i]
+			line = rev
+		grid.append(line)
+	_stamp_house(grid)
+	_put(grid, 11, 4, ".")
+	_trim_dead(grid)
 	_sprinkle(grid)
 	return grid
+
+
+## The hand-built 23×13 bench (155 walls). Horizontal mirror is the other deal.
+## The ghost pen is stamped on top. A failed procedural fill is never shown.
+const BENCH := [
+	"#######################",
+	"..#.####.#.............",
+	"#.#......#.###.###.####",
+	"#.#.####.#.##.........#",
+	"#.............#.#.###.#",
+	"#.###.#.###.###.#.#...#",
+	"......#..#........#.#..",
+	"##.#.###.#.###.##.#.#.#",
+	"##.#.......#...#......#",
+	"##.#.#.###...###.#.##.#",
+	"##.#.#...#.#.....#.####",
+	".....###...#####.#.....",
+	"#######################",
+]
+
+
+static func _trim_dead(grid: Array) -> void:
+	var changed := true
+	while changed:
+		changed = false
+		for y in ROWS:
+			for x in COLS:
+				if not _open(grid, x, y):
+					continue
+				if x == 0 or x == COLS - 1:
+					continue
+				var deg := 0
+				for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+					var nx := x + d.x
+					var ny := y + d.y
+					if nx < 0 or ny < 0 or nx >= COLS or ny >= ROWS:
+						continue
+					if _open(grid, nx, ny) or _at(grid, nx, ny) == "=":
+						deg += 1
+				if deg <= 1:
+					_put(grid, x, y, "#")
+					changed = true
 
 
 static func _forms() -> Array:

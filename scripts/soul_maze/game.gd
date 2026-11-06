@@ -192,7 +192,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_begin()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("btn_b") or (event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE):
-		get_tree().change_scene_to_file("res://scenes/menu.tscn")
+		# Deferred. Changing scene inside this callback frees the node that is
+		# still handling the key, and the title treats that same Escape as quit.
+		get_tree().change_scene_to_file.call_deferred("res://scenes/menu.tscn")
 		get_viewport().set_input_as_handled()
 
 
