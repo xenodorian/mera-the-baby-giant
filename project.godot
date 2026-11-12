@@ -19,6 +19,7 @@ Sfx="*res://scripts/game/sfx.gd"
 Controls="*res://scripts/game/controls.gd"
 HitStop="*res://scripts/game/hit_stop.gd"
 Updater="*res://scripts/app/updater.gd"
+Settings="*res://scripts/app/settings.gd"
 TouchPad="*res://scripts/game/touch_pad.gd"
 
 [display]

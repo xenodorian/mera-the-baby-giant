@@ -1757,6 +1757,7 @@ func _run() -> void:
 	await _king_arc_tests()
 	await _slideshow_timer_blast_tests()
 	await _speaker_impact_restart_tests()
+	await _crt_tests()
 	print("\n%d passed, %d failed" % [passes, failures])
 	quit(1 if failures > 0 else 0)
 
@@ -2594,7 +2595,7 @@ func _updater_tests() -> void:
 		var whos: Array = []
 		for c in C.ENTRIES:
 			whos.append(String(c["who"]))
-		var need := ["chierit", "Merakintsugi", "LuizMelo", "Stealthix", "HydroGene", "Zane Little Music", "Kenney", "Pixel Frog", "Jimmy D. Journey", "Reactorcore", "rubberduck", "vk", "Godot Engine"]
+		var need := ["chierit", "Merakintsugi", "LuizMelo", "Stealthix", "HydroGene", "Zane Little Music", "Kenney", "Pixel Frog", "Jimmy D. Journey", "Reactorcore", "rubberduck", "vk", "SpriteCook", "Godot Engine"]
 		var all_in := true
 		for n in need:
 			all_in = all_in and whos.has(n)
@@ -7125,3 +7126,71 @@ func _perry_audit_tests() -> void:
 	await process_frame
 	C.reset()
 	C.test_all = true
+
+
+# ================================================================ CRT filter (shaders/crt.gdshader, Settings, pause / options toggle)
+func _crt_tests() -> void:
+	var ST: Node = root.get_node("Settings")
+	var path: String = ST.PATH
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	ST._load()
+	_check("crt: the filter is off when no settings file exists", ST.crt == false, "%s" % ST.crt)
+	var sh: Shader = load("res://shaders/crt.gdshader")
+	_check("crt: the shader loads as a canvas_item shader", sh != null and sh.get_mode() == Shader.MODE_CANVAS_ITEM, "" if sh == null else "%d" % sh.get_mode())
+	var code := sh.code if sh else ""
+	_check("crt: the shader is the SpriteCook Godot variant (LUMA_BLUR, hint_screen_texture, 5x blocks)", code.find("LUMA_BLUR") >= 0 and code.find("hint_screen_texture") >= 0 and code.find("PIXEL_SCALE = 5") >= 0 and code.find("spritecook.ai/blog/crt-shader-pixel-art") >= 0 and code.find("no explicit license") >= 0, "")
+	var mat := ShaderMaterial.new()
+	mat.shader = sh
+	_check("crt: a ShaderMaterial accepts the shader (it compiles)", mat.shader == sh, "" if mat.shader == sh else str(mat.shader))
+	mat.set_shader_parameter("cheap", true)
+	_check("crt: the cheap (Android 3x3 glow) uniform can be set", bool(mat.get_shader_parameter("cheap")) == true, str(mat.get_shader_parameter("cheap")))
+	mat.set_shader_parameter("cheap", false)
+	_check("crt: the cheap uniform can be cleared again", bool(mat.get_shader_parameter("cheap")) == false, str(mat.get_shader_parameter("cheap")))
+	ST.set_crt(true)
+	_check("crt: turning it on writes user://mera_settings.json", ST.crt and FileAccess.file_exists(path), "")
+	ST.crt = false
+	ST._load()
+	_check("crt: the choice is still on after a reload", ST.crt == true, "%s" % ST.crt)
+	var C = load("res://scripts/game/carry.gd")
+	C.reset()
+	ST._load()
+	_check("crt: Carry.reset does not clear the CRT choice", ST.crt == true, "%s" % ST.crt)
+	var g: Node = await _s4_new(0)
+	_check("crt: the overlay is in the game, under the HUD, and visible when the setting is on", g.crt_fx != null and int(g.crt_fx.layer) == 8 and int(g.hud.layer) == 20 and g.crt_fx.shown() and not g.crt_fx.uses_cheap_glow(), "layer %s shown %s" % [g.crt_fx.layer if g.crt_fx else "none", g.crt_fx.shown() if g.crt_fx else false])
+	g.toggle_pause()
+	g.hud.pause_sel = 4
+	g.hud._pause_confirm()
+	_check("crt: the pause menu CRT row toggles it off and stays in the pause menu", ST.crt == false and g.paused_play and g.hud._pause_label(4) == "CRT FILTER: OFF" and not g.crt_fx.shown(), "crt=%s paused=%s label=%s" % [ST.crt, g.paused_play, g.hud._pause_label(4)])
+	# click the same row (keyboard / pad free)
+	var click := InputEventMouseButton.new()
+	click.pressed = true
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.position = g.hud._pause_item(4).get_center()
+	g.hud._unhandled_input(click)
+	_check("crt: clicking the pause row turns it back on", ST.crt == true and g.paused_play and g.hud._pause_label(4) == "CRT FILTER: ON", "crt=%s" % ST.crt)
+	g.toggle_pause()
+	g.queue_free()
+	await process_frame
+	var menu: Control = load("res://scenes/menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	menu.btn = 2
+	menu.row = 1
+	menu._press_button()
+	_check("crt: the title CONTROLS page is Options and includes a clickable CRT row", menu.mode == "controls" and menu.ctrl_row == 0 and menu._crt_toggle_rect().size.x > 0, "mode %s" % menu.mode)
+	var tap := InputEventMouseButton.new()
+	tap.pressed = true
+	tap.button_index = MOUSE_BUTTON_LEFT
+	tap.position = menu._origin() + menu._crt_toggle_rect().get_center()
+	menu._prompt_input(tap)
+	_check("crt: clicking the Options CRT row toggles it (no pad needed) and saves at once", menu.ctrl_row == 1 and ST.crt == false, "crt=%s row=%d" % [ST.crt, menu.ctrl_row])
+	menu.queue_free()
+	await process_frame
+	# leave the default off so later work is not surprised
+	ST.set_crt(false)
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	ST._load()
+	_check("crt: tests leave the setting off", ST.crt == false, "%s" % ST.crt)
+

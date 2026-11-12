@@ -35,6 +35,7 @@ var knights_spawned := 0
 var shake_amt := 0.0
 var shake_t := 0.0
 var hud: Node
+var crt_fx: CanvasLayer
 var world: Node2D
 var debug_draw: Node2D
 var over := false
@@ -175,6 +176,8 @@ func _ready() -> void:
 	hud = load("res://scripts/game/hud.gd").new()
 	hud.game = self
 	add_child(hud)
+	crt_fx = load("res://scripts/app/crt_overlay.gd").new()
+	add_child(crt_fx)
 	picker = load("res://scripts/game/ally_picker.gd").new()
 	picker.game = self
 	add_child(picker)

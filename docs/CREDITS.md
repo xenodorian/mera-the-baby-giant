@@ -50,6 +50,9 @@ This repo is **public** and contains `assets/`, including the original source pa
 ## Tools
 - Godot Engine 4.7.2 — MIT license (https://godotengine.org/license).
 
+## Shaders
+- One-pass CRT shader for pixel art, from *How to make pixel art look like it's on a CRT* by **SpriteCook** — https://www.spritecook.ai/blog/crt-shader-pixel-art (10 November 2026). The article states no explicit license. The game uses the article's Godot variant (`shader_type canvas_item`, the shared body from `LUMA_BLUR` through `crt()`, and the Godot `fragment()`), adapted to sample the 1080p screen in 5×5 game-pixel blocks. File: `shaders/crt.gdshader`.
+
 ## Music
 - **High Quality 8-bit / Chiptune Musics** by HydroGene — CC0. https://hydrogene.itch.io/high-quality-8-bit-musics
   Cemetery `07 MonsterVania #1`, mist `17 The Quiet Spy`, town `15 Rush Point`, caverns `02 Perilous Dungeon`.
