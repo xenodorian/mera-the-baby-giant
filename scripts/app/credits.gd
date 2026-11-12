@@ -22,6 +22,7 @@ const ENTRIES := [
 	{"who": "Craftpix", "what": "Free Wizard Sprite Sheets Pixel Art: Fire Wizard, Lightning Mage, Wanderer Magician (enemies)", "lic": "Craftpix free licence", "url": "https://craftpix.net/file-licenses/"},
 	{"who": "Luiz Melo", "what": "Medieval King Pack 2: King Nerochilde, stage 1 (bought by the owner)", "lic": "Owner purchase", "url": "https://luizmelo.itch.io/"},
 	{"who": "xenodorian", "what": "King Nerochilde stages 2 and 3: the reaper and the skull giant (art supplied by the owner), with slash effects drawn for the game", "lic": "Owner", "url": "https://github.com/xenodorian/mera-the-baby-giant"},
+	{"who": "SpriteCook", "what": "One-pass CRT shader for pixel art, from the article How to make pixel art look like it's on a CRT. The article states no explicit license.", "lic": "Unspecified", "url": "https://www.spritecook.ai/blog/crt-shader-pixel-art"},
 	{"who": "Godot Engine", "what": "Made with Godot. Godot is (c) the Godot Engine contributors and Juan Linietsky, Ariel Manzur; MIT license", "lic": "MIT", "url": "https://godotengine.org/license"},
 ]
 const FOOTER := "Game code and design: xenodorian. Source: github.com/xenodorian/mera-the-baby-giant, art and sound included."

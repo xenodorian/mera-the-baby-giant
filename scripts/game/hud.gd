@@ -13,7 +13,7 @@ var font: Font
 var _flash := ""
 var _flash_t := 0.0
 
-const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "CONTROLS", "QUIT GAME"]
+const PAUSE_ITEMS := ["CONTINUE", "RESTART LEVEL", "BACK TO TITLE", "CONTROLS", "CRT FILTER", "QUIT GAME"]
 
 ## [gamepad (Xbox names), keyboard (v0.8 PC layout, Controls.MAP), what it does, optional gate]. A row with a gate shows only once
 ## that ability is unlocked: "mera:<shop move id>" (Carry.owns) or "perry:<unlock id>" (PerryUnlocks.has).
@@ -196,6 +196,11 @@ func _pause_confirm() -> void:
 			overlay = true
 			controls_page = 0
 		4:
+			var settings: Node = get_node_or_null("/root/Settings")
+			if settings:
+				settings.toggle_crt()
+			Sfx.play("swipe", 1.0, -6.0)
+		5:
 			game.get_tree().quit()
 
 
@@ -205,7 +210,15 @@ func _origin() -> Vector2:
 
 func _pause_item(i: int) -> Rect2:
 	var o := _origin()
-	return Rect2(o.x + 620.0, o.y + 390.0 + float(i) * 68.0, 680.0, 58.0)
+	return Rect2(o.x + 620.0, o.y + 360.0 + float(i) * 62.0, 680.0, 54.0)
+
+
+func _pause_label(i: int) -> String:
+	if i == 4:
+		var settings: Node = get_node_or_null("/root/Settings")
+		var on: bool = settings != null and bool(settings.get("crt"))
+		return "CRT FILTER: ON" if on else "CRT FILTER: OFF"
+	return PAUSE_ITEMS[i]
 
 
 func _txt(p: Vector2, t: String, sz: int = 28, c: Color = Color(0.95, 0.92, 0.88)) -> void:
@@ -394,14 +407,14 @@ func _draw_pause() -> void:
 	if pause_controls:
 		_draw_controls_panel()
 		return
-	var panel := Rect2(o.x + 520.0, o.y + 220.0, 880.0, 640.0)
+	var panel := Rect2(o.x + 520.0, o.y + 200.0, 880.0, 700.0)
 	ui.draw_rect(panel, Color(0.06, 0.03, 0.09, 0.96))
 	ui.draw_rect(panel, Color(1.0, 0.8, 0.45), false, 4.0)
-	_center(o.y + 300, "PAUSED", 72, Color(1.0, 0.82, 0.45))
+	_center(o.y + 280, "PAUSED", 72, Color(1.0, 0.82, 0.45))
 	for i in PAUSE_ITEMS.size():
 		var r := _pause_item(i)
 		var on := i == pause_sel
 		ui.draw_rect(r, Color(0.28, 0.14, 0.05, 0.95) if on else Color(0.1, 0.06, 0.14, 0.9))
 		ui.draw_rect(r, Color(1.0, 0.82, 0.4) if on else Color(0.45, 0.4, 0.55), false, 3.0)
-		ui.draw_string(font, Vector2(r.position.x, r.position.y + 40), PAUSE_ITEMS[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28, Color(1, 0.92, 0.65) if on else Color(0.88, 0.88, 0.92))
-	_center(o.y + 800, "Up / Down: choose     A: confirm     B / Start: continue", 26, Color(0.85, 0.85, 0.9))
+		ui.draw_string(font, Vector2(r.position.x, r.position.y + 38), _pause_label(i), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 28, Color(1, 0.92, 0.65) if on else Color(0.88, 0.88, 0.92))
+	_center(o.y + 850, "Up / Down: choose     A: confirm     click a row     B / Start: continue", 26, Color(0.85, 0.85, 0.9))
