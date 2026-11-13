@@ -2497,6 +2497,17 @@ func _updater_tests() -> void:
 	U.platform = old_p
 	_check("updater: picks the newest non-draft release with this platform's asset (pre-releases count)", String(w.get("tag", "")) == "v0.9.1-playable" and String(w.get("asset", "")).ends_with("_Windows.exe") and String(a.get("asset", "")).ends_with("_Android.apk") and String(l.get("tag", "")) == "v0.9.2-playable" and String(w.get("sums_url", "")).ends_with("SHA256SUMS.txt"), "%s / %s / %s" % [w, a, l])
 	_check("updater: nothing newer -> up to date; unsupported platforms are told so", none.is_empty() and unsup, str(none))
+	var rel_cur: Array = [rel.call("v0.26.12-playable", ["Mera_Playable_v0.26.12_Windows.exe", "Mera_Playable_v0.26.12_Android.apk", "Mera_Playable_v0.26.12_HTML.zip", "SHA256SUMS.txt"]),
+		rel.call("v0.26.13-playable", ["Mera_Playable_v0.26.13_Windows.exe", "Mera_Playable_v0.26.13_Android.apk", "Mera_Playable_v0.26.13_HTML.zip", "SHA256SUMS.txt"])]
+	U.platform = "Windows"
+	var from12w: Dictionary = U.pick_latest(rel_cur, "0.26.12")
+	U.platform = "Android"
+	var from12a: Dictionary = U.pick_latest(rel_cur, "0.26.12")
+	U.platform = "Windows"
+	var from13: Dictionary = U.pick_latest(rel_cur, "0.26.13")
+	U.platform = old_p
+	_check("updater: a v0.26.13-playable release is offered to a 0.26.12 Windows or Android build, and a 0.26.13 build is up to date", String(from12w.get("tag", "")) == "v0.26.13-playable" and String(from12w.get("asset", "")).ends_with("_Windows.exe") and String(from12w.get("sums_url", "")).ends_with("SHA256SUMS.txt") and String(from12a.get("asset", "")).ends_with("_Android.apk") and from13.is_empty(), "%s / %s / %s" % [from12w, from12a, from13])
+	_check("updater: this release is 0.26.13 and the Android preset is versionName 0.26.13 / versionCode 80", U.current_version() == "0.26.13" and ep.contains("version/name=\"0.26.13\"") and ep.contains("version/code=80"), U.current_version())
 	var sums: Dictionary = U.parse_sums("2f8d1922a8200a7376b2d1b47a7ae53c94630ecb5f7379aacb89e0df616c6034  Mera_Playable_v0.8.2_Android.apk\nbad line\nE651481F13ACB020679C115A78D0A71D7E35C01186B099216851781A37A2B08F *Mera_Playable_v0.8.2_Windows.exe\n")
 	_check("updater: SHA256SUMS.txt parses (sha256sum format, binary '*' marker, case-insensitive)", sums.size() == 2 and String(sums.get("Mera_Playable_v0.8.2_Windows.exe", "")).begins_with("e651481f"), str(sums))
 	# verification: right file passes, a corrupted one is deleted
@@ -2555,7 +2566,7 @@ func _updater_tests() -> void:
 		back.action = "btn_b"
 		back.pressed = true
 		menu._unhandled_input(back)
-		_check("menu: Down x2 -> bottom row (past the character toggle), Right x4 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1 and menu._button_text(2) == "CONTROLS" and menu._button_text(4) == "CREDITS", "mode=%s row=%d btn=%d" % [menu.mode, menu.row, menu.btn])
+		_check("menu: Down x2 -> bottom row (past the character toggle), Right x4 -> CREDITS, A opens it, B closes it", in_credits and menu.mode == "menu" and menu.row == 1 and menu._button_text(2) == "OPTIONS" and menu._button_text(4) == "CREDITS", "mode=%s row=%d btn=%d" % [menu.mode, menu.row, menu.btn])
 		_check("menu: Soul Maze is not a title button", menu.BTN_N == 5 and menu._button_text(4) == "CREDITS", "n=%d last=%s" % [menu.BTN_N, menu._button_text(4)])
 		var Board = load("res://scripts/soul_maze/maze.gd")
 		var maze_grid: Array = Board.generate()
@@ -2609,12 +2620,16 @@ func _updater_tests() -> void:
 		menu.btn = 2
 		menu.row = 1
 		menu._press_button()
-		_check("menu: CONTROLS opens the prompt screen on Keyboard", menu.mode == "controls" and menu.prompt_i == 0, "mode %s i %d" % [menu.mode, menu.prompt_i])
+		_check("menu: OPTIONS opens the prompt screen on Keyboard, focused on the CRT row", menu.mode == "controls" and menu.prompt_i == 0 and menu.ctrl_row == 1, "mode %s i %d row %d" % [menu.mode, menu.prompt_i, menu.ctrl_row])
+		var down_opt := InputEventAction.new()
+		down_opt.action = "down"
+		down_opt.pressed = true
+		menu._prompt_input(down_opt)
 		var pr := InputEventAction.new()
 		pr.action = "right"
 		pr.pressed = true
 		menu._prompt_input(pr)
-		_check("prompts: choosing Xbox saves LB / Menu / RS", menu.prompt_i == 1 and CT.prompt_style() == "xbox" and CT.button("l1") == "LB" and CT.button("r1") == "RB" and CT.button("l2") == "LT" and CT.button("start") == "Menu" and CT.mark_name() == "RS" and CT.prompt_arrows() and CT.faces("L2 + R2") == "LT + RT", CT.faces("L2 + R2"))
+		_check("prompts: choosing Xbox saves LB / Menu / RS", menu.ctrl_row == 0 and menu.prompt_i == 1 and CT.prompt_style() == "xbox" and CT.button("l1") == "LB" and CT.button("r1") == "RB" and CT.button("l2") == "LT" and CT.button("start") == "Menu" and CT.mark_name() == "RS" and CT.prompt_arrows() and CT.faces("L2 + R2") == "LT + RT", CT.faces("L2 + R2"))
 		menu._prompt_input(pr)
 		_check("prompts: PlayStation uses cross, circle, square, triangle and Options", CT.prompt_style() == "playstation" and CT.button("btn_a") == "×" and CT.button("btn_b") == "○" and CT.button("btn_x") == "□" and CT.button("btn_y") == "△" and CT.button("l1") == "L1" and CT.button("start") == "Options", CT.button("btn_a"))
 		var duel = load("res://scripts/game/ambidex.gd").new()
@@ -7177,16 +7192,19 @@ func _crt_tests() -> void:
 	var menu: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(menu)
 	await process_frame
+	_check("crt: the title screen has the overlay and it follows the setting", menu.crt_fx != null and int(menu.crt_fx.layer) == 8 and menu.crt_fx.shown() == ST.crt, "fx=%s shown=%s crt=%s" % [menu.crt_fx != null, menu.crt_fx.shown() if menu.crt_fx else false, ST.crt])
 	menu.btn = 2
 	menu.row = 1
 	menu._press_button()
-	_check("crt: the title CONTROLS page is Options and includes a clickable CRT row", menu.mode == "controls" and menu.ctrl_row == 0 and menu._crt_toggle_rect().size.x > 0, "mode %s" % menu.mode)
+	var cr: Rect2 = menu._crt_toggle_rect()
+	var card0: Rect2 = menu._prompt_card(0)
+	_check("crt: OPTIONS opens focused on a high, clickable CRT row (clear of the Android d-pad)", menu.mode == "controls" and menu.ctrl_row == 1 and menu._button_text(2) == "OPTIONS" and cr.size.x > 0 and cr.end.y < card0.position.y and cr.end.y <= 400.0, "mode %s row %d crt=%s cards=%s" % [menu.mode, menu.ctrl_row, cr, card0])
 	var tap := InputEventMouseButton.new()
 	tap.pressed = true
 	tap.button_index = MOUSE_BUTTON_LEFT
-	tap.position = menu._origin() + menu._crt_toggle_rect().get_center()
+	tap.position = menu._origin() + cr.get_center()
 	menu._prompt_input(tap)
-	_check("crt: clicking the Options CRT row toggles it (no pad needed) and saves at once", menu.ctrl_row == 1 and ST.crt == false, "crt=%s row=%d" % [ST.crt, menu.ctrl_row])
+	_check("crt: clicking the Options CRT row toggles it (no pad needed), saves at once, and the title overlay follows", menu.ctrl_row == 1 and ST.crt == false and not menu.crt_fx.shown(), "crt=%s row=%d shown=%s" % [ST.crt, menu.ctrl_row, menu.crt_fx.shown()])
 	menu.queue_free()
 	await process_frame
 	# leave the default off so later work is not surprised

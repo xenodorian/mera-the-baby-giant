@@ -1,6 +1,6 @@
 extends Control
 ## Title / level select. Left/Right choose, A / Start plays.
-## Down goes to SHOP, RESET, CONTROLS, CHECK FOR UPDATES, and CREDITS.
+## Down goes to SHOP, RESET, OPTIONS, CHECK FOR UPDATES, and CREDITS.
 
 const CREDITS := preload("res://scripts/app/credits.gd")
 
@@ -13,7 +13,8 @@ var row := 0                    # 0 = level cards, 1 = bottom buttons, 2 = the c
 var btn := 0                    # 0 shop, 1 reset, 2 controls, 3 updates, 4 credits
 var mode := "menu"              # menu | credits | update | shop | controls
 var prompt_i := 0
-var ctrl_row := 0              # 0 = prompt style cards, 1 = CRT filter toggle
+var ctrl_row := 0              # 0 = prompt style cards, 1 = CRT filter toggle (the top row)
+var crt_fx: CanvasLayer
 var credit_sel := 0
 var shop_i := 0
 var shop_page := 0             # v0.12.2: 0 stats, 1 moves and summon times
@@ -27,6 +28,8 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	font = ThemeDB.fallback_font
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	crt_fx = load("res://scripts/app/crt_overlay.gd").new()
+	add_child(crt_fx)
 	sel = Levels.current
 	for k in range(1, Levels.STAGE_FROM.size()):
 		var from: int = Levels.STAGE_FROM[k]
@@ -133,7 +136,7 @@ func _button_text(i: int) -> String:
 	if i == 1:
 		return "RESET"
 	if i == 2:
-		return "CONTROLS"
+		return "OPTIONS"
 	if i == 4:
 		return "CREDITS"
 	var u := _upd()
@@ -158,7 +161,7 @@ func _press_button() -> void:
 	if btn == 2:
 		var choices: Array = Controls.prompt_choices()
 		prompt_i = maxi(choices.find(Controls.prompt_style()), 0)
-		ctrl_row = 0
+		ctrl_row = 1
 		mode = "controls"
 		return
 	if btn == 4:
@@ -624,7 +627,7 @@ func _draw() -> void:
 		var sub := "LOCKED" if not open else String(lv["sub"])
 		draw_string(font, Vector2(lx, r.end.y + (64 if lw > r.size.x else 86)), sub, HORIZONTAL_ALIGNMENT_CENTER, lw, 18,
 			Color(1.0, 0.45, 0.4) if not open else Color(0.8, 0.8, 0.85))
-	draw_string(font, Vector2(0, 860), Controls.faces("Left / Right: choose      A / Start: play      Down: shop, reset, controls, updates, credits, soul maze      Esc: quit"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 860), Controls.faces("Left / Right: choose      A / Start: play      Down: shop, reset, options, updates, credits, soul maze      Esc: quit"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 26, Color(0.85, 0.85, 0.9))
 	_draw_char_toggle()
 	if mode == "menu":
 		_draw_note_at(930)
@@ -762,9 +765,9 @@ func _toggle_crt() -> void:
 		Sfx.play("swipe", 1.0, -6.0)
 
 
-## clickable / focusable CRT filter row on the Controls (options) page
+## clickable / focusable CRT filter row, high on the Options page (clear of the Android d-pad)
 func _crt_toggle_rect() -> Rect2:
-	return Rect2(460, 800, 1000, 70)
+	return Rect2(360, 200, 1200, 72)
 
 
 func _prompt_card(i: int) -> Rect2:
@@ -774,7 +777,7 @@ func _prompt_card(i: int) -> Rect2:
 	var gap := 28.0
 	var total := w * float(n) + gap * float(n - 1)
 	var x0 := (1920.0 - total) * 0.5
-	return Rect2(x0 + float(i) * (w + gap), 250.0, w, 520.0)
+	return Rect2(x0 + float(i) * (w + gap), 290.0, w, 520.0)
 
 
 func _apply_prompt(i: int) -> void:
@@ -801,18 +804,13 @@ func _prompt_input(e: InputEvent) -> void:
 				_apply_prompt(i)
 				return
 	elif e.is_action_pressed("up"):
-		if ctrl_row == 1:
-			ctrl_row = 0
-			Sfx.play("swipe", 1.3, -8.0)
-		else:
-			_apply_prompt(posmod(prompt_i - 1, n))
-			Sfx.play("swipe", 1.3, -8.0)
-	elif e.is_action_pressed("down"):
 		if ctrl_row == 0:
 			ctrl_row = 1
 			Sfx.play("swipe", 1.3, -8.0)
-		else:
-			_toggle_crt()
+	elif e.is_action_pressed("down"):
+		if ctrl_row == 1:
+			ctrl_row = 0
+			Sfx.play("swipe", 1.3, -8.0)
 	elif e.is_action_pressed("left"):
 		if ctrl_row == 1:
 			_toggle_crt()
@@ -835,8 +833,8 @@ func _prompt_input(e: InputEvent) -> void:
 
 func _draw_prompts() -> void:
 	_panel(Rect2(120, 60, 1680, 960))
-	draw_string(font, Vector2(0, 140), "OPTIONS", HORIZONTAL_ALIGNMENT_CENTER, 1920, 56, Color(1.0, 0.8, 0.45))
-	draw_string(font, Vector2(0, 200), "Controller names, and the CRT filter. The buttons still do the same thing.", HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.8, 0.8, 0.88))
+	draw_string(font, Vector2(0, 110), "OPTIONS", HORIZONTAL_ALIGNMENT_CENTER, 1920, 48, Color(1.0, 0.8, 0.45))
+	draw_string(font, Vector2(0, 160), "Controller names, and the CRT filter. The buttons still do the same thing. Toggle CRT here to see it on the title screen at once.", HORIZONTAL_ALIGNMENT_CENTER, 1920, 22, Color(0.8, 0.8, 0.88))
 	var choices: Array = Controls.prompt_choices()
 	for i in choices.size():
 		var r := _prompt_card(i)
@@ -859,7 +857,7 @@ func _draw_prompts() -> void:
 	draw_rect(cr, Color(1.0, 0.8, 0.4) if crt_focus else Color(0.45, 0.4, 0.55), false, 4.0)
 	var crt_label := "CRT FILTER: ON" if crt_on else "CRT FILTER: OFF"
 	draw_string(font, Vector2(cr.position.x, cr.position.y + 48), crt_label, HORIZONTAL_ALIGNMENT_CENTER, cr.size.x, 36, Color(1.0, 0.9, 0.55) if crt_focus else Color(0.9, 0.9, 0.95))
-	draw_string(font, Vector2(0, 980), Controls.faces("Left / Right: choose (saved at once)    Down: CRT filter (click or A to toggle)    A: close    B: back"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 24, Color(0.85, 0.85, 0.9))
+	draw_string(font, Vector2(0, 980), Controls.faces("Up / Down: CRT filter or controller names    click or A to toggle CRT    Left / Right: choose (saved at once)    A on a style: close    B: back"), HORIZONTAL_ALIGNMENT_CENTER, 1920, 22, Color(0.85, 0.85, 0.9))
 
 
 func _draw_update() -> void:

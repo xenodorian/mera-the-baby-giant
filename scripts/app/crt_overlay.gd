@@ -1,7 +1,8 @@
 extends CanvasLayer
-## Full-screen CRT post effect for the playable level. Lives under the HUD (layer 20)
-## and under story / victory cards (layer 10), so menus and bars stay readable.
-## The ColorRect samples the screen texture through shaders/crt.gdshader.
+## Full-screen CRT post effect. Used in the playable level and on the title screen.
+## In the game it lives under the HUD (layer 20) and under story / victory cards (layer 10),
+## so bars stay readable. On the title it covers the whole menu so toggling CRT on Options
+## is visible immediately. The ColorRect samples the screen texture through shaders/crt.gdshader.
 
 const SHADER := preload("res://shaders/crt.gdshader")
 const LAYER := 8
@@ -32,6 +33,12 @@ func _ready() -> void:
 		if not settings.crt_changed.is_connected(_on_crt_changed):
 			settings.crt_changed.connect(_on_crt_changed)
 	_apply()
+
+
+func _exit_tree() -> void:
+	var settings := _settings()
+	if settings and settings.crt_changed.is_connected(_on_crt_changed):
+		settings.crt_changed.disconnect(_on_crt_changed)
 
 
 func _settings() -> Node:
