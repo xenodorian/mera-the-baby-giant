@@ -2,6 +2,14 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
+## v0.26.13-playable (2026-11-12)
+Windows, Android, and HTML. `SHA256SUMS.txt` covers all three files.
+- Windows: Mera_Playable_v0.26.13_Windows.exe
+- Android: Mera_Playable_v0.26.13_Android.apk
+- HTML: Mera_Playable_v0.26.13_HTML.zip
+- **The CRT option is obvious on the title screen.** The old CONTROLS button is now **OPTIONS**. The CRT FILTER: ON/OFF row sits high on that page, clear of the Android virtual d-pad, and is still clickable, tappable, and pad/keyboard navigable. Opening Options focuses that row. The same CRT overlay used in the game now also runs on the title screen (still off by default), so turning it on in Options shows the effect immediately.
+- A 0.26.12 (or earlier) build's in-game updater will offer this release: the tag is `v0.26.13-playable`, `application/config/version` is `0.26.13`, Android `versionCode` is 80, and the Windows exe / Android APK plus `SHA256SUMS.txt` are attached. The updater does not offer updates to the HTML build.
+
 ## v0.26.12-playable (2026-11-12)
 Windows, Android, and HTML. `SHA256SUMS.txt` covers all three files.
 - Windows: Mera_Playable_v0.26.12_Windows.exe
