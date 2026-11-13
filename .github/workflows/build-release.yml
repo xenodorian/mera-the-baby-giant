@@ -1,6 +1,6 @@
 name: build-release
 
-# Builds the Windows exe and the signed Android APK on GitHub, then publishes the release.
+# Builds the Windows exe, the signed Android APK, and the HTML/Web zip on GitHub, then publishes the release.
 # Runs on a push to main that touches project.godot (the version lives there), or by hand
 # (Actions -> build-release -> Run workflow). A release that already exists is never touched.
 
@@ -56,7 +56,7 @@ jobs:
             ~/godot
             ~/.local/share/godot/export_templates
             ~/Android/Sdk
-          key: godot-${{ env.GODOT_VERSION }}-sdk-1
+          key: godot-${{ env.GODOT_VERSION }}-sdk-web-1
 
       - name: Install Godot, the export templates and the Android SDK
         run: |
@@ -69,10 +69,13 @@ jobs:
             chmod +x "$HOME/godot/godot"
           fi
           T="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
-          if [ ! -f "$T/android_release.apk" ]; then
-            mkdir -p "$T"
+          mkdir -p "$T"
+          need_templates=0
+          [ -f "$T/android_release.apk" ] || need_templates=1
+          [ -f "$T/web_nothreads_release.zip" ] || need_templates=1
+          if [ "$need_templates" -eq 1 ]; then
             curl -sSL -o /tmp/templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
-            unzip -q -j /tmp/templates.tpz 'templates/windows_*_x86_64*.exe' 'templates/android_*.apk' 'templates/android_source.zip' 'templates/version.txt' -d "$T"
+            unzip -q -j /tmp/templates.tpz 'templates/windows_*_x86_64*.exe' 'templates/android_*.apk' 'templates/android_source.zip' 'templates/web_*.zip' 'templates/version.txt' -d "$T"
             rm -f /tmp/templates.tpz
           fi
           SDK="$HOME/Android/Sdk"
@@ -119,6 +122,19 @@ jobs:
           test -s "out/Mera_Playable_v${V}_Android.apk"
           rm -f out/*.idsig
 
+      - name: Export the HTML/Web zip
+        env:
+          V: ${{ steps.ver.outputs.version }}
+        run: |
+          mkdir -p out/web
+          "$HOME/godot/godot" --headless --path . --export-release "Web" "out/web/index.html"
+          test -s "out/web/index.html"
+          test -s "out/web/index.wasm"
+          test -s "out/web/index.pck"
+          test -s "out/web/index.js"
+          (cd out/web && zip -r "../Mera_Playable_v${V}_HTML.zip" .)
+          test -s "out/Mera_Playable_v${V}_HTML.zip"
+
       - name: Check the APK and write the checksums
         env:
           V: ${{ steps.ver.outputs.version }}
@@ -128,7 +144,7 @@ jobs:
           "$BT/aapt2" dump badging "out/Mera_Playable_v${V}_Android.apk" | grep -q "versionCode='${CODE}' versionName='${V}'"
           "$BT/apksigner" verify --verbose "out/Mera_Playable_v${V}_Android.apk"
           cd out
-          sha256sum "Mera_Playable_v${V}_Windows.exe" "Mera_Playable_v${V}_Android.apk" > SHA256SUMS.txt
+          sha256sum "Mera_Playable_v${V}_Windows.exe" "Mera_Playable_v${V}_Android.apk" "Mera_Playable_v${V}_HTML.zip" > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Keep the files as an artifact
@@ -152,4 +168,5 @@ jobs:
           awk -v t="## v${V}-playable" 'index($0,t)==1{f=1;next} /^## v/{f=0} f' CHANGELOG.md > notes.md
           [ -s notes.md ] || echo "Build of ${V}." > notes.md
           gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file notes.md \
-            "out/Mera_Playable_v${V}_Windows.exe" "out/Mera_Playable_v${V}_Android.apk" out/SHA256SUMS.txt
+            "out/Mera_Playable_v${V}_Windows.exe" "out/Mera_Playable_v${V}_Android.apk" \
+            "out/Mera_Playable_v${V}_HTML.zip" out/SHA256SUMS.txt

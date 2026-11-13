@@ -2,8 +2,13 @@
 
 All releases are GitHub pre-releases/releases of `xenodorian/mera-the-baby-giant` (public since 2026-10-31; all art, audio and source packs are in this repo). Engine: Godot 4.7.2, Compatibility renderer, native 1920×1080.
 
-## Unreleased
+## v0.26.12-playable (2026-11-12)
+Windows, Android, and HTML. `SHA256SUMS.txt` covers all three files.
+- Windows: Mera_Playable_v0.26.12_Windows.exe
+- Android: Mera_Playable_v0.26.12_Android.apk
+- HTML: Mera_Playable_v0.26.12_HTML.zip
 - **CRT filter.** An optional one-pass CRT post effect, off by default, from SpriteCook's article [How to make pixel art look like it's on a CRT](https://www.spritecook.ai/blog/crt-shader-pixel-art) (no explicit license stated in the article). It is a full-screen ColorRect on a CanvasLayer under the HUD, so the pause menu, bars and title stay readable. The game is still drawn at 5× (1080p = 384×216 native). Toggle it from the title Options page (the old CONTROLS button) or from the pause menu; both rows can be clicked or tapped, and the choice is saved in `user://mera_settings.json`. Android uses a cheaper 3×3 glow. Previews: `previews/playable/crt/`.
+- This release also adds a Godot Web (HTML5) export, no threads, so the zip can be served from a normal static host without COOP/COEP headers.
 
 ## v0.26.11-playable (2026-11-05)
 Windows and Android. `SHA256SUMS.txt` covers both files. Built and published by GitHub Actions.

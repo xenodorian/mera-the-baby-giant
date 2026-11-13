@@ -3134,16 +3134,17 @@ func _v091_tests() -> void:
 
 	# ---------------------------------------------------------------- export list: every runtime script is exported
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var n_presets := ep.count("export_files=PackedStringArray(")
 	var missing: Array = []
 	for dir in ["res://scripts/game", "res://scripts/app"]:
 		for f in DirAccess.get_files_at(dir):
 			if f.ends_with(".gd"):
 				var path: String = dir + "/" + f
-				if ep.count("\"" + path + "\"") != 3:
+				if ep.count("\"" + path + "\"") != n_presets:
 					missing.append(path)
-	if ep.count("\"res://scripts/menu.gd\"") != 3:
+	if ep.count("\"res://scripts/menu.gd\"") != n_presets:
 		missing.append("res://scripts/menu.gd")
-	_check("export: every runtime script (scripts/game, scripts/app, menu) is in all 3 presets (v0.9.0 shipped without mark_slash.gd)", missing.is_empty(), "%s" % [missing])
+	_check("export: every runtime script (scripts/game, scripts/app, menu) is in all %d presets (v0.9.0 shipped without mark_slash.gd)" % n_presets, missing.is_empty() and n_presets >= 4, "%s presets=%d" % [missing, n_presets])
 	await _queued_tests()
 
 
@@ -6271,8 +6272,9 @@ func _slideshow_timer_blast_tests() -> void:
 				text_ok = false
 	_check("slides: every INTRO page has text and no em or en dash", text_ok, "")
 
-	# ---------------- export presets: every res:// path the story data names is in all three presets
+	# ---------------- export presets: every res:// path the story data names is in every preset
 	var ep := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var n_presets := ep.count("export_files=PackedStringArray(")
 	var rx := RegEx.create_from_string("res://[A-Za-z0-9_/.\\-]+")
 	var exp_missing: Array = []
 	var seen_paths := {}
@@ -6283,12 +6285,12 @@ func _slideshow_timer_blast_tests() -> void:
 				rp = rp.substr(0, rp.length() - 1)
 			seen_paths[rp] = true
 	for rp in seen_paths:
-		if not FileAccess.file_exists(rp) or ep.count("\"" + String(rp) + "\"") != 3:
+		if not FileAccess.file_exists(rp) or ep.count("\"" + String(rp) + "\"") != n_presets:
 			exp_missing.append(rp)
 	for f in ["res://scripts/game/slide_view.gd", "res://scripts/game/story_slides.gd", "res://scripts/game/story_pages.gd"]:
-		if ep.count("\"" + f + "\"") != 3:
+		if ep.count("\"" + f + "\"") != n_presets:
 			exp_missing.append(f)
-	_check("export: the slide scripts and every png / ogg the story data uses exist and are in all 3 presets (%d paths)" % seen_paths.size(), exp_missing.is_empty() and seen_paths.size() >= 7, "%s" % [exp_missing])
+	_check("export: the slide scripts and every png / ogg the story data uses exist and are in all %d presets (%d paths)" % [n_presets, seen_paths.size()], exp_missing.is_empty() and seen_paths.size() >= 7 and n_presets >= 4, "%s" % [exp_missing])
 
 	# ---------------- SlideView (loaded, not named: naming it compiles it before the AnimLib autoload exists)
 	var SVC = load("res://scripts/game/slide_view.gd")
